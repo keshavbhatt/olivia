@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<title>Browse</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+
+    <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
+
+
+<link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
+<script src="qrc:///web/js/jquery-1.11.1.min.js"></script>
+<script src="qrc:///web/browse/main.js"></script>
+<script src="qrc:///web/js/jquery.mobile-1.4.5.min.js"></script>
+<link rel="stylesheet" href="qrc:///web/browse/main.css" />
+
+<script src="qrc:///web/js/color-thief.min.js"></script>
+<link rel="stylesheet" href="qrc:///web/scroll.css" />
+
+</head>
+<!-- oncontextmenu="return false;" -->
+<body  onselectstart="return false;" ondragstart="return false;" ondrop="return false;">
+
+    <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false'>
+        <div  data-role="tabs" id="tabs">
+            <div data-role="navbar">
+              <ul>
+                <li><a onclick="$.mobile.changePage($('#overview_page'));" id="overview" >OVERVIEW</a></li>
+                <li><a onclick="$.mobile.changePage($('#new_releases_page'));" id="new_releases" >NEW RELEASES</a></li>
+                <li><a onclick="$.mobile.changePage($('#generes_page'));" id="generes" >GENRES & MOODS</a></li>
+              </ul>
+            </div>
+         </div> <!--tabs-->
+    </div><!-- /header -->
+
+    <div id="overview_page" data-role="page" data-theme="b" data-title="OVERVIEW">
+        <div role="main" class="ui-content">
+            <!--load data here-->
+            Overview
+            <!--<script>overview();</script>-->
+        </div>
+    </div>
+
+    <div id="new_releases_page" data-role="page" data-theme="b" data-title="NEW RELEASES">
+        <div role="main" class="ui-content">
+            <!--load data here-->
+            New Releases
+        </div>
+    </div>
+
+
+    <div id="genres_page" data-role="page" data-theme="b" data-title="GENRES & MOODS">
+        <div role="main" class="ui-content">
+            <!--load data here-->
+            Genres
+        </div>
+    </div>
+</body>
+</html>

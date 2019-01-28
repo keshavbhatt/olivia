@@ -1,0 +1,39 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/olivia.png</file>
+        <file>icons/p_forward.png</file>
+        <file>icons/p_next.png</file>
+        <file>icons/p_pause.png</file>
+        <file>icons/p_play.png</file>
+        <file>icons/p_previous.png</file>
+        <file>icons/p_record.png</file>
+        <file>icons/p_reverse.png</file>
+        <file>icons/p_stop.png</file>
+        <file>icons/sidebar/account.png</file>
+        <file>icons/sidebar/activity.png</file>
+        <file>icons/sidebar/add_playlist.png</file>
+        <file>icons/sidebar/album.png</file>
+        <file>icons/sidebar/artist.png</file>
+        <file>icons/sidebar/browse.png</file>
+        <file>icons/sidebar/local.png</file>
+        <file>icons/sidebar/playlist.png</file>
+        <file>icons/sidebar/recent.png</file>
+        <file>icons/sidebar/search.png</file>
+        <file>icons/sidebar/songs.png</file>
+        <file>icons/sidebar/starred.png</file>
+        <file>icons/sidebar/top_list.png</file>
+        <file>icons/menu.png</file>
+        <file>icons/close.png</file>
+        <file>icons/playing.png</file>
+        <file>icons/buffering.gif</file>
+        <file>icons/offline.png</file>
+        <file>icons/blank.png</file>
+        <file>icons/sidebar/quit.png</file>
+        <file>icons/texture.png</file>
+        <file>icons/olivia_2.png</file>
+        <file>icons/now_playing.png</file>
+        <file>icons/bg.png</file>
+        <file>icons/cover_wrapper.png</file>
+        <file>icons/url_issue.png</file>
+    </qresource>
+</RCC>

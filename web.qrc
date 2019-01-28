@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>web/scroll.css</file>
+        <file>web/js/jquery.mobile-1.4.5.min.js</file>
+        <file>web/js/jquery-1.11.1.min.js</file>
+        <file>web/css/jquery.mobile-1.4.5.min.css</file>
+        <file>web/browse/browse.html</file>
+        <file>web/css/images/ajax-loader.gif</file>
+        <file>web/browse/main.css</file>
+        <file>web/browse/main.js</file>
+        <file>web/search/main.css</file>
+        <file>web/search/main.js</file>
+        <file>web/search/search.html</file>
+        <file>web/js/color-thief.min.js</file>
+        <file>web/top/main.css</file>
+        <file>web/top/main.js</file>
+        <file>web/top/top.html</file>
+    </qresource>
+</RCC>

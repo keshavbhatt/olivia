@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<title>Browse</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+
+    <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
+    <script src="qrc:///web/js/jquery-1.11.1.min.js"></script>
+    <script src="qrc:///web/search/main.js"></script>
+    <script src="qrc:///web/js/jquery.mobile-1.4.5.min.js"></script>
+    <link rel="stylesheet" href="qrc:///web/search/main.css" />
+
+    <script src="qrc:///web/js/color-thief.min.js"></script>
+    <link rel="stylesheet" href="qrc:///web/scroll.css" />
+
+</head>
+<!-- oncontextmenu="return false;" -->
+<body  onselectstart="return false;" ondragstart="return false;" ondrop="return false;">
+
+    <img style="display:none;" src="" id="coverImage" />
+
+    <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false'>
+        <div data-role="tabs" id="tabs">
+            <div data-role="navbar">
+              <ul>
+                <li><a onclick="open_track_search()" id="tracks" >TRACKS</a></li>
+                <li><a onclick="open_artist_search()" id="artists" >ARTISTS</a></li>
+                <li><a onclick="open_album_search()" id="albums" >ALBUMS</a></li>
+              </ul>
+            </div>
+         </div> <!--tabs-->
+    </div><!-- /header -->
+    <div class="ui-loader-background"> </div>
+    <div id="tracks_page" data-role="page" data-theme="b" data-title="TRACKS">
+        <div role="main" class="ui-content">
+            <ul class="list" id="tracks_result" data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="false">
+            </ul>
+            <!--load data here-->
+            <!-- Search for Tracks-->
+            <!--<script>open_track_search();</script>-->
+            <div data-role="popup" id="track_option" data-theme="b">
+                    <ul data-role="listview" data-inset="true" style="min-width:210px;">
+                        <li data-role="list-divider">Choose an action</li>
+                        <li><a href="#">View details</a></li>
+                        <li><a href="#">Go to Album</a></li>
+                        <li><a href="#">Go to Artist</a></li>
+                        <li><a data-rel="back">Close</a></li>
+                    </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="artists_page" data-role="page" data-theme="b" data-title="ARTISTS">
+        <div role="main" class="ui-content">
+        <ul class="list" id="artists_result" data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="false">
+        </ul>
+            <!--load data here-->
+           <!-- <script>open_artist_search()</script>-->
+        </div>
+    </div>
+
+
+    <div id="albums_page" data-role="page" data-theme="b" data-title="ALBUMS">
+        <div role="main" class="ui-content">
+        <ul class="list" id="albums_result" data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="false">
+        </ul>
+            <!--load data here-->
+            <!--<script>open_album_search()</script>-->
+        </div>
+    </div>
+
+    <div id="album_view_page" data-role="page" data-theme="b" data-title="ALBUMS VIEW">
+        <div role="main" class="ui-content">
+            <!--load data here-->
+        </div>
+        <div style="opacity:0.9" data-role="footer" data-position="fixed" data-tap-toggle="false">
+            <a style="display: block;background-color: rgba(36, 142, 179, 0.5)" onclick="$.mobile.changePage($('#albums_page'));" class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all">Back to Albums</a>
+        </div><!-- /footer -->
+    </div>
+
+    <div id="artist_view_page" data-role="page" data-theme="b" data-title="ARTIST VIEW">
+        <div role="main" class="ui-content">
+            <!--load data here-->
+        </div>
+        <div data-role="footer" data-position="fixed" data-tap-toggle="false">
+            <a style="display: block;background-color: rgba(36, 142, 179, 0.5)" onclick="$.mobile.changePage($('#artists_page'));" class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all">Back to Artists</a>
+        </div><!-- /footer -->
+    </div>
+
+</body>
+</html>

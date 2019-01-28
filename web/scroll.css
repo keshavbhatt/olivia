@@ -1,0 +1,65 @@
+
+
+.ui-focus,
+.ui-btn:focus {
+    -moz-box-shadow: inset 0 0 3px      #555  , 0 0 9px         #555  !important;
+    -webkit-box-shadow: inset 0 0 3px   #555  , 0 0 9px         #555  !important;
+    box-shadow: inset 0 0 3px           #555  , 0 0 9px         #555  !important;
+}
+.ui-input-text.ui-focus,
+.ui-input-search.ui-focus {
+    -moz-box-shadow: 0 0 12px           #555 !important;
+    -webkit-box-shadow: 0 0 12px        #555 !important;
+    box-shadow: 0 0 12px                #555 !important;
+}
+
+hr{
+    border: 0 !important;
+    border-bottom: 1px dashed #655e5e !important;
+    background: transparent !important;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-button {
+  width: 0px;
+  height: 0px;
+}
+::-webkit-scrollbar-thumb {
+  background: #201f1f;
+  border: none;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #201f1f;
+}
+::-webkit-scrollbar-thumb:active {
+  background: #201f1f;
+}
+::-webkit-scrollbar-track {
+  background: transparent !important;
+  border: 0px none #ffffff;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-track:hover {
+  background: transparent !important;
+}
+::-webkit-scrollbar-track:active {
+  background: transparent !important;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+
+:focus {outline:none  !important;}
+
+body{
+    background-image: url("qrc://///icons/bg.png")!important;
+    background-size: cover !important;
+    background-repeat: no-repeat;
+    background-position: 0,0;
+    background-attachment: fixed !important;
+}
