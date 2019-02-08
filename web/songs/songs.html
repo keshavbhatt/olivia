@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<title>Browse</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
+    <script src="qrc:///web/js/jquery-1.11.1.min.js"></script>
+    <script src="qrc:///web/songs/main.js"></script>
+    <script src="qrc:///web/js/jquery.mobile-1.4.5.min.js"></script>
+    <link rel="stylesheet" href="qrc:///web/songs/main.css" />
+
+    <script src="qrc:///web/js/color-thief.min.js"></script>
+    <link rel="stylesheet" href="qrc:///web/scroll.css" />
+    <script src="qrc:///web/js/common.js"></script>
+    <script src="qrc:///web/songs/autolinkdivider.js"></script>
+
+</head>
+<!-- oncontextmenu="return false;" -->
+<body  onselectstart="return false;" ondragstart="return false;" ondrop="return false;">
+
+    <img style="display:none;" src="" id="coverImage" />
+
+
+    <div class="ui-loader-background"> </div>
+    <div id="tracks_page" data-role="page" data-theme="b" data-title="SAVED TRACKS">
+
+        <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false' style="padding-top:0px !important;">
+             <form id="songsfilter-input-form" data-theme="b" style="height:55px;">
+                 <table style='width:100%'><tr>
+                     <td id="searchinput">
+                         <input id="songsfilter-input" placeholder="Filter songs..." type='search'/>
+                     </td>
+                     <td style='width:5.5em'>
+                          <input type="button" id="closeSearch" data-icon="delete" value="Close"/>
+                     </td>
+                 </tr></table>
+             </form>
+             <h1 class="header-title"></h1>
+             <a id="a-search" class="ui-btn-right ui-btn  ui-corner-all ui-btn-icon-left ui-icon-search">Search</a>
+        </div><!-- /header -->
+
+
+        <div role="main" class="ui-content">
+        <div id="sorter">
+            <ul data-role="listview">
+                <li><span>A</span></li>
+                <li><span>B</span></li>
+                <li><span>C</span></li>
+                <li><span>D</span></li>
+                <li><span>E</span></li>
+                <li><span>F</span></li>
+                <li><span>G</span></li>
+                <li><span>H</span></li>
+                <li><span>I</span></li>
+                <li><span>J</span></li>
+                <li><span>K</span></li>
+                <li><span>L</span></li>
+                <li><span>M</span></li>
+                <li><span>N</span></li>
+                <li><span>O</span></li>
+                <li><span>P</span></li>
+                <li><span>Q</span></li>
+                <li><span>R</span></li>
+                <li><span>S</span></li>
+                <li><span>T</span></li>
+                <li><span>U</span></li>
+                <li><span>V</span></li>
+                <li><span>W</span></li>
+                <li><span>X</span></li>
+                <li><span>Y</span></li>
+                <li><span>Z</span></li>
+            </ul>
+        </div><!-- /sorter -->
+
+            <ul style="margin-right: 20px;" data-input="#songsfilter-input" class="list" id="saved_tracks_result" data-filter="true" data-autodividers="true" data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
+                <!--load data here-->
+            </ul>
+
+        </div>
+        <div data-role="footer" style="display:none;">
+            <h4></h4>
+        </div><!-- /footer -->
+    </div>
+
+
+</body>
+</html>
