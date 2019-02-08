@@ -8,7 +8,6 @@
 }
 .ui-input-text.ui-focus,
 .ui-input-search.ui-focus {
-    -moz-box-shadow: 0 0 12px           #555 !important;
     -webkit-box-shadow: 0 0 12px        #555 !important;
     box-shadow: 0 0 12px                #555 !important;
 }

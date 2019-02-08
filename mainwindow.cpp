@@ -9,6 +9,7 @@
 #include <QGraphicsDropShadowEffect>
 #include <QMovie>
 #include "store.h"
+#include "radio.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -18,12 +19,19 @@ MainWindow::MainWindow(QWidget *parent) :
     init_app(); // #1
     init_webview();// #2
     init_offline_storage();//  #3
+    radio_manager = new radio(this);
+    connect(radio_manager,SIGNAL(radioStatus(QString)),this,SLOT(radioStatus(QString)));
+    connect(radio_manager,SIGNAL(radioPosition(int)),this,SLOT(radioPosition(int)));
+    connect(radio_manager,SIGNAL(radioDuration(int)),this,SLOT(radioDuration(int)));
+
+
     initMediaPlayer(); // #4
     initNetworkManager();// #5
     store_manager = new store(0,"hjkfds");// #6
-    ui->debug_widget->hide();
+     ui->debug_widget->hide();
    // ui->state->hide();
     loadPlayerQueue();// #7 loads previous playing track queue
+    connect(qApp,SIGNAL(aboutToQuit()),this,SLOT(quitApp()));
 }
 
 //set up app #1
@@ -70,7 +78,7 @@ void MainWindow::init_app(){
 
 //set up webview #2
 void MainWindow::init_webview(){
-    ui->webview->setZoomFactor(0.9);
+//    ui->webview->setZoomFactor(0.9);
     connect(ui->webview,SIGNAL(loadFinished(bool)),this,SLOT(webViewLoaded(bool)));
 
     //websettings---------------------------------------------------------------
@@ -87,9 +95,10 @@ void MainWindow::init_webview(){
     ui->webview->settings()->enablePersistentStorage(setting_path);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, true);
-    QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, false);
 
     ui->webview->page()->settings()->setMaximumPagesInCache(10);
+    ui->webview->page()->settings()->setAttribute(QWebSettings::PluginsEnabled, false);
 
     QNetworkDiskCache* diskCache = new QNetworkDiskCache(this);
     diskCache->setCacheDirectory(setting_path);
@@ -226,7 +235,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
 void MainWindow::initMediaPlayer(){
     ui->volumeSlider->setMinimum(0);
     ui->volumeSlider->setMaximum(100);
-    mediaPlayer = new QMediaPlayer(this,QMediaPlayer::StreamPlayback);
+    mediaPlayer = new QMediaPlayer(0,QMediaPlayer::StreamPlayback);
     connect(ui->volumeSlider,SIGNAL(valueChanged(int)),mediaPlayer,SLOT(setVolume(int)));
     connect(mediaPlayer,SIGNAL(positionChanged(qint64)),this,SLOT(setPlayerPosition(qint64)));
     connect(ui->secondsAvailable,SIGNAL(valueChanged(int)),ui->buffer_size,SLOT(setValue(int)));
@@ -238,7 +247,10 @@ void MainWindow::initMediaPlayer(){
             ui->state->setText(getPlayerStateString(mediaPlayer->state()));
         ui->play_pause->setIcon(mediaPlayer->state()==QMediaPlayer::PlayingState?QIcon(":/icons/p_pause.png"):QIcon(":/icons/p_play.png"));
         if(mediaPlayer->state()==QMediaPlayer::PlayingState){
-
+            playingRadio=false;
+            if(radio_manager->radioState == "playing"){
+                radio_manager->quitRadio();
+            }
             if(!playBackTimer->isActive()&& bufferFull == false)
                 playBackTimer->start(400);
         }
@@ -260,12 +272,18 @@ void MainWindow::initMediaPlayer(){
     });
 
     connect(mediaPlayer, &QMediaPlayer::mediaStatusChanged, [=](){
-        bytesPerSecond = ui->bufferSlider->maximum()/ui->seekSlider->maximum();
-        ui->mediaStatus->setText(getMediaStatusString(mediaPlayer->mediaStatus()));
-        if(mediaPlayer->mediaStatus()==QMediaPlayer::EndOfMedia||mediaPlayer->mediaStatus()==QMediaPlayer::InvalidMedia){
-            ui->seekSlider->setEnabled(false);
+        if(ui->bufferSlider->maximum()==0){  // for FM
+                ui->state->setText(getMediaStatusString(mediaPlayer->mediaStatus()));
         }else{
-             ui->seekSlider->setEnabled(true);
+            if(ui->bufferSlider->maximum()>0&&ui->seekSlider->maximum()>0 ){ // prevents crash when user tries to play a normal stream other than FM
+                bytesPerSecond = ui->bufferSlider->maximum()/ui->seekSlider->maximum();
+                ui->mediaStatus->setText(getMediaStatusString(mediaPlayer->mediaStatus()));
+                if(mediaPlayer->mediaStatus()==QMediaPlayer::EndOfMedia||mediaPlayer->mediaStatus()==QMediaPlayer::InvalidMedia){
+                    ui->seekSlider->setEnabled(false);
+                }else{
+                     ui->seekSlider->setEnabled(true);
+                }
+            }
         }
     });
 
@@ -291,72 +309,100 @@ void MainWindow::tryStopMediaPlayer(){
     }
 }
 void MainWindow::tryToPlay(int pos){
-        //record buffer size here check it before calling this function in timeout loop
-        if(buffer!=nullptr)
-            lastBufferSize = buffer->size();
-        else
-            lastBufferSize = 0;
-        userStoppedPlayback = false;
-        mediaPlayer->setMedia(QMediaContent(),buffer);
-        mediaPlayer->setPosition(pos);
-        mediaPlayer->play();
-        if(playBackTimer!=nullptr)
-        if(!playBackTimer->isActive() && bufferFull == false)
-        playBackTimer->start(400);//playback timer timeout
-        tried =true;
+            //record buffer size here check it before calling this function in timeout loop
+            if(buffer!=nullptr)
+                lastBufferSize = buffer->size();
+            else
+                lastBufferSize = 0;
+            userStoppedPlayback = false;
+            mediaPlayer->setMedia(QMediaContent(),buffer);
+            mediaPlayer->setPosition(pos);
+            mediaPlayer->play();
+            if(playBackTimer!=nullptr)
+            if(!playBackTimer->isActive() && bufferFull == false)
+            playBackTimer->start(400);//playback timer timeout
+            tried =true;
 }
+
+
+
 
 void MainWindow::on_play_pause_clicked()
 {
-    if(mediaPlayer->state()==QMediaPlayer::PlayingState){
-        mediaPlayer->pause();
-        userStoppedPlayback = true;
-    }else if(mediaPlayer->state()==QMediaPlayer::PausedState){
-        mediaPlayer->play();
-        userStoppedPlayback = false;
+    if(playingRadio){
+        //check radio
+            if(radio_manager->radioState=="paused"){
+                radio_manager->resumeRadio();
+            }else if(radio_manager->radioState=="playing"){
+                radio_manager->pauseRadio();
+            }
+    }else{
+        radio_manager->quitRadio();
+        //check mediaPLayer
+        if(mediaPlayer->state()==QMediaPlayer::PlayingState){
+            mediaPlayer->pause();
+            userStoppedPlayback = true;
+        }else if(mediaPlayer->state()==QMediaPlayer::PausedState){
+            mediaPlayer->play();
+            userStoppedPlayback = false;
+        }
+        else if(mediaPlayer->state()==QMediaPlayer::StoppedState){
+            tryToPlay(0);
+        }
     }
-    else if(mediaPlayer->state()==QMediaPlayer::StoppedState){
-        tryToPlay(0);
-    }
+
 }
 
 void MainWindow::on_volumeSlider_valueChanged(int value)
 {
+    if(playingRadio){
+        radio_manager->changeVolume(value);
+    }
      ui->current_volume->setText(QString::number(value));
 }
 
 void MainWindow::on_seekSlider_sliderReleased()
 {
-    int pos= ui->seekSlider->value(); //new value
+    if(playingRadio){
+        int pos= ui->seekSlider->value(); //new value
+        radio_manager->radioSeek(pos);
+    }else{
+        int pos= ui->seekSlider->value(); //new value
 
-    if(mediaPlayer->state()==QMediaPlayer::PlayingState && pos<ui->secondsAvailable->value()){
-        tryToPlay(pos); //not seekable
-     }else{
-        ui->seekSlider->setValue(mediaPlayer->position());
+        if(mediaPlayer->state()==QMediaPlayer::PlayingState && pos<ui->secondsAvailable->value()){
+            tryToPlay(pos); //not seekable
+         }else{
+            ui->seekSlider->setValue(mediaPlayer->position());
+        }
     }
-
 }
+
+
+void MainWindow::on_seekSlider_sliderMoved(int position)
+{
+    if(playingRadio){
+         ui->seekSlider->setSliderPosition(position);
+    }else{
+        if(!store_manager->isDownloaded(nowPlayingSongId)){
+            if(position>ui->secondsAvailable->value()){
+                ui->seekSlider->setSliderPosition(secondsAvailable);
+            }
+        }else{
+               mediaPlayer->setPosition(position);
+        }
+    }
+}
+
 
 void MainWindow::on_stop_clicked()
 {
+    if(mediaPlayer->state()!=QMediaPlayer::StoppedState)
     mediaPlayer->stop();
+    if(playBackTimer!=nullptr)
     playBackTimer->stop();
     userStoppedPlayback = true;
 }
 
-void MainWindow::on_seekSlider_sliderMoved(int position)
-{
-//    getNowPlayingTrackId();
-    if(!store_manager->isDownloaded(nowPlayingSongId)){
-        if(position>ui->secondsAvailable->value()){
-            ui->seekSlider->setSliderPosition(secondsAvailable);
-        }
-    }else{
-           mediaPlayer->setPosition(position);
-        }
-   // positionChnagedConnected = false;
-   // QObject::disconnect(mediaPlayer, &QMediaPlayer::positionChanged, this, nullptr);
-}
 
 
 QString MainWindow::getMediaStatusString(QMediaPlayer::MediaStatus e)
@@ -457,52 +503,59 @@ void MainWindow::getStreamSize(const QUrl url){
 }
 
 void MainWindow::stream(const QUrl url){
-    QNetworkRequest req(url);
-    req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
-    req.setRawHeader("User-Agent","Mozilla/5.0 (X11; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0");
-        reply = nm->get(req);
-        connect(reply, SIGNAL(readyRead()), this, SLOT(networkReadyRead()));
-        connect(reply, &QNetworkReply::finished,[=](){
-            QVariant possibleRedirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
-            if(possibleRedirectUrl.isValid()){
-                qDebug()<<"REDIRECTED NETWORK";
-                ui->console->append(QString(possibleRedirectUrl.toString()));
-                reply->abort();
-                stream(QUrl(possibleRedirectUrl.toString()));
-                return;
-            }else{
-                secondsAvailable = mediaPlayer->duration();
-                bufferFull = true;
-            }
-
-            QString url = reply->request().url().toString();
-
-            QString format =QUrlQuery(QUrl::fromPercentEncoding(reply->request().url().toString().toUtf8())).queryItemValue("mime").split("/").last();
-
-            if(format.isEmpty()){ //try to get mime type with regexp
-                format = url.split("audio%2F").last().split("&").first().trimmed();
-                if(format.isEmpty()){
-                    format = url.split("audio%2F").last().split("/").first().trimmed();
+    if(url.toString().contains("mp4")){
+        qDebug()<<"playing stream via radio";
+            playingRadio=true;
+            radio_manager->playRadio(url,ui->volumeSlider->value());
+    }else{
+        playingRadio = false;
+        QNetworkRequest req(url);
+        req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
+        req.setRawHeader("User-Agent","Mozilla/5.0 (X11; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0");
+            reply = nm->get(req);
+            connect(reply, SIGNAL(readyRead()), this, SLOT(networkReadyRead()));
+            connect(reply, &QNetworkReply::finished,[=](){
+                QVariant possibleRedirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+                if(possibleRedirectUrl.isValid()){
+                    qDebug()<<"REDIRECTED NETWORK";
+                    ui->console->append(QString(possibleRedirectUrl.toString()));
+                    reply->abort();
+                    stream(QUrl(possibleRedirectUrl.toString()));
+                    return;
+                }else{
+                    secondsAvailable = mediaPlayer->duration();
+                    bufferFull = true;
                 }
-            }
-            if(format.contains("/")){
-                format = format.split("/").first();
-            }
 
-            if(reply->error()==QNetworkReply::NoError){
-                qDebug()<<"FINISHED NETWORK";
-                if(!store_manager->isDownloaded(nowPlayingSongId)){
-                    saveTrack(format.trimmed());
+                QString url = reply->request().url().toString();
+
+                QString format =QUrlQuery(QUrl::fromPercentEncoding(reply->request().url().toString().toUtf8())).queryItemValue("mime").split("/").last();
+
+                if(format.isEmpty()){ //try to get mime type with regexp
+                    format = url.split("audio%2F").last().split("&").first().trimmed();
+                    if(format.isEmpty()){
+                        format = url.split("audio%2F").last().split("/").first().trimmed();
+                    }
                 }
-            }else{
-                ui->state->show();
-                ui->state->setText(reply->errorString().split(" ").first());
-            }
-        });
+                if(format.contains("/")){
+                    format = format.split("/").first();
+                }
+
+                if(reply->error()==QNetworkReply::NoError){
+                    qDebug()<<"FINISHED NETWORK";
+                    if(!store_manager->isDownloaded(nowPlayingSongId)){
+                        saveTrack(format.trimmed());
+                    }
+                }else{
+                    ui->state->show();
+                    ui->state->setText(reply->errorString().split(" ").first());
+                }
+            });
+    }
 }
 
 void MainWindow::saveTrack(QString format){ //saves track to offline storage
-
+    ui->buffer_size->hide();
     QString download_Path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/downloadedTracks/";
     QFile file(download_Path+nowPlayingSongId); //+"."+format
     if (!file.open(QIODevice::WriteOnly))
@@ -523,18 +576,26 @@ void MainWindow::saveTrack(QString format){ //saves track to offline storage
 }
 
 void MainWindow::networkReadyRead(){
-    byteArray->append(reply->readAll());
-    if(lastBufferSize!=0 && bytesPerSecond !=0 && !bufferFull)
-    secondsAvailable = buffer->size()/bytesPerSecond;
-    buffer->reset();
-    ui->loaded_buffer->setText(QString::number(buffer->size()));
-    ui->bufferSlider->setValue(buffer->size());
-    ui->console->append("downloaded "+QString::number(buffer->size()) +" of "+ ui->total_buffer->text());
-    if(store_manager->isDownloaded(nowPlayingSongId)){
-        tryToPlay(0);
+    ui->console->append(QString::number(ui->bufferSlider->maximum()));
+    if(ui->bufferSlider->maximum()==0){
+        if(playBackTimer->isActive())playBackTimer->stop();
+        playingRadio=true;
+        radio_manager->playRadio(QUrl(reply->request().url()),ui->volumeSlider->value());
+        reply->abort();
     }else{
-        if(!tried)
-        tryToPlay(0);
+        byteArray->append(reply->readAll());
+        if(lastBufferSize!=0 && bytesPerSecond !=0 && !bufferFull)
+        secondsAvailable = buffer->size()/bytesPerSecond;
+        buffer->reset();
+        ui->loaded_buffer->setText(QString::number(buffer->size()));
+        ui->bufferSlider->setValue(buffer->size());
+        ui->console->append("downloaded "+QString::number(buffer->size()) +" of "+ ui->total_buffer->text());
+        if(store_manager->isDownloaded(nowPlayingSongId)){
+            tryToPlay(0);
+        }else{
+            if(!tried)
+            tryToPlay(0);
+        }
     }
 
 }
@@ -559,8 +620,12 @@ void MainWindow::on_cache_slider_sliderMoved(int position)
     ui->cacheSize->setText(QString::number(PLAYER_CACHE_SIZE/1000)+"Kb");
 }
 
-
-
+void MainWindow::quitApp(){
+    qDebug()<<"called";
+//    radio_manager->quitRadio();
+//    radio_manager->killRadio();
+    radio_manager->deleteLater();
+}
 
 MainWindow::~MainWindow()
 {
@@ -570,9 +635,26 @@ MainWindow::~MainWindow()
 
 void MainWindow::webViewLoaded(bool loaded){
 //    qDebug()<<"page loaded"<<loaded;
-    if(loaded)
-    ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"),  this);
-
+    if(loaded){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"),  this);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+themeColor+"')");
+    }
+    if(pageType=="saved_songs"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
+        ui->webview->page()->mainFrame()->evaluateJavaScript(" open_saved_tracks();");
+    }
+    if(pageType=="local_saved_songs"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
+        ui->webview->page()->mainFrame()->evaluateJavaScript(" open_local_saved_tracks();");
+    }
+    if(pageType=="saved_albums"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("open_saved_albums();");
+    }
+    if(pageType=="saved_artists"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("open_saved_artists();");
+    }
     if(pageType=="search"){
         if(!ui->search->text().isEmpty() && loaded && !offsetstr.contains("offset")){
             ui->left_list->setCurrentRow(3);
@@ -687,11 +769,11 @@ void MainWindow::showTrackOption(){
     qDebug()<<"Clicked"<<senderButton->objectName();
 }
 
-void MainWindow::getAudioStream(QString id,QString songId){
+void MainWindow::getAudioStream(QString ytIds,QString songId){
     QProcess *ytdl = new QProcess(this);
-    ytdl->setObjectName(id+"!==&songId==!"+songId);
+    ytdl->setObjectName(ytIds+"!==&songId==!"+songId);
 
-    QStringList urls = id.split("<br>");
+    QStringList urls = ytIds.split("<br>");
     QStringList urlsFinal;
     for(int i=0; i < urls.count();i++){
         if(!urls.at(i).isEmpty()){
@@ -701,17 +783,17 @@ void MainWindow::getAudioStream(QString id,QString songId){
     ytdl->start("youtube-dl",QStringList()<<"--get-url" <<"-i"<< "--extract-audio"<<urlsFinal);
     ytdl->waitForStarted();
     connect(ytdl,SIGNAL(readyRead()),this,SLOT(ytdlReadyRead()));
-    connect(ytdl,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(youtubeDlFinished(int,QProcess::ExitStatus)));
+//    connect(ytdl,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(youtubeDlFinished(int,QProcess::ExitStatus)));
 }
 
-void MainWindow::youtubeDlFinished(int code,QProcess::ExitStatus exitStatus){
-    QProcess* senderProcess = qobject_cast<QProcess*>(sender());
-    QString processName = senderProcess->objectName();
-    Q_UNUSED(exitStatus);
-    Q_UNUSED(processName);
-    Q_UNUSED(code);
+//void MainWindow::youtubeDlFinished(int code,QProcess::ExitStatus exitStatus){
+//    QProcess* senderProcess = qobject_cast<QProcess*>(sender());
+//    QString processName = senderProcess->objectName();
+//    Q_UNUSED(exitStatus);
+//    Q_UNUSED(processName);
+//    Q_UNUSED(code);
 //    qDebug()<<processName<<"Youtubedl Process exit code-"<<code<<exitStatus;
-}
+//}
 void MainWindow::ytdlReadyRead(){
 
     QProcess* senderProcess = qobject_cast<QProcess*>(sender());
@@ -733,6 +815,9 @@ void MainWindow::ytdlReadyRead(){
             QProcess* senderProcess = qobject_cast<QProcess*>(sender()); // retrieve the button clicked
             senderProcess->kill();
             QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(url_str.toUtf8())).queryItemValue("expire").trimmed();
+            if(expiryTime.isEmpty()){
+                expiryTime = url_str.split("/expire/").last().split("/").first().trimmed();
+            }
             store_manager->saveStreamUrl(songId,url_str,expiryTime);
     }
 }
@@ -748,6 +833,21 @@ void MainWindow::on_left_list_currentRowChanged(int currentRow)
         break;
     case 4:
          show_top();
+        break;
+    case 6:
+         show_saved_songs();
+        break;
+    case 7:
+         show_saved_albums();
+        break;
+    case 8:
+         show_saved_artists();
+        break;
+    case 9:
+         show_local_saved_songs();
+        break;
+    case 14:
+         internet_radio();
         break;
     case 15:
          qApp->quit();
@@ -795,12 +895,36 @@ void MainWindow::show_top(){
     ui->webview->load(QUrl("qrc:///web/top/top.html"));
 }
 
+void MainWindow::show_saved_songs(){
+    pageType = "saved_songs";
+    ui->webview->load(QUrl("qrc:///web/songs/songs.html"));
+}
+
+void MainWindow::show_local_saved_songs(){
+    pageType = "local_saved_songs";
+    ui->webview->load(QUrl("qrc:///web/local_songs/local_songs.html"));
+}
+
+void MainWindow::show_saved_albums(){
+    pageType = "saved_albums";
+    ui->webview->load(QUrl("qrc:///web/album/albums.html"));
+}
+
+void MainWindow::show_saved_artists(){
+    pageType = "saved_artists";
+    ui->webview->load(QUrl("qrc:///web/artist/artists.html"));
+}
+
+void MainWindow::internet_radio(){
+    pageType = "radio";
+    ui->webview->load(QUrl("qrc:///web/radio/radio.html"));
+}
+
+
 void MainWindow::on_right_list_itemDoubleClicked(QListWidgetItem *item)
 {
-
     if(!ui->right_list->itemWidget(item)->isEnabled())
         return;
-
     QString id =  ui->right_list->itemWidget(item)->findChild<QLineEdit*>("id")->text();
     QString url = ui->right_list->itemWidget(item)->findChild<QLineEdit*>("url")->text();
     QString songId = ui->right_list->itemWidget(item)->findChild<QLineEdit*>("songId")->text();
@@ -991,6 +1115,49 @@ void MainWindow::resizeEvent(QResizeEvent *resizeEvent){
     ui->right_list->resize(ui->right_list->size().width()+1,ui->right_list->size().height()+1);
     ui->right_list->resize(ui->right_list->size().width()-1,ui->right_list->size().height()-1);
 }
+
+void MainWindow::showAjaxError(){
+    qDebug()<<"NETWORK ERROR";
+}
+
+//returns theme color from common.js
+void MainWindow::setThemeColor(QString color){
+    themeColor = color;
+}
+
+void MainWindow::radioStatus(QString radioState){
+    if(radioState=="playing"){
+        ui->play_pause->setIcon(QIcon(":/icons/p_pause.png"));
+    }else{
+        ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
+        if(!playingRadio){ //to fix normal song after fm
+            ui->play_pause->setIcon(mediaPlayer->state()==QMediaPlayer::PlayingState?QIcon(":/icons/p_pause.png"):QIcon(":/icons/p_play.png"));
+        }
+    }
+    ui->state->setText(radioState);
+}
+
+void MainWindow::radioPosition(int pos){
+
+   int seconds = (pos) % 60;
+   int minutes = (pos/60) % 60;
+   int hours = (pos/3600) % 24;
+   QTime time(hours, minutes,seconds);
+   ui->position->setText(time.toString());
+
+   ui->seekSlider->setValue(pos);
+}
+
+
+void MainWindow::radioDuration(int dur){
+    int seconds = (dur) % 60;
+    int minutes = (dur/60) % 60;
+    int hours = (dur/3600) % 24;
+    QTime time(hours, minutes,seconds);
+    ui->duration->setText(time.toString());
+   ui->seekSlider->setMaximum(dur);
+}
+
 
 
 

@@ -15,5 +15,26 @@
         <file>web/top/main.css</file>
         <file>web/top/main.js</file>
         <file>web/top/top.html</file>
+        <file>web/js/common.js</file>
+        <file>web/songs/main.css</file>
+        <file>web/songs/main.js</file>
+        <file>web/songs/songs.html</file>
+        <file>web/songs/autolinkdivider.js</file>
+        <file>web/local_songs/autolinkdivider.js</file>
+        <file>web/local_songs/local_songs.html</file>
+        <file>web/local_songs/main.css</file>
+        <file>web/local_songs/main.js</file>
+        <file>web/album/autolinkdivider.js</file>
+        <file>web/album/main.css</file>
+        <file>web/album/main.js</file>
+        <file>web/album/albums.html</file>
+        <file>web/artist/artists.html</file>
+        <file>web/artist/autolinkdivider.js</file>
+        <file>web/artist/main.css</file>
+        <file>web/artist/main.js</file>
+        <file>web/radio/autolinkdivider.js</file>
+        <file>web/radio/main.css</file>
+        <file>web/radio/main.js</file>
+        <file>web/radio/radio.html</file>
     </qresource>
 </RCC>

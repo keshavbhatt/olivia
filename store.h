@@ -11,6 +11,10 @@ class store : public QObject
 
 public:
     explicit store(QObject *parent = 0,QString dbName="default");
+    Q_INVOKABLE QString web_print_saved_tracks();
+    Q_INVOKABLE QString web_print_local_saved_tracks();
+    Q_INVOKABLE QString web_print_saved_albums();
+    Q_INVOKABLE QString web_print_saved_artists();
 
 signals:
 
@@ -45,6 +49,11 @@ private slots:
     QString getOfflineUrl(QString trackId);
     QString getYoutubeIds(QString trackId);
     QString getDominantColor(QString albumId);
+    QList<QStringList> getAllTracks();
+    QList<QStringList> getAllAlbums();
+    QStringList getAlbumDetails(QString albumId);
+    QList<QStringList> getAllArtists();
+    QStringList getArtistDetails(QString artistId);
 };
 
 #endif // STORE_H

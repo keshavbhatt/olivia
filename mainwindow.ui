@@ -78,7 +78,11 @@ background-image:url(:/icons/texture.png), linear-gradient(hsla(0,0%,32%,.99), h
 border:none;</string>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Project Olivia&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Project Olivia&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -222,7 +226,7 @@ border-radius:0px;</string>
 border:none;</string>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Version 1.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;version 1.0&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -293,10 +297,13 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_4">
               <property name="leftMargin">
-               <number>5</number>
+               <number>2</number>
               </property>
               <property name="topMargin">
                <number>12</number>
+              </property>
+              <property name="bottomMargin">
+               <number>5</number>
               </property>
               <item>
                <widget class="QListWidget" name="left_list">
@@ -469,6 +476,28 @@ QScrollBar:vertical {
                 </item>
                 <item>
                  <property name="text">
+                  <string>OTHER</string>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>14</pointsize>
+                  </font>
+                 </property>
+                 <property name="flags">
+                  <set>NoItemFlags</set>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Internet Radio</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="icons.qrc">
+                   <normaloff>:/icons/sidebar/radio.png</normaloff>:/icons/sidebar/radio.png</iconset>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
                   <string/>
                  </property>
                  <property name="flags">
@@ -511,7 +540,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
                 <number>0</number>
                </property>
                <property name="leftMargin">
-                <number>7</number>
+                <number>4</number>
                </property>
                <property name="topMargin">
                 <number>7</number>
@@ -698,7 +727,7 @@ border-right:0px;
                 <number>0</number>
                </property>
                <property name="leftMargin">
-                <number>9</number>
+                <number>2</number>
                </property>
                <property name="topMargin">
                 <number>0</number>

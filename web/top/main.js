@@ -172,9 +172,6 @@ $(function() {
     $( "[data-role='header']" ).toolbar();
  });
 
-function changeBg(rgba){
-    $("body").css("cssText","background-color:rgba("+rgba+") !important;");
-}
 
 
 // Update the contents of the toolbars

@@ -16,6 +16,9 @@
 #include <QImage>
 #include <QBuffer>
 #include <QDateTime>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 
 // init store class and creates defined directories
 store::store(QObject *parent, QString dbName) : QObject(parent)
@@ -231,6 +234,74 @@ QList<QStringList> store::getPlayerQueue(){
     return trackList;
 }
 
+QList<QStringList> store::getAllTracks(){
+    QSqlQuery query;
+    QList<QStringList> trackList ;
+    query.exec("SELECT trackId FROM tracks ORDER BY title ASC");
+    if(query.record().count()>0){
+        while(query.next()){
+             trackList.append(getTrack(query.value("trackId").toString()));
+        }
+    }
+    return trackList;
+}
+
+QList<QStringList> store::getAllAlbums(){
+    QSqlQuery query;
+    QList<QStringList> albumList ;
+    query.exec("SELECT * FROM album ORDER BY albumName ASC");
+    if(query.record().count()>0){
+        while(query.next()){
+             albumList.append(getAlbumDetails(query.value("albumId").toString()));
+        }
+    }
+    return albumList;
+}
+
+QStringList store::getAlbumDetails(QString albumId){
+    //get album artist from tracks table
+    QSqlQuery query;
+    query.exec("SELECT artistId FROM tracks WHERE albumId = '"+albumId+"'");
+    QString artistId,artistName,tracksCount;
+    int count = 0;
+    if(query.record().count()>0){
+        while(query.next()){
+            artistId =  query.value("artistId").toString();
+            count++;
+        }
+    }
+    tracksCount = QString::number(count);
+    artistName = getArtist(artistId);
+    return QStringList()<<albumId<<getAlbum(albumId)<<getThumbnail(albumId)<<getDominantColor(albumId)<<artistName<<artistId<<tracksCount;
+}
+
+QList<QStringList> store::getAllArtists(){
+    QSqlQuery query;
+    QList<QStringList> artistList ;
+    query.exec("SELECT artistId FROM artist ORDER BY artistName ASC");
+    if(query.record().count()>0){
+        while(query.next()){
+             artistList.append(getArtistDetails(query.value("artistId").toString()));
+        }
+    }
+    return artistList;
+}
+
+QStringList store::getArtistDetails(QString artistId){
+    //get album artist from tracks table
+    QSqlQuery query;
+    query.exec("SELECT artistId FROM tracks WHERE artistId = '"+artistId+"'");
+    QString artistName,tracksCount;
+    int count = 0;
+    if(query.record().count()>0){
+        while(query.next()){
+            count++;
+        }
+    }
+    tracksCount = QString::number(count);
+    artistName = getArtist(artistId);
+    return QStringList()<<artistId<<artistName<<tracksCount;
+}
 
 QStringList store::getTrack(QString trackId){
     QSqlQuery query;
@@ -361,3 +432,124 @@ bool store::getExpiry(QString trackId){
     return expired;
 }
 
+
+// WEB=========================================================================
+
+//returns json string of added tracks to library
+QString store::web_print_saved_tracks(){
+    qDebug()<<"LOAD SAVED TRACKS";
+    QJsonDocument json;
+    QJsonArray recordsArray;
+    foreach (QStringList trackList, getAllTracks()) {
+        QJsonObject recordObject;
+        QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
+        songId = trackList.at(0);
+        title = trackList.at(1);
+        albumId = trackList.at(2);
+        album = trackList.at(3);
+        artistId = trackList.at(4);
+        artist = trackList.at(5);
+        base64 = trackList.at(6);
+        url = trackList.at(7);
+        id = trackList.at(8);
+        dominantColor = trackList.at(9);
+        recordObject.insert("songId",songId);
+        recordObject.insert("title",title);
+        recordObject.insert("albumId",albumId);
+        recordObject.insert("album",album);
+        recordObject.insert("artistId",artistId);
+        recordObject.insert("artist",artist);
+        recordObject.insert("base64",base64);
+        recordObject.insert("url",url);
+        recordObject.insert("id",id);
+        recordsArray.push_back(recordObject);
+    }
+    json.setArray(recordsArray);
+    return json.toJson();
+}
+
+
+// returns json array string of local downloaded tracks
+QString store::web_print_local_saved_tracks(){
+    qDebug()<<"LOAD LOCAL SAVED TRACKS";
+    QJsonDocument json;
+    QJsonArray recordsArray;
+    foreach (QStringList trackList, getAllTracks()) {
+        QJsonObject recordObject;
+        QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
+        songId = trackList.at(0);
+        title = trackList.at(1);
+        albumId = trackList.at(2);
+        album = trackList.at(3);
+        artistId = trackList.at(4);
+        artist = trackList.at(5);
+        base64 = trackList.at(6);
+        url = trackList.at(7);
+        id = trackList.at(8);
+        dominantColor = trackList.at(9);
+        if(isDownloaded(songId)){
+            recordObject.insert("songId",songId);
+            recordObject.insert("title",title);
+            recordObject.insert("albumId",albumId);
+            recordObject.insert("album",album);
+            recordObject.insert("artistId",artistId);
+            recordObject.insert("artist",artist);
+            recordObject.insert("base64",base64);
+            recordObject.insert("url",url);
+            recordObject.insert("id",id);
+            recordsArray.push_back(recordObject);
+        }
+    }
+    json.setArray(recordsArray);
+    return json.toJson();
+}
+// returns json array string of local albums
+QString store::web_print_saved_albums(){
+    qDebug()<<"LOAD LOCAL SAVED ALBUMS";
+    QJsonDocument json;
+    QJsonArray recordsArray;
+    foreach (QStringList albumList, getAllAlbums()) {
+        QJsonObject recordObject;
+        QString albumId,albumName,artistName,base64,dominantColor,artistId,tracksCount;
+        albumId = albumList.at(0);
+        albumName = albumList.at(1);
+        base64 = albumList.at(2);
+        dominantColor = albumList.at(3);
+        artistName = albumList.at(4);
+        artistId = albumList.at(5);
+        tracksCount = albumList.at(6);
+
+        recordObject.insert("albumId",albumId);
+        recordObject.insert("albumName",albumName);
+        recordObject.insert("base64",base64);
+        recordObject.insert("dominantColor",dominantColor);
+        recordObject.insert("artistName",artistName);
+        recordObject.insert("artistId",artistId);
+        recordObject.insert("tracksCount",tracksCount);
+        recordsArray.push_back(recordObject);
+    }
+    json.setArray(recordsArray);
+    return json.toJson();
+}
+
+// returns json array string of local artists
+QString store::web_print_saved_artists(){
+    qDebug()<<"LOAD LOCAL SAVED ARTISTS";
+    QJsonDocument json;
+    QJsonArray recordsArray;
+    foreach (QStringList artistList, getAllArtists()) {
+        QJsonObject recordObject;
+        QString artistId,artistName,tracksCount;
+
+        artistId = artistList.at(0);
+        artistName = artistList.at(1);
+        tracksCount = artistList.at(2);
+
+        recordObject.insert("artistId",artistId);
+        recordObject.insert("artistName",artistName);
+        recordObject.insert("tracksCount",tracksCount);
+        recordsArray.push_back(recordObject);
+    }
+    json.setArray(recordsArray);
+    return json.toJson();
+}

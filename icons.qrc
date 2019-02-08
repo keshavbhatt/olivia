@@ -35,5 +35,6 @@
         <file>icons/bg.png</file>
         <file>icons/cover_wrapper.png</file>
         <file>icons/url_issue.png</file>
+        <file>icons/sidebar/radio.png</file>
     </qresource>
 </RCC>

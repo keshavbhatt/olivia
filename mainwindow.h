@@ -57,6 +57,7 @@
 #include <QDateTime>
 #include "ui_track.h"
 #include "store.h"
+#include "radio.h"
 
 namespace Ui {
 class MainWindow;
@@ -72,6 +73,8 @@ public:
     Q_INVOKABLE void resultLoaded();
     Q_INVOKABLE void addToQueue(QString id, QString title, QString artist, QString album, QString base64, QString dominantColor, QString songId, QString albumId, QString artistId);
     Q_INVOKABLE QString getTerm();
+    Q_INVOKABLE void showAjaxError();
+    Q_INVOKABLE void setThemeColor(QString); //sets themeColor in mainWindow
 
 protected slots:
     void resizeEvent(QResizeEvent *resizeEvent);
@@ -83,9 +86,9 @@ private slots:
     void browse();
     void search(QString offset);
     void webViewLoaded(bool loaded);
-    void getAudioStream(QString id, QString songId);
+    void getAudioStream(QString ytIds, QString songId);
     void on_search_returnPressed();
-    void youtubeDlFinished(int code, QProcess::ExitStatus exitStatus);
+//    void youtubeDlFinished(int code, QProcess::ExitStatus exitStatus);
     void ytdlReadyRead();
 
 
@@ -135,6 +138,15 @@ private slots:
     void loadPlayerQueue();
     void keyPressEvent(QKeyEvent *event);
     void show_top();
+    void show_saved_songs();
+    void show_local_saved_songs();
+    void show_saved_albums();
+    void show_saved_artists();
+    void internet_radio();
+    void radioStatus(QString);
+    void quitApp();
+    void radioPosition(int pos);
+    void radioDuration(int dur);
 private:
     Ui::MainWindow *ui;
     Ui::track track_ui;
@@ -162,9 +174,11 @@ private:
     int secondsAvailable = 0;
     bool positionChnagedConnected;
     store *store_manager = nullptr;
+    radio *radio_manager = nullptr;
     QString nowPlayingSongId;
+    QString themeColor = "4,42,59,0.2";
 
-
+    bool playingRadio =false;
 };
 
 #endif // MAINWINDOW_H

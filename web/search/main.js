@@ -12,9 +12,7 @@ $(function() {
     $( "[data-role='header']" ).toolbar();
  });
 
-function changeBg(rgba){
-    $("body").css("cssText","background-color:rgba("+rgba+") !important;");
-}
+
 
 
 // Update the contents of the toolbars
@@ -239,8 +237,7 @@ function gettrackinfo(searchterm){
     artistId= arr[6];
     millis = arr[7];
 
-
-    var query = title.replace("N/A","")+" - "+artist.replace("N/A","")+" - "+album.replace("N/A","");
+    var query = title.replace("N/A","")+" - "+artist.replace("N/A",""); //+" - "+album.replace("N/A","")
 
     console.log(query);
 

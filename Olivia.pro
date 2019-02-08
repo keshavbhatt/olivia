@@ -13,6 +13,7 @@ TEMPLATE = app
 
 CONFIG += c++11
 
+
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -32,14 +33,16 @@ SOURCES += main.cpp\
     cookiejar.cpp \
     elidedlabel.cpp \
     nowplaying.cpp \
-    store.cpp
+    store.cpp \
+    radio.cpp
 
 HEADERS  += mainwindow.h \
     DarkStyle.h \
     cookiejar.h \
     elidedlabel.h \
     nowplaying.h \
-    store.h
+    store.h \
+    radio.h
 
 FORMS    += mainwindow.ui \
     track.ui
