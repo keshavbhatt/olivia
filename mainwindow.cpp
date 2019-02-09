@@ -8,8 +8,10 @@
 #include <QGraphicsOpacityEffect>
 #include <QGraphicsDropShadowEffect>
 #include <QMovie>
+#include <QCompleter>
 #include "store.h"
 #include "radio.h"
+#include "onlinesearchsuggestion.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -32,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :
    // ui->state->hide();
     loadPlayerQueue();// #7 loads previous playing track queue
     connect(qApp,SIGNAL(aboutToQuit()),this,SLOT(quitApp()));
+
+    init_search_autoComplete();
 }
 
 //set up app #1
@@ -204,7 +208,7 @@ void MainWindow::loadPlayerQueue(){ //  #7
         ui->right_list->itemWidget(item)->setGraphicsEffect(eff);
 
         // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
-        if(url.isEmpty() || (store_manager->getExpiry(songId) && track_ui.url->text().contains("https"))){
+        if(url.isEmpty() || (store_manager->getExpiry(songId) && track_ui.url->text().contains("http"))){
             track_ui.loading->setPixmap(QPixmap(":/icons/url_issue.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             ui->right_list->itemWidget(item)->setEnabled(false);
             if(!track_ui.id->text().isEmpty()){
@@ -230,6 +234,17 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
                ui->debug_widget->show();
            else ui->debug_widget->hide();
        }
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event){
+    if (obj == ui->search &&event->type() == QEvent::KeyPress) {
+             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+
+             return QObject::eventFilter(obj, event);
+         } else {
+             // standard event processing
+             return QObject::eventFilter(obj, event);
+         }
 }
 
 void MainWindow::initMediaPlayer(){
@@ -289,6 +304,12 @@ void MainWindow::initMediaPlayer(){
 
     emit ui->volumeSlider->setValue(100);
 }
+
+void MainWindow::init_search_autoComplete(){
+    ui->search->installEventFilter(this);
+    _onlineSearchSuggestion_ = new onlineSearchSuggestion(ui->search);
+}
+
 
 void MainWindow::setPlayerPosition(qint64 position){
     ui->player_position->setText(QString::number(position));
@@ -1125,6 +1146,9 @@ void MainWindow::setThemeColor(QString color){
     themeColor = color;
 }
 
+
+////////////////////////////////////////////////////////////RADIO///////////////////////////////////////////////////////
+
 void MainWindow::radioStatus(QString radioState){
     if(radioState=="playing"){
         ui->play_pause->setIcon(QIcon(":/icons/p_pause.png"));
@@ -1157,6 +1181,8 @@ void MainWindow::radioDuration(int dur){
     ui->duration->setText(time.toString());
    ui->seekSlider->setMaximum(dur);
 }
+////////////////////////////////////////////////////////////END RADIO///////////////////////////////////////////////////////
+
 
 
 

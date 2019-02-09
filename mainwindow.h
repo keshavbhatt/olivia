@@ -58,6 +58,7 @@
 #include "ui_track.h"
 #include "store.h"
 #include "radio.h"
+#include "onlinesearchsuggestion.h"
 
 namespace Ui {
 class MainWindow;
@@ -76,8 +77,11 @@ public:
     Q_INVOKABLE void showAjaxError();
     Q_INVOKABLE void setThemeColor(QString); //sets themeColor in mainWindow
 
+
+
 protected slots:
     void resizeEvent(QResizeEvent *resizeEvent);
+    bool eventFilter(QObject *obj, QEvent *event);
 private slots:
     void init_app();
     void init_webview();
@@ -147,6 +151,7 @@ private slots:
     void quitApp();
     void radioPosition(int pos);
     void radioDuration(int dur);
+    void init_search_autoComplete();
 private:
     Ui::MainWindow *ui;
     Ui::track track_ui;
@@ -179,6 +184,10 @@ private:
     QString themeColor = "4,42,59,0.2";
 
     bool playingRadio =false;
+
+    QStringList searchSuggestionList;
+
+    onlineSearchSuggestion * _onlineSearchSuggestion_ = nullptr;
 };
 
 #endif // MAINWINDOW_H
