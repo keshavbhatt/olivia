@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     elidedlabel.cpp \
     nowplaying.cpp \
     store.cpp \
-    radio.cpp
+    radio.cpp \
+    onlinesearchsuggestion.cpp
 
 HEADERS  += mainwindow.h \
     DarkStyle.h \
@@ -42,7 +43,8 @@ HEADERS  += mainwindow.h \
     elidedlabel.h \
     nowplaying.h \
     store.h \
-    radio.h
+    radio.h \
+    onlinesearchsuggestion.h
 
 FORMS    += mainwindow.ui \
     track.ui
