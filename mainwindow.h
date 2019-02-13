@@ -76,7 +76,7 @@ public:
     Q_INVOKABLE QString getTerm();
     Q_INVOKABLE void showAjaxError();
     Q_INVOKABLE void setThemeColor(QString); //sets themeColor in mainWindow
-
+    Q_INVOKABLE void playRadioFromWeb(QVariant urlVariant);
 
 
 protected slots:
@@ -99,12 +99,8 @@ private slots:
 
 
     //MEDIAPLAYER
-    void tryStopMediaPlayer();
-    void initMediaPlayer();
-
     void init_offline_storage();
     void setPlayerPosition(qint64 position);
-    void tryToPlay(int pos);
     QString getMediaStatusString(QMediaPlayer::MediaStatus);
     QString getPlayerStateString(QMediaPlayer::State);
     void on_volumeSlider_valueChanged(int value);
@@ -112,15 +108,8 @@ private slots:
     void on_seekSlider_sliderReleased();
     void on_seekSlider_sliderMoved(int position);
 
-    //NETWORK
-    void getStreamSize(const QUrl);
-    void stream(const QUrl);
-    void initNetworkManager();
-    void contentSizeMetaChanged();
-    void networkReadyRead();
-    void on_play_pause_clicked();
-    void on_bufferSlider_valueChanged(int value);
-    void on_cache_slider_sliderMoved(int position);
+
+     void on_play_pause_clicked();
 
 
 
@@ -130,7 +119,6 @@ private slots:
 
     void on_menu_clicked();
 
-    void on_right_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
 
     void showTrackOption();
 
@@ -163,27 +151,11 @@ private:
     QString offsetstr;
 
 
-    QMediaPlayer *mediaPlayer; //mediplayer pointer
-    QBuffer *buffer = nullptr;
-    QByteArray *byteArray= nullptr;
-    QNetworkAccessManager *nm = nullptr;
-    QNetworkReply *reply = nullptr;
-    QNetworkReply *content_size = nullptr;
-    QTimer* playBackTimer = nullptr; // C++ 11 nullptr
-    bool userStoppedPlayback = false;
-    qint64 lastBufferSize;
-    qint64 PLAYER_CACHE_SIZE = 100000 ;// 500Kb
-    bool bufferFull=false;
-    bool tried = false;
-    int bytesPerSecond = 0;
-    int secondsAvailable = 0;
-    bool positionChnagedConnected;
+
     store *store_manager = nullptr;
     radio *radio_manager = nullptr;
     QString nowPlayingSongId;
     QString themeColor = "4,42,59,0.2";
-
-    bool playingRadio =false;
 
     QStringList searchSuggestionList;
 
