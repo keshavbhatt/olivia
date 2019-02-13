@@ -12,7 +12,7 @@ class radio : public QObject
 {
     Q_OBJECT
 public:
-    explicit radio(QObject *parent = 0);
+    explicit radio(QObject *parent = 0, int volume = 100);
     QString radioState;
 
 signals:
@@ -21,13 +21,14 @@ signals:
     void radioDuration(int);
 
 public slots:
-    void playRadio(QUrl url,int volume);
+    void playRadio(QUrl url );
     void pauseRadio();
     void resumeRadio();
     void killRadio();
     void quitRadio();
     void changeVolume(int volume);
     void radioSeek(int pos);
+    void loadMedia(QUrl url);
 private slots:
     void radioReadyRead();
 
