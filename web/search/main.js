@@ -13,8 +13,6 @@ $(function() {
  });
 
 
-
-
 // Update the contents of the toolbars
 $( document ).on( "pageshow", "[data-role='page']", function() {
     // Each of the four pages in this demo has a data-title attribute

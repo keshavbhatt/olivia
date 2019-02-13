@@ -1,4 +1,4 @@
-var baseUrl = "http://ktechpit.com/USS/Olivia/"
+var baseUrl = "http://ktechpit.com/USS/Olivia/radio/"
 
 $(document).bind("mobileinit", function(){
         $.mobile.defaultPageTransition = 'slidefade';
@@ -12,7 +12,100 @@ $(function() {
     $( "[data-role='header']" ).toolbar();
  });
 
-
+var countries = [
+            "Algeria",
+            "Argentina",
+            "Australia",
+            "Austria",
+            "Bangladesh",
+            "Belarus",
+            "Belgium",
+            "Bosnia and Herzegovina",
+            "Brasil",
+            "Brazil",
+            "Bulgaria",
+            "Canada",
+            "Chile",
+            "China",
+            "Colombia",
+            "Costa Rica",
+            "Croatia",
+            "Cyprus",
+            "Czech Republic",
+            "Denmark",
+            "Deutschland",
+            "Dominican Republic",
+            "Ecuador",
+            "Egypt",
+            "España",
+            "Estonia",
+            "Finland",
+            "France",
+            "Germany",
+            "Greece",
+            "Honduras",
+            "Hungary",
+            "Iceland",
+            "India",
+            "Indonesia",
+            "Iran",
+            "Iraq",
+            "Ireland",
+            "Israel",
+            "Italy",
+            "Jamaica",
+            "Japan",
+            "Kazakhstan",
+            "Latvia",
+            "Lebanon",
+            "Lithuania",
+            "Luxembourg",
+            "Malta",
+            "Mexico",
+            "Moldova",
+            "Morocco",
+            "Netherlands",
+            "Netherlands Antilles",
+            "New Zealand",
+            "Nigeria",
+            "Norway",
+            "Pakistan",
+            "Peru",
+            "Philippines",
+            "playing",
+            "Poland",
+            "Portugal",
+            "Puerto Rico",
+            "Romania",
+            "Russia",
+            "Russian Federation",
+            "Serbia",
+            "Singapore",
+            "Slovakia",
+            "Slovenia",
+            "South Africa",
+            "South Korea",
+            "Spain",
+            "Sri Lanka",
+            "Sweden",
+            "Switzerland",
+            "Syria",
+            "Taiwan",
+            "Thailand",
+            "Trinidad and Tobago",
+            "Tunisia",
+            "Turkey",
+            "UK",
+            "Ukraine",
+            "United Arab Emirates",
+            "United Kingdom",
+            "United States",
+            "United States of America",
+            "Uruguay",
+            "USA",
+            "Venezuela",
+            "Vietnam"
+        ]
 
 
 // Update the contents of the toolbars
@@ -51,7 +144,7 @@ var base64; //returns base64 versio of album art to c++
 var colorThief ; // colorThief object init
 var dominantColor; //global
 var html_data; //global html_data for youtube search
-var album_loaded = false;
+var stations_loaded = false;
 var track_loaded = false;
 var artist_loaded = false;
 
@@ -84,106 +177,72 @@ function capitalize(str) {
 
 //  core functions -------------
 
-//albumId = albumList.at(0);
-//albumName = albumList.at(1);
-//base64 = albumList.at(2);
-//dominantColor = albumList.at(3);
-//artistName = albumList.at(4);
-//artistId = albumList.at(5);
-//tracksCount = albumList.at(6);
-
-function open_saved_albums(){
-    $("#saved_albums_result").empty();
-    showLoading();
-    $.mobile.changePage($('#albums_page'));
-    var json = JSON.parse(store.web_print_saved_albums()); //albums Data is returned in json format
-    var $html = "";
-    $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" saved albums");
-    for(var i= 0; i < json.length;i++){
-        $html = $html+
-            "<li data-filtertext='"+json[i].albumName+" "+json[i].artistName+" "+json[i].albumId+"' ><a>"+
-            "<img style='max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \>"+
-                    "<p>"+
-                        ""+json[i].albumName+
-                        "<br>"+
-                        "Artist: "+json[i].artistName+
-                        "<br>"+
-                        "Tracks: "+json[i].tracksCount+
-                    "</p>"+
-               " </a>"+
-            "</li>";
-    }
-    $.mobile.loading("hide");
-    $("#saved_albums_result").append($html).listview("refresh");
-    $('#albums_page .ui-content').trigger('create');
-    $('#albums_page .ui-content').fadeIn('slow');
-}
-
-$(document).on("pagecreate", "#albums_page", function(){
-    $('#a-search, #closeSearch').on('vclick', function (event) {
-        $('#albumsfilter-input-form').toggleClass('moved');
-    });
-});
-
-function toDataUrl(url, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function() {
-        var reader = new FileReader();
-        reader.onloadend = function() {
-            callback(reader.result);
+function loadCountries(){
+    $.ajax({
+        url: baseUrl+"list/countries.php",
+               type:"GET",
+        success: function(html) {
+            $("#countries_result").append(html).listview("refresh");
         }
-        reader.readAsDataURL(xhr.response);
-    };
-    xhr.open('GET', url);
-    xhr.responseType = 'blob';
-    xhr.send();
-}
-
-
-
-function gettrackinfo(searchterm){
-    colorThief = new ColorThief();
-    var arr = searchterm.split("!=-=!")
-    title = arr[0];
-    artist = arr[1];
-    album = arr[2];
-    coverUrl = arr[3];
-    songId = arr[4];
-    albumId = arr[5];
-    artistId= arr[6];
-    millis = arr[7];
-
-
-    var query = title.replace("N/A","")+" - "+artist.replace("N/A","")+" - "+album.replace("N/A","");
-
-    console.log(query);
-
-    showLoading();
-
-    toDataUrl(coverUrl, function(myBase64) {
-        base64 = myBase64;
-        document.querySelector("#coverImage").setAttribute("src",coverUrl);
-        $.ajax({
-            url: baseUrl+"youtube.php",
-                   type:"GET",
-                   data:{
-                        "query": query,
-                        "millis": millis
-                   },
-            success: function(html) {
-                html_data =html;
-                mainwindow.addToQueue(html_data,title,artist,album,base64,dominantColor,songId,albumId,artistId);
-                $.mobile.loading("hide");
-            }
-        });
-
     });
 }
+
+function loadLanguages(){
+    $.ajax({
+        url: baseUrl+"list/languages.php",
+               type:"GET",
+        success: function(html) {
+            $("#languages_result").append(html).listview("refresh");
+        }
+    });
+}
+
+function showStations(query,queryType){
+    showLoading();
+    $.ajax({
+       url: baseUrl+"list/stations.php",
+              type:"GET",
+               data:{
+                   "query":escape(query),
+                   "type":queryType
+               },
+       success: function(html) {
+           $.mobile.loading("hide");
+           $.mobile.changePage($('#stations_page'));
+           $("#stations_result").html(html).listview("refresh");
+           $('#stations_page .ui-content').trigger('create');
+           $('#stations_page .ui-content').fadeIn('slow');
+       }
+   });
+}
+
+function loadTopStations(type){
+//topStations
+    $.ajax({
+       url: baseUrl+"list/top-stations.php",
+              type:"GET",
+               data:{
+                "type":type
+               },
+       success: function(html) {
+           if(type==="most-played"){
+                $("#most-played").html(html).listview("refresh");
+           }
+           if(type==="most-voted"){
+                $("#most-voted").html(html).listview("refresh");
+           }
+       }
+   });
+}
+
+function playStation(url){
+    mainwindow.playRadioFromWeb(url);
+}
+
 
 function setNowPlaying(songId){ //nowPlaying styles are in main.css
 
     //removes all now playing
-
     $(".nowPlaying").remove();
     $.mobile.activePage.remove(".nowPlaying");
 

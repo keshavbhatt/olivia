@@ -32,9 +32,9 @@
         <file>web/artist/autolinkdivider.js</file>
         <file>web/artist/main.css</file>
         <file>web/artist/main.js</file>
-        <file>web/radio/autolinkdivider.js</file>
         <file>web/radio/main.css</file>
         <file>web/radio/main.js</file>
         <file>web/radio/radio.html</file>
+        <file>web/radio/station.jpg</file>
     </qresource>
 </RCC>
