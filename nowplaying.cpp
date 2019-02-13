@@ -34,6 +34,7 @@ void nowPlaying::paintEvent( QPaintEvent* e )
 
 void nowPlaying::setImage(QPixmap p){
     //m_image = p;
+    Q_UNUSED(p);
     update();
 }
 
