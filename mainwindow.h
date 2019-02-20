@@ -52,7 +52,6 @@
 #include <QClipboard>
 #include <QListWidgetItem>
 #include <QSettings>
-#include <QMediaPlayer>
 #include <QBuffer>
 #include <QDateTime>
 #include "ui_track.h"
@@ -76,7 +75,9 @@ public:
     Q_INVOKABLE QString getTerm();
     Q_INVOKABLE void showAjaxError();
     Q_INVOKABLE void setThemeColor(QString); //sets themeColor in mainWindow
-    Q_INVOKABLE void playRadioFromWeb(QVariant urlVariant);
+    Q_INVOKABLE void playRadioFromWeb(QVariant streamDetails);
+
+    bool saveTracksAfterBuffer;
 
 
 protected slots:
@@ -101,32 +102,16 @@ private slots:
     //MEDIAPLAYER
     void init_offline_storage();
     void setPlayerPosition(qint64 position);
-    QString getMediaStatusString(QMediaPlayer::MediaStatus);
-    QString getPlayerStateString(QMediaPlayer::State);
-    void on_volumeSlider_valueChanged(int value);
+
+    void on_radioVolumeSlider_valueChanged(int value);
     void on_stop_clicked();
-    void on_seekSlider_sliderReleased();
-    void on_seekSlider_sliderMoved(int position);
-
-
-     void on_play_pause_clicked();
-
-
-
-
+    void on_radioSeekSlider_sliderReleased();
+    void on_radioSeekSlider_sliderMoved(int position);
+    void on_play_pause_clicked();
     void on_right_list_itemDoubleClicked(QListWidgetItem *item);
-
-
     void on_menu_clicked();
-
-
     void showTrackOption();
-
-
-    void saveTrack(QString format);
     void getNowPlayingTrackId();
-
-
     void loadPlayerQueue();
     void keyPressEvent(QKeyEvent *event);
     void show_top();
@@ -139,7 +124,10 @@ private slots:
     void quitApp();
     void radioPosition(int pos);
     void radioDuration(int dur);
+    void radioEOF(QString value);
+    void radio_demuxer_cache_duration_changed(double, double radio_playerPosition);
     void init_search_autoComplete();
+    void saveTrack(QString format);
 private:
     Ui::MainWindow *ui;
     Ui::track track_ui;
@@ -160,6 +148,7 @@ private:
     QStringList searchSuggestionList;
 
     onlineSearchSuggestion * _onlineSearchSuggestion_ = nullptr;
+
 };
 
 #endif // MAINWINDOW_H

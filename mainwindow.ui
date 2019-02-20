@@ -994,7 +994,7 @@ QScrollBar:vertical {
           </widget>
          </item>
          <item>
-          <widget class="QSlider" name="volumeSlider">
+          <widget class="volumeSlider" name="radioVolumeSlider">
            <property name="maximumSize">
             <size>
              <width>200</width>
@@ -1014,7 +1014,7 @@ QScrollBar:vertical {
           </widget>
          </item>
          <item>
-          <widget class="QSlider" name="seekSlider">
+          <widget class="seekSlider" name="radioSeekSlider">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -1204,6 +1204,16 @@ border-radius:2px;</string>
    <extends>QWidget</extends>
    <header>nowplaying.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>seekSlider</class>
+   <extends>QSlider</extends>
+   <header>seekslider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>volumeSlider</class>
+   <extends>QSlider</extends>
+   <header>volumeslider.h</header>
   </customwidget>
  </customwidgets>
  <resources>

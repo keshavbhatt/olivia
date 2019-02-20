@@ -9,37 +9,50 @@
 #include <QGraphicsDropShadowEffect>
 #include <QMovie>
 #include <QCompleter>
+#include <QAction>
+
 #include "store.h"
 #include "radio.h"
 #include "onlinesearchsuggestion.h"
+#include "seekslider.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    qApp->setQuitOnLastWindowClosed(true);
     init_app(); // #1
     init_webview();// #2
     init_offline_storage();//  #3
 
 
-    store_manager = new store(this,"hjkfdsl");// #6
+    store_manager = new store(this,"hjkfdsll");// #6
     ui->debug_widget->hide();
 
     loadPlayerQueue();// #7 loads previous playing track queue
     connect(qApp,SIGNAL(aboutToQuit()),this,SLOT(quitApp()));
     init_search_autoComplete();
 
-    ui->volumeSlider->setMinimum(0);
-    ui->volumeSlider->setMaximum(130);
+    ui->radioVolumeSlider->setMinimum(0);
+    ui->radioVolumeSlider->setMaximum(130);
 
-    radio_manager = new radio(this,ui->volumeSlider->value());
+    ui->radioVolumeSlider->setValue(100);
+    saveTracksAfterBuffer = true;
+    radio_manager = new radio(this,ui->radioVolumeSlider->value(),saveTracksAfterBuffer);
+
     connect(radio_manager,SIGNAL(radioStatus(QString)),this,SLOT(radioStatus(QString)));
     connect(radio_manager,SIGNAL(radioPosition(int)),this,SLOT(radioPosition(int)));
     connect(radio_manager,SIGNAL(radioDuration(int)),this,SLOT(radioDuration(int)));
-    ui->volumeSlider->setValue(100);
+    connect(radio_manager,SIGNAL(radioEOF(QString)),this,SLOT(radioEOF(QString)));
+    connect(radio_manager,SIGNAL(demuxer_cache_duration_changed(double,double)),this,SLOT(radio_demuxer_cache_duration_changed(double,double)));
+    connect(radio_manager,SIGNAL(saveTrack(QString)),this,SLOT(saveTrack(QString)));
 
 }
+
+//void MainWindow::getVolume(){
+//    radio_manager->setVolume(ui->radioVolumeSlider->value());
+//}
 
 //set up app #1
 void MainWindow::init_app(){
@@ -79,7 +92,7 @@ void MainWindow::init_app(){
     ui->artist_horizontalLayout->addWidget(artist);
     ui->album_horizontalLayout->addWidget(album);
 
-    browse();
+//    browse();
 
 }
 
@@ -127,6 +140,12 @@ void MainWindow::init_offline_storage(){
             qDebug()<<"created downloadedTracks dir";
         }
     }
+    QDir downloadedTemp(setting_path+"/downloadedTemp");
+    if(!downloadedTemp.exists()){
+        if(downloadedTemp.mkdir(downloadedTemp.path())){
+            qDebug()<<"created downloadedTemp dir";
+        }
+    }
     QDir database(setting_path+"/storeDatabase");
     if(!database.exists()){
         if(database.mkdir(database.path())){
@@ -152,7 +171,7 @@ void MainWindow::loadPlayerQueue(){ //  #7
         dominantColor = trackList.at(9);
 
         QWidget *track_widget = new QWidget(ui->right_list);
-        track_widget->setObjectName("track-widget-"+id);
+        track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
 
         QFont font("Ubuntu");
@@ -190,7 +209,7 @@ void MainWindow::loadPlayerQueue(){ //  #7
             track_ui.url->setText(url);
         }
         track_ui.url->hide();
-        track_ui.option->setObjectName(id+"optionButton");
+        track_ui.option->setObjectName(songId+"optionButton");
         connect(track_ui.option,SIGNAL(clicked(bool)),this,SLOT(showTrackOption()));
 
         base64 = base64.split("base64,").last();
@@ -266,12 +285,13 @@ void MainWindow::setPlayerPosition(qint64 position){
     QTime time(hours, minutes,seconds);
     ui->position->setText(time.toString());
 
-    ui->seekSlider->setValue(position);
+    ui->radioSeekSlider->setValue(position);
 }
 
 
 void MainWindow::on_play_pause_clicked()
 {
+    qDebug()<<radio_manager->radioState;
     if(radio_manager->radioState=="paused"){
         radio_manager->resumeRadio();
     }else if(radio_manager->radioState=="playing"){
@@ -279,22 +299,25 @@ void MainWindow::on_play_pause_clicked()
     }
 }
 
-void MainWindow::on_volumeSlider_valueChanged(int value)
+void MainWindow::on_radioVolumeSlider_valueChanged(int value)
 {
-    radio_manager->changeVolume(value);
+    if(radio_manager){
+         radio_manager->changeVolume(value);
+    }
     ui->current_volume->setText(QString::number(value));
 }
 
-void MainWindow::on_seekSlider_sliderReleased()
+void MainWindow::on_radioSeekSlider_sliderReleased()
 {
-    int pos= ui->seekSlider->value(); //new value
+    int pos= ui->radioSeekSlider->value(); //new value
     radio_manager->radioSeek(pos);
 }
 
 
-void MainWindow::on_seekSlider_sliderMoved(int position)
+void MainWindow::on_radioSeekSlider_sliderMoved(int position)
 {
-    ui->seekSlider->setSliderPosition(position);
+    ui->radioSeekSlider->setSliderPosition(position);
+    radio_manager->radioSeek(position);
 }
 
 
@@ -304,62 +327,11 @@ void MainWindow::on_stop_clicked()
 }
 
 
-
-QString MainWindow::getMediaStatusString(QMediaPlayer::MediaStatus e)
-{
-    switch (e) {
-    case QMediaPlayer::LoadedMedia: return "Loaded Media"; break;
-    case QMediaPlayer::NoMedia: return "No Media"; break;
-    case QMediaPlayer::LoadingMedia: return "Loading Media"; break;
-    case QMediaPlayer::StalledMedia: return "Stalled Media"; break;
-    case QMediaPlayer::UnknownMediaStatus: return "Unknown Media Status"; break;
-    case QMediaPlayer::BufferedMedia: return "Buffered Media"; break;
-    case QMediaPlayer::BufferingMedia: return "Buffering Media"; break;
-    case QMediaPlayer::EndOfMedia: return "EndOf Media"; break;
-    case QMediaPlayer::InvalidMedia: return "Invalid Media"; break;
-    default: return "Unknown Media Status";
-        break;
-    }
-
-}
-
-QString MainWindow::getPlayerStateString(QMediaPlayer::State e)
-{
-    switch (e) {
-    case QMediaPlayer::StoppedState: return "Stopped State"; break;
-    case QMediaPlayer::PlayingState: return "Playing State"; break;
-    case QMediaPlayer::PausedState: return "Paused State"; break;
-    default: return "Unknown PLayer State";
-        break;
-    }
-
-}
-
-
 //NETWORK
-void MainWindow::saveTrack(QString format){ //saves track to offline storage
-    QString download_Path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/downloadedTracks/";
-    QFile file(download_Path+nowPlayingSongId); //+"."+format
-    if (!file.open(QIODevice::WriteOnly))
-        return;
-          // file.write(buffer->data());
-         file.close();
-      qDebug()<<"saved"<<nowPlayingSongId<<"as"<<format<<"in"<<file.fileName();
-      store_manager->update_track("downloaded",nowPlayingSongId,"1");
-
-      //show offline icon in track ui and change url to offline one
-      for(int i = 0 ; i< ui->right_list->count();i++){
-           if(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongId){
-              QLabel *offline = ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("offline");
-              ((QLabel*)(offline))->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-              ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongId);
-          }
-      }
-}
-
-
 void MainWindow::quitApp(){
     qDebug()<<"called";
+    radio_manager->killRadioProcess();
+    radio_manager->deleteProcess(0);
     radio_manager->deleteLater();
 }
 
@@ -423,91 +395,175 @@ QString MainWindow::getTerm(){
 
 void MainWindow::addToQueue(QString id,QString title,QString artist,QString album,QString base64,QString dominantColor,QString songId,QString albumId,QString artistId){
 
-    QWidget *track_widget = new QWidget(ui->right_list);
-    track_widget->setObjectName("track-widget-"+id);
-    track_ui.setupUi(track_widget);
+    QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 
-    QFont font("Ubuntu");
-    font.setPixelSize(12);
-    setFont(font);
+    if(store_manager->isInQueue(songId)){
+        ui->console->append("Song - "+songId+" Already in queue");
+        return;
+    }else{
+        QWidget *track_widget = new QWidget(ui->right_list);
+        track_widget->setObjectName("track-widget-"+songId);
+        track_ui.setupUi(track_widget);
 
-    ElidedLabel *titleLabel = new ElidedLabel(title,0);
-    titleLabel->setFont(font);
-    titleLabel->setObjectName("title_elided");
-    track_ui.verticalLayout_2->addWidget(titleLabel);
+        QFont font("Ubuntu");
+        font.setPixelSize(12);
+        setFont(font);
 
-    ElidedLabel *artistLabel = new ElidedLabel(artist,0);
-    artistLabel->setObjectName("artist_elided");
-    artistLabel->setFont(font);
-    track_ui.verticalLayout_2->addWidget(artistLabel);
+        ElidedLabel *titleLabel = new ElidedLabel(title,0);
+        titleLabel->setFont(font);
+        titleLabel->setObjectName("title_elided");
+        track_ui.verticalLayout_2->addWidget(titleLabel);
 
-    ElidedLabel *albumLabel = new ElidedLabel(album,0);
-    albumLabel->setObjectName("album_elided");
-    albumLabel->setFont(font);
-    track_ui.verticalLayout_2->addWidget(albumLabel);
+        ElidedLabel *artistLabel = new ElidedLabel(artist,0);
+        artistLabel->setObjectName("artist_elided");
+        artistLabel->setFont(font);
+        track_ui.verticalLayout_2->addWidget(artistLabel);
 
-    track_ui.id->setText(id);
-    track_ui.dominant_color->setText(dominantColor);
-    qDebug()<<"songId:"<<songId;
-    track_ui.songId->setText(songId);
+        ElidedLabel *albumLabel = new ElidedLabel(album,0);
+        albumLabel->setObjectName("album_elided");
+        albumLabel->setFont(font);
+        track_ui.verticalLayout_2->addWidget(albumLabel);
 
-    track_ui.playing->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        track_ui.id->setText(id);
+        track_ui.dominant_color->setText(dominantColor);
+//        qDebug()<<"songId:"<<songId;
+        track_ui.songId->setText(songId);
+        track_ui.playing->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
-    track_ui.songId->hide();
-    track_ui.dominant_color->hide();
-    track_ui.id->hide();
-    track_ui.url->hide();
-    track_ui.option->setObjectName(id+"optionButton");
-    connect(track_ui.option,SIGNAL(clicked(bool)),this,SLOT(showTrackOption()));
+        track_ui.songId->hide();
+        track_ui.dominant_color->hide();
+        track_ui.id->hide();
+        track_ui.url->hide();
+        track_ui.option->setObjectName(songId+"optionButton");
+        connect(track_ui.option,SIGNAL(clicked(bool)),this,SLOT(showTrackOption()));
 
-    base64 = base64.split("base64,").last();
-    QByteArray ba = base64.toUtf8();
-    QPixmap image;
-    image.loadFromData(QByteArray::fromBase64(ba));
-    if(!image.isNull()){
-        track_ui.cover->setPixmap(image);
+        base64 = base64.split("base64,").last();
+        QByteArray ba = base64.toUtf8();
+        QPixmap image;
+        image.loadFromData(QByteArray::fromBase64(ba));
+        if(!image.isNull()){
+            track_ui.cover->setPixmap(image);
+        }
+        QListWidgetItem* item;
+        item = new QListWidgetItem(ui->right_list);
+
+        QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
+
+        item->setSizeHint(track_widget->minimumSizeHint());
+        ui->right_list->setItemWidget(item, track_widget);
+        ui->right_list->itemWidget(item)->setGraphicsEffect(eff);
+        ui->right_list->itemWidget(item)->setEnabled(false); //enable when finds a url
+
+        QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
+        a->setDuration(500);
+        a->setStartValue(0);
+        a->setEndValue(1);
+        a->setEasingCurve(QEasingCurve::InCirc);
+        a->start(QPropertyAnimation::DeleteWhenStopped);
+        ui->right_list->addItem(item);
+
+        ui->right_list->setCurrentRow(ui->right_list->count()-1);
+        if(store_manager->isDownloaded(songId)){
+            ui->right_list->itemWidget(item)->setEnabled(true);
+            track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
+            track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        }else{
+          getAudioStream(id,songId);
+        }
+
+    //SAVE DATA TO LOCAL DATABASE
+        store_manager->saveAlbumArt(albumId,base64);
+        store_manager->saveArtist(artistId,artist);
+        store_manager->saveAlbum(albumId,album);
+        store_manager->saveDominantColor(albumId,dominantColor);
+        store_manager->saveytIds(songId,id);
+        store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
+        store_manager->add_to_player_queue(songId);
+
+        ui->right_list->scrollToBottom();
     }
-    QListWidgetItem* item;
-    item = new QListWidgetItem(ui->right_list);
-
-    QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
-
-    item->setSizeHint(track_widget->minimumSizeHint());
-    ui->right_list->setItemWidget(item, track_widget);
-    ui->right_list->itemWidget(item)->setGraphicsEffect(eff);
-    ui->right_list->itemWidget(item)->setEnabled(false); //enable when finds a url
-
-    QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
-    a->setDuration(500);
-    a->setStartValue(0);
-    a->setEndValue(1);
-    a->setEasingCurve(QEasingCurve::InCirc);
-    a->start(QPropertyAnimation::DeleteWhenStopped);
-    ui->right_list->addItem(item);
-
-    ui->right_list->setCurrentRow(ui->right_list->count()-1);
-    getAudioStream(id,songId);
-
-//SAVE DATA TO LOCAL DATABASE
-    store_manager->saveAlbumArt(albumId,base64);
-    store_manager->saveArtist(artistId,artist);
-    store_manager->saveAlbum(albumId,album);
-    store_manager->saveDominantColor(albumId,dominantColor);
-    store_manager->saveytIds(songId,id);
-    store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
-    store_manager->add_to_player_queue(songId);
-
-    ui->right_list->scrollToBottom();
 }
 
 void MainWindow::showTrackOption(){
     QPushButton* senderButton = qobject_cast<QPushButton*>(sender());
-    qDebug()<<"Clicked"<<senderButton->objectName();
+    QString songId = senderButton->objectName().remove("optionButton").trimmed();
+
+
+    QAction *gotoSong = new QAction("Go to Song",0);
+    QAction *gotoArtist= new QAction("Go to Artist",0);
+    QAction *gotoAlbum = new QAction("Go to Album",0);
+    QAction *sepe = new QAction("",0);
+    sepe->setSeparator(true);
+    QAction *removeSong = new QAction("Remove from queue",0);
+    QAction *deleteSong = new QAction("Remove from collection",0);
+    QAction *deleteSongCache = new QAction("Delete song cache",0);
+    deleteSongCache->setEnabled(store_manager->isDownloaded(songId));
+
+    QString albumId = store_manager->getAlbumId(songId);
+    QString artistId = store_manager->getArtistId(songId);
+
+
+    connect(gotoAlbum,&QAction::triggered,[=](){
+            qDebug()<<"goto Album :"<<albumId;
+    });
+
+    connect(gotoArtist,&QAction::triggered,[=](){
+            qDebug()<<"goto Artist :"<<artistId;
+    });
+
+    connect(gotoSong,&QAction::triggered,[=](){
+            qDebug()<<"goto Song :"<<songId;
+    });
+
+    connect(deleteSongCache,&QAction::triggered,[=](){
+        QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+            qDebug()<<"deleted Song cache :"<<songId;
+            QFile cache(setting_path+"/downloadedTracks/"+songId);
+            cache.remove();
+            store_manager->update_track("downloaded",songId,"0");
+            for (int i= 0;i<ui->right_list->count();i++) {
+               QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+                if(songId==songIdFromWidget){
+                    ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
+                    ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
+                    break;
+                }
+            }
+    });
+
+    connect(deleteSong,&QAction::triggered,[=](){
+            qDebug()<<"deleted Song from collection :"<<songId;
+            store_manager->removeFromCollection(songId);
+    });
+
+    connect(removeSong,&QAction::triggered,[=](){
+            qDebug()<<"removed Song :"<<songId;
+            for (int i= 0;i<ui->right_list->count();i++) {
+               QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+                if(songId==songIdFromWidget){
+                    ui->right_list->takeItem(i);
+                    store_manager->removeFromQueue(songId);
+                    break;
+                }
+            }
+    });
+
+    QMenu menu;
+    menu.addAction(gotoSong);
+    menu.addAction(gotoAlbum);
+    menu.addAction(gotoArtist);
+    menu.addAction(sepe);
+    menu.addAction(removeSong);
+    menu.addAction(deleteSong);
+    menu.addAction(sepe);
+    menu.addAction(deleteSongCache);
+
+    menu.exec(QCursor::pos());
 }
 
 void MainWindow::getAudioStream(QString ytIds,QString songId){
     QProcess *ytdl = new QProcess(this);
-    ytdl->setObjectName(ytIds+"!==&songId==!"+songId);
+    ytdl->setObjectName(songId);
 
     QStringList urls = ytIds.split("<br>");
     QStringList urlsFinal;
@@ -524,16 +580,15 @@ void MainWindow::getAudioStream(QString ytIds,QString songId){
 void MainWindow::ytdlReadyRead(){
 
     QProcess* senderProcess = qobject_cast<QProcess*>(sender());
-    QString processName = senderProcess->objectName().split("!==&songId==!").first().trimmed();//"!==&songId==!"+songId
-    QString songId = senderProcess->objectName().split("!==&songId==!").last().trimmed();
+    QString songId = senderProcess->objectName().trimmed();
 
     QByteArray b;
     b.append(senderProcess->readAll());
     QString s_data = QTextCodec::codecForMib(106)->toUnicode(b).trimmed();
-//    qDebug()<<s_data;
+    qDebug()<<s_data;
 
     if(!s_data.isEmpty()){
-            QWidget *listWidget = ui->right_list->findChild<QWidget*>("track-widget-"+processName);
+            QWidget *listWidget = ui->right_list->findChild<QWidget*>("track-widget-"+songId);
             listWidget->setEnabled(true);
             listWidget->findChild<QLabel*>("loading")->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             QLineEdit *url = listWidget->findChild<QLineEdit *>("url");
@@ -553,7 +608,7 @@ void MainWindow::on_left_list_currentRowChanged(int currentRow)
 {
     switch (currentRow) {
     case 1:
-         browse();
+        // browse();
         break;
     case 3:
          search("");
@@ -705,6 +760,16 @@ void MainWindow::on_right_list_itemDoubleClicked(QListWidgetItem *item)
         g="164";
         b="205";
     }
+    qDebug()<<"THEME: "<<r<<g<<b;
+    foreach (const QString com, colors) {
+        if(com.toInt()>40){
+            break;
+        }else{
+            r="69";
+            g="69";
+            b="69";
+        }
+    }
 
     ui->nowplaying_widget->setImage(*cover->pixmap());
     ui->nowplaying_widget->setColor(QColor(r.toInt(),g.toInt(),b.toInt()));
@@ -748,7 +813,13 @@ void MainWindow::on_right_list_itemDoubleClicked(QListWidgetItem *item)
         shadow_list_.back()->setColor(QColor("#292929"));
         lbl->setGraphicsEffect(shadow_list_.back());
     }
-    radio_manager->playRadio(QUrl(url));
+    if(store_manager->isDownloaded(songId)){
+        radio_manager->playRadio(false,QUrl(url));
+    }else{
+        //TODO get saveTracksAfterBuffer value from settings before calling this
+        saveTracksAfterBuffer = true;
+        radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url));
+    }
 }
 
 //app menu to hide show sidebar
@@ -817,7 +888,7 @@ void MainWindow::radioPosition(int pos){
    int hours = (pos/3600) % 24;
    QTime time(hours, minutes,seconds);
    ui->position->setText(time.toString());
-   ui->seekSlider->setValue(pos);
+   ui->radioSeekSlider->setValue(pos);
 }
 
 
@@ -827,12 +898,65 @@ void MainWindow::radioDuration(int dur){
     int hours = (dur/3600) % 24;
     QTime time(hours, minutes,seconds);
     ui->duration->setText(time.toString());
-    ui->seekSlider->setMaximum(dur);
+    ui->radioSeekSlider->setMaximum(dur);
 }
 
-void MainWindow::playRadioFromWeb(QVariant urlVariant){
-//    qDebug()<<urlVariant;
-    radio_manager->playRadio(QUrl(urlVariant.toString().trimmed()));
+void MainWindow::radio_demuxer_cache_duration_changed(double seconds_available,double radio_playerPosition){
+    if(ui->radioSeekSlider->maximum()!=0 && seconds_available != 0 && radio_playerPosition!=0){
+        double totalSeconds = seconds_available+radio_playerPosition;
+        double width =  (double)totalSeconds / (double)ui->radioSeekSlider->maximum() ;
+        ui->radioSeekSlider->subControlWidth = (double)width*100;
+    }
+}
+
+void MainWindow::radioEOF(QString value){
+   if(value=="false"){
+
+   }
+}
+
+void MainWindow::playRadioFromWeb(QVariant streamDetails){
+    QString url,title,country,language;
+    QStringList list = streamDetails.toString().split(",");
+    url = list.at(0);
+    title = list.at(1);
+    country = list.at(2);
+    language = list.at(3);
+
+    this->findChild<ElidedLabel *>("nowP_title")->setText(title);
+
+    this->findChild<ElidedLabel *>("nowP_artist")->setText(language);
+
+    this->findChild<ElidedLabel *>("nowP_album")->setText(country);
+
+    ui->cover->setPixmap(QPixmap(":/web/radio/station_cover.jpg"));
+
+    saveTracksAfterBuffer=false;
+    radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url.trimmed()));
+}
+
+
+
+//TODO
+void MainWindow::saveTrack(QString format){
+    QString download_Path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/downloadedTracks/";
+
+    QString downloadTemp_Path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/downloadedTemp/";
+    QFile file(downloadTemp_Path+"current.temp"); //+"."+format
+
+    if(file.copy(download_Path+nowPlayingSongId)){
+        file.close();
+        qDebug()<<"saved"<<nowPlayingSongId<<"as"<<format<<"in"<<file.fileName();
+        store_manager->update_track("downloaded",nowPlayingSongId,"1");
+    }
+      //show offline icon in track ui and change url to offline one
+      for(int i = 0 ; i< ui->right_list->count();i++){
+           if(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongId){
+              QLabel *offline = ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("offline");
+              ((QLabel*)(offline))->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+              ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongId);
+          }
+      }
 }
 ////////////////////////////////////////////////////////////END RADIO///////////////////////////////////////////////////////
 
