@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui multimedia webkit webkitwidgets svg sql
+QT       += core gui webkit webkitwidgets svg sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -35,7 +35,9 @@ SOURCES += main.cpp\
     nowplaying.cpp \
     store.cpp \
     radio.cpp \
-    onlinesearchsuggestion.cpp
+    onlinesearchsuggestion.cpp \
+    seekslider.cpp \
+    volumeslider.cpp
 
 HEADERS  += mainwindow.h \
     DarkStyle.h \
@@ -44,7 +46,9 @@ HEADERS  += mainwindow.h \
     nowplaying.h \
     store.h \
     radio.h \
-    onlinesearchsuggestion.h
+    onlinesearchsuggestion.h \
+    seekslider.h \
+    volumeslider.h
 
 FORMS    += mainwindow.ui \
     track.ui

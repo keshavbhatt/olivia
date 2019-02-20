@@ -36,5 +36,6 @@
         <file>web/radio/main.js</file>
         <file>web/radio/radio.html</file>
         <file>web/radio/station.jpg</file>
+        <file>web/radio/station_cover.jpg</file>
     </qresource>
 </RCC>

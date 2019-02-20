@@ -235,8 +235,8 @@ function loadTopStations(type){
    });
 }
 
-function playStation(url){
-    mainwindow.playRadioFromWeb(url);
+function playStation(streamDetail){
+    mainwindow.playRadioFromWeb(streamDetail);
 }
 
 
