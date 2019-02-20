@@ -5,7 +5,7 @@ const QString suggestUrl(QStringLiteral("http://suggestqueries.google.com/comple
 
 onlineSearchSuggestion::onlineSearchSuggestion(QLineEdit *parent): QObject(parent), editor(parent)
 {
-    blacklist<<"whatsapp status"<<"full movie"<<"download"<<"movie";
+    blacklist<<"whatsapp status"<<"full movie"<<"download"<<"movie"<<"movies"<<"lyrics"<<"lyric";
 
     popup = new QTreeWidget;
     popup->setWindowFlags(Qt::Popup);
