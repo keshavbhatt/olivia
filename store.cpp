@@ -329,6 +329,42 @@ QString store::getAlbum(QString albumId){
     return albumId_str;
 }
 
+QString store::getAlbumId(QString songId){
+    QSqlQuery query;
+    QString albumId;
+    query.exec("SELECT albumId FROM tracks WHERE trackId = '"+songId+"'");
+    if(query.record().count()>0){
+        while(query.next()){
+             albumId = query.value("albumId").toString();
+        }
+    }
+    return albumId;
+}
+
+QString store::getArtistId(QString songId){
+    QSqlQuery query;
+    QString artistId;
+    query.exec("SELECT artistId FROM tracks WHERE trackId = '"+songId+"'");
+    if(query.record().count()>0){
+        while(query.next()){
+             artistId = query.value("artistId").toString();
+        }
+    }
+    return artistId;
+}
+
+void store::removeFromQueue(QString songId){
+    QSqlQuery query;
+    query.exec("DELETE FROM queue WHERE trackId = '"+songId+"'");
+}
+
+void store::removeFromCollection(QString songId){
+    QSqlQuery query;
+    query.exec("DELETE FROM tracks WHERE trackId = '"+songId+"'");
+}
+
+
+
 QString store::getArtist(QString artistId){
     QSqlQuery query;
     QString artistId_str;
@@ -381,6 +417,22 @@ QString store::getYoutubeIds(QString trackId){
         }
     }
     return ids_str;
+}
+
+bool store::isInQueue(QString trackId){
+    QSqlQuery query;
+    query.exec("SELECT * FROM queue WHERE trackId = '"+trackId+"'");
+    bool present = false;
+    if(query.record().count()>0){
+        while(query.next()){
+            if(query.value("trackId").toString().trimmed()==trackId){
+                present = true;
+            }else{
+                present =  false;
+            }
+        }
+    }
+    return present;
 }
 
 bool store::isDownloaded(QString trackId){

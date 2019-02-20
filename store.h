@@ -36,7 +36,15 @@ public slots:
     void saveStreamUrl(QString,QString,QString);
     QList<QStringList> getPlayerQueue();
     bool isDownloaded(QString);
+    bool isInQueue(QString);
     bool getExpiry(QString trackId);
+    QString getAlbumId(QString songId);
+    QString getArtistId(QString songId);
+    void removeFromQueue(QString songId);
+    QString getOfflineUrl(QString trackId);
+    void removeFromCollection(QString);
+
+
 private slots:
     void initStore(QString dbName);
     void createTable(QString dbName);
@@ -46,7 +54,6 @@ private slots:
     QString getArtist(QString artistId);
     QString getAlbum(QString albumId);
     QString getThumbnail(QString artId);
-    QString getOfflineUrl(QString trackId);
     QString getYoutubeIds(QString trackId);
     QString getDominantColor(QString albumId);
     QList<QStringList> getAllTracks();
