@@ -451,6 +451,23 @@ bool store::isDownloaded(QString trackId){
     return downloaded;
 }
 
+bool store::isInCollection(QString trackId){
+    QSqlQuery query;
+    query.exec("SELECT trackId FROM tracks WHERE trackId = '"+trackId+"'");
+    bool inCollection = false;
+    if(query.record().count()>0){
+        while(query.next()){
+            if(query.value("trackId").toString().trimmed()==trackId){
+                inCollection = true;
+            }else{
+                inCollection =  false;
+            }
+        }
+    }
+    return inCollection;
+}
+
+
 QString store::getDominantColor(QString albumId){
     QSqlQuery query;
     query.exec("SELECT colorName FROM color WHERE albumId = '"+albumId+"'");

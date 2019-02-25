@@ -124,7 +124,7 @@ private slots:
     void quitApp();
     void radioPosition(int pos);
     void radioDuration(int dur);
-    void radioEOF(QString value);
+//    void radioEOF(QString value);
     void radio_demuxer_cache_duration_changed(double, double radio_playerPosition);
     void init_search_autoComplete();
     void saveTrack(QString format);

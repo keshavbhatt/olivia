@@ -22,7 +22,7 @@ signals:
     void radioStatus(QString radioState);
     void radioPosition(int);
     void radioDuration(int);
-    void radioEOF(QString);
+//    void radioEOF(QString);
     void demuxer_cache_duration_changed(double,double);
     void saveTrack(QString format);
 

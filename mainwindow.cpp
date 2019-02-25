@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(radio_manager,SIGNAL(radioStatus(QString)),this,SLOT(radioStatus(QString)));
     connect(radio_manager,SIGNAL(radioPosition(int)),this,SLOT(radioPosition(int)));
     connect(radio_manager,SIGNAL(radioDuration(int)),this,SLOT(radioDuration(int)));
-    connect(radio_manager,SIGNAL(radioEOF(QString)),this,SLOT(radioEOF(QString)));
+//    connect(radio_manager,SIGNAL(radioEOF(QString)),this,SLOT(radioEOF(QString)));
     connect(radio_manager,SIGNAL(demuxer_cache_duration_changed(double,double)),this,SLOT(radio_demuxer_cache_duration_changed(double,double)));
     connect(radio_manager,SIGNAL(saveTrack(QString)),this,SLOT(saveTrack(QString)));
 
@@ -309,8 +309,8 @@ void MainWindow::on_radioVolumeSlider_valueChanged(int value)
 
 void MainWindow::on_radioSeekSlider_sliderReleased()
 {
-    int pos= ui->radioSeekSlider->value(); //new value
-    radio_manager->radioSeek(pos);
+//    int pos= ui->radioSeekSlider->value(); //new value
+//    radio_manager->radioSeek(pos);
 }
 
 
@@ -494,10 +494,13 @@ void MainWindow::showTrackOption(){
     QAction *gotoAlbum = new QAction("Go to Album",0);
     QAction *sepe = new QAction("",0);
     sepe->setSeparator(true);
+    QAction *sepe2 = new QAction("",0);
+    sepe2->setSeparator(true);
     QAction *removeSong = new QAction("Remove from queue",0);
-    QAction *deleteSong = new QAction("Remove from collection",0);
+//    QAction *deleteSong = new QAction("Remove from collection && queue",0);
     QAction *deleteSongCache = new QAction("Delete song cache",0);
     deleteSongCache->setEnabled(store_manager->isDownloaded(songId));
+//    deleteSong->setEnabled(store_manager->isInCollection(songId));
 
     QString albumId = store_manager->getAlbumId(songId);
     QString artistId = store_manager->getArtistId(songId);
@@ -531,10 +534,18 @@ void MainWindow::showTrackOption(){
             }
     });
 
-    connect(deleteSong,&QAction::triggered,[=](){
-            qDebug()<<"deleted Song from collection :"<<songId;
-            store_manager->removeFromCollection(songId);
-    });
+//    connect(deleteSong,&QAction::triggered,[=](){
+//            qDebug()<<"deleted Song from collection :"<<songId;
+//            store_manager->removeFromCollection(songId);
+//            for (int i= 0;i<ui->right_list->count();i++) {
+//               QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+//                if(songId==songIdFromWidget){
+//                    ui->right_list->takeItem(i);
+//                    store_manager->removeFromQueue(songId);
+//                    break;
+//                }
+//            }
+//    });
 
     connect(removeSong,&QAction::triggered,[=](){
             qDebug()<<"removed Song :"<<songId;
@@ -554,8 +565,8 @@ void MainWindow::showTrackOption(){
     menu.addAction(gotoArtist);
     menu.addAction(sepe);
     menu.addAction(removeSong);
-    menu.addAction(deleteSong);
-    menu.addAction(sepe);
+//    menu.addAction(deleteSong);
+    menu.addAction(sepe2);
     menu.addAction(deleteSongCache);
 
     menu.exec(QCursor::pos());
@@ -876,8 +887,12 @@ void MainWindow::setThemeColor(QString color){
 void MainWindow::radioStatus(QString radioState){
     if(radioState=="playing"){
         ui->play_pause->setIcon(QIcon(":/icons/p_pause.png"));
-    }else{
+    }else if(radioState=="paused"||radioState=="stopped"){
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
+    }else if(radioState=="stopped"){
+        for (int i= 0;i<ui->right_list->count();i++) {
+          ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
+        }
     }
     ui->state->setText(radioState);
 }
@@ -909,11 +924,10 @@ void MainWindow::radio_demuxer_cache_duration_changed(double seconds_available,d
     }
 }
 
-void MainWindow::radioEOF(QString value){
-   if(value=="false"){
-
-   }
-}
+//void MainWindow::radioEOF(QString value){
+//   if(value=="false"){
+//   }
+//}
 
 void MainWindow::playRadioFromWeb(QVariant streamDetails){
     QString url,title,country,language;
@@ -933,6 +947,10 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
 
     saveTracksAfterBuffer=false;
     radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url.trimmed()));
+
+    for (int i= 0;i<ui->right_list->count();i++) {
+      ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
+    }
 }
 
 

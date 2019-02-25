@@ -113,7 +113,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
 
             if(seekable=="yes"){
                 if(playerPosition==playerDuration){
-                    radioState = "exit";
+                    radioState = "stopped";
                 }
             }
 

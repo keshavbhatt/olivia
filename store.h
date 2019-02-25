@@ -43,7 +43,7 @@ public slots:
     void removeFromQueue(QString songId);
     QString getOfflineUrl(QString trackId);
     void removeFromCollection(QString);
-
+    bool isInCollection(QString trackId);
 
 private slots:
     void initStore(QString dbName);
