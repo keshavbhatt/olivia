@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     checkEngine();
 
     //sets search icon in label
+    ui->label_5->resize(ui->label_5->width(),ui->search->height());
     ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
     store_manager = new store(this,"hjkfdsll");// #6
@@ -609,7 +610,7 @@ void MainWindow::getAudioStream(QString ytIds,QString songId){
 
     ytdlQueue.append(QStringList()<<ytIds<<songId);
 
-    if(ytdlProcess==nullptr){
+    if(ytdlProcess==nullptr && ytdlQueue.count()>0){
         processYtdlQueue();
     }
 
@@ -623,12 +624,11 @@ void MainWindow::processYtdlQueue(){
 
         qDebug()<<songId<<ytIds<<"....processing";
 
-        ytdlQueue.takeAt(0);
+        ytdlQueue.removeAt(0);
 
         qDebug()<<"process queue called";
 
         if(ytdlProcess == nullptr){
-
             qDebug()<<"ENtered loop";
                 ytdlProcess = new QProcess(this);
                 ytdlProcess->setObjectName(songId);
@@ -647,9 +647,6 @@ void MainWindow::processYtdlQueue(){
                 connect(ytdlProcess,SIGNAL(finished(int)),this,SLOT(ytdlFinished(int)));
         }
     }
-
-
-
 }
 
 void MainWindow::ytdlFinished(int code){
@@ -657,8 +654,8 @@ void MainWindow::ytdlFinished(int code){
     ytdlProcess = nullptr;
     qDebug()<<"Process Finishned"<<code;
     if(ytdlQueue.count()>0){
-        processYtdlQueue();
         qDebug()<<"YoutubedlQueueSize:"<<ytdlQueue.count();
+        processYtdlQueue();
     }
 }
 
