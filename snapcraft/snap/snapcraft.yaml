@@ -6,11 +6,12 @@ description: |
 
 grade: stable
 confinement: strict
+icon: snap/gui/olivia.png
 
 apps:
   olivia:
     command: desktop-launch olivia
-    desktop: ./gui/olivia.desktop
+    desktop: usr/share/applications/olivia.desktop
     plugs:
         - home
         - unity7

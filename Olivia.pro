@@ -13,6 +13,10 @@ TEMPLATE = app
 INSTALLS += target
 target.path = /usr/bin
 
+desktop.path = /usr/share/applications/
+desktop.files = olivia.desktop
+
+INSTALLS += desktop
 
 CONFIG += c++11
 
