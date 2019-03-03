@@ -6,5 +6,5 @@ Type=Application
 Icon=${SNAP}/meta/gui/olivia.png
 Keywords=Music Player;itunes;spotify
 Exec=olivia %F
-Categories=Utility;Education;Office;
+Categories=AudioVideo;Player;Qt;Audio;
 Terminal=false
