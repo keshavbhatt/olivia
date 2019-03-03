@@ -4,15 +4,14 @@
 #
 #-------------------------------------------------
 
-QT       += core gui webkit webkitwidgets svg sql
+QT       += core gui webkit webkitwidgets sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = olivia
 TEMPLATE = app
-INSTALLS += target
-target.path = /usr/bin
-
+TARGET.path = /usr/bin
+INSTALLS += TARGET
 
 CONFIG += c++11
 
