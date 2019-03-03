@@ -53,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(radio_manager,SIGNAL(demuxer_cache_duration_changed(double,double)),this,SLOT(radio_demuxer_cache_duration_changed(double,double)));
     connect(radio_manager,SIGNAL(saveTrack(QString)),this,SLOT(saveTrack(QString)));
 
+   // QTimer::singleShot(1000,this,SLOT(evoke_engine_check()));
+
 }
 
 void MainWindow::init_settings(){
@@ -61,9 +63,7 @@ void MainWindow::init_settings(){
     connect(settingsUi.download_engine,SIGNAL(clicked()),this,SLOT(download_engine_clicked()));
 }
 
-//void MainWindow::getVolume(){
-//    radio_manager->setVolume(ui->radioVolumeSlider->value());
-//}
+
 
 //set up app #1
 void MainWindow::init_app(){
@@ -599,6 +599,14 @@ void MainWindow::showTrackOption(){
 
 void MainWindow::getAudioStream(QString ytIds,QString songId){
 
+    QTimer::singleShot(1000, [this]() {
+        if(!checkEngine()){
+            evoke_engine_check();
+            return;
+        }
+    });
+
+
     ytdlQueue.append(QStringList()<<ytIds<<songId);
 
     if(ytdlProcess==nullptr){
@@ -633,7 +641,6 @@ void MainWindow::processYtdlQueue(){
                     }
                 }
                 QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-
                 ytdlProcess->start("python",QStringList()<<addin_path+"/core"<<"--get-url" <<"-i"<< "--extract-audio"<<urlsFinal);
                 ytdlProcess->waitForStarted();
                 connect(ytdlProcess,SIGNAL(readyRead()),this,SLOT(ytdlReadyRead()));
@@ -1063,10 +1070,15 @@ void MainWindow::saveTrack(QString format){
 bool MainWindow::checkEngine(){
     QString setting_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QFileInfo checkFile(setting_path+"/core");
+    bool present = false;
     if(checkFile.exists()&&checkFile.size()>0){
         settingsUi.engine_status->setText("Present");
-}else{settingsUi.engine_status->setText("Absent");}
-    return checkFile.exists();
+        present = true;
+    }else{
+        settingsUi.engine_status->setText("Absent");
+        present = false;
+    }
+    return present;
 }
 
 void MainWindow::download_engine_clicked()
@@ -1148,4 +1160,22 @@ void MainWindow::down_progress(qint64 pos,qint64 tot){
     qDebug()<<pos<<tot<<"fuck";
 }
 
+void MainWindow::evoke_engine_check(){
+    if(settingsUi.engine_status->text()=="Absent"){
+        QMessageBox msgBox;
+          msgBox.setText("Olivia component is missing");
+          msgBox.setInformativeText("Olivia engine is missing, download now ?");
+          msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+          msgBox.setDefaultButton(QMessageBox::Ok);
+          int ret = msgBox.exec();
+          switch (ret) {
+            case QMessageBox::Ok:
+                      on_settings_clicked();
+                      settingsUi.download_engine->click();
+              break;
+            case  QMessageBox::Cancel:
+              break;
+          }
+    }
+}
 

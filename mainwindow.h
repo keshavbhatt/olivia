@@ -140,6 +140,7 @@ private slots:
     void download_engine_clicked();
     void slot_netwManagerFinished(QNetworkReply *reply);
     void down_progress(qint64 pos, qint64 tot);
+    void evoke_engine_check();
 private:
     Ui::MainWindow *ui;
     Ui::track track_ui;
