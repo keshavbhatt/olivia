@@ -10,8 +10,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = olivia
 TEMPLATE = app
-TARGET.path = /usr/bin
-INSTALLS += TARGET
+INSTALLS += target
+target.path = /usr/bin
+
 
 CONFIG += c++11
 
