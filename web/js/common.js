@@ -1,6 +1,7 @@
 //include this lib after loading jquery
 
 var themeColor; //sets the global themeColor for webview is accsible from all web
+var NowPlayingTrackId;
 
 function func() {
 
@@ -28,6 +29,24 @@ function changeBg(rgba){ // sets bg color var in mainwindow and changes bg color
     $(".ui-listview>.ui-li-divider").css("cssText","background-color:rgba("+rgba+") !important;");
 //    $(".ui-input-search.ui-body-inherit.ui-corner-all.ui-shadow-inset.ui-input-has-clear").css("cssText","background-color:rgba("+r+','+g+','+b+','+'0.4'+") !important;"); //dark
     mainwindow.setThemeColor(themeColor);
+}
+
+function setNowPlaying(songId){ //nowPlaying styles are in main.css
+    //removes all now playing
+
+    $(".nowPlaying").remove();
+    $.mobile.activePage.remove(".nowPlaying");
+
+    //adds nowPlaying pages
+    $("#"+songId).css("cssText","position: absolute;left: 0px;top: 0px;max-width:144px");
+    $("#"+songId).each(function( index ) {
+      $( this ).before("<div class='nowPlaying'></div>");
+    });
+
+    //for album [adds nowPlaying active page]
+    $.mobile.activePage.find("#"+songId).css("cssText","position: absolute;left: 0px;top: 0px;max-width:144px");
+    $.mobile.activePage.find("#"+songId).before("<div class='nowPlaying'></div>");
+
 }
 
 

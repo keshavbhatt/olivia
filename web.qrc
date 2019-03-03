@@ -37,5 +37,9 @@
         <file>web/radio/radio.html</file>
         <file>web/radio/station.jpg</file>
         <file>web/radio/station_cover.jpg</file>
+        <file>web/goto/album.html</file>
+        <file>web/goto/artist.html</file>
+        <file>web/goto/main.css</file>
+        <file>web/goto/main.js</file>
     </qresource>
 </RCC>

@@ -93,7 +93,7 @@ function open_local_saved_tracks(){
     for(var i= 0; i < json.length;i++){
         $html = $html+
             "<li data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"' ><a>"+
-            "<img style='max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \>"+
+            "<img id='"+json[i].songId+"' style='max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \>"+
                     "<p>"+
                         ""+json[i].title+
                         "<br>"+

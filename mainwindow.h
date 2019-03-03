@@ -80,6 +80,7 @@ public:
     bool saveTracksAfterBuffer;
 
 
+
 protected slots:
     void resizeEvent(QResizeEvent *resizeEvent);
     bool eventFilter(QObject *obj, QEvent *event);
@@ -128,6 +129,8 @@ private slots:
     void radio_demuxer_cache_duration_changed(double, double radio_playerPosition);
     void init_search_autoComplete();
     void saveTrack(QString format);
+    void ytdlFinished(int code);
+    void processYtdlQueue();
 private:
     Ui::MainWindow *ui;
     Ui::track track_ui;
@@ -138,16 +141,21 @@ private:
     bool isLoadingResults;
     QString offsetstr;
 
+    QString gotoAlbumId,gotoArtistId;
+    QString nowPlayingSongId;
 
 
     store *store_manager = nullptr;
     radio *radio_manager = nullptr;
-    QString nowPlayingSongId;
     QString themeColor = "4,42,59,0.2";
 
     QStringList searchSuggestionList;
 
     onlineSearchSuggestion * _onlineSearchSuggestion_ = nullptr;
+
+    QList<QStringList> ytdlQueue ;
+
+   QProcess * ytdlProcess = nullptr;
 
 };
 

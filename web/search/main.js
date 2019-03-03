@@ -119,7 +119,11 @@ function track_search(term){
                },
         success: function(html) {
             $.mobile.loading("hide");
-            $("#tracks_result").append(html).listview("refresh");
+            if($(html).text().indexOf("Olivia suggest")>0){
+                $('#tracks_page .ui-content').html(html);
+            }else{
+                $("#tracks_result").append(html).listview("refresh");
+            }
             $('#tracks_page .ui-content').trigger('create');
             $('#tracks_page .ui-content').fadeIn('slow');
             track_loaded = true;
@@ -128,6 +132,28 @@ function track_search(term){
     });
 }
 
+
+function manual_youtube_search(){
+    $.mobile.changePage($('#manul_youtube_page'));
+    var term = $("#manual_search").val();
+    showLoading();
+    $('#manul_youtube_page_result').html("");
+    $.ajax({
+       url: baseUrl+"manual_youtube_search.php",
+//         url:"http://localhost/projects/manual_youtube_search.php",
+              type:"GET",
+              data:{
+                   "query":term
+              },
+       success: function(html) {
+           $.mobile.loading("hide");
+           $("#manul_youtube_page_result").append(html).listview("refresh");
+           $('#manul_youtube_page .ui-content').trigger("create");
+           $('#manul_youtube_page .ui-content').fadeIn('slow');
+       }
+   });
+
+}
 
 function album_search(term){
      showLoading();
@@ -261,24 +287,6 @@ function gettrackinfo(searchterm){
     });
 }
 
-function setNowPlaying(songId){ //nowPlaying styles are in main.css
-
-    //removes all now playing
-
-    $(".nowPlaying").remove();
-    $.mobile.activePage.remove(".nowPlaying");
-
-    //adds nowPlaying pages
-    $("#"+songId).css("cssText","position: absolute;left: 0px;top: 0px;");
-    $("#"+songId).each(function( index ) {
-      $( this ).before("<div class='nowPlaying'></div>");
-    });
-
-    //for album [adds nowPlaying active page]
-    $.mobile.activePage.find("#"+songId).css("cssText","position: absolute;left: 0px;top: 0px;");
-    $.mobile.activePage.find("#"+songId).before("<div class='nowPlaying'></div>");
-
-}
 
 
 

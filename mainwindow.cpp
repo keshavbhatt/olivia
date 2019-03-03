@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
     init_webview();// #2
     init_offline_storage();//  #3
 
+    //sets search icon in label
+    ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
     store_manager = new store(this,"hjkfdsll");// #6
     ui->debug_widget->hide();
@@ -113,7 +115,7 @@ void MainWindow::init_webview(){
     }
     ui->webview->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     ui->webview->settings()->enablePersistentStorage(setting_path);
-    QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, false);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, false);
 
@@ -346,6 +348,9 @@ void MainWindow::webViewLoaded(bool loaded){
     if(loaded){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"),  this);
         ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+themeColor+"')");
+        ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongId+"'");
+
+        ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+nowPlayingSongId+"')");
         QWebSettings::globalSettings()->clearMemoryCaches();
         ui->webview->history()->clear();
     }
@@ -369,6 +374,15 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
     }
 
+    if(pageType=="goto_album"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("album_view('"+gotoAlbumId+"')");
+    }
+
+    if(pageType=="goto_artist"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("artist_view('"+gotoArtistId+"')");
+    }
     if(pageType=="search"){
         if(!ui->search->text().isEmpty() && loaded && !offsetstr.contains("offset")){
             ui->left_list->setCurrentRow(3);
@@ -489,7 +503,6 @@ void MainWindow::showTrackOption(){
     QString songId = senderButton->objectName().remove("optionButton").trimmed();
 
 
-    QAction *gotoSong = new QAction("Go to Song",0);
     QAction *gotoArtist= new QAction("Go to Artist",0);
     QAction *gotoAlbum = new QAction("Go to Album",0);
     QAction *sepe = new QAction("",0);
@@ -508,15 +521,18 @@ void MainWindow::showTrackOption(){
 
     connect(gotoAlbum,&QAction::triggered,[=](){
             qDebug()<<"goto Album :"<<albumId;
+            ui->webview->load(QUrl("qrc:///web/goto/album.html"));
+            pageType = "goto_album";
+            gotoAlbumId = albumId;
     });
 
     connect(gotoArtist,&QAction::triggered,[=](){
             qDebug()<<"goto Artist :"<<artistId;
+            ui->webview->load(QUrl("qrc:///web/goto/artist.html"));
+            pageType = "goto_artist";
+            gotoArtistId = artistId;
     });
 
-    connect(gotoSong,&QAction::triggered,[=](){
-            qDebug()<<"goto Song :"<<songId;
-    });
 
     connect(deleteSongCache,&QAction::triggered,[=](){
         QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
@@ -560,7 +576,6 @@ void MainWindow::showTrackOption(){
     });
 
     QMenu menu;
-    menu.addAction(gotoSong);
     menu.addAction(gotoAlbum);
     menu.addAction(gotoArtist);
     menu.addAction(sepe);
@@ -572,20 +587,61 @@ void MainWindow::showTrackOption(){
     menu.exec(QCursor::pos());
 }
 
-void MainWindow::getAudioStream(QString ytIds,QString songId){
-    QProcess *ytdl = new QProcess(this);
-    ytdl->setObjectName(songId);
 
-    QStringList urls = ytIds.split("<br>");
-    QStringList urlsFinal;
-    for(int i=0; i < urls.count();i++){
-        if(!urls.at(i).isEmpty()){
-            urlsFinal.append("https://www.youtube.com/watch?v="+urls.at(i));
+void MainWindow::getAudioStream(QString ytIds,QString songId){
+
+    ytdlQueue.append(QStringList()<<ytIds<<songId);
+
+    if(ytdlProcess==nullptr){
+        processYtdlQueue();
+    }
+
+}
+
+void MainWindow::processYtdlQueue(){
+
+    if(ytdlQueue.count()>0){
+        QString ytIds = QString(ytdlQueue.at(0).at(0).split(",").first());
+        QString songId = QString(ytdlQueue.at(0).at(1).split(",").last());
+
+        qDebug()<<songId<<ytIds<<"....processing";
+
+        ytdlQueue.takeAt(0);
+
+        qDebug()<<"process queue called";
+
+        if(ytdlProcess == nullptr){
+
+            qDebug()<<"ENtered loop";
+                ytdlProcess = new QProcess(this);
+                ytdlProcess->setObjectName(songId);
+
+                QStringList urls = ytIds.split("<br>");
+                QStringList urlsFinal;
+                for(int i=0; i < urls.count();i++){
+                    if(!urls.at(i).isEmpty()){
+                        urlsFinal.append("https://www.youtube.com/watch?v="+urls.at(i));
+                    }
+                }
+                ytdlProcess->start("youtube-dl",QStringList()<<"--get-url" <<"-i"<< "--extract-audio"<<urlsFinal);
+                ytdlProcess->waitForStarted();
+                connect(ytdlProcess,SIGNAL(readyRead()),this,SLOT(ytdlReadyRead()));
+                connect(ytdlProcess,SIGNAL(finished(int)),this,SLOT(ytdlFinished(int)));
         }
     }
-    ytdl->start("youtube-dl",QStringList()<<"--get-url" <<"-i"<< "--extract-audio"<<urlsFinal);
-    ytdl->waitForStarted();
-    connect(ytdl,SIGNAL(readyRead()),this,SLOT(ytdlReadyRead()));
+
+
+
+}
+
+void MainWindow::ytdlFinished(int code){
+//    Q_UNUSED(code);
+    ytdlProcess = nullptr;
+    qDebug()<<"Process Finishned"<<code;
+    if(ytdlQueue.count()>0){
+        processYtdlQueue();
+        qDebug()<<"YoutubedlQueueSize:"<<ytdlQueue.count();
+    }
 }
 
 void MainWindow::ytdlReadyRead(){
@@ -606,7 +662,7 @@ void MainWindow::ytdlReadyRead(){
             QString url_str = s_data.trimmed();
             ((QLineEdit*)(url))->setText(url_str);
             QProcess* senderProcess = qobject_cast<QProcess*>(sender()); // retrieve the button clicked
-            senderProcess->kill();
+            senderProcess->finished(0);
             QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(url_str.toUtf8())).queryItemValue("expire").trimmed();
             if(expiryTime.isEmpty()){
                 expiryTime = url_str.split("/expire/").last().split("/").first().trimmed();

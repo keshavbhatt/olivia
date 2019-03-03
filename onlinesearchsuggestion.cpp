@@ -163,6 +163,7 @@ void onlineSearchSuggestion::handleNetworkData(QNetworkReply *networkReply)
                      }
                 }
             }
+            if(timer.isActive())
         showCompletion(choices);
     }
     networkReply->deleteLater();

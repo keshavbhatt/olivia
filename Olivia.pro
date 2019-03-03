@@ -8,8 +8,11 @@ QT       += core gui webkit webkitwidgets svg sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Olivia
+TARGET = olivia
 TEMPLATE = app
+INSTALLS += target
+target.path = /usr/bin
+
 
 CONFIG += c++11
 
