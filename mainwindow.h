@@ -59,6 +59,8 @@
 #include "radio.h"
 #include "onlinesearchsuggestion.h"
 
+#include "ui_settings.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -131,11 +133,22 @@ private slots:
     void saveTrack(QString format);
     void ytdlFinished(int code);
     void processYtdlQueue();
+    void on_settings_clicked();
+
+    void init_settings();
+    bool checkEngine();
+    void download_engine_clicked();
+    void slot_netwManagerFinished(QNetworkReply *reply);
+    void down_progress(qint64 pos, qint64 tot);
 private:
     Ui::MainWindow *ui;
     Ui::track track_ui;
+    Ui::settings settingsUi;
 
-    QSettings *settings;
+    QWidget *settingsWidget;
+
+
+    QSettings * settings;
     QString pageType;
     int currentResultPage;
     bool isLoadingResults;
@@ -156,6 +169,7 @@ private:
     QList<QStringList> ytdlQueue ;
 
    QProcess * ytdlProcess = nullptr;
+   QFile *core_file;
 
 };
 

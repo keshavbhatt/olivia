@@ -26,6 +26,9 @@ MainWindow::MainWindow(QWidget *parent) :
     init_webview();// #2
     init_offline_storage();//  #3
 
+    init_settings();
+    checkEngine();
+
     //sets search icon in label
     ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
@@ -50,6 +53,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(radio_manager,SIGNAL(demuxer_cache_duration_changed(double,double)),this,SLOT(radio_demuxer_cache_duration_changed(double,double)));
     connect(radio_manager,SIGNAL(saveTrack(QString)),this,SLOT(saveTrack(QString)));
 
+}
+
+void MainWindow::init_settings(){
+    settingsWidget = new QWidget(0);
+    settingsUi.setupUi(settingsWidget);
+    connect(settingsUi.download_engine,SIGNAL(clicked()),this,SLOT(download_engine_clicked()));
 }
 
 //void MainWindow::getVolume(){
@@ -623,7 +632,9 @@ void MainWindow::processYtdlQueue(){
                         urlsFinal.append("https://www.youtube.com/watch?v="+urls.at(i));
                     }
                 }
-                ytdlProcess->start("youtube-dl",QStringList()<<"--get-url" <<"-i"<< "--extract-audio"<<urlsFinal);
+                QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+
+                ytdlProcess->start("python",QStringList()<<addin_path+"/core"<<"--get-url" <<"-i"<< "--extract-audio"<<urlsFinal);
                 ytdlProcess->waitForStarted();
                 connect(ytdlProcess,SIGNAL(readyRead()),this,SLOT(ytdlReadyRead()));
                 connect(ytdlProcess,SIGNAL(finished(int)),this,SLOT(ytdlFinished(int)));
@@ -911,6 +922,17 @@ void MainWindow::on_menu_clicked()
     }
 }
 
+
+void MainWindow::on_settings_clicked()
+{
+    if(!settingsWidget->isVisible())
+    {
+        settingsWidget->setWindowFlags(Qt::Popup);
+        settingsWidget->move(ui->settings->mapToGlobal(QPoint(QPoint(-settingsWidget->width()+ui->settings->width(),30))));
+        settingsWidget->showNormal();
+    }
+}
+
 void MainWindow::getNowPlayingTrackId(){
     for(int i = 0 ; i< ui->right_list->count();i++){
          if(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
@@ -1036,5 +1058,94 @@ void MainWindow::saveTrack(QString format){
 
 
 
+//ENGINE STUFF
+
+bool MainWindow::checkEngine(){
+    QString setting_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QFileInfo checkFile(setting_path+"/core");
+    if(checkFile.exists()&&checkFile.size()>0){
+        settingsUi.engine_status->setText("Present");
+}else{settingsUi.engine_status->setText("Absent");}
+    return checkFile.exists();
+}
+
+void MainWindow::download_engine_clicked()
+{
+    settingsUi.download_engine->setEnabled(false);
+    settingsUi.engine_status->setText("Downloading core(1.4mb octet-stream)");
+    QMovie *movie=new QMovie(":/icons/others/load.gif");
+    settingsUi.loading_movie->setVisible(true);
+    movie->start();
+    settingsUi.loading_movie->setMovie(movie);
+    QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QDir dir(addin_path);
+    if (!dir.exists())
+    dir.mkpath(addin_path);
+
+    QString filename = "core";
+    core_file =  new QFile(addin_path+"/"+filename ); //addin_path
+    if(!core_file->open(QIODevice::ReadWrite | QIODevice::Truncate)){
+        throw std::runtime_error("Could not open a file to write.");
+    }
+
+    QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
+    QObject::connect(m_netwManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slot_netwManagerFinished(QNetworkReply*)));
+    QUrl url("https://yt-dl.org/downloads/latest/youtube-dl");
+    QNetworkRequest request(url);
+    m_netwManager->get(request);
+}
+
+void MainWindow::slot_netwManagerFinished(QNetworkReply *reply)
+{
+    reply->deleteLater();
+    if(reply->error() == QNetworkReply::NoError){
+        // Get the http status code
+        int v = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        if (v >= 200 && v < 300) // Success
+        {
+            if(reply->error() == QNetworkReply::NoError){
+                core_file->write(reply->readAll());
+                core_file->close();
+                checkEngine();
+                settingsUi.loading_movie->movie()->stop();
+                settingsUi.loading_movie->setVisible(false);
+                }else{
+                core_file->remove();
+            }
+            settingsUi.download_engine->setEnabled(true);
+        }
+        else if (v >= 300 && v < 400) // Redirection
+        {
+            // Get the redirection url
+            QUrl newUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+            // Because the redirection url can be relative  we need to use the previous one to resolve it
+            newUrl = reply->url().resolved(newUrl);
+//                qDebug()<<newUrl<<"redirected url";
+
+            QNetworkAccessManager *manager = new QNetworkAccessManager();
+            connect(manager, SIGNAL(finished(QNetworkReply*)),this, SLOT(slot_netwManagerFinished(QNetworkReply*))); //keeep requesting until reach final url
+            manager->get(QNetworkRequest(newUrl));
+        }
+    }
+    else //error
+    {
+        QString err = reply->errorString();
+        if(err.contains("not")){ //to hide "Host yt-dl.org not found"
+       settingsUi.engine_status->setText("Host not Found");}
+        else if(err.contains("session")||err.contains("disabled")){
+            settingsUi.engine_status->setText(err);
+        }
+        settingsUi.loading_movie->movie()->stop();
+        settingsUi.loading_movie->setVisible(false);
+        settingsUi.download_engine->setEnabled(true);
+
+        reply->manager()->deleteLater();
+    }
+    connect(reply,SIGNAL(downloadProgress(qint64,qint64)),this,SLOT(down_progress(qint64,qint64)));
+
+}
+void MainWindow::down_progress(qint64 pos,qint64 tot){
+    qDebug()<<pos<<tot<<"fuck";
+}
 
 
