@@ -58,7 +58,8 @@ HEADERS  += mainwindow.h \
     volumeslider.h
 
 FORMS    += mainwindow.ui \
-    track.ui
+    track.ui \
+    settings.ui
 
 RESOURCES += \
     darkstyle.qrc \
