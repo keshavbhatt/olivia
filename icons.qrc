@@ -36,5 +36,10 @@
         <file>icons/cover_wrapper.png</file>
         <file>icons/url_issue.png</file>
         <file>icons/sidebar/radio.png</file>
+        <file>icons/others/wrench.png</file>
+        <file>icons/others/donwload2.png</file>
+        <file>icons/others/remove2.png</file>
+        <file>icons/settings.png</file>
+        <file>icons/others/load.gif</file>
     </qresource>
 </RCC>
