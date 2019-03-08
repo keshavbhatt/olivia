@@ -6,7 +6,7 @@
 volumeSlider::volumeSlider(QWidget *parent)
     : QSlider(parent)
 {
-
+    setMouseTracking(true);
 }
 
 void volumeSlider::paintEvent(QPaintEvent *ev) {
@@ -23,3 +23,20 @@ void volumeSlider::paintEvent(QPaintEvent *ev) {
   QPainter painter(this);
   painter.fillRect(rect, QBrush(QColor(42,130,218,80)));
 }
+
+void volumeSlider::mouseMoveEvent(QMouseEvent *ev){
+    emit showToolTip(ev->localPos().toPoint());
+    QSlider::mouseMoveEvent(ev);
+}
+
+void volumeSlider::mousePressEvent(QMouseEvent *ev){
+    emit setPosition(ev->localPos().toPoint());
+    QSlider::mousePressEvent(ev);
+}
+
+void volumeSlider::wheelEvent(QWheelEvent *e){
+    emit showToolTip(QPoint(0,0));
+    QSlider::wheelEvent(e);
+}
+
+

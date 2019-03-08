@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSlider>
 #include <QWidget>
+#include <QMouseEvent>
 
 class seekSlider : public QSlider
 {
@@ -11,9 +12,14 @@ class seekSlider : public QSlider
 public:
     seekSlider(QWidget* parent=0);
     double subControlWidth;
+signals:
+    void setPosition(QPoint localPos);
+    void showToolTip(QPoint localPos);
 protected:
     void paintEvent(QPaintEvent *ev);
-
+    void mousePressEvent(QMouseEvent *ev);
+    void mouseMoveEvent(QMouseEvent *ev) ;
+    void wheelEvent(QWheelEvent *e);
 };
 
 #endif // SEEKSLIDER_H
