@@ -37,16 +37,29 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
     $(".nowPlaying").remove();
     $.mobile.activePage.remove(".nowPlaying");
 
+    var songIdStr = "#"+songId;
+
+    var maxWidth;
+    if($(songIdStr).css("max-width")!== "undefined"){
+        maxWidth = $(songIdStr).css("max-width");
+    }else{
+        maxWidth = "100px";
+    }
+
     //adds nowPlaying pages
-    $("#"+songId).css("cssText","position: absolute;left: 0px;top: 0px;max-width:144px");
-    $("#"+songId).each(function( index ) {
-      $( this ).before("<div class='nowPlaying'></div>");
+    $(songIdStr).css("cssText","position: absolute;left: 0px;top: 0px;max-width:"+maxWidth+"; width:"+maxWidth+"; ");
+    $(songIdStr).each(function( index ) {
+      $( this ).before("<div style='max-width:"+maxWidth+"; width:"+maxWidth+";' class='nowPlaying'></div>");
     });
 
     //for album [adds nowPlaying active page]
-    $.mobile.activePage.find("#"+songId).css("cssText","position: absolute;left: 0px;top: 0px;max-width:144px");
-    $.mobile.activePage.find("#"+songId).before("<div class='nowPlaying'></div>");
+    $.mobile.activePage.find(songIdStr).css("cssText","position: absolute;left: 0px;top: 0px;max-width:"+maxWidth+"; width:"+maxWidth+";");
+    $.mobile.activePage.find(songIdStr).before("<div style='max-width:"+maxWidth+"; width:"+maxWidth+";' class='nowPlaying'></div>");
 
 }
 
+
+//function escape_str( str ) {
+//    return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+//}
 

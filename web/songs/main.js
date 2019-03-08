@@ -92,8 +92,8 @@ function open_saved_tracks(){
     $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" songs in library");
     for(var i= 0; i < json.length;i++){
         $html = $html+
-            "<li data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"' ><a>"+
-            "<img style='max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \>"+
+            "<li onclick='mainwindow.playLocalTrack(\""+json[i].songId+"\")' data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"'  data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"' ><a>"+
+            "<img id='"+json[i].songId+"' style='max-width:100px;max-height:144px;width=100px;height=100px;'  src='data:image/png;base64,"+json[i].base64+"' \>"+
                     "<p>"+
                         ""+json[i].title+
                         "<br>"+
@@ -171,23 +171,7 @@ function gettrackinfo(searchterm){
     });
 }
 
-function setNowPlaying(songId){ //nowPlaying styles are in main.css
 
-    //removes all now playing
-
-    $(".nowPlaying").remove();
-    $.mobile.activePage.remove(".nowPlaying");
-
-    //adds nowPlaying pages
-    $("#"+songId).css("cssText","position: absolute;left: 0px;top: 0px;");
-    $("#"+songId).each(function( index ) {
-      $( this ).before("<div class='nowPlaying'></div>");
-    });
-
-    //for album [adds nowPlaying active page]
-    $.mobile.activePage.find("#"+songId).css("cssText","position: absolute;left: 0px;top: 0px;");
-    $.mobile.activePage.find("#"+songId).before("<div class='nowPlaying'></div>");
-}
 
 
 

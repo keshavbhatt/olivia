@@ -41,5 +41,9 @@
         <file>web/goto/artist.html</file>
         <file>web/goto/main.css</file>
         <file>web/goto/main.js</file>
+        <file>web/youtube/main.css</file>
+        <file>web/youtube/main.js</file>
+        <file>web/youtube/youtube.html</file>
+        <file>web/js/jquery.mobile-1.4.5.min.map</file>
     </qresource>
 </RCC>

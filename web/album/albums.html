@@ -84,6 +84,18 @@
         </div><!-- /footer -->
     </div>
 
+    <div id="album_view_page" data-role="page" data-theme="b" data-title="ALBUMS VIEW">
+        <div role="main" class="ui-content">
+            <ul style="margin-right: 20px;"  class="list" id="saved_tracks_result"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
+                <!--load data here-->
+            </ul>
+            <!--load data here-->
+        </div>
+        <div style="opacity:0.9" data-role="footer" data-position="fixed" data-tap-toggle="false">
+            <a style="display: block;background-color: rgba(36, 142, 179, 0.5)" onclick="$.mobile.changePage($('#albums_page'));" class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all">Back to Albums</a>
+        </div><!-- /footer -->
+    </div>
+
 
 </body>
 </html>

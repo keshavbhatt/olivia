@@ -250,6 +250,7 @@ function toDataUrl(url, callback) {
 
 
 function gettrackinfo(searchterm){
+    var videoId;
     colorThief = new ColorThief();
     var arr = searchterm.split("!=-=!")
     title = arr[0];
@@ -261,6 +262,10 @@ function gettrackinfo(searchterm){
     artistId= arr[6];
     millis = arr[7];
 
+    if(albumId.includes("undefined")){ //yt case
+        videoId = arr[4];
+    }
+
     var query = title.replace("N/A","")+" - "+artist.replace("N/A",""); //+" - "+album.replace("N/A","")
 
     console.log(query);
@@ -270,23 +275,28 @@ function gettrackinfo(searchterm){
     toDataUrl(coverUrl, function(myBase64) {
         base64 = myBase64;
         document.querySelector("#coverImage").setAttribute("src",coverUrl);
-        $.ajax({
-            url: baseUrl+"youtube.php",
-                   type:"GET",
-                   data:{
-                        "query": query,
-                        "millis": millis
-                   },
-            success: function(html) {
-                html_data =html;
-                mainwindow.addToQueue(html_data,title,artist,album,base64,dominantColor,songId,albumId,artistId);
-                $.mobile.loading("hide");
-            }
-        });
+        if(albumId.includes("undefined")){
+            mainwindow.addToQueue(videoId+"<br>",title,artist,album,base64,dominantColor,songId,albumId,artistId);
+            $.mobile.loading("hide");
+        }else{
+            $.ajax({
+                url: baseUrl+"youtube.php",
+                       type:"GET",
+                       data:{
+                            "query": query,
+                            "millis": millis
+                       },
+                success: function(html) {
+                    html_data =html;
+                    mainwindow.addToQueue(html_data,title,artist,album,base64,dominantColor,songId,albumId,artistId);
+                    $.mobile.loading("hide");
+                }
+            });
+        }
+
 
     });
 }
-
 
 
 

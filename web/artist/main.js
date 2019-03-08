@@ -177,23 +177,6 @@ function gettrackinfo(searchterm){
     });
 }
 
-function setNowPlaying(songId){ //nowPlaying styles are in main.css
-
-    //removes all now playing
-
-    $(".nowPlaying").remove();
-    $.mobile.activePage.remove(".nowPlaying");
-
-    //adds nowPlaying pages
-    $("#"+songId).css("cssText","position: absolute;left: 0px;top: 0px;");
-    $("#"+songId).each(function( index ) {
-      $( this ).before("<div class='nowPlaying'></div>");
-    });
-
-    //for album [adds nowPlaying active page]
-    $.mobile.activePage.find("#"+songId).css("cssText","position: absolute;left: 0px;top: 0px;");
-    $.mobile.activePage.find("#"+songId).before("<div class='nowPlaying'></div>");
-}
 
 
 
