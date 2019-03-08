@@ -78,7 +78,7 @@ void store::createTable(QString dbName){
     //tables
     QSqlQuery track;
     bool track_created = track.exec("create table tracks "
-              "(trackId INTEGER PRIMARY KEY, "
+              "(trackId varchar(500) PRIMARY KEY, "
               "albumId varchar(300), "
               "artistId varchar(300),"
               "title varchar(300),"
@@ -86,12 +86,12 @@ void store::createTable(QString dbName){
     QSqlQuery queue;
     bool queue_created = queue.exec("create table queue "
               "(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
-                "trackId integer )"
+                "trackId varchar(500) )"
                );
 
     QSqlQuery artist;
     bool artist_created = artist.exec("create table artist "
-              "(artistId INTEGER PRIMARY KEY,"
+              "(artistId varchar(500) PRIMARY KEY,"
               "artistName varchar(300))"
                );
 
@@ -109,7 +109,7 @@ void store::createTable(QString dbName){
 
     QSqlQuery ytIds;
     bool ytIds_created = ytIds.exec("create table ytIds "
-              "(trackId INTEGER PRIMARY KEY,"
+              "(trackId varchar(500) PRIMARY KEY,"
               "ids varchar(500))"
                );
 
@@ -121,7 +121,7 @@ void store::createTable(QString dbName){
 
     QSqlQuery streamUrl;
     bool streamUrl_created = streamUrl.exec("create table stream_url "
-              "(trackId INTEGER PRIMARY KEY,"
+              "(trackId varchar(500) PRIMARY KEY,"
               "url varchar(500),"
               "timeOfExpiry varchar(70))"
                );
@@ -573,12 +573,40 @@ QString store::web_print_local_saved_tracks(){
     return json.toJson();
 }
 // returns json array string of local albums
+
+//qDebug()<<"LOAD LOCAL SAVED ALBUMS";
+//QJsonDocument json;
+//QJsonArray recordsArray;
+//foreach (QStringList albumList, getAllAlbums()) {
+//    QJsonObject recordObject;
+
+//    QString albumId,albumName,artistName,base64,dominantColor,artistId,tracksCount;
+//    albumId = albumList.at(0);
+//    albumName = albumList.at(1);
+//    base64 = albumList.at(2);
+//    dominantColor = albumList.at(3);
+//    artistName = albumList.at(4);
+//    artistId = albumList.at(5);
+//    tracksCount = albumList.at(6);
+
+//    recordObject.insert("albumId",albumId);
+//    recordObject.insert("albumName",albumName);
+//    recordObject.insert("base64",base64);
+//    recordObject.insert("dominantColor",dominantColor);
+//    recordObject.insert("artistName",artistName);
+//    recordObject.insert("artistId",artistId);
+//    recordObject.insert("tracksCount",tracksCount);
+//    recordsArray.push_back(recordObject);
+
 QString store::web_print_saved_albums(){
     qDebug()<<"LOAD LOCAL SAVED ALBUMS";
     QJsonDocument json;
     QJsonArray recordsArray;
+    QJsonObject recordObject;
+    int untitledAlbumsRecordObjectCount =0;
+
+
     foreach (QStringList albumList, getAllAlbums()) {
-        QJsonObject recordObject;
         QString albumId,albumName,artistName,base64,dominantColor,artistId,tracksCount;
         albumId = albumList.at(0);
         albumName = albumList.at(1);
@@ -588,15 +616,34 @@ QString store::web_print_saved_albums(){
         artistId = albumList.at(5);
         tracksCount = albumList.at(6);
 
-        recordObject.insert("albumId",albumId);
-        recordObject.insert("albumName",albumName);
-        recordObject.insert("base64",base64);
-        recordObject.insert("dominantColor",dominantColor);
-        recordObject.insert("artistName",artistName);
-        recordObject.insert("artistId",artistId);
-        recordObject.insert("tracksCount",tracksCount);
+        if(albumId.contains("undefined")){
+            albumName="untitled";
+            untitledAlbumsRecordObjectCount = untitledAlbumsRecordObjectCount+1 ;
+            //qDebug()<<albumName;
+        }
+
+        if(!albumId.contains("undefined")){
+            recordObject.insert("albumId",albumId);
+            recordObject.insert("albumName",albumName);
+            recordObject.insert("base64",base64);
+            recordObject.insert("dominantColor",dominantColor);
+            recordObject.insert("artistName",artistName);
+            recordObject.insert("artistId",artistId);
+            recordObject.insert("tracksCount",tracksCount);
+            recordsArray.push_back(recordObject);
+        }
+    }
+    if(untitledAlbumsRecordObjectCount>0){
+        recordObject.insert("albumId","untitled");
+        recordObject.insert("albumName","Youtube");
+        recordObject.insert("base64","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");
+        recordObject.insert("dominantColor","75,245,85");
+        recordObject.insert("artistName","Various");
+        recordObject.insert("artistId","undefined");
+        recordObject.insert("tracksCount",QString::number(untitledAlbumsRecordObjectCount));
         recordsArray.push_back(recordObject);
     }
+
     json.setArray(recordsArray);
     return json.toJson();
 }
@@ -617,6 +664,62 @@ QString store::web_print_saved_artists(){
         recordObject.insert("artistId",artistId);
         recordObject.insert("artistName",artistName);
         recordObject.insert("tracksCount",tracksCount);
+        recordsArray.push_back(recordObject);
+    }
+    json.setArray(recordsArray);
+    return json.toJson();
+}
+
+//helper function for web_print_album_tracks
+QList<QStringList> store::getAlbumTrackList(QString albumId){
+    QList<QStringList> trackList ;
+     if(albumId=="untitled"){
+         albumId = "undefined";
+         QSqlQuery query;
+         query.exec("SELECT trackId FROM tracks WHERE albumId LIKE '%"+albumId+"%' ");
+          if(query.record().count()>0){
+             while(query.next()){
+               trackList.append(getTrack(query.value("trackId").toString()));
+             }
+         }
+     }else{
+         QSqlQuery query;
+         query.exec("SELECT trackId FROM tracks WHERE albumId = '"+albumId+"'");
+          if(query.record().count()>0){
+             while(query.next()){
+               trackList.append(getTrack(query.value("trackId").toString()));
+             }
+         }
+     }
+    return trackList;
+}
+
+QString store::web_print_album_tracks(QVariant albumId){
+    qDebug()<<"LOAD ALBUM TRACKS";
+    QJsonDocument json;
+    QJsonArray recordsArray;
+    foreach (QStringList trackDetails, getAlbumTrackList(albumId.toString())) {
+        QJsonObject recordObject;
+        QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
+        songId = trackDetails.at(0);
+        title = trackDetails.at(1);
+        albumId = trackDetails.at(2);
+        album = trackDetails.at(3);
+        artistId = trackDetails.at(4);
+        artist = trackDetails.at(5);
+        base64 = trackDetails.at(6);
+        url = trackDetails.at(7);
+        id = trackDetails.at(8);
+        dominantColor = trackDetails.at(9);
+        recordObject.insert("songId",songId);
+        recordObject.insert("title",title);
+        recordObject.insert("albumId",albumId);
+        recordObject.insert("album",album);
+        recordObject.insert("artistId",artistId);
+        recordObject.insert("artist",artist);
+        recordObject.insert("base64",base64);
+        recordObject.insert("url",url);
+        recordObject.insert("id",id);
         recordsArray.push_back(recordObject);
     }
     json.setArray(recordsArray);

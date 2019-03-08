@@ -15,6 +15,7 @@ public:
     Q_INVOKABLE QString web_print_local_saved_tracks();
     Q_INVOKABLE QString web_print_saved_albums();
     Q_INVOKABLE QString web_print_saved_artists();
+    Q_INVOKABLE QString web_print_album_tracks(QVariant albumId);
 
 signals:
 
@@ -61,6 +62,7 @@ private slots:
     QStringList getAlbumDetails(QString albumId);
     QList<QStringList> getAllArtists();
     QStringList getArtistDetails(QString artistId);
+    QList<QStringList> getAlbumTrackList(QString albumId);
 };
 
 #endif // STORE_H
