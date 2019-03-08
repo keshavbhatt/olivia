@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<title>Browse</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
+    <script src="qrc:///web/js/jquery-1.11.1.min.js"></script>
+    <script src="qrc:///web/youtube/main.js"></script>
+    <script src="qrc:///web/js/jquery.mobile-1.4.5.min.js"></script>
+    <link rel="stylesheet" href="qrc:///web/youtube/main.css" />
+
+    <script src="qrc:///web/js/color-thief.min.js"></script>
+    <link rel="stylesheet" href="qrc:///web/scroll.css" />
+    <script src="qrc:///web/js/common.js"></script>
+
+</head>
+<!-- oncontextmenu="return false;" -->
+<body  onselectstart="return false;" ondragstart="return false;" ondrop="return false;">
+
+    <img style="display:none;" src="" id="coverImage" />
+
+    <div class="ui-loader-background"> </div>
+     
+
+     
+
+    <div id="manul_youtube_page" data-role="page" data-theme="b" data-title="YOUTUBE SEARCH">
+        <div role="main" class="ui-content">
+        <form class="ui-filterable">
+            <input data-mini='false' data-type="search" name='manual_search' id='manual_search' value='' >
+            <a data-mini='false' type='submit' data-role='button' onclick="manual_youtube_search()">Search on Youtube</a>
+        </form>
+
+        <ul   class="list" id="manul_youtube_page_suggestions"  data-filter="true" data-input="#manual_search"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
+        </ul>
+            <!--load data here-->
+            <ul   class="list" id="manul_youtube_page_result"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
+            </ul>
+        </div>
+    </div>
+    
+</body>
+</html>
