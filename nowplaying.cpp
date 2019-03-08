@@ -2,6 +2,7 @@
 #include <QPainter>
 #include <QDebug>
 #include <QPaintEvent>
+#include <QLabel>
 
 nowPlaying::nowPlaying(QWidget *parent) : QWidget(parent)
 {
@@ -30,6 +31,32 @@ void nowPlaying::paintEvent( QPaintEvent* e )
     painter.drawRect(rect());
 
     QWidget::paintEvent(e);
+}
+
+void nowPlaying::wheelEvent(QWheelEvent *event){
+//    QLabel *cover = this->findChild<QLabel *>("cover");
+//    ((QLabel*)(cover))->resize(278,100);
+//   ((QLabel*)(cover))->setPixmap(QPixmap(*cover->pixmap()).scaled(278,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+//    event->accept();
+    const int degrees = event->delta()  / 8;
+      qDebug() << degrees;
+      int steps = degrees / 15;
+      qDebug() << steps;
+      double scaleFactor = 1.0; //How fast we zoom
+      const qreal minFactor = 1.0;
+      const qreal maxFactor = 10.0;
+      if(steps > 0)
+      {
+          qDebug()<<"zoomin";
+         //h11 = (h11 >= maxFactor) ? h11 : (h11 + scaleFactor);
+         //h22 = (h22 >= maxFactor) ? h22 : (h22 + scaleFactor);
+      }
+      else
+     {
+          qDebug()<<"zoomout";
+         //h11 = (h11 <= minFactor) ? minFactor : (h11 - scaleFactor);
+         //h22 = (h22 <= minFactor) ? minFactor : (h22 - scaleFactor);
+     }
 }
 
 void nowPlaying::setImage(QPixmap p){

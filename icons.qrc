@@ -41,5 +41,6 @@
         <file>icons/others/remove2.png</file>
         <file>icons/settings.png</file>
         <file>icons/others/load.gif</file>
+        <file>icons/sidebar/youtube.png</file>
     </qresource>
 </RCC>

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>703</width>
-    <height>473</height>
+    <height>542</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -113,7 +113,7 @@ p, li { white-space: pre-wrap; }
          <item>
           <widget class="QLabel" name="label_5">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -121,7 +121,7 @@ p, li { white-space: pre-wrap; }
            <property name="minimumSize">
             <size>
              <width>22</width>
-             <height>22</height>
+             <height>28</height>
             </size>
            </property>
            <property name="autoFillBackground">
@@ -152,21 +152,15 @@ border-radius:0px;</string>
          <item>
           <widget class="QLineEdit" name="search">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>140</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>140</width>
-             <height>16777215</height>
+             <width>200</width>
+             <height>28</height>
             </size>
            </property>
            <property name="styleSheet">
@@ -267,7 +261,7 @@ border:none;</string>
          <item>
           <widget class="QWidget" name="left_panel" native="true">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -312,12 +306,6 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
               </property>
               <item>
                <widget class="QListWidget" name="left_list">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
                 <property name="minimumSize">
                  <size>
                   <width>164</width>
@@ -490,6 +478,15 @@ QScrollBar:vertical {
                  </property>
                  <property name="flags">
                   <set>NoItemFlags</set>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Youtube</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="icons.qrc">
+                   <normaloff>:/icons/sidebar/youtube.png</normaloff>:/icons/sidebar/youtube.png</iconset>
                  </property>
                 </item>
                 <item>
@@ -669,7 +666,7 @@ background-color: transparent;
           </widget>
          </item>
          <item>
-          <widget class="QWebView" name="webview" native="true">
+          <widget class="QWebView" name="webview">
            <property name="minimumSize">
             <size>
              <width>300</width>
@@ -692,9 +689,9 @@ QScrollBar:vertical {
        min-height: 20px;
    }</string>
            </property>
-           <property name="url" stdset="0">
+           <property name="url">
             <url>
-             <string/>
+             <string>about:blank</string>
             </url>
            </property>
           </widget>
@@ -752,7 +749,7 @@ border-right:0px;
                   <number>0</number>
                  </property>
                  <property name="topMargin">
-                  <number>12</number>
+                  <number>0</number>
                  </property>
                  <property name="bottomMargin">
                   <number>12</number>
@@ -775,15 +772,63 @@ border-right:0px;
                 </layout>
                </item>
                <item>
-                <widget class="QListWidget" name="right_list">
-                 <property name="minimumSize">
-                  <size>
-                   <width>200</width>
-                   <height>0</height>
-                  </size>
+                <widget class="QTabWidget" name="tabWidget">
+                 <property name="tabPosition">
+                  <enum>QTabWidget::North</enum>
                  </property>
-                 <property name="styleSheet">
-                  <string notr="true">QListWidget{
+                 <property name="tabShape">
+                  <enum>QTabWidget::Rounded</enum>
+                 </property>
+                 <property name="currentIndex">
+                  <number>1</number>
+                 </property>
+                 <property name="documentMode">
+                  <bool>false</bool>
+                 </property>
+                 <widget class="QWidget" name="tab">
+                  <attribute name="icon">
+                   <iconset resource="icons.qrc">
+                    <normaloff>:/icons/sidebar/songs.png</normaloff>:/icons/sidebar/songs.png</iconset>
+                  </attribute>
+                  <attribute name="title">
+                   <string>Olivia</string>
+                  </attribute>
+                  <layout class="QVBoxLayout" name="verticalLayout_9">
+                   <property name="spacing">
+                    <number>6</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>4</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>2</number>
+                   </property>
+                   <item>
+                    <widget class="QLineEdit" name="filter_olivia">
+                     <property name="placeholderText">
+                      <string>Filter this queue</string>
+                     </property>
+                     <property name="clearButtonEnabled">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QListWidget" name="right_list">
+                     <property name="minimumSize">
+                      <size>
+                       <width>200</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">QListWidget{
 	background-color: transparent;
 	border:none;
 }
@@ -798,49 +843,158 @@ QScrollBar:vertical {
        background: grey;
        min-height: 20px;
    }</string>
-                 </property>
-                 <property name="verticalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAsNeeded</enum>
-                 </property>
-                 <property name="horizontalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAlwaysOff</enum>
-                 </property>
-                 <property name="autoScroll">
-                  <bool>false</bool>
-                 </property>
-                 <property name="autoScrollMargin">
-                  <number>8</number>
-                 </property>
-                 <property name="dragEnabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="dragDropMode">
-                  <enum>QAbstractItemView::DropOnly</enum>
-                 </property>
-                 <property name="defaultDropAction">
-                  <enum>Qt::MoveAction</enum>
-                 </property>
-                 <property name="selectionBehavior">
-                  <enum>QAbstractItemView::SelectRows</enum>
-                 </property>
-                 <property name="verticalScrollMode">
-                  <enum>QAbstractItemView::ScrollPerPixel</enum>
-                 </property>
-                 <property name="horizontalScrollMode">
-                  <enum>QAbstractItemView::ScrollPerPixel</enum>
-                 </property>
-                 <property name="movement">
-                  <enum>QListView::Static</enum>
-                 </property>
-                 <property name="spacing">
-                  <number>3</number>
-                 </property>
-                 <property name="uniformItemSizes">
-                  <bool>true</bool>
-                 </property>
-                 <property name="selectionRectVisible">
-                  <bool>true</bool>
-                 </property>
+                     </property>
+                     <property name="verticalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAsNeeded</enum>
+                     </property>
+                     <property name="horizontalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                     </property>
+                     <property name="autoScroll">
+                      <bool>false</bool>
+                     </property>
+                     <property name="autoScrollMargin">
+                      <number>8</number>
+                     </property>
+                     <property name="dragEnabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="dragDropMode">
+                      <enum>QAbstractItemView::DropOnly</enum>
+                     </property>
+                     <property name="defaultDropAction">
+                      <enum>Qt::MoveAction</enum>
+                     </property>
+                     <property name="selectionBehavior">
+                      <enum>QAbstractItemView::SelectRows</enum>
+                     </property>
+                     <property name="verticalScrollMode">
+                      <enum>QAbstractItemView::ScrollPerPixel</enum>
+                     </property>
+                     <property name="horizontalScrollMode">
+                      <enum>QAbstractItemView::ScrollPerPixel</enum>
+                     </property>
+                     <property name="movement">
+                      <enum>QListView::Static</enum>
+                     </property>
+                     <property name="spacing">
+                      <number>3</number>
+                     </property>
+                     <property name="uniformItemSizes">
+                      <bool>true</bool>
+                     </property>
+                     <property name="selectionRectVisible">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="tab_2">
+                  <attribute name="icon">
+                   <iconset resource="icons.qrc">
+                    <normaloff>:/icons/sidebar/youtube.png</normaloff>:/icons/sidebar/youtube.png</iconset>
+                  </attribute>
+                  <attribute name="title">
+                   <string>Youtube</string>
+                  </attribute>
+                  <layout class="QVBoxLayout" name="verticalLayout_10">
+                   <property name="spacing">
+                    <number>6</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>4</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>2</number>
+                   </property>
+                   <item>
+                    <widget class="QLineEdit" name="filter_youtube">
+                     <property name="placeholderText">
+                      <string>Filter this queue</string>
+                     </property>
+                     <property name="clearButtonEnabled">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QListWidget" name="right_list_2">
+                     <property name="minimumSize">
+                      <size>
+                       <width>200</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">QListWidget{
+	background-color: transparent;
+	border:none;
+}
+
+QScrollBar:vertical {
+	   background-color: transparent;
+	   border:none;
+       width: 10px;
+       margin: 22px 0 22px 0;
+   }
+   QScrollBar::handle:vertical {
+       background: grey;
+       min-height: 20px;
+   }</string>
+                     </property>
+                     <property name="verticalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAsNeeded</enum>
+                     </property>
+                     <property name="horizontalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                     </property>
+                     <property name="autoScroll">
+                      <bool>false</bool>
+                     </property>
+                     <property name="autoScrollMargin">
+                      <number>8</number>
+                     </property>
+                     <property name="dragEnabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="dragDropMode">
+                      <enum>QAbstractItemView::DropOnly</enum>
+                     </property>
+                     <property name="defaultDropAction">
+                      <enum>Qt::MoveAction</enum>
+                     </property>
+                     <property name="selectionBehavior">
+                      <enum>QAbstractItemView::SelectRows</enum>
+                     </property>
+                     <property name="verticalScrollMode">
+                      <enum>QAbstractItemView::ScrollPerPixel</enum>
+                     </property>
+                     <property name="horizontalScrollMode">
+                      <enum>QAbstractItemView::ScrollPerPixel</enum>
+                     </property>
+                     <property name="movement">
+                      <enum>QListView::Static</enum>
+                     </property>
+                     <property name="spacing">
+                      <number>3</number>
+                     </property>
+                     <property name="uniformItemSizes">
+                      <bool>true</bool>
+                     </property>
+                     <property name="selectionRectVisible">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
                 </widget>
                </item>
               </layout>
@@ -872,7 +1026,7 @@ QScrollBar:vertical {
         <number>0</number>
        </property>
        <property name="topMargin">
-        <number>0</number>
+        <number>6</number>
        </property>
        <property name="rightMargin">
         <number>0</number>

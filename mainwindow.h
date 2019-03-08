@@ -78,10 +78,12 @@ public:
     Q_INVOKABLE void showAjaxError();
     Q_INVOKABLE void setThemeColor(QString); //sets themeColor in mainWindow
     Q_INVOKABLE void playRadioFromWeb(QVariant streamDetails);
+    Q_INVOKABLE void setSearchTermAndOpenYoutube(QVariant term);
+    Q_INVOKABLE void clear_youtubeSearchTerm();
+    Q_INVOKABLE void playLocalTrack(QVariant songId);
 
+    QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;
-
-
 
 protected slots:
     void resizeEvent(QResizeEvent *resizeEvent);
@@ -108,7 +110,7 @@ private slots:
 
     void on_radioVolumeSlider_valueChanged(int value);
     void on_stop_clicked();
-    void on_radioSeekSlider_sliderReleased();
+//    void on_radioSeekSlider_sliderReleased();
     void on_radioSeekSlider_sliderMoved(int position);
     void on_play_pause_clicked();
     void on_right_list_itemDoubleClicked(QListWidgetItem *item);
@@ -139,9 +141,19 @@ private slots:
     bool checkEngine();
     void download_engine_clicked();
     void slot_netwManagerFinished(QNetworkReply *reply);
-    void down_progress(qint64 pos, qint64 tot);
+//    void down_progress(qint64 pos, qint64 tot);
     void evoke_engine_check();
+    void browse_youtube();
+    void on_right_list_2_itemDoubleClicked(QListWidgetItem *item);
+    void shakeLists();
+    void on_filter_olivia_textChanged(const QString &arg1);
+
+    void hideListItems(QListWidget *list);
+    void fillOliviaMetaList(QListWidget *list);
+    void filterList(const QString &arg1, QListWidget *list);
+    void on_filter_youtube_textChanged(const QString &arg1);
 private:
+    bool shaked;
     Ui::MainWindow *ui;
     Ui::track track_ui;
     Ui::settings settingsUi;
@@ -169,8 +181,14 @@ private:
 
     QList<QStringList> ytdlQueue ;
 
-   QProcess * ytdlProcess = nullptr;
-   QFile *core_file;
+    QProcess * ytdlProcess = nullptr;
+    QFile *core_file;
+
+    QList<QString> OliviaMetaList; //for search purpose
+
+    int left_panel_width;
+    bool animationRunning = false;
+
 
 };
 
