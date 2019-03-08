@@ -50,6 +50,6 @@ parts:
       stage-packages:
             - mpv
             - socat
-            - youtube-dl
+            - python
             - wget
             - coreutils
