@@ -40,6 +40,9 @@ parts:
        apt --yes install mpv
      stage-packages:
             - mpv
+   deps:
+     plugin: nil
+     stage-packages:
             - socat
             - python
             - wget
