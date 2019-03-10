@@ -36,8 +36,7 @@ parts:
      after: [deps]
      override-pull: |
        apt --yes install software-properties-common
-       add-apt-repository -y ppa:mc3man/mpv-tests
-       apt update
+       add-apt-repository -yu ppa:mc3man/mpv-tests
      stage-packages:
             - mpv
    qt:
