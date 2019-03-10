@@ -17,7 +17,7 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     radioPlaybackTimer = new QTimer(this);
     volume= volumeValue;
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
-    qDebug()<<saveTracksAfterBuffer;
+  //  qDebug()<<saveTracksAfterBuffer;
 
     startRadioProcess(saveTracksAfterBuffer,"");
 
@@ -35,17 +35,17 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
     radioProcess->setObjectName("_radio_");
 
     if(urlString.isEmpty()){
-            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle");
+            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle");
     }else{
         if(!saveTracksAfterBufferMode)
-            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle");
+            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle");
         else
-            radioProcess->start("bash",QStringList()<<"-c"<<"wget -O - '"+urlString+"' | tee "+setting_path+"/downloadedTemp/current.temp"+" | mpv "+status_message_arg+" --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle -");
+            radioProcess->start("bash",QStringList()<<"-c"<<"wget -O - '"+urlString+"' | tee "+setting_path+"/downloadedTemp/current.temp"+" | mpv "+status_message_arg+" --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle -");
     }
     radioProcess->waitForStarted();
 
 
-    qDebug()<<"restarted";
+    //qDebug()<<"restarted";
 
     connect(radioPlaybackTimer, &QTimer::timeout, [=](){
         if(radioProcess->state()==QProcess::Running){
@@ -62,6 +62,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
                 }
             }
             //assign items to vars
+           // qDebug()<<items.count()<<"ITEMS COUNT";
             if(items.count()==13){
                 position                = items.at(0);
                 duration                = items.at(1);
@@ -117,6 +118,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
                 }
             }
 
+           // qDebug()<<playerPosition;
             emit radioPosition(playerPosition);
             emit radioDuration(playerDuration);
             emit radioStatus(radioState);
@@ -143,7 +145,7 @@ void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
 }
 
 void radio::loadMedia(QUrl url){
-    qDebug()<<"loadmedia called";
+   // qDebug()<<"loadmedia called";
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"loadfile\" ,\""+url.toString()+"\""+"]}' | socat - "+ setting_path+"/fifofile");
@@ -156,12 +158,17 @@ void radio::radioReadyRead(){
     }
     QString output = radioProcess->readAll();
     if(output.contains("written to stdout")){
-        qDebug()<<"saved track";
+  //      qDebug()<<"saved track";
         emit saveTrack(QString("webm"));
     }
     if(output.contains("[")){
+        // mpv sometimes sends output without ] in line this will append ] and fix it
+        output = output.trimmed();
+        if(output.at(output.count()-1)!=']')
+            output.append("]");
+
         QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
-        ((QTextBrowser*)(console))->setText(output.trimmed());
+        ((QTextBrowser*)(console))->setText(output);
     }
 }
 
@@ -251,7 +258,6 @@ void radio::deleteProcess(int code){
 void radio::killRadioProcess(){
     if(radioProcess->state()==QProcess::Running)
       QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(radioProcess->processId()));
-
       delete radioProcess;
 }
 

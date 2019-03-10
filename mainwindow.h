@@ -54,12 +54,16 @@
 #include <QSettings>
 #include <QBuffer>
 #include <QDateTime>
+#include <QColorDialog>
+
+
 #include "ui_track.h"
 #include "store.h"
 #include "radio.h"
 #include "onlinesearchsuggestion.h"
 
 #include "ui_settings.h"
+#include "ui_minimode.h"
 
 namespace Ui {
 class MainWindow;
@@ -138,6 +142,7 @@ private slots:
     void on_settings_clicked();
 
     void init_settings();
+    void init_miniMode();
     bool checkEngine();
     void download_engine_clicked();
     void slot_netwManagerFinished(QNetworkReply *reply);
@@ -152,12 +157,29 @@ private slots:
     void fillOliviaMetaList(QListWidget *list);
     void filterList(const QString &arg1, QListWidget *list);
     void on_filter_youtube_textChanged(const QString &arg1);
+
+
+
+    void zoomin();
+    void zoomout();
+    void setZoom(float);
+    void listItemDoubleClicked(QListWidget *list, QListWidgetItem *item);
+    void on_miniMode_clicked();
+
+    void add_colors_to_color_widget();
+    void set_app_theme(QColor rgb);
+    void customColor();
+    void on_tabWidget_currentChanged(int index);
+
 private:
-    bool shaked;
+    float zoom;
+    int horizontalDpi;
+
     Ui::MainWindow *ui;
     Ui::track track_ui;
+    Ui::miniMode_form miniMode_ui;
+    QWidget *miniModeWidget;
     Ui::settings settingsUi;
-
     QWidget *settingsWidget;
 
 
@@ -189,6 +211,28 @@ private:
     int left_panel_width;
     bool animationRunning = false;
 
+
+
+};
+
+class SelectColorButton : public QPushButton
+{
+    Q_OBJECT
+signals:
+
+    void findImageWithColor(QColor);
+
+public:
+
+    void setColor( const QColor& color );
+    const QColor& getColor();
+
+public slots:
+    void updateColor();
+    void changeColor();
+
+private:
+    QColor color;
 
 };
 

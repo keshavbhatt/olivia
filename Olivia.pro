@@ -59,7 +59,8 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui \
     track.ui \
-    settings.ui
+    settings.ui \
+    minimode.ui
 
 RESOURCES += \
     darkstyle.qrc \

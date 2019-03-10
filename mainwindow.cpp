@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 #include <QSplitter>
 #include <QUrlQuery>
 #include <QPropertyAnimation>
@@ -29,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
     init_offline_storage();//  #3
 
     init_settings();
+    init_miniMode();
+
     checkEngine();
 
     //sets search icon in label
@@ -96,13 +99,117 @@ MainWindow::MainWindow(QWidget *parent) :
             }
         }
     });
+    ui->tabWidget->setCurrentIndex(1);
+    ui->tabWidget->setCurrentIndex(0);
 }
 
 void MainWindow::init_settings(){
+
     settingsWidget = new QWidget(0);
+    settingsWidget->setObjectName("settingsWidget");
     settingsUi.setupUi(settingsWidget);
+    settingsWidget->adjustSize();
     connect(settingsUi.download_engine,SIGNAL(clicked()),this,SLOT(download_engine_clicked()));
+
+    horizontalDpi = QApplication::desktop()->screen()->logicalDpiX();
+    zoom = 100.0;
+    setZoom(zoom);
+    connect(settingsUi.plus,SIGNAL(clicked(bool)),this,SLOT(zoomin()));
+    connect(settingsUi.minus,SIGNAL(clicked(bool)),this,SLOT(zoomout()));
+
+    settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
+    add_colors_to_color_widget();
 }
+
+void MainWindow::add_colors_to_color_widget(){
+    QStringList color_list;
+    color_list<<"askjd"<<"#660000"<<"#990000"<<"#cc0000"<<"#cc3333"
+             <<"#ea4c88"<<"#993399"<<"#663399"<<"#333399"
+            <<"#0066cc";
+
+        QObject *layout = settingsWidget->findChild<QObject*>("themeHolderGridLayout");
+        int row=0;
+        int numberOfButtons=0;
+        while (numberOfButtons<=color_list.count())
+        {
+            for (int f2=0; f2<3; f2++)
+            {   numberOfButtons++;
+                if (numberOfButtons>color_list.count()-1)
+                    break;
+                QPushButton *pb =new QPushButton();
+                pb->setObjectName(color_list.at(numberOfButtons));
+                pb->setToolTip("Seach images with "+color_list.at(numberOfButtons)+" color");
+                pb->setStyleSheet("background-color:"+color_list.at(numberOfButtons)+";border:0px;");
+                connect(pb,&QPushButton::clicked,[=](){
+                  set_app_theme(QColor(pb->objectName()));
+                });
+                ((QGridLayout *)(layout))->addWidget(pb, row, f2);
+            }
+            row++;
+        }
+        QPushButton *pb =new QPushButton();
+        pb->setIcon(QIcon(":/icons/picker.png"));
+        pb->setIconSize(QSize(22,22));
+        pb->setObjectName("custom color");
+        pb->setText("Select color");
+        pb->setToolTip("Choose custom color from Color Dialog");
+        connect(pb,SIGNAL(clicked(bool)),this,SLOT(customColor()));
+        ((QGridLayout *)(layout))->addWidget(pb, row+1, 0);
+        settingsWidget->adjustSize();
+}
+
+void MainWindow::set_app_theme(QColor rgb){
+//    QPushButton* buttonSender = qobject_cast<QPushButton*>(sender()); // retrieve the button clicked
+//    QString color = rgb;
+    QString r = QString::number(rgb.red());
+    QString g = QString::number(rgb.green());
+    QString b = QString::number(rgb.blue());
+    qDebug()<<r<<g<<b;
+    this->setStyleSheet(this->styleSheet()+"QMainWindow{"
+                            "background-color:rgba("+r+","+g+","+b+","+"0.1"+");"
+                            "}");
+    QString rgba = r+","+g+","+b+","+"0.2";
+    ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+rgba+"')");
+    QString widgetStyle= "background-color:"
+                         "qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,"
+                         "stop:0.129213 rgba("+r+", "+g+", "+b+", 30),"
+                         "stop:0.38764 rgba("+r+", "+g+", "+b+", 120),"
+                         "stop:0.679775 rgba("+r+", "+g+", "+b+", 84),"
+                         "stop:1 rgba("+r+", "+g+", "+b+", 30));";
+    ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
+    ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
+    miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
+//    settingsWidget->setStyleSheet ("QWidget#settingsWidget{"+widgetStyle+"}");
+
+}
+
+void MainWindow::customColor(){
+        SelectColorButton *s=new SelectColorButton();
+        connect(s,SIGNAL(findImageWithColor(QColor)),this,SLOT(set_app_theme(QColor)));
+        s->changeColor();
+}
+
+void SelectColorButton::updateColor(){
+    emit findImageWithColor(color);
+}
+
+void SelectColorButton::changeColor(){
+   QColor newColor = QColorDialog::getColor(color,parentWidget());
+   if ( newColor != color )
+   {
+           setColor( newColor );
+   }
+}
+
+void SelectColorButton::setColor( const QColor& color ){
+    this->color = color;
+    updateColor();
+}
+
+const QColor& SelectColorButton::getColor(){
+    return color;
+}
+
 
 //set up app #1
 void MainWindow::init_app(){
@@ -161,7 +268,6 @@ void MainWindow::init_app(){
 
 //set up webview #2
 void MainWindow::init_webview(){
-//    ui->webview->setZoomFactor(0.9);
     connect(ui->webview,SIGNAL(loadFinished(bool)),this,SLOT(webViewLoaded(bool)));
 
     //websettings---------------------------------------------------------------
@@ -289,8 +395,7 @@ void MainWindow::loadPlayerQueue(){ //  #7
 
 
         if(albumId.contains("undefined-")){
-            track_ui.cover->setMaximumHeight(100);
-            track_ui.cover->setMaximumWidth(178);
+
             QListWidgetItem* item;
             item = new QListWidgetItem(ui->right_list_2);
 
@@ -299,17 +404,21 @@ void MainWindow::loadPlayerQueue(){ //  #7
             item->setSizeHint(track_widget->minimumSizeHint());
 
             ui->right_list_2->setItemWidget(item, track_widget);
+
+            track_ui.cover->setMaximumHeight(track_widget->height());
+            track_ui.cover->setMaximumWidth((int)(track_widget->height()*1.15));
+
             ui->right_list_2->itemWidget(item)->setGraphicsEffect(eff);
 
             // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
             if(url.isEmpty() || (store_manager->getExpiry(songId) && track_ui.url->text().contains("http"))){
-                track_ui.loading->setPixmap(QPixmap(":/icons/url_issue.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+//                track_ui.loading->setPixmap(QPixmap(":/icons/url_issue.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
                 ui->right_list_2->itemWidget(item)->setEnabled(false);
                 if(!track_ui.id->text().isEmpty()){
                     getAudioStream(track_ui.id->text().trimmed(),track_ui.songId->text().trimmed());
                 }
             }else{
-                track_ui.loading->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+//                track_ui.loading->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }
             QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
             a->setDuration(500);
@@ -326,18 +435,19 @@ void MainWindow::loadPlayerQueue(){ //  #7
 
             item->setSizeHint(track_widget->minimumSizeHint());
 
+
             ui->right_list->setItemWidget(item, track_widget);
             ui->right_list->itemWidget(item)->setGraphicsEffect(eff);
 
             // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
             if(url.isEmpty() || (store_manager->getExpiry(songId) && track_ui.url->text().contains("http"))){
-                track_ui.loading->setPixmap(QPixmap(":/icons/url_issue.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+//                track_ui.loading->setPixmap(QPixmap(":/icons/url_issue.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
                 ui->right_list->itemWidget(item)->setEnabled(false);
                 if(!track_ui.id->text().isEmpty()){
                     getAudioStream(track_ui.id->text().trimmed(),track_ui.songId->text().trimmed());
                 }
             }else{
-                track_ui.loading->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+//                track_ui.loading->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }
             QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
             a->setDuration(500);
@@ -348,17 +458,24 @@ void MainWindow::loadPlayerQueue(){ //  #7
             ui->right_list->addItem(item);
         }
     }
-    shakeLists();
+   // shakeLists();
 }
 
 void MainWindow::shakeLists(){
-    if(!shaked){
-        this->adjustSize();
-        shaked =true;
-    }
-    ui->tabWidget->resize(ui->tabWidget->size().width()+1,ui->tabWidget->size().height());
-    ui->right_list->resize(ui->right_list->size().width()-1,ui->right_list->size().height());
-    ui->right_list_2->resize(ui->right_list_2->size().width()-1,ui->right_list_2->size().height());
+
+//    ui->tabWidget->resize(ui->tabWidget->size().width()-1,ui->tabWidget->size().height());
+//    ui->tabWidget->resize(ui->tabWidget->size().width()+1,ui->tabWidget->size().height());
+
+    QSplitter *split1= this->findChild<QSplitter*>("split1");
+    ((QSplitter*)(split1))->setSizes(QList<int>()<<((QSplitter*)(split1))->sizes()[0]-1<<((QSplitter*)(split1))->sizes()[1]+1);
+    ((QSplitter*)(split1))->setSizes(QList<int>()<<((QSplitter*)(split1))->sizes()[0]+1<<((QSplitter*)(split1))->sizes()[1]-1);
+
+//    ui->right_list->resize(ui->right_list->size().width()-1,ui->right_list->size().height());
+//    ui->right_list->resize(ui->right_list->size().width()+1,ui->right_list->size().height());
+
+//    ui->right_list_2->resize(ui->right_list_2->size().width()-1,ui->right_list_2->size().height());
+//    ui->right_list_2->resize(ui->right_list_2->size().width()+1,ui->right_list_2->size().height());
+
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event){
@@ -398,7 +515,6 @@ void MainWindow::init_search_autoComplete(){
 
 
 void MainWindow::setPlayerPosition(qint64 position){
-    ui->player_position->setText(QString::number(position));
 
     int seconds = (position/1000) % 60;
     int minutes = (position/60000) % 60;
@@ -425,22 +541,7 @@ void MainWindow::on_radioVolumeSlider_valueChanged(int value)
     if(radio_manager){
          radio_manager->changeVolume(value);
     }
-    ui->current_volume->setText(QString::number(value));
-//    if(value>-1){
-//        if(value < 101)
-//            QToolTip::showText(ui->radioVolumeSlider->mapToGlobal(QPoint(ui->radioVolumeSlider->rect().width()/2,ui->radioVolumeSlider->height()/2)), QString::number(value));
-//        else if(value<131)
-//            QToolTip::showText(ui->radioVolumeSlider->mapToGlobal(QPoint(ui->radioVolumeSlider->rect().width()/2,ui->radioVolumeSlider->height()/2)), QString::number(value)+" - amplified");
-//    }
 }
-
-//void MainWindow::on_radioSeekSlider_sliderReleased()
-//{
-//    int pos= ui->radioSeekSlider->value(); //new value
-//    radio_manager->radioSeek(pos);
-//}
-
-
 
 void MainWindow::on_radioSeekSlider_sliderMoved(int position)
 {
@@ -551,6 +652,7 @@ void MainWindow::addToQueue(QString id,QString title,QString artist,QString albu
 
     if(store_manager->isInQueue(songId)){
         ui->console->append("Song - "+songId+" Already in queue");
+        //TODO provide user hint that track already in list
         return;
     }else{
         QWidget *track_widget = new QWidget(ui->right_list);
@@ -603,8 +705,8 @@ void MainWindow::addToQueue(QString id,QString title,QString artist,QString albu
         }
 
         if(albumId.contains("undefined-")){
-            track_ui.cover->setMaximumHeight(100);
-            track_ui.cover->setMaximumWidth(178);
+            track_ui.cover->setMaximumHeight(track_widget->height());
+            track_ui.cover->setMaximumWidth((int)(track_widget->height()*1.15));
             QListWidgetItem* item;
             item = new QListWidgetItem(ui->right_list_2);
             QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
@@ -670,7 +772,6 @@ void MainWindow::addToQueue(QString id,QString title,QString artist,QString albu
             store_manager->saveytIds(songId,id);
             store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
             store_manager->add_to_player_queue(songId);
-
     }
 }
 
@@ -850,23 +951,26 @@ void MainWindow::ytdlReadyRead(){
     qDebug()<<s_data;
 
     if(!s_data.isEmpty()){
-            QWidget *listWidget ;
-            listWidget= ui->right_list->findChild<QWidget*>("track-widget-"+songId);
+            QWidget *listWidget = ui->right_list->findChild<QWidget*>("track-widget-"+songId);
             if(listWidget==nullptr){
                 listWidget= ui->right_list_2->findChild<QWidget*>("track-widget-"+songId);
             }
-            listWidget->setEnabled(true);
-            listWidget->findChild<QLabel*>("loading")->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-            QLineEdit *url = listWidget->findChild<QLineEdit *>("url");
-            QString url_str = s_data.trimmed();
-            ((QLineEdit*)(url))->setText(url_str);
-            QProcess* senderProcess = qobject_cast<QProcess*>(sender()); // retrieve the button clicked
-            senderProcess->finished(0);
-            QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(url_str.toUtf8())).queryItemValue("expire").trimmed();
-            if(expiryTime.isEmpty()){
-                expiryTime = url_str.split("/expire/").last().split("/").first().trimmed();
+            if(s_data.contains("http")){
+                listWidget->setEnabled(true);
+//              listWidget->findChild<QLabel*>("loading")->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+                QLineEdit *url = listWidget->findChild<QLineEdit *>("url");
+                QString url_str = s_data.trimmed();
+                ((QLineEdit*)(url))->setText(url_str);
+
+                QProcess* senderProcess = qobject_cast<QProcess*>(sender()); // retrieve the button clicked
+                senderProcess->kill();
+
+                QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(url_str.toUtf8())).queryItemValue("expire").trimmed();
+                if(expiryTime.isEmpty()){
+                    expiryTime = url_str.split("/expire/").last().split("/").first().trimmed();
+                }
+                store_manager->saveStreamUrl(songId,url_str,expiryTime);
             }
-            store_manager->saveStreamUrl(songId,url_str,expiryTime);
     }
 }
 
@@ -980,166 +1084,53 @@ void MainWindow::internet_radio(){
     ui->webview->load(QUrl("qrc:///web/radio/radio.html"));
 }
 
+//PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::on_right_list_itemDoubleClicked(QListWidgetItem *item)
 {
-    if(!ui->right_list->itemWidget(item)->isEnabled())
-        return;
-    QString id =  ui->right_list->itemWidget(item)->findChild<QLineEdit*>("id")->text();
-    QString url = ui->right_list->itemWidget(item)->findChild<QLineEdit*>("url")->text();
-    QString songId = ui->right_list->itemWidget(item)->findChild<QLineEdit*>("songId")->text();
-
-    ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
-
-   // radio_manager->quitRadio();
-
-    Q_UNUSED(id);
-
-
-    ElidedLabel *title = ui->right_list->itemWidget(item)->findChild<ElidedLabel *>("title_elided");
-    QString titleStr = ((ElidedLabel*)(title))->text();
-
-    ElidedLabel *artist = ui->right_list->itemWidget(item)->findChild<ElidedLabel *>("artist_elided");
-    QString artistStr = ((ElidedLabel*)(artist))->text();
-
-    ElidedLabel *album = ui->right_list->itemWidget(item)->findChild<ElidedLabel *>("album_elided");
-    QString albumStr = ((ElidedLabel*)(album))->text();
-
-    QString dominant_color = ui->right_list->itemWidget(item)->findChild<QLineEdit*>("dominant_color")->text();
-
-    QLabel *cover = ui->right_list->itemWidget(item)->findChild<QLabel *>("cover");
-    ui->cover->setPixmap(QPixmap(*cover->pixmap()).scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-
-   //hide all playing labels
-    QList<QLabel*> playing_label_list_;
-    playing_label_list_ = ui->right_list->findChildren<QLabel*>("playing");
-    foreach (QLabel *playing, playing_label_list_) {
-        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-        playing->setToolTip("");
-    }
-    //show now playing on current track
-    QLabel *playing = ui->right_list->itemWidget(item)->findChild<QLabel *>("playing");
-    playing->setPixmap(QPixmap(":/icons/now_playing.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-    playing->setToolTip("playing...");
-
-    getNowPlayingTrackId();
-
-    if(!ui->state->isVisible())
-        ui->state->show();
-    ui->state->setText("Connecting...");
-    ui->secondsAvailable->setValue(0);
-
-    QString r,g,b;
-    QStringList colors = dominant_color.split(",");
-    if(colors.count()==3){
-        r=colors.at(0);
-        g=colors.at(1);
-        b=colors.at(2);
-    }else{
-        r="98";
-        g="164";
-        b="205";
-    }
-    qDebug()<<"THEME: "<<r<<g<<b;
-    foreach (const QString com, colors) {
-        if(com.toInt()>40){
-            break;
-        }else{
-            r="69";
-            g="69";
-            b="69";
-        }
-    }
-
-    ui->nowplaying_widget->setImage(*cover->pixmap());
-    ui->nowplaying_widget->setColor(QColor(r.toInt(),g.toInt(),b.toInt()));
-    //change the color of main window according to album cover
-    this->setStyleSheet(this->styleSheet()+"QMainWindow{"
-                            "background-color:rgba("+r+","+g+","+b+","+"0.1"+");"
-                            "}");
-    QString rgba = r+","+g+","+b+","+"0.2";
-
-    ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+rgba+"')");
-    QString widgetStyle= "background-color:"
-                         "qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,"
-                         "stop:0.129213 rgba("+r+", "+g+", "+b+", 30),"
-                         "stop:0.38764 rgba("+r+", "+g+", "+b+", 120),"
-                         "stop:0.679775 rgba("+r+", "+g+", "+b+", 84),"
-                         "stop:1 rgba("+r+", "+g+", "+b+", 30));";
-    ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
-    ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
-
-
-    ElidedLabel *title2 = this->findChild<ElidedLabel *>("nowP_title");
-    ((ElidedLabel*)(title2))->setText(titleStr);
-
-    ElidedLabel *artist2 = this->findChild<ElidedLabel *>("nowP_artist");
-    ((ElidedLabel*)(artist2))->setText(artistStr);
-
-
-    ElidedLabel *album2 = this->findChild<ElidedLabel *>("nowP_album");
-    ((ElidedLabel*)(album2))->setText(albumStr);
-
-
-    QList<ElidedLabel*> label_list_;
-    QList<QGraphicsDropShadowEffect*> shadow_list_;
-
-    // Get all UI labels and apply shadows
-    label_list_ = ui->nowplaying_widget->findChildren<ElidedLabel*>();
-    foreach(ElidedLabel *lbl, label_list_) {
-        shadow_list_.append(new QGraphicsDropShadowEffect);
-        shadow_list_.back()->setBlurRadius(5);
-        shadow_list_.back()->setOffset(1, 1);
-        shadow_list_.back()->setColor(QColor("#292929"));
-        lbl->setGraphicsEffect(shadow_list_.back());
-    }
-    if(store_manager->isDownloaded(songId)){
-        radio_manager->playRadio(false,QUrl(url));
-    }else{
-        //TODO get saveTracksAfterBuffer value from settings before calling this
-        saveTracksAfterBuffer = false;
-        radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url));
-    }
+    listItemDoubleClicked(ui->right_list,item);
 }
-
 
 void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
 {
-    if(!ui->right_list_2->itemWidget(item)->isEnabled())
+    listItemDoubleClicked(ui->right_list_2,item);
+}
+
+void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
+
+    if(!list->itemWidget(item)->isEnabled())
         return;
-    QString id =  ui->right_list_2->itemWidget(item)->findChild<QLineEdit*>("id")->text();
-    QString url = ui->right_list_2->itemWidget(item)->findChild<QLineEdit*>("url")->text();
-    QString songId = ui->right_list_2->itemWidget(item)->findChild<QLineEdit*>("songId")->text();
+    QString id =  list->itemWidget(item)->findChild<QLineEdit*>("id")->text();
+    QString url = list->itemWidget(item)->findChild<QLineEdit*>("url")->text();
+    QString songId = list->itemWidget(item)->findChild<QLineEdit*>("songId")->text();
 
     ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
 
-   // radio_manager->quitRadio();
-
     Q_UNUSED(id);
 
-
-    ElidedLabel *title = ui->right_list_2->itemWidget(item)->findChild<ElidedLabel *>("title_elided");
+    ElidedLabel *title = list->itemWidget(item)->findChild<ElidedLabel *>("title_elided");
     QString titleStr = ((ElidedLabel*)(title))->text();
 
-    ElidedLabel *artist = ui->right_list_2->itemWidget(item)->findChild<ElidedLabel *>("artist_elided");
+    ElidedLabel *artist = list->itemWidget(item)->findChild<ElidedLabel *>("artist_elided");
     QString artistStr = ((ElidedLabel*)(artist))->text();
 
-    ElidedLabel *album = ui->right_list_2->itemWidget(item)->findChild<ElidedLabel *>("album_elided");
+    ElidedLabel *album = list->itemWidget(item)->findChild<ElidedLabel *>("album_elided");
     QString albumStr = ((ElidedLabel*)(album))->text();
 
-    QString dominant_color = ui->right_list_2->itemWidget(item)->findChild<QLineEdit*>("dominant_color")->text();
+    QString dominant_color = list->itemWidget(item)->findChild<QLineEdit*>("dominant_color")->text();
 
-    QLabel *cover = ui->right_list_2->itemWidget(item)->findChild<QLabel *>("cover");
+    QLabel *cover = list->itemWidget(item)->findChild<QLabel *>("cover");
     ui->cover->setPixmap(QPixmap(*cover->pixmap()).scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
    //hide all playing labels
     QList<QLabel*> playing_label_list_;
-    playing_label_list_ = ui->right_list_2->findChildren<QLabel*>("playing");
+    playing_label_list_ = list->findChildren<QLabel*>("playing");
     foreach (QLabel *playing, playing_label_list_) {
         playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         playing->setToolTip("");
     }
+
     //show now playing on current track
-    QLabel *playing = ui->right_list_2->itemWidget(item)->findChild<QLabel *>("playing");
+    QLabel *playing = list->itemWidget(item)->findChild<QLabel *>("playing");
     playing->setPixmap(QPixmap(":/icons/now_playing.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
     playing->setToolTip("playing...");
 
@@ -1148,7 +1139,6 @@ void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
     if(!ui->state->isVisible())
         ui->state->show();
     ui->state->setText("Connecting...");
-    ui->secondsAvailable->setValue(0);
 
     QString r,g,b;
     QStringList colors = dominant_color.split(",");
@@ -1160,16 +1150,6 @@ void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
         r="98";
         g="164";
         b="205";
-    }
-    qDebug()<<"THEME: "<<r<<g<<b;
-    foreach (const QString com, colors) {
-        if(com.toInt()>40){
-            break;
-        }else{
-            r="69";
-            g="69";
-            b="69";
-        }
     }
 
     ui->nowplaying_widget->setImage(*cover->pixmap());
@@ -1190,13 +1170,14 @@ void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
     ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
     ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
 
+    miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
+
 
     ElidedLabel *title2 = this->findChild<ElidedLabel *>("nowP_title");
     ((ElidedLabel*)(title2))->setText(titleStr);
 
     ElidedLabel *artist2 = this->findChild<ElidedLabel *>("nowP_artist");
     ((ElidedLabel*)(artist2))->setText(artistStr);
-
 
     ElidedLabel *album2 = this->findChild<ElidedLabel *>("nowP_album");
     ((ElidedLabel*)(album2))->setText(albumStr);
@@ -1222,6 +1203,9 @@ void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
         radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url));
     }
 }
+//END PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 //app menu to hide show sidebar
 void MainWindow::on_menu_clicked()
@@ -1297,7 +1281,7 @@ void MainWindow::getNowPlayingTrackId(){
 
 void MainWindow::resizeEvent(QResizeEvent *resizeEvent){
     //to fix resize bug in disabled tracks in player queue list
-    shakeLists();
+   // shakeLists();
 
     left_panel_width = ui->left_panel->width();
     QMainWindow::resizeEvent(resizeEvent);
@@ -1360,7 +1344,10 @@ void MainWindow::radio_demuxer_cache_duration_changed(double seconds_available,d
 //   }
 //}
 
+
+//this method plays tracks from webpage
 void MainWindow::playLocalTrack(QVariant songIdVar){
+
     QString url,songId,title,album,artist,base64;
     songId = songIdVar.toString();
     QStringList tracskList ;
@@ -1376,6 +1363,44 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
     QVariant data = url+"=,="+title+"=,="+album+"=,="+artist+"=,="+base64;
     playRadioFromWeb(data);
     ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
+
+
+    //if track is not in lists add it to queue
+    if(!store_manager->isInQueue(songIdVar.toString())){
+        QStringList trackDetails = store_manager->getTrack(songId);
+        QString id,title,artist,album,base64,dominantColor,albumId,artistId,url;
+        title = trackDetails.at(1);
+        albumId = trackDetails.at(2);
+        album = trackDetails.at(3);
+        artistId = trackDetails.at(4);
+        artist = trackDetails.at(5);
+        base64 = trackDetails.at(6);
+        url = trackDetails.at(7);
+        id = trackDetails.at(8);
+        dominantColor = trackDetails.at(9);
+        addToQueue(id,title,artist,album,base64,dominantColor,songId,albumId,artistId);
+    }else{//else find and play the track
+        for (int i= 0;i<ui->right_list->count();i++) {
+           QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+            if(songId==songIdFromWidget){
+                ui->tabWidget->setCurrentWidget(ui->tab);
+                ui->right_list->setCurrentRow(i);
+                listItemDoubleClicked(ui->right_list,ui->right_list->item(i));
+                ui->right_list->scrollToItem(ui->right_list->item(i));
+                 break;
+            }
+        }
+        for (int i= 0;i<ui->right_list_2->count();i++) {
+           QString songIdFromWidget = ((QLineEdit*) ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+            if(songId==songIdFromWidget){
+                ui->tabWidget->setCurrentWidget(ui->tab_2);
+                ui->right_list_2->setCurrentRow(i);
+                listItemDoubleClicked(ui->right_list_2,ui->right_list_2->item(i));
+                ui->right_list_2->scrollToItem(ui->right_list_2->item(i));
+                break;
+            }
+        }
+    }
 }
 
 void MainWindow::playRadioFromWeb(QVariant streamDetails){
@@ -1411,11 +1436,14 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
     saveTracksAfterBuffer=false;
     radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url.trimmed()));
 
+    //clear playing icon from player queue
     for (int i= 0;i<ui->right_list->count();i++) {
       ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
     }
+    for (int i= 0;i<ui->right_list_2->count();i++) {
+      ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
+    }
 }
-
 
 
 //TODO
@@ -1608,3 +1636,77 @@ void MainWindow::hideListItems(QListWidget *list){
 //End Filter Lists///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+//Webview dpi set///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::zoomin(){
+    zoom = zoom - 1.0;
+    setZoom(zoom);
+    settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
+}
+
+void MainWindow::zoomout(){
+    zoom = zoom + 1.0;
+    setZoom(zoom);
+    settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
+}
+
+void MainWindow::setZoom(float val){
+    ui->webview->setZoomFactor( horizontalDpi / val);
+    qWarning()<<zoom;
+}
+
+void MainWindow::init_miniMode(){
+    miniModeWidget = new QWidget(this);
+    miniMode_ui.setupUi(miniModeWidget);
+    miniModeWidget->setObjectName("miniModeWidget");
+    miniModeWidget->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    miniModeWidget->adjustSize();
+}
+
+void MainWindow::on_miniMode_clicked()
+{
+    if(!miniModeWidget->isVisible())
+    {
+        ui->miniMode->setIcon(QIcon(":/icons/restore_mini_mode.png"));
+        ui->miniMode->setToolTip("Restore back to main window");
+
+        miniMode_ui.nowPlayingLayout->addWidget(ui->nowplaying_widget);
+
+        miniMode_ui.seekSliderLyout->addWidget(ui->position);
+        miniMode_ui.seekSliderLyout->addWidget(ui->radioSeekSlider);
+        miniMode_ui.seekSliderLyout->addWidget(ui->duration);
+
+        ui->radioVolumeSlider->setMaximumWidth(16777215);
+        miniMode_ui.volumeSliderLayout->addWidget(ui->radioVolumeSlider);
+
+        miniMode_ui.controlLayout->addWidget(ui->controls_widget);
+        miniModeWidget->move(ui->miniMode->mapToGlobal(QPoint(QPoint(-miniModeWidget->width()+ui->miniMode->width(),30))));
+        this->hide();
+        miniModeWidget->setMaximumHeight(miniModeWidget->height());
+
+        miniModeWidget->setWindowOpacity(qreal(95)/100);
+        miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
+
+        miniModeWidget->showNormal();
+    }else{
+        //restore
+        miniModeWidget->hide();
+        ui->miniMode->setToolTip("Switch to Mini Mode");
+        ui->radioVolumeSlider->setMaximumWidth(200);
+        ui->miniMode->setIcon(QIcon(":/icons/mini_mode.png"));
+        ui->left_panel->layout()->addWidget(ui->nowplaying_widget);
+        ui->horizontalLayout_11->addWidget(ui->radioVolumeSlider);
+        ui->horizontalLayout_11->layout()->addWidget(ui->position);
+        ui->horizontalLayout_11->layout()->addWidget(ui->radioSeekSlider);
+        ui->horizontalLayout_11->layout()->addWidget(ui->duration);
+        ui->centralWidget->layout()->addWidget(ui->controls_widget);
+        miniModeWidget->setMaximumHeight(16777215);
+        this->show();
+
+    }
+}
+
+void MainWindow::on_tabWidget_currentChanged(int index)
+{
+    Q_UNUSED(index);
+    shakeLists();
+}

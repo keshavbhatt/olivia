@@ -1,5 +1,13 @@
 //include this lib after loading jquery
 
+if (!String.prototype.includes) {
+    String.prototype.includes = function() {
+        'use strict';
+        return String.prototype.indexOf.apply(this, arguments) !== -1;
+    };
+}
+
+
 var themeColor; //sets the global themeColor for webview is accsible from all web
 var NowPlayingTrackId;
 

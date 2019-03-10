@@ -16,7 +16,6 @@ public slots:
     void setColor(QColor c);
 protected:
     void paintEvent(QPaintEvent *e);
-    void wheelEvent(QWheelEvent *event);
 private:
     QPixmap m_image;
     QSize m_size;
