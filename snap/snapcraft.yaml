@@ -44,8 +44,6 @@ parts:
             - python
             - wget
             - coreutils
-     override-stage: 'true'
-     override-prime: 'true'
    qt:
      plugin: qmake
      qt-version: qt5
