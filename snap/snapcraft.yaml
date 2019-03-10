@@ -35,9 +35,9 @@ parts:
      plugin: nil
      after: [deps]
      override-pull: |
-       sudo apt --yes install software-properties-common
-       sudo add-apt-repository -y ppa:mc3man/mpv-tests
-       sudo apt update
+       apt --yes install software-properties-common
+       add-apt-repository -y ppa:mc3man/mpv-tests
+       apt update
      stage-packages:
             - mpv
    qt:
