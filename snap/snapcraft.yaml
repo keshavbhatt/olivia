@@ -34,6 +34,8 @@ parts:
    ppa:
      plugin: nil
      after: [deps]
+     override-build: |
+            mpv --version
      override-pull: |
        apt --yes install software-properties-common
        add-apt-repository -yu ppa:mc3man/mpv-tests
@@ -41,8 +43,6 @@ parts:
             - mpv
    qt:
      plugin: qmake
-     override-build: |
-            mpv --version
      qt-version: qt5
      source-type: git
      source: https://github.com/keshavbhatt/olivia.git
