@@ -38,16 +38,7 @@ parts:
        add-apt-repository -y ppa:mc3man/mpv-tests
        apt update
      stage-packages:
-            - mpv=2:0.*
-   deps:
-     override-build: |
-        mpv --version
-     plugin: nil
-     stage-packages:
-            - socat
-            - python
-            - wget
-            - coreutils
+            - mpv
    qt:
      plugin: qmake
      qt-version: qt5
@@ -66,3 +57,13 @@ parts:
 
      after: [desktop-qt5]
      after: [ppa]
+
+   deps:
+     plugin: nil
+     override-build: |
+        mpv --version
+     stage-packages:
+            - socat
+            - python
+            - wget
+            - coreutils
