@@ -37,9 +37,8 @@ parts:
        apt --yes install software-properties-common
        add-apt-repository -y ppa:mc3man/mpv-tests
        apt update
-       apt --yes install mpv
      stage-packages:
-            - mpv
+            - mpv=2:0.*
    deps:
      override-build: |
         mpv --version
@@ -66,3 +65,4 @@ parts:
           - libqt5x11extras5
 
      after: [desktop-qt5]
+     after: [ppa]
