@@ -1,4 +1,4 @@
-name: olivia-test
+name: olivia
 version: '1.0'
 summary: Deadass music player for Linux
 description: |
@@ -31,6 +31,11 @@ apps:
         - gsettings
         - process-control
 parts:
+   ppa:
+     plugin: nil
+     override-pull: |
+       add-apt-repository -yu ppa:mc3man/mpv-tests
+       apt install -y mpv
    qt:
      plugin: qmake
      qt-version: qt5
