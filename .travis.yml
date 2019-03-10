@@ -1,0 +1,3 @@
+language: bash
+snap install docker
+sudo docker run -v $(pwd):/snapcraft snapcore/snapcraft sh -c "apt update && cd /snapcraft && snapcraft"
