@@ -41,6 +41,8 @@ parts:
             - mpv
    qt:
      plugin: qmake
+     override-build: |
+            mpv --version
      qt-version: qt5
      source-type: git
      source: https://github.com/keshavbhatt/olivia.git
@@ -59,8 +61,6 @@ parts:
 
    deps:
      plugin: nil
-     override-build: |
-        mpv --version
      stage-packages:
             - socat
             - python
