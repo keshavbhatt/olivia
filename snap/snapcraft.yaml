@@ -33,14 +33,21 @@ apps:
 parts:
    ppa:
      plugin: nil
-     after: [deps]
      override-build: |
             mpv --version
      override-pull: |
        apt --yes install software-properties-common
        add-apt-repository -yu ppa:mc3man/mpv-tests
+       apt --yes install mpv=2:0*
      stage-packages:
             - mpv
+   deps:
+     plugin: nil
+     stage-packages:
+            - socat
+            - python
+            - wget
+            - coreutils
    qt:
      plugin: qmake
      qt-version: qt5
@@ -56,13 +63,4 @@ parts:
           - libqt5sql5-sqlite
           - libqt5webkit5
           - libqt5x11extras5
-
      after: [desktop-qt5]
-
-   deps:
-     plugin: nil
-     stage-packages:
-            - socat
-            - python
-            - wget
-            - coreutils
