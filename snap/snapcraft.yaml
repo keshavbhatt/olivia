@@ -8,6 +8,10 @@ grade: stable
 confinement: strict
 icon: snap/gui/olivia.png
 
+architectures:
+  - build-on: amd64
+    run-on: amd64
+
 apps:
   olivia:
     command: desktop-launch olivia
