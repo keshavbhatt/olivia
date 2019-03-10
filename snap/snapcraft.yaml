@@ -40,9 +40,9 @@ parts:
        apt --yes install mpv
      stage-packages:
             - mpv
-     prepare: |
-        mpv --version
    deps:
+     override-build: |
+        mpv --version
      plugin: nil
      stage-packages:
             - socat
