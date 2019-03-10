@@ -62,5 +62,3 @@ parts:
      override-pull: |
        apt --yes install software-properties-common apt-utils
        add-apt-repository -yu ppa:mc3man/mpv-tests
-     stage-packages:
-            - mpv
