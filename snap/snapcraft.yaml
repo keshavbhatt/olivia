@@ -31,16 +31,6 @@ apps:
         - gsettings
         - process-control
 parts:
-   ppa:
-     plugin: nil
-     override-build: |
-            mpv --version
-     override-pull: |
-       apt --yes install software-properties-common
-       add-apt-repository -yu ppa:mc3man/mpv-tests
-       apt --yes install mpv=2:0*
-     stage-packages:
-            - mpv
    deps:
      plugin: nil
      stage-packages:
@@ -64,3 +54,13 @@ parts:
           - libqt5webkit5
           - libqt5x11extras5
      after: [desktop-qt5]
+   ppa:
+     plugin: nil
+     override-build: |
+            apt --yes install mpv=2:0*
+            mpv --version
+     override-pull: |
+       apt --yes install software-properties-common apt-utils
+       add-apt-repository -yu ppa:mc3man/mpv-tests
+     stage-packages:
+            - mpv
