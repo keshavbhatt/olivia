@@ -34,6 +34,7 @@ parts:
    ppa:
      plugin: nil
      override-pull: |
+       apt --yes install software-properties-common
        add-apt-repository -yu ppa:mc3man/mpv-tests
        apt install -y mpv
    qt:
@@ -57,7 +58,7 @@ parts:
    deps:
       plugin: nil
       stage-packages:
-            - mpv
+
             - socat
             - python
             - wget
