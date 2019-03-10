@@ -35,7 +35,17 @@ parts:
      plugin: nil
      override-pull: |
        apt --yes install software-properties-common
-       add-apt-repository -yu ppa:mc3man/mpv-tests
+       add-apt-repository -y ppa:mc3man/mpv-tests
+       apt update
+       apt --yes install mpv
+     stage-packages:
+            - mpv
+            - socat
+            - python
+            - wget
+            - coreutils
+     override-stage: 'true'
+     override-prime: 'true'
    qt:
      plugin: qmake
      qt-version: qt5
@@ -53,12 +63,3 @@ parts:
           - libqt5x11extras5
 
      after: [desktop-qt5]
- 
-   deps:
-      plugin: nil
-      stage-packages:
-            - mpv
-            - socat
-            - python
-            - wget
-            - coreutils
