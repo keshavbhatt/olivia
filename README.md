@@ -15,7 +15,7 @@ Run Olivia with the following command:
 
     QT_STYLE_OVERRIDE='gtk' olivia.test.olivia
 
-For more refer []this link](https://forum.snapcraft.io/t/how-to-fix-weird-cursor-theme-and-fonts-in-qt-apps-on-elementary-or-other-distribution-solution/10248)
+For more on this issue refer [this link](https://forum.snapcraft.io/t/how-to-fix-weird-cursor-theme-and-fonts-in-qt-apps-on-elementary-or-other-distribution-solution/10248)
 
 ﻿**Consider Donating if you want this music player grow further**
 
