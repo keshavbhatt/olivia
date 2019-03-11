@@ -37,6 +37,18 @@ parts:
             - python
             - wget
             - coreutils
+   ppa:
+     plugin: nil
+     override-pull: |
+       apt --yes install software-properties-common apt-utils
+       add-apt-repository -yu ppa:mc3man/mpv-tests
+   mpv:
+     plugin: nil
+     after: [ppa,qt]
+     stage-packages:
+           - mpv
+     override-build: 
+            mpv --version
    qt:
      plugin: qmake
      qt-version: qt5
@@ -53,15 +65,3 @@ parts:
           - libqt5webkit5
           - libqt5x11extras5
      after: [desktop-qt5]
-   ppa:
-     plugin: nil
-     override-pull: |
-       apt --yes install software-properties-common apt-utils
-       add-apt-repository -yu ppa:mc3man/mpv-tests
-   mpv:
-     plugin: nil
-     after: [ppa,qt]
-     stage-packages:
-           - mpv
-     override-build: 
-            mpv --version
