@@ -32,6 +32,18 @@ Execute :
     ./olivia
      
 ﻿
+﻿**Or build a snap package**
+Copy snap directory from project root and paste it somewhere else (so the build will not mess with source code)
+Run :
+
+    snapcraft
+Try snap with :
+
+    snap try
+Install snap with
+
+    snap install --dangerous name_of_snap_file
+
 **ScreenShots:**
 ![Olivia](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olivia_linux_ubuntu_1.jpeg)
 ![Youtube plugin for Olivia on the play](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olivia_linux_ubuntu_2.jpeg)
