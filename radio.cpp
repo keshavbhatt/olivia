@@ -14,13 +14,6 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     fifo->start("mkfifo",QStringList()<<setting_path+"/fifofile");
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
 
-    //to remove
-    QProcess *mpv = new QProcess(this);
-    mpv->start("mpv",QStringList()<<"--version");
-    connect(mpv,&QProcess::readyRead,[=](){
-        qDebug()<<"MPV VERSION:"<<mpv->readAll();
-    });
-
     radioPlaybackTimer = new QTimer(this);
     volume= volumeValue;
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
@@ -164,7 +157,7 @@ void radio::radioReadyRead(){
         radioPlaybackTimer->start(100);
     }
     QString output = radioProcess->readAll();
-    qDebug()<<output;
+   // qDebug()<<output;
     if(output.contains("written to stdout")){
   //      qDebug()<<"saved track";
         emit saveTrack(QString("webm"));

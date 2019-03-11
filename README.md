@@ -5,8 +5,20 @@ being developed in BANKUBAD LABS by @keshavbhatt
 
 [![Snap Status](https://build.snapcraft.io/badge/keshavbhatt/olivia.svg)](https://build.snapcraft.io/user/keshavbhatt/olivia)
 
-Link might be dead but willwork soon as i will fix [this issue](https://github.com/keshavbhatt/olivia/issues/1)
+﻿**Nightly Build can be installed using:**
+
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/olivia-test)
+
+**If you are having issues in desktop theming like big fonts and weird cursor theme**
+
+Run Olivia with the following command:
+
+    QT_STYLE_OVERRIDE='gtk' olivia.test.olivia
+
+﻿**Consider Donating if you want this music player grow further**
+
+[**PayPal Me**](https://paypal.me/keshavnrj/10)
+[**Become a Patreon**](https://www.patreon.com/keshavnrj/)
 
 ﻿**Build requirement**
 

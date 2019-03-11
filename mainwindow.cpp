@@ -164,7 +164,7 @@ void MainWindow::set_app_theme(QColor rgb){
     QString r = QString::number(rgb.red());
     QString g = QString::number(rgb.green());
     QString b = QString::number(rgb.blue());
-    qDebug()<<r<<g<<b;
+//    qDebug()<<r<<g<<b;
     this->setStyleSheet(this->styleSheet()+"QMainWindow{"
                             "background-color:rgba("+r+","+g+","+b+","+"0.1"+");"
                             "}");
@@ -528,7 +528,7 @@ void MainWindow::setPlayerPosition(qint64 position){
 
 void MainWindow::on_play_pause_clicked()
 {
-    qDebug()<<radio_manager->radioState;
+    //qDebug()<<radio_manager->radioState;
     if(radio_manager->radioState=="paused"){
         radio_manager->resumeRadio();
     }else if(radio_manager->radioState=="playing"){
@@ -560,7 +560,7 @@ void MainWindow::on_stop_clicked()
 
 //NETWORK
 void MainWindow::quitApp(){
-    qDebug()<<"called";
+  //  qDebug()<<"called";
     radio_manager->killRadioProcess();
     radio_manager->deleteProcess(0);
     radio_manager->deleteLater();
@@ -849,7 +849,7 @@ void MainWindow::showTrackOption(){
 //    });
 
     connect(removeSong,&QAction::triggered,[=](){
-            qDebug()<<"removed Song :"<<songId;
+          //  qDebug()<<"removed Song :"<<songId;
             for (int i= 0;i<ui->right_list->count();i++) {
                QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
                 if(songId==songIdFromWidget){
@@ -903,14 +903,14 @@ void MainWindow::processYtdlQueue(){
         QString ytIds = QString(ytdlQueue.at(0).at(0).split(",").first());
         QString songId = QString(ytdlQueue.at(0).at(1).split(",").last());
 
-        qDebug()<<songId<<ytIds<<"....processing";
+       // qDebug()<<songId<<ytIds<<"....processing";
 
         ytdlQueue.removeAt(0);
 
-        qDebug()<<"process queue called";
+      //  qDebug()<<"process queue called";
 
         if(ytdlProcess == nullptr){
-            qDebug()<<"ENtered loop";
+          //  qDebug()<<"ENtered loop";
                 ytdlProcess = new QProcess(this);
                 ytdlProcess->setObjectName(songId);
 
@@ -933,7 +933,7 @@ void MainWindow::processYtdlQueue(){
 void MainWindow::ytdlFinished(int code){
 //    Q_UNUSED(code);
     ytdlProcess = nullptr;
-    qDebug()<<"Process Finishned"<<code;
+  //  qDebug()<<"Process Finishned"<<code;
     if(ytdlQueue.count()>0){
         qDebug()<<"YoutubedlQueueSize:"<<ytdlQueue.count();
         processYtdlQueue();
@@ -948,7 +948,7 @@ void MainWindow::ytdlReadyRead(){
     QByteArray b;
     b.append(senderProcess->readAll());
     QString s_data = QTextCodec::codecForMib(106)->toUnicode(b).trimmed();
-    qDebug()<<s_data;
+  //  qDebug()<<s_data;
 
     if(!s_data.isEmpty()){
             QWidget *listWidget = ui->right_list->findChild<QWidget*>("track-widget-"+songId);
@@ -1455,7 +1455,7 @@ void MainWindow::saveTrack(QString format){
 
     if(file.copy(download_Path+nowPlayingSongId)){
         file.close();
-        qDebug()<<"saved"<<nowPlayingSongId<<"as"<<format<<"in"<<file.fileName();
+    //    qDebug()<<"saved"<<nowPlayingSongId<<"as"<<format<<"in"<<file.fileName();
         store_manager->update_track("downloaded",nowPlayingSongId,"1");
     }
       //show offline icon in track ui and change url to offline one
