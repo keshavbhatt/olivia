@@ -47,8 +47,6 @@ parts:
      after: [ppa,qt]
      stage-packages:
            - mpv
-     override-build: 
-            mpv --version
    qt:
      plugin: qmake
      qt-version: qt5
