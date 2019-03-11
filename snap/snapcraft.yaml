@@ -55,11 +55,13 @@ parts:
      after: [desktop-qt5]
    ppa:
      plugin: nil
-     override-build: |
-            apt --yes install mpv=2:0*
-            mpv --version
      override-pull: |
        apt --yes install software-properties-common apt-utils
        add-apt-repository -yu ppa:mc3man/mpv-tests
+   mpv:
+     plugin: nil
+     after: [ppa]
      stage-packages:
-          - mpv
+           -mpv
+     override-build: 
+            mpv --version
