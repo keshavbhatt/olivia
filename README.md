@@ -22,6 +22,7 @@ being developed in BANKUBAD LABS by @keshavbhatt
     
 **Build instructions**
 With all build requirements in place go to project root and execute:
+
 Build:
 
     qmake
