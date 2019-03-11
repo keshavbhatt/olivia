@@ -14,7 +14,7 @@ being developed in BANKUBAD LABS by @keshavbhatt
         - libqt5webkit5 (must)
         - libqt5x11extras5
         
-    mpv >=git-2019-02-24-5370069
+    mpv >= 0.29.1
     coreutils >=8.25
     socat >=1.7.3.1-1
     python >=2.7
