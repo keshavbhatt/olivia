@@ -60,7 +60,7 @@ parts:
        add-apt-repository -yu ppa:mc3man/mpv-tests
    mpv:
      plugin: nil
-     after: [ppa]
+     after: [ppa,qt]
      stage-packages:
            - mpv
      override-build: 
