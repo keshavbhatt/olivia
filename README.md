@@ -19,7 +19,7 @@ For more on this issue refer [this link](https://forum.snapcraft.io/t/how-to-fix
 
 ﻿**Consider Donating if you want this music player grow further**
 
-[**PayPal Me**](https://paypal.me/keshavnrj/10)
+[**PayPal Me**](https://paypal.me/keshavnrj/10) or
 [**Become a Patreon**](https://www.patreon.com/keshavnrj/)
 
 ﻿**Build requirement**
