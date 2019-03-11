@@ -62,6 +62,6 @@ parts:
      plugin: nil
      after: [ppa]
      stage-packages:
-           -mpv
+           - mpv
      override-build: 
             mpv --version
