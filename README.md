@@ -5,6 +5,7 @@ being developed in BANKUBAD LABS by @keshavbhatt
 
 [![Snap Status](https://build.snapcraft.io/badge/keshavbhatt/olivia.svg)](https://build.snapcraft.io/user/keshavbhatt/olivia)
 
+Link might be dead but willwork soon as i will fix [this issue](https://github.com/keshavbhatt/olivia/issues/1)
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/olivia-test)
 
 ﻿**Build requirement**
