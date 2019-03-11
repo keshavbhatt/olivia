@@ -1,7 +1,7 @@
 # olivia
-deadass music player for LINUX 
+Elegant music player for LINUX 
 not ready yet
-being developed in BANKUBAD LABS
+being developed in BANKUBAD LABS by @keshavbhatt
 
 [![Snap Status](https://build.snapcraft.io/badge/keshavbhatt/olivia.svg)](https://build.snapcraft.io/user/keshavbhatt/olivia)
 
