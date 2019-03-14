@@ -15,6 +15,7 @@
 #include <QEvent>
 #include <QJsonArray>
 #include <QKeyEvent>
+#include <QSettings>
 
 
 class onlineSearchSuggestion : public QObject
@@ -42,6 +43,8 @@ private:
     QTimer timer;
     QNetworkAccessManager networkManager;
     QStringList blacklist;
+    QSettings settingsObj;
+
 };
 
 #endif // ONLINESEARCHSUGGESTION_H

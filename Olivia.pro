@@ -44,7 +44,8 @@ SOURCES += main.cpp\
     radio.cpp \
     onlinesearchsuggestion.cpp \
     seekslider.cpp \
-    volumeslider.cpp
+    volumeslider.cpp \
+    settings.cpp
 
 HEADERS  += mainwindow.h \
     DarkStyle.h \
@@ -55,7 +56,8 @@ HEADERS  += mainwindow.h \
     radio.h \
     onlinesearchsuggestion.h \
     seekslider.h \
-    volumeslider.h
+    volumeslider.h \
+    settings.h
 
 FORMS    += mainwindow.ui \
     track.ui \

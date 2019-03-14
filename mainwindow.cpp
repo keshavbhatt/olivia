@@ -18,6 +18,7 @@
 #include "radio.h"
 #include "onlinesearchsuggestion.h"
 #include "seekslider.h"
+#include "settings.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -49,7 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->radioVolumeSlider->setMaximum(130);
 
     ui->radioVolumeSlider->setValue(100);
-    saveTracksAfterBuffer = true;
+    saveTracksAfterBuffer = settingsObj.value("saveAfterBuffer","true").toBool();
     radio_manager = new radio(this,ui->radioVolumeSlider->value(),saveTracksAfterBuffer);
 
     connect(radio_manager,SIGNAL(radioStatus(QString)),this,SLOT(radioStatus(QString)));
@@ -101,31 +102,84 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     ui->tabWidget->setCurrentIndex(1);
     ui->tabWidget->setCurrentIndex(0);
+
+
+    browse();
+
+    //keep this at last
+    if(settingsObj.value("dynamicTheme").toBool()==false){
+        QString rgbhash = settingsObj.value("customTheme","#3BBAC6").toString();
+        set_app_theme(QColor(rgbhash));
+        if(color_list.contains(rgbhash,Qt::CaseInsensitive)){
+            if(settingsWidget->findChild<QPushButton*>(rgbhash.toUpper())){
+                settingsWidget->findChild<QPushButton*>(rgbhash.toUpper())->setText("*");
+            }
+        }
+    }
 }
 
 void MainWindow::init_settings(){
+
+    settUtils = new settings(this);
+    connect(settUtils,SIGNAL(dynamicTheme(bool)),this,SLOT(dynamicThemeChanged(bool)));
+
+    settingsObj.setObjectName("settings");
+    setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation); 
+
+    if(!QDir(setting_path).exists()){
+        QDir d(setting_path);
+        d.mkpath(setting_path);
+    }
 
     settingsWidget = new QWidget(0);
     settingsWidget->setObjectName("settingsWidget");
     settingsUi.setupUi(settingsWidget);
     settingsWidget->adjustSize();
     connect(settingsUi.download_engine,SIGNAL(clicked()),this,SLOT(download_engine_clicked()));
+    connect(settingsUi.saveAfterBuffer,SIGNAL(toggled(bool)),settUtils,SLOT(changeSaveAfterSetting(bool)));
+    connect(settingsUi.showSearchSuggestion,SIGNAL(toggled(bool)),settUtils,SLOT(changeShowSearchSuggestion(bool)));
+    connect(settingsUi.dynamicTheme,SIGNAL(toggled(bool)),settUtils,SLOT(changeDynamicTheme(bool)));
+//    connect(settingsUi.miniModeStayOnTop,SIGNAL(toggled(bool)),settUtils,SLOT(changeMiniModeStayOnTop(bool)));
+    connect(settingsUi.miniModeStayOnTop,&QCheckBox::toggled,[=](bool checked){
+        settUtils->changeMiniModeStayOnTop(checked);
+        miniModeWidget->deleteLater();
+        init_miniMode();
+    });
+
+
+
 
     horizontalDpi = QApplication::desktop()->screen()->logicalDpiX();
     zoom = 100.0;
-    setZoom(zoom);
+   // setZoom(zoom);
     connect(settingsUi.plus,SIGNAL(clicked(bool)),this,SLOT(zoomin()));
     connect(settingsUi.minus,SIGNAL(clicked(bool)),this,SLOT(zoomout()));
 
     settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
     add_colors_to_color_widget();
+
+    loadSettings();
+}
+
+void MainWindow::dynamicThemeChanged(bool enabled){
+    settingsUi.themesWidget->setEnabled(!enabled);
+}
+
+void MainWindow::loadSettings(){
+
+    settingsUi.saveAfterBuffer->setChecked(settingsObj.value("saveAfterBuffer","true").toBool());
+    settingsUi.showSearchSuggestion->setChecked(settingsObj.value("showSearchSuggestion","true").toBool());
+    settingsUi.miniModeStayOnTop->setChecked(settingsObj.value("miniModeStayOnTop","false").toBool());
+
+    settingsUi.dynamicTheme->setChecked(settingsObj.value("dynamicTheme","false").toBool());
+//    settingsUi.zoom->setText(settingsObj.value("zoom","1.0").toString());
+    setZoom(settingsObj.value("zoom","100.0").toFloat());
 }
 
 void MainWindow::add_colors_to_color_widget(){
-    QStringList color_list;
-    color_list<<"askjd"<<"#660000"<<"#990000"<<"#cc0000"<<"#cc3333"
-             <<"#ea4c88"<<"#993399"<<"#663399"<<"#333399"
-            <<"#0066cc";
+
+        color_list<<"askjd"<<"#FF0034"<<"#0070FF"<<"#029013"
+                        <<"#D22298"<<"#FF901F"<<"#836C50";
 
         QObject *layout = settingsWidget->findChild<QObject*>("themeHolderGridLayout");
         int row=0;
@@ -138,10 +192,16 @@ void MainWindow::add_colors_to_color_widget(){
                     break;
                 QPushButton *pb =new QPushButton();
                 pb->setObjectName(color_list.at(numberOfButtons));
-                pb->setToolTip("Seach images with "+color_list.at(numberOfButtons)+" color");
-                pb->setStyleSheet("background-color:"+color_list.at(numberOfButtons)+";border:0px;");
+                pb->setStyleSheet("background-color:"+color_list.at(numberOfButtons)+";border:1px;padding:2px;");
                 connect(pb,&QPushButton::clicked,[=](){
                   set_app_theme(QColor(pb->objectName()));
+
+                  for(int i(0);i<color_list.count();i++){
+                     if(settingsWidget->findChild<QPushButton*>(color_list.at(i))){
+                         settingsWidget->findChild<QPushButton*>(color_list.at(i))->setText("");
+                     }
+                  }
+                  pb->setText("*");
                 });
                 ((QGridLayout *)(layout))->addWidget(pb, row, f2);
             }
@@ -159,12 +219,27 @@ void MainWindow::add_colors_to_color_widget(){
 }
 
 void MainWindow::set_app_theme(QColor rgb){
-//    QPushButton* buttonSender = qobject_cast<QPushButton*>(sender()); // retrieve the button clicked
-//    QString color = rgb;
+
+    settingsObj.setValue("customTheme",rgb);
+
+
     QString r = QString::number(rgb.red());
     QString g = QString::number(rgb.green());
     QString b = QString::number(rgb.blue());
-//    qDebug()<<r<<g<<b;
+
+    if(!color_list.contains(rgb.name(),Qt::CaseInsensitive)){
+        qDebug()<<rgb.name();
+        QObject *layout = settingsWidget->findChild<QObject*>("themeHolderGridLayout");
+        for(int i(0);i<color_list.count();i++){
+           if(settingsWidget->findChild<QPushButton*>(color_list.at(i))){
+               qDebug()<<"yes";
+               settingsWidget->findChild<QPushButton*>(color_list.at(i))->setText("");
+           }
+        }
+    }
+
+    themeColor = r+","+g+","+b+","+"0.2";
+
     this->setStyleSheet(this->styleSheet()+"QMainWindow{"
                             "background-color:rgba("+r+","+g+","+b+","+"0.1"+");"
                             "}");
@@ -185,12 +260,12 @@ void MainWindow::set_app_theme(QColor rgb){
 
 void MainWindow::customColor(){
         SelectColorButton *s=new SelectColorButton();
-        connect(s,SIGNAL(findImageWithColor(QColor)),this,SLOT(set_app_theme(QColor)));
+        connect(s,SIGNAL(setCustomColor(QColor)),this,SLOT(set_app_theme(QColor)));
         s->changeColor();
 }
 
 void SelectColorButton::updateColor(){
-    emit findImageWithColor(color);
+    emit setCustomColor(color);
 }
 
 void SelectColorButton::changeColor(){
@@ -237,13 +312,6 @@ void MainWindow::init_app(){
 
     setWindowIcon(QIcon(":/icons/olivia.png"));
     setWindowTitle(QApplication::applicationName());
-
-    //setting path init
-    QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    QString myinifilepath(setting_path+"/OliviaSettings.ini");
-    settings = new QSettings(myinifilepath,QSettings::IniFormat);
-    settings->beginGroup("Settings");
-    settings->setValue("AppActivation-Code","A_scNo.2335");
 
 
     ElidedLabel *title = new ElidedLabel("-",0);
@@ -978,7 +1046,7 @@ void MainWindow::on_left_list_currentRowChanged(int currentRow)
 {
     switch (currentRow) {
     case 1:
-        // browse();
+        browse();
         break;
     case 3:
          search("");
@@ -1136,42 +1204,43 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
     getNowPlayingTrackId();
 
+    ui->nowplaying_widget->setImage(*cover->pixmap());
+
+
     if(!ui->state->isVisible())
         ui->state->show();
     ui->state->setText("Connecting...");
 
-    QString r,g,b;
-    QStringList colors = dominant_color.split(",");
-    if(colors.count()==3){
-        r=colors.at(0);
-        g=colors.at(1);
-        b=colors.at(2);
-    }else{
-        r="98";
-        g="164";
-        b="205";
+
+    if(settingsObj.value("dynamicTheme").toBool()==true){
+        QString r,g,b;
+        QStringList colors = dominant_color.split(",");
+        if(colors.count()==3){
+            r=colors.at(0);
+            g=colors.at(1);
+            b=colors.at(2);
+        }else{
+            r="98";
+            g="164";
+            b="205";
+        }
+        ui->nowplaying_widget->setColor(QColor(r.toInt(),g.toInt(),b.toInt()));
+        //change the color of main window according to album cover
+        this->setStyleSheet(this->styleSheet()+"QMainWindow{"
+                                "background-color:rgba("+r+","+g+","+b+","+"0.1"+");"
+                                "}");
+        QString rgba = r+","+g+","+b+","+"0.2";
+        ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+rgba+"')");
+        QString widgetStyle= "background-color:"
+                             "qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,"
+                             "stop:0.129213 rgba("+r+", "+g+", "+b+", 30),"
+                             "stop:0.38764 rgba("+r+", "+g+", "+b+", 120),"
+                             "stop:0.679775 rgba("+r+", "+g+", "+b+", 84),"
+                             "stop:1 rgba("+r+", "+g+", "+b+", 30));";
+        ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
+        ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
+        miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
     }
-
-    ui->nowplaying_widget->setImage(*cover->pixmap());
-    ui->nowplaying_widget->setColor(QColor(r.toInt(),g.toInt(),b.toInt()));
-    //change the color of main window according to album cover
-    this->setStyleSheet(this->styleSheet()+"QMainWindow{"
-                            "background-color:rgba("+r+","+g+","+b+","+"0.1"+");"
-                            "}");
-    QString rgba = r+","+g+","+b+","+"0.2";
-
-    ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+rgba+"')");
-    QString widgetStyle= "background-color:"
-                         "qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,"
-                         "stop:0.129213 rgba("+r+", "+g+", "+b+", 30),"
-                         "stop:0.38764 rgba("+r+", "+g+", "+b+", 120),"
-                         "stop:0.679775 rgba("+r+", "+g+", "+b+", 84),"
-                         "stop:1 rgba("+r+", "+g+", "+b+", 30));";
-    ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
-    ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
-
-    miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
-
 
     ElidedLabel *title2 = this->findChild<ElidedLabel *>("nowP_title");
     ((ElidedLabel*)(title2))->setText(titleStr);
@@ -1199,7 +1268,7 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         radio_manager->playRadio(false,QUrl(url));
     }else{
         //TODO get saveTracksAfterBuffer value from settings before calling this
-        saveTracksAfterBuffer = false;
+        saveTracksAfterBuffer =  settingsObj.value("saveAfterBuffer","true").toBool();
         radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url));
     }
 }
@@ -1433,6 +1502,7 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
 
     this->findChild<ElidedLabel *>("nowP_album")->setText(country);
 
+    //always false as we don't want record radio for now
     saveTracksAfterBuffer=false;
     radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url.trimmed()));
 
@@ -1641,24 +1711,29 @@ void MainWindow::zoomin(){
     zoom = zoom - 1.0;
     setZoom(zoom);
     settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
+    settingsObj.setValue("zoom",zoom);
 }
 
 void MainWindow::zoomout(){
     zoom = zoom + 1.0;
     setZoom(zoom);
     settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
+    settingsObj.setValue("zoom",zoom);
 }
 
 void MainWindow::setZoom(float val){
     ui->webview->setZoomFactor( horizontalDpi / val);
-    qWarning()<<zoom;
 }
 
 void MainWindow::init_miniMode(){
     miniModeWidget = new QWidget(this);
     miniMode_ui.setupUi(miniModeWidget);
     miniModeWidget->setObjectName("miniModeWidget");
-    miniModeWidget->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    if(settingsObj.value("miniModeStayOnTop","false").toBool()==true){
+        miniModeWidget->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    }else{
+        miniModeWidget->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+    }
     miniModeWidget->adjustSize();
 }
 

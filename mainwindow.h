@@ -61,9 +61,11 @@
 #include "store.h"
 #include "radio.h"
 #include "onlinesearchsuggestion.h"
+#include "settings.h"
 
 #include "ui_settings.h"
 #include "ui_minimode.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -171,6 +173,8 @@ private slots:
     void customColor();
     void on_tabWidget_currentChanged(int index);
 
+    void loadSettings();
+    void dynamicThemeChanged(bool enabled);
 private:
     float zoom;
     int horizontalDpi;
@@ -181,9 +185,9 @@ private:
     QWidget *miniModeWidget;
     Ui::settings settingsUi;
     QWidget *settingsWidget;
+    settings *settUtils;
 
-
-    QSettings * settings;
+   // QSettings * settings;
     QString pageType;
     int currentResultPage;
     bool isLoadingResults;
@@ -211,7 +215,10 @@ private:
     int left_panel_width;
     bool animationRunning = false;
 
+    QSettings settingsObj;
+    QString setting_path;
 
+    QStringList color_list ;
 
 };
 
@@ -220,7 +227,7 @@ class SelectColorButton : public QPushButton
     Q_OBJECT
 signals:
 
-    void findImageWithColor(QColor);
+    void setCustomColor(QColor);
 
 public:
 

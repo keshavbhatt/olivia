@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>282</width>
-    <height>413</height>
+    <height>402</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -74,14 +74,14 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_10">
       <item>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="saveAfterBuffer">
         <property name="text">
          <string>Save tracks after buffer</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox_3">
+       <widget class="QCheckBox" name="showSearchSuggestion">
         <property name="text">
          <string>Show search suggestions</string>
         </property>
@@ -106,7 +106,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="transperancySlider">
+         <widget class="QSlider" name="miniModeTransperancySlider">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -122,7 +122,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox_4">
+       <widget class="QCheckBox" name="miniModeStayOnTop">
         <property name="text">
          <string>Keep mini mode widget always on top</string>
         </property>
@@ -138,14 +138,20 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_8">
       <item>
-       <layout class="QGridLayout" name="themeHolderGridLayout">
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-       </layout>
+       <widget class="QWidget" name="themesWidget" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <layout class="QGridLayout" name="themeHolderGridLayout">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox_2">
+       <widget class="QCheckBox" name="dynamicTheme">
         <property name="text">
          <string>Use dynamic theme (based on cover-art)</string>
         </property>
@@ -247,20 +253,6 @@
            </widget>
           </item>
          </layout>
-        </item>
-        <item row="1" column="0">
-         <widget class="QPushButton" name="reset_dpi">
-          <property name="text">
-           <string>Reset DPI</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="save_dpi">
-          <property name="text">
-           <string>Save DPI</string>
-          </property>
-         </widget>
         </item>
        </layout>
       </item>

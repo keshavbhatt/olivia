@@ -1,4 +1,5 @@
 #include "onlinesearchsuggestion.h"
+#include <QSettings>
 
 const QString suggestUrl(QStringLiteral("http://suggestqueries.google.com/complete/search?ds=yt&client=youtube&hjson=t&cp=1&format=5&alt=json&q=%1"));
 
@@ -133,6 +134,8 @@ void onlineSearchSuggestion::autoSuggest()
 {
     QString str = editor->text();
     QString url = suggestUrl.arg(str);
+
+    if(settingsObj.value("showSearchSuggestion","true").toBool())
     networkManager.get(QNetworkRequest(url));
 }
 
@@ -163,7 +166,6 @@ void onlineSearchSuggestion::handleNetworkData(QNetworkReply *networkReply)
                      }
                 }
             }
-            if(timer.isActive())
         showCompletion(choices);
     }
     networkReply->deleteLater();
