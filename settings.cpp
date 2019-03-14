@@ -1,0 +1,34 @@
+#include "settings.h"
+
+
+settings::settings(QObject *parent) :QObject(parent)
+{
+
+    settingsObj.setObjectName("settings");
+    setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+
+    settingsObj.setValue("AppActivation-Code","A_scNo.2335");
+}
+
+void settings::changeSaveAfterSetting(bool checked){
+    settingsObj.setValue("saveAfterBuffer",checked);
+}
+
+void settings::changeShowSearchSuggestion(bool checked){
+    settingsObj.setValue("showSearchSuggestion",checked);
+}
+
+void settings::changeDynamicTheme(bool checked){
+    settingsObj.setValue("dynamicTheme",checked);
+     emit dynamicTheme(checked);
+}
+
+void settings::changeMiniModeStayOnTop(bool checked){
+    settingsObj.setValue("miniModeStayOnTop",checked);
+}
+
+void settings::changeZoom(QString zoom){
+    settingsObj.setValue("zoom",zoom);
+}
+
+
