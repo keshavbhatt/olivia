@@ -15,11 +15,23 @@ Run Olivia with the following command:
 
     QT_STYLE_OVERRIDE='gtk' olivia.test.olivia
 
-For more on this issue refer [this link](https://forum.snapcraft.io/t/how-to-fix-weird-cursor-theme-and-fonts-in-qt-apps-on-elementary-or-other-distribution-solution/10248)
+**Features**
+* Allows search music online
+* Allows organize music 
+* Allows download song while streaming
+* Allows search youtube and add result to library
+* Plays audio only of youtube streams (saves data bandwidth)
+* Support themes , Dynamic theme based on album art
+* Search suggestions
+* Player mini mode included , minimal player widget with always on capability and allows set transparency.
+* Internet radio, allows play more than 25k online radio stations, list them sort them according to language and country
+* Top music chart, allows list top 100 songs country wise
+* More features like cloud synchronisation of music using an online account coming soon
+
 
 ﻿**Consider Donating if you want this music player grow further**
 
-[**PayPal Me**](https://paypal.me/keshavnrj/10) or
+[**PayPal Me**](https://paypal.me/keshavnrj/10)
 [**Become a Patreon**](https://www.patreon.com/keshavnrj/)
 
 ﻿**Build requirement**
