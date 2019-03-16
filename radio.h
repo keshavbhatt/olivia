@@ -36,6 +36,7 @@ public slots:
     void quitRadio();
     void deleteProcess(int code);
     void killRadioProcess();
+    void stop();
 private slots:
     void radioReadyRead();
     void radioFinished(int code);

@@ -35,10 +35,10 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
     radioProcess->setObjectName("_radio_");
 
     if(urlString.isEmpty()){
-            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle");
+            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --demuxer-max-back-bytes=5000000 --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle");
     }else{
         if(!saveTracksAfterBufferMode)
-            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle");
+            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --demuxer-max-back-bytes=5000000 --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle");
         else
             radioProcess->start("bash",QStringList()<<"-c"<<"wget -O - '"+urlString+"' | tee "+setting_path+"/downloadedTemp/current.temp"+" | mpv "+status_message_arg+" --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle -");
     }
@@ -48,6 +48,23 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
     //qDebug()<<"restarted";
 
     connect(radioPlaybackTimer, &QTimer::timeout, [=](){
+
+        //check olivia's idle state
+        QProcess *fifo = new QProcess(this);
+        connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
+        fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"idle-active\"]}' | socat - "+ setting_path+"/fifofile");
+        fifo->waitForStarted();
+        connect(fifo,&QProcess::readyRead,[=](){
+            QString out = fifo->readAll();
+            if(out.contains("success")){
+                out = out.split(",").first().split(":").last();
+                if(out=="true"){
+                    radioState = "stopped";
+                    emit radioStatus(radioState);
+                }
+            }
+        });
+
         if(radioProcess->state()==QProcess::Running){
 
             QString state_line = this->parent()->findChild<QTextBrowser *>("console")->toPlainText().trimmed();
@@ -260,6 +277,13 @@ void radio::killRadioProcess(){
     if(radioProcess->state()==QProcess::Running)
       QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(radioProcess->processId()));
       delete radioProcess;
+}
+
+void radio::stop(){
+    QProcess *fifo = new QProcess(this);
+    connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
+    fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"stop\"]}' | socat - "+ setting_path+"/fifofile");
+    fifo->waitForStarted();
 }
 
 

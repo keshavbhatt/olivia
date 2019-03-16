@@ -234,7 +234,7 @@ void MainWindow::set_app_theme(QColor rgb){
 
     if(!color_list.contains(rgb.name(),Qt::CaseInsensitive)){
         qDebug()<<rgb.name();
-        QObject *layout = settingsWidget->findChild<QObject*>("themeHolderGridLayout");
+       // QObject *layout = settingsWidget->findChild<QObject*>("themeHolderGridLayout");
         for(int i(0);i<color_list.count();i++){
            if(settingsWidget->findChild<QPushButton*>(color_list.at(i))){
                qDebug()<<"yes";
@@ -628,6 +628,7 @@ void MainWindow::on_radioSeekSlider_sliderMoved(int position)
 void MainWindow::on_stop_clicked()
 {
     //radio stop
+    radio_manager->stop();
 }
 
 
@@ -1004,7 +1005,7 @@ void MainWindow::processYtdlQueue(){
 }
 
 void MainWindow::ytdlFinished(int code){
-//    Q_UNUSED(code);
+    Q_UNUSED(code);
     ytdlProcess = nullptr;
   //  qDebug()<<"Process Finishned"<<code;
     if(ytdlQueue.count()>0){
@@ -1375,12 +1376,19 @@ void MainWindow::setThemeColor(QString color){
 
 void MainWindow::radioStatus(QString radioState){
     if(radioState=="playing"){
+        ui->stop->setEnabled(true);
         ui->play_pause->setIcon(QIcon(":/icons/p_pause.png"));
-    }else if(radioState=="paused"||radioState=="stopped"){
+    }else if(radioState=="paused"){
+        ui->stop->setEnabled(true);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
     }else if(radioState=="stopped"){
+        ui->stop->setEnabled(false);
+        ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
         for (int i= 0;i<ui->right_list->count();i++) {
           ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
+        }
+        for (int i= 0;i<ui->right_list_2->count();i++) {
+          ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
         }
     }
     ui->state->setText(radioState);
