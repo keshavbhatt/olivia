@@ -1,6 +1,6 @@
-![Olivia Banner Art]('https://dashboard.snapcraft.io/site_media/appmedia/2019/03/banner_BPmKykd.png')
+![Olivia Banner Linux Snap Store](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/banner_BPmKykd.png)
 
-# Olivia - Elegant music player for LINUX 
+# Olivia - an elegant music player for Linux desktop
 
 being developed in BANKUBAD LABS by @keshavbhatt
 
@@ -78,3 +78,4 @@ Install snap with
 ![Youtube plugin for Olivia on the play](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olivia_linux_ubuntu_2.jpeg)
 ![Olivia Playing Internet radio](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olivia_linux_ubuntu_3.jpeg)
 ![Album view Olivia](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olvia_linux_ubuntu_keshav_bhatt_4.jpeg)
+
