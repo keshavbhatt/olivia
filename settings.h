@@ -27,6 +27,7 @@ public slots:
     void changeDynamicTheme(bool checked);
     void changeMiniModeStayOnTop(bool checked);
     void changeZoom(QString zoom);
+    void changeMiniModeTransperancy(int val);
 };
 
 #endif // SETTINGS_H

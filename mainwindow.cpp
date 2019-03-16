@@ -139,7 +139,10 @@ void MainWindow::init_settings(){
     connect(settingsUi.saveAfterBuffer,SIGNAL(toggled(bool)),settUtils,SLOT(changeSaveAfterSetting(bool)));
     connect(settingsUi.showSearchSuggestion,SIGNAL(toggled(bool)),settUtils,SLOT(changeShowSearchSuggestion(bool)));
     connect(settingsUi.dynamicTheme,SIGNAL(toggled(bool)),settUtils,SLOT(changeDynamicTheme(bool)));
-//    connect(settingsUi.miniModeStayOnTop,SIGNAL(toggled(bool)),settUtils,SLOT(changeMiniModeStayOnTop(bool)));
+    connect(settingsUi.miniModeTransperancySlider,&QSlider::valueChanged,[=](int val){
+        settUtils->changeMiniModeTransperancy(val);
+        settingsUi.transperancyLabel->setText(QString::number(settingsUi.miniModeTransperancySlider->value()));
+    });
     connect(settingsUi.miniModeStayOnTop,&QCheckBox::toggled,[=](bool checked){
         settUtils->changeMiniModeStayOnTop(checked);
         miniModeWidget->deleteLater();
@@ -174,6 +177,8 @@ void MainWindow::loadSettings(){
     settingsUi.dynamicTheme->setChecked(settingsObj.value("dynamicTheme","false").toBool());
 //    settingsUi.zoom->setText(settingsObj.value("zoom","1.0").toString());
     setZoom(settingsObj.value("zoom","100.0").toFloat());
+    settingsUi.miniModeTransperancySlider->setValue(settingsObj.value("miniModeTransperancy","95").toInt());
+    settingsUi.transperancyLabel->setText(QString::number(settingsUi.miniModeTransperancySlider->value()));
 }
 
 void MainWindow::add_colors_to_color_widget(){
@@ -1758,7 +1763,9 @@ void MainWindow::on_miniMode_clicked()
         this->hide();
         miniModeWidget->setMaximumHeight(miniModeWidget->height());
 
-        miniModeWidget->setWindowOpacity(qreal(95)/100);
+       // miniModeWidget->setWindowOpacity(qreal(95)/100);
+        miniModeWidget->setWindowOpacity(qreal(settingsObj.value("miniModeTransperancy","98").toReal()/100));
+
         miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
 
         miniModeWidget->showNormal();
