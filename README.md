@@ -1,6 +1,7 @@
-# olivia
-Elegant music player for LINUX 
-not ready yet
+![Olivia Banner Art]('https://dashboard.snapcraft.io/site_media/appmedia/2019/03/banner_BPmKykd.png')
+
+# Olivia - Elegant music player for LINUX 
+
 being developed in BANKUBAD LABS by @keshavbhatt
 
 [![Snap Status](https://build.snapcraft.io/badge/keshavbhatt/olivia.svg)](https://build.snapcraft.io/user/keshavbhatt/olivia)
