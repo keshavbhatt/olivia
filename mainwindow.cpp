@@ -61,9 +61,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(radio_manager,SIGNAL(saveTrack(QString)),this,SLOT(saveTrack(QString)));
 
     connect(ui->radioSeekSlider,&seekSlider::setPosition,[=](QPoint localPos){
-        blockSignals(true);
+        ui->radioSeekSlider->blockSignals(true);
         radio_manager->radioSeek(ui->radioSeekSlider->minimum() + ((ui->radioSeekSlider->maximum()-ui->radioSeekSlider->minimum()) * localPos.x()) / ui->radioSeekSlider->width());
-        blockSignals(false);
+        ui->radioSeekSlider->blockSignals(false);
     });
 
 
@@ -134,6 +134,8 @@ void MainWindow::init_settings(){
     settingsWidget = new QWidget(0);
     settingsWidget->setObjectName("settingsWidget");
     settingsUi.setupUi(settingsWidget);
+    settingsWidget->setWindowFlags(Qt::Dialog);
+    settingsWidget->setWindowModality(Qt::ApplicationModal);
     settingsWidget->adjustSize();
     connect(settingsUi.download_engine,SIGNAL(clicked()),this,SLOT(download_engine_clicked()));
     connect(settingsUi.saveAfterBuffer,SIGNAL(toggled(bool)),settUtils,SLOT(changeSaveAfterSetting(bool)));
@@ -260,6 +262,11 @@ void MainWindow::set_app_theme(QColor rgb){
     ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
     miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
 //    settingsWidget->setStyleSheet ("QWidget#settingsWidget{"+widgetStyle+"}");
+    ui->search->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
+    ui->label_5->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
+
+    settingsWidget->setStyleSheet("QWidget#settingsWidget{"+widgetStyle+"}");
+
 
 }
 
@@ -618,10 +625,10 @@ void MainWindow::on_radioVolumeSlider_valueChanged(int value)
 
 void MainWindow::on_radioSeekSlider_sliderMoved(int position)
 {
-    blockSignals(true);
+    ui->radioSeekSlider->blockSignals(true);
     ui->radioSeekSlider->setSliderPosition(position);
     radio_manager->radioSeek(position);
-    blockSignals(false);
+    ui->radioSeekSlider->blockSignals(false);
 }
 
 
@@ -1331,8 +1338,15 @@ void MainWindow::on_settings_clicked()
 {
     if(!settingsWidget->isVisible())
     {
-        settingsWidget->setWindowFlags(Qt::Popup);
         settingsWidget->move(ui->settings->mapToGlobal(QPoint(QPoint(-settingsWidget->width()+ui->settings->width(),30))));
+        settingsWidget->setGeometry(
+            QStyle::alignedRect(
+                Qt::LeftToRight,
+                Qt::AlignCenter,
+                settingsWidget->size(),
+                qApp->desktop()->availableGeometry()
+            )
+        );
         settingsWidget->showNormal();
     }
 }
@@ -1383,6 +1397,7 @@ void MainWindow::radioStatus(QString radioState){
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
     }else if(radioState=="stopped"){
         ui->stop->setEnabled(false);
+        ui->console->setText("stopped");
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
         for (int i= 0;i<ui->right_list->count();i++) {
           ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
