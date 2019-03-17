@@ -30,7 +30,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
     connect(radioProcess,SIGNAL(readyRead()),this,SLOT(radioReadyRead()));
     connect(radioProcess,SIGNAL(finished(int)),this,SLOT(radioFinished(int)));
 
-    QString status_message_arg = "--term-status-msg='[${=time-pos}][${=duration}][${=pause}][${=paused-for-cache}][${idle-active}][${cache-buffering-state}%][${=demuxer-cache-duration}][${=seekable}][${playback-abort}][${=audio-bitrate}][${seeking}][${=eof-reached}]'";
+    QString status_message_arg = "--term-status-msg='[olivia:][${=time-pos}][${=duration}][${=pause}][${=paused-for-cache}][${idle-active}][${cache-buffering-state}%][${=demuxer-cache-duration}][${=seekable}][${=audio-bitrate}][${seeking}]'";//[${=eof-reached}]
 
     radioProcess->setObjectName("_radio_");
 
@@ -40,7 +40,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
         if(!saveTracksAfterBufferMode)
             radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --demuxer-max-back-bytes=5000000 --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle");
         else
-            radioProcess->start("bash",QStringList()<<"-c"<<"wget -O - '"+urlString+"' | tee "+setting_path+"/downloadedTemp/current.temp"+" | mpv "+status_message_arg+" --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle -");
+            radioProcess->start("bash",QStringList()<<"-c"<<"wget -q -O - '"+urlString+"' | tee "+setting_path+"/downloadedTemp/current.temp"+" | mpv "+status_message_arg+" --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle -");
     }
     radioProcess->waitForStarted();
 
@@ -69,7 +69,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
 
             QString state_line = this->parent()->findChild<QTextBrowser *>("console")->toPlainText().trimmed();
             QString position,duration,paused,paused_for_cache,idle_active,cache_buffering_state,
-                    demuxer_cache_duration,seekable,playback_abort,audio_bitrate,seeking,eof;
+                    demuxer_cache_duration,seekable,audio_bitrate,seeking,eof;
             QStringList items;
             items.append(state_line.split("]"));
             //replace [ from item value
@@ -80,19 +80,18 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
             }
             //assign items to vars
            // qDebug()<<items.count()<<"ITEMS COUNT";
-            if(items.count()==13){
-                position                = items.at(0);
-                duration                = items.at(1);
-                paused                  = items.at(2);
-                paused_for_cache        = items.at(3);
-                idle_active             = items.at(4);
-                cache_buffering_state   = items.at(5);
-                demuxer_cache_duration  = items.at(6);
-                seekable                = items.at(7);
-                playback_abort          = items.at(8);
+            if(items.count()==12){
+                position                = items.at(1);
+                duration                = items.at(2);
+                paused                  = items.at(3);
+                paused_for_cache        = items.at(4);
+                idle_active             = items.at(5);
+                cache_buffering_state   = items.at(6);
+                demuxer_cache_duration  = items.at(7);
+                seekable                = items.at(8);
                 audio_bitrate           = items.at(9);
                 seeking                 = items.at(10);
-                eof                     = items.at(11);
+//                eof                     = items.at(11);
             }
 
             if(paused=="no"){
@@ -109,17 +108,13 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
                 }
             }
 
-            if(playback_abort=="yes"){
-                radioState = "stopped";
-            }
+
 
             if(!demuxer_cache_duration.isEmpty()){
                 emit demuxer_cache_duration_changed((double)demuxer_cache_duration.toDouble(),(double)position.toDouble());
             }
 
-            if(eof=="yes"){
-                radioState = "stopped";
-            }
+
 
             if(!audio_bitrate.isEmpty()){
               //  emit radioAudioBitrate((int)audio_bitrate.toDouble());
@@ -129,11 +124,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
             int playerPosition = (int)position.toDouble();
             int playerDuration = (int)duration.toDouble();
 
-            if(seekable=="yes"){
-                if(playerPosition==playerDuration){
-                    radioState = "stopped";
-                }
-            }
+
 
            // qDebug()<<playerPosition;
             emit radioPosition(playerPosition);
@@ -144,11 +135,13 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
     });
 
     if(!radioPlaybackTimer->isActive())
-       radioPlaybackTimer->start(100);
+       radioPlaybackTimer->start(500);
 }
 
 
 void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
+    QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
+    ((QTextBrowser*)(console))->clear();
     streamUrl = url.toString();
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
     if(radioProcess!=nullptr){
@@ -162,6 +155,8 @@ void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
 }
 
 void radio::loadMedia(QUrl url){
+    QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
+    ((QTextBrowser*)(console))->clear();
    // qDebug()<<"loadmedia called";
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
@@ -171,20 +166,17 @@ void radio::loadMedia(QUrl url){
 
 void radio::radioReadyRead(){
     if(!radioPlaybackTimer->isActive()){
-        radioPlaybackTimer->start(100);
+        radioPlaybackTimer->start(500);
     }
     QString output = radioProcess->readAll();
-   // qDebug()<<output;
     if(output.contains("written to stdout")){
-  //      qDebug()<<"saved track";
         emit saveTrack(QString("webm"));
     }
-    if(output.contains("[")){
+    if(output.contains("[olivia:]")){
         // mpv sometimes sends output without ] in line this will append ] and fix it
         output = output.trimmed();
         if(output.at(output.count()-1)!=']')
             output.append("]");
-
         QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
         ((QTextBrowser*)(console))->setText(output);
     }
@@ -236,7 +228,7 @@ void radio::resumeRadio()
     radioState = "playing";
     emit radioStatus(radioState);
 
-    radioPlaybackTimer->start(100);
+    radioPlaybackTimer->start(500);
 }
 
 void radio::changeVolume(int val)
@@ -285,6 +277,4 @@ void radio::stop(){
     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"stop\"]}' | socat - "+ setting_path+"/fifofile");
     fifo->waitForStarted();
 }
-
-
 
