@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint);
+    this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     qApp->setQuitOnLastWindowClosed(true);
 
     init_app(); // #1
@@ -1826,7 +1826,6 @@ void MainWindow::on_miniMode_clicked()
         ui->centralWidget->layout()->addWidget(ui->controls_widget);
         miniModeWidget->setMaximumHeight(16777215);
         this->show();
-
     }
 }
 
