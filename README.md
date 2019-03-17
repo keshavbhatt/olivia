@@ -1,4 +1,4 @@
-![Olivia Banner Art]('https://dashboard.snapcraft.io/site_media/appmedia/2019/03/banner_BPmKykd.png')
+![Olivia Banner Art](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/banner_BPmKykd.png)
 
 # Olivia - Elegant music player for LINUX 
 
