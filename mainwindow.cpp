@@ -25,7 +25,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint);
     qApp->setQuitOnLastWindowClosed(true);
+
     init_app(); // #1
     init_webview();// #2
     init_offline_storage();//  #3
@@ -43,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->debug_widget->hide();
 
     loadPlayerQueue();// #7 loads previous playing track queue
-    connect(qApp,SIGNAL(aboutToQuit()),this,SLOT(quitApp()));
+   // connect(qApp,SIGNAL(aboutToQuit()),this,SLOT(quitApp()));
     init_search_autoComplete();
 
     ui->radioVolumeSlider->setMinimum(0);
@@ -116,6 +118,25 @@ MainWindow::MainWindow(QWidget *parent) :
             }
         }
     }
+
+
+    ui->top_widget->installEventFilter(this);
+    ui->windowControls->installEventFilter(this);
+    ui->search->installEventFilter(this);
+    ui->label_6->installEventFilter(this);
+
+
+    QString btn_style_2= "QPushButton{background-color:transparent ;border:0px;}"
+                         "QPushButton:disabled { background-color: transparent; border-bottom:1px solid #727578;"
+                         "padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px;color: #636363;}"
+                         "QPushButton:pressed {padding-bottom:0px;background-color:transparent;border:0px;}"
+                         "QPushButton:hover {border:none;padding-bottom:1px;background-color:transparent;border:0px;}";
+
+    ui->close->setStyleSheet(btn_style_2);
+    ui->minimize->setStyleSheet(btn_style_2);
+    ui->maximize->setStyleSheet(btn_style_2);
+    ui->fullScreen->setStyleSheet(btn_style_2);
+    ui->settings->setStyleSheet(btn_style_2);
 }
 
 void MainWindow::init_settings(){
@@ -151,12 +172,8 @@ void MainWindow::init_settings(){
         init_miniMode();
     });
 
-
-
-
     horizontalDpi = QApplication::desktop()->screen()->logicalDpiX();
     zoom = 100.0;
-   // setZoom(zoom);
     connect(settingsUi.plus,SIGNAL(clicked(bool)),this,SLOT(zoomin()));
     connect(settingsUi.minus,SIGNAL(clicked(bool)),this,SLOT(zoomout()));
 
@@ -172,12 +189,14 @@ void MainWindow::dynamicThemeChanged(bool enabled){
 
 void MainWindow::loadSettings(){
 
+    restoreGeometry(settingsObj.value("geometry").toByteArray());
+    restoreState(settingsObj.value("windowState").toByteArray());
+
     settingsUi.saveAfterBuffer->setChecked(settingsObj.value("saveAfterBuffer","true").toBool());
     settingsUi.showSearchSuggestion->setChecked(settingsObj.value("showSearchSuggestion","true").toBool());
     settingsUi.miniModeStayOnTop->setChecked(settingsObj.value("miniModeStayOnTop","false").toBool());
 
     settingsUi.dynamicTheme->setChecked(settingsObj.value("dynamicTheme","false").toBool());
-//    settingsUi.zoom->setText(settingsObj.value("zoom","1.0").toString());
     setZoom(settingsObj.value("zoom","100.0").toFloat());
     settingsUi.miniModeTransperancySlider->setValue(settingsObj.value("miniModeTransperancy","95").toInt());
     settingsUi.transperancyLabel->setText(QString::number(settingsUi.miniModeTransperancySlider->value()));
@@ -185,7 +204,7 @@ void MainWindow::loadSettings(){
 
 void MainWindow::add_colors_to_color_widget(){
 
-        color_list<<"askjd"<<"#FF0034"<<"#0070FF"<<"#029013"
+        color_list<<"fakeitem"<<"#FF0034"<<"#0070FF"<<"#029013"
                         <<"#D22298"<<"#FF901F"<<"#836C50";
 
         QObject *layout = settingsWidget->findChild<QObject*>("themeHolderGridLayout");
@@ -235,11 +254,8 @@ void MainWindow::set_app_theme(QColor rgb){
     QString b = QString::number(rgb.blue());
 
     if(!color_list.contains(rgb.name(),Qt::CaseInsensitive)){
-        qDebug()<<rgb.name();
-       // QObject *layout = settingsWidget->findChild<QObject*>("themeHolderGridLayout");
-        for(int i(0);i<color_list.count();i++){
+          for(int i(0);i<color_list.count();i++){
            if(settingsWidget->findChild<QPushButton*>(color_list.at(i))){
-               qDebug()<<"yes";
                settingsWidget->findChild<QPushButton*>(color_list.at(i))->setText("");
            }
         }
@@ -260,8 +276,12 @@ void MainWindow::set_app_theme(QColor rgb){
                          "stop:1 rgba("+r+", "+g+", "+b+", 30));";
     ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
     ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
+    ui->right_list->setStyleSheet("QListWidget{"+widgetStyle+"}");
+    ui->right_list_2->setStyleSheet("QListWidget{"+widgetStyle+"}");
+
+
     miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
-//    settingsWidget->setStyleSheet ("QWidget#settingsWidget{"+widgetStyle+"}");
+
     ui->search->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
     ui->label_5->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
 
@@ -449,7 +469,6 @@ void MainWindow::loadPlayerQueue(){ //  #7
         track_ui.id->setText(id);
         track_ui.dominant_color->setText(dominantColor);
         track_ui.songId->setText(songId);
-//      track_ui.playing->hide();
         track_ui.playing->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
         track_ui.songId->hide();
@@ -538,25 +557,8 @@ void MainWindow::loadPlayerQueue(){ //  #7
             ui->right_list->addItem(item);
         }
     }
-   // shakeLists();
 }
 
-void MainWindow::shakeLists(){
-
-//    ui->tabWidget->resize(ui->tabWidget->size().width()-1,ui->tabWidget->size().height());
-//    ui->tabWidget->resize(ui->tabWidget->size().width()+1,ui->tabWidget->size().height());
-
-    QSplitter *split1= this->findChild<QSplitter*>("split1");
-    ((QSplitter*)(split1))->setSizes(QList<int>()<<((QSplitter*)(split1))->sizes()[0]-1<<((QSplitter*)(split1))->sizes()[1]+1);
-    ((QSplitter*)(split1))->setSizes(QList<int>()<<((QSplitter*)(split1))->sizes()[0]+1<<((QSplitter*)(split1))->sizes()[1]-1);
-
-//    ui->right_list->resize(ui->right_list->size().width()-1,ui->right_list->size().height());
-//    ui->right_list->resize(ui->right_list->size().width()+1,ui->right_list->size().height());
-
-//    ui->right_list_2->resize(ui->right_list_2->size().width()-1,ui->right_list_2->size().height());
-//    ui->right_list_2->resize(ui->right_list_2->size().width()+1,ui->right_list_2->size().height());
-
-}
 
 void MainWindow::keyPressEvent(QKeyEvent *event){
     if( event->key() == Qt::Key_D )
@@ -577,13 +579,28 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event){
     if (obj == ui->search &&event->type() == QEvent::KeyPress) {
-             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-                Q_UNUSED(keyEvent);
-             return QObject::eventFilter(obj, event);
-         } else {
-             // standard event processing
-             return QObject::eventFilter(obj, event);
-         }
+         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+            Q_UNUSED(keyEvent);
+      }
+
+    if ((obj == ui->top_widget  || ui->windowControls || ui->search || ui->label_6 ) && (event->type() == QEvent::MouseMove)) {
+            const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
+            if (me->buttons() & Qt::LeftButton) {
+                move(me->globalPos() - oldPos);
+                event->accept();
+            }
+            return true;
+    }
+    if ((obj == ui->top_widget  || ui->windowControls || ui->search || ui->label_6) &&
+       (event->type() == QEvent::MouseButtonPress)) {
+            const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
+            if (me->button() == Qt::LeftButton) {
+                oldPos = me->globalPos() - frameGeometry().topLeft();
+                event->accept();
+            }
+            return true;
+    }
+    return QMainWindow::eventFilter(obj, event);
 }
 
 
@@ -641,10 +658,17 @@ void MainWindow::on_stop_clicked()
 
 //NETWORK
 void MainWindow::quitApp(){
-  //  qDebug()<<"called";
+    settingsObj.setValue("geometry",saveGeometry());
+    settingsObj.setValue("windowState", saveState());
     radio_manager->killRadioProcess();
     radio_manager->deleteProcess(0);
     radio_manager->deleteLater();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event){
+    settingsObj.setValue("geometry",saveGeometry());
+    settingsObj.setValue("windowState", saveState());
+    QMainWindow::closeEvent(event);
 }
 
 MainWindow::~MainWindow()
@@ -1330,7 +1354,6 @@ void MainWindow::on_menu_clicked()
         });
         ui->menu->setIcon(QIcon(":/icons/menu.png"));
     }
-    shakeLists();
 }
 
 
@@ -1338,7 +1361,6 @@ void MainWindow::on_settings_clicked()
 {
     if(!settingsWidget->isVisible())
     {
-        settingsWidget->move(ui->settings->mapToGlobal(QPoint(QPoint(-settingsWidget->width()+ui->settings->width(),30))));
         settingsWidget->setGeometry(
             QStyle::alignedRect(
                 Qt::LeftToRight,
@@ -1369,9 +1391,6 @@ void MainWindow::getNowPlayingTrackId(){
 }
 
 void MainWindow::resizeEvent(QResizeEvent *resizeEvent){
-    //to fix resize bug in disabled tracks in player queue list
-   // shakeLists();
-
     left_panel_width = ui->left_panel->width();
     QMainWindow::resizeEvent(resizeEvent);
 }
@@ -1546,6 +1565,7 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
 
 //TODO
 void MainWindow::saveTrack(QString format){
+    Q_UNUSED(format);
     QString download_Path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/downloadedTracks/";
 
     QString downloadTemp_Path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/downloadedTemp/";
@@ -1813,5 +1833,32 @@ void MainWindow::on_miniMode_clicked()
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
     Q_UNUSED(index);
-    shakeLists();
+   // ui->tabWidget->resize(ui->tabWidget->size().width()-1,ui->tabWidget->size().height());
+    //ui->tabWidget->resize(ui->tabWidget->size().width()+1,ui->tabWidget->size().height());
+}
+
+void MainWindow::on_close_clicked()
+{
+    this->close();
+}
+
+void MainWindow::on_minimize_clicked()
+{
+    this->setWindowState(Qt::WindowMinimized);
+}
+
+void MainWindow::on_maximize_clicked()
+{
+    if(this->windowState()==Qt::WindowMaximized){
+        this->setWindowState(Qt::WindowNoState);
+    }else
+        this->setWindowState(Qt::WindowMaximized);
+}
+
+void MainWindow::on_fullScreen_clicked()
+{
+    if(this->windowState()==Qt::WindowFullScreen){
+        this->setWindowState(Qt::WindowNoState);
+    }else
+        this->setWindowState(Qt::WindowFullScreen);
 }

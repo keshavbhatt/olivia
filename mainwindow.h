@@ -94,6 +94,8 @@ public:
 protected slots:
     void resizeEvent(QResizeEvent *resizeEvent);
     bool eventFilter(QObject *obj, QEvent *event);
+    void closeEvent(QCloseEvent *event);
+
 private slots:
     void init_app();
     void init_webview();
@@ -152,7 +154,6 @@ private slots:
     void evoke_engine_check();
     void browse_youtube();
     void on_right_list_2_itemDoubleClicked(QListWidgetItem *item);
-    void shakeLists();
     void on_filter_olivia_textChanged(const QString &arg1);
 
     void hideListItems(QListWidget *list);
@@ -175,9 +176,16 @@ private slots:
 
     void loadSettings();
     void dynamicThemeChanged(bool enabled);
+
+
+    void on_close_clicked();
+    void on_fullScreen_clicked();
+    void on_minimize_clicked();
+    void on_maximize_clicked();
 private:
     float zoom;
     int horizontalDpi;
+    QPoint oldPos;
 
     Ui::MainWindow *ui;
     Ui::track track_ui;
@@ -240,6 +248,7 @@ public slots:
 
 private:
     QColor color;
+
 
 };
 

@@ -45,5 +45,9 @@
         <file>icons/mini_mode.png</file>
         <file>icons/restore_mini_mode.png</file>
         <file>icons/picker.png</file>
+        <file>icons/_close.png</file>
+        <file>icons/_maximize.png</file>
+        <file>icons/_minimize.png</file>
+        <file>icons/fullscreen.png</file>
     </qresource>
 </RCC>

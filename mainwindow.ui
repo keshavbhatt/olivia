@@ -54,7 +54,8 @@ background-image:url(:/icons/texture.png), linear-gradient(hsla(0,0%,32%,.99), h
        <item>
         <widget class="QPushButton" name="menu">
          <property name="styleSheet">
-          <string notr="true">border:none;</string>
+          <string notr="true">border:none;
+background-color: transparent;</string>
          </property>
          <property name="text">
           <string/>
@@ -201,39 +202,183 @@ border-radius:0px;</string>
         </spacer>
        </item>
        <item>
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>79</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="settings">
+        <widget class="QFrame" name="windowControls">
          <property name="styleSheet">
-          <string notr="true">border:none;</string>
+          <string notr="true">border-radius:0px;</string>
          </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="icons.qrc">
-           <normaloff>:/icons/settings.png</normaloff>:/icons/settings.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>28</width>
-           <height>28</height>
-          </size>
-         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_13">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>1</number>
+          </property>
+          <property name="topMargin">
+           <number>1</number>
+          </property>
+          <property name="rightMargin">
+           <number>1</number>
+          </property>
+          <property name="bottomMargin">
+           <number>1</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="fullScreen">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="toolTip">
+             <string>FullScreen</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border:none;
+background-color: transparent;</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="icons.qrc">
+              <normaloff>:/icons/fullscreen.png</normaloff>:/icons/fullscreen.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>18</width>
+              <height>18</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="minimize">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="toolTip">
+             <string>Minimize</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border:none;
+background-color: transparent;</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="icons.qrc">
+              <normaloff>:/icons/_minimize.png</normaloff>:/icons/_minimize.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="maximize">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="toolTip">
+             <string>Maximize</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border:none;
+background-color: transparent;</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="icons.qrc">
+              <normaloff>:/icons/_maximize.png</normaloff>:/icons/_maximize.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="close">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="toolTip">
+             <string>Close</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border:none;
+background-color: transparent;</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="icons.qrc">
+              <normaloff>:/icons/_close.png</normaloff>:/icons/_close.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -810,6 +955,9 @@ border-right:0px;
                  <property name="topMargin">
                   <number>0</number>
                  </property>
+                 <property name="rightMargin">
+                  <number>5</number>
+                 </property>
                  <property name="bottomMargin">
                   <number>12</number>
                  </property>
@@ -828,10 +976,46 @@ border-right:0px;
                    </property>
                   </widget>
                  </item>
+                 <item>
+                  <widget class="QPushButton" name="settings">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::NoFocus</enum>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">border:none;
+background-color: transparent;</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="icons.qrc">
+                     <normaloff>:/icons/settings.png</normaloff>:/icons/settings.png</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>22</width>
+                     <height>22</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </item>
                <item>
                 <widget class="QTabWidget" name="tabWidget">
+                 <property name="styleSheet">
+                  <string notr="true">QTabWidget#tabWidget{
+		background-color: transparent;
+}
+</string>
+                 </property>
                  <property name="tabPosition">
                   <enum>QTabWidget::North</enum>
                  </property>
@@ -845,6 +1029,11 @@ border-right:0px;
                   <bool>false</bool>
                  </property>
                  <widget class="QWidget" name="tab">
+                  <property name="styleSheet">
+                   <string notr="true">border:none;
+background-color: transparent;
+</string>
+                  </property>
                   <attribute name="icon">
                    <iconset resource="icons.qrc">
                     <normaloff>:/icons/sidebar/songs.png</normaloff>:/icons/sidebar/songs.png</iconset>
@@ -870,6 +1059,11 @@ border-right:0px;
                    </property>
                    <item>
                     <widget class="QLineEdit" name="filter_olivia">
+                     <property name="styleSheet">
+                      <string notr="true">border:none;
+background-color: transparent;
+</string>
+                     </property>
                      <property name="placeholderText">
                       <string>Filter this queue</string>
                      </property>
@@ -950,6 +1144,11 @@ QScrollBar:vertical {
                   </layout>
                  </widget>
                  <widget class="QWidget" name="tab_2">
+                  <property name="styleSheet">
+                   <string notr="true">border:none;
+background-color: transparent;
+</string>
+                  </property>
                   <attribute name="icon">
                    <iconset resource="icons.qrc">
                     <normaloff>:/icons/sidebar/youtube.png</normaloff>:/icons/sidebar/youtube.png</iconset>
@@ -975,6 +1174,11 @@ QScrollBar:vertical {
                    </property>
                    <item>
                     <widget class="QLineEdit" name="filter_youtube">
+                     <property name="styleSheet">
+                      <string notr="true">border:none;
+background-color: transparent;
+</string>
+                     </property>
                      <property name="placeholderText">
                       <string>Filter this queue</string>
                      </property>
