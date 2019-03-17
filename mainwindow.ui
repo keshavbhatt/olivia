@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>708</width>
-    <height>450</height>
+    <height>403</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -987,6 +987,9 @@ border-right:0px;
                    <property name="focusPolicy">
                     <enum>Qt::NoFocus</enum>
                    </property>
+                   <property name="toolTip">
+                    <string>Settings</string>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">border:none;
 background-color: transparent;</string>
@@ -1309,7 +1312,7 @@ QScrollBar:vertical {
           <number>3</number>
          </property>
          <property name="bottomMargin">
-          <number>7</number>
+          <number>0</number>
          </property>
          <item>
           <widget class="QPushButton" name="pushButton_3">
@@ -1472,6 +1475,17 @@ border-radius:2px;</string>
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>10</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QStatusBar{background-color:transparent;}</string>
+   </property>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
