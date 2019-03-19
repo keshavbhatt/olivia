@@ -133,11 +133,13 @@ function track_search(term){
 }
 
 
-function manual_youtube_search(){
+function manual_youtube_search(term){
     $.mobile.changePage($('#manul_youtube_page'));
-    var term = $("#manual_search").val();
+    if(term===""){
+        term = $("#manual_search").val();
+    }
     showLoading();
-    $('#manul_youtube_page_result').html("");
+    $("#result_div").html("");
     $.ajax({
        url: baseUrl+"manual_youtube_search.php",
 //         url:"http://localhost/projects/manual_youtube_search.php",
@@ -147,7 +149,7 @@ function manual_youtube_search(){
               },
        success: function(html) {
            $.mobile.loading("hide");
-           $("#manul_youtube_page_result").append(html).listview("refresh");
+           $("#result_div").html(html);
            $('#manul_youtube_page .ui-content').trigger("create");
            $('#manul_youtube_page .ui-content').fadeIn('slow');
            $('#manul_youtube_page_suggestions').html("");
@@ -232,8 +234,6 @@ function artist_view(id){
 }
 
 
-
-
 function toDataUrl(url, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onload = function() {
@@ -305,15 +305,29 @@ function setManualSearchVal(text){
 
 
 
+$(document).on("pagebeforeshow","#manul_youtube_page",function(){
+    $('#manual_search').unbind();
+
+    $('#manual_search').keypress(function(event){
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if(keycode == '13'){
+            manual_youtube_search($(this).val());
+        }
+    });
+});
+
+
+
+
 $( document ).on( "pagecreate", "#manul_youtube_page", function() {
     $( "#manul_youtube_page_suggestions" ).on( "filterablebeforefilter", function ( e, data ) {
-        var $ul = $( this ),
+        var $ul = $(this),
             $input = $( data.input ),
             value = $input.val(),
             html = "";
         $ul.html( "" );
         if ( value && value.length > 2 ) {
-            $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+            $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'>loading..</span></div></li>" );
             $ul.listview( "refresh" );
             $.ajax({
                 url: "http://suggestqueries.google.com/complete/search?ds=yt&client=youtube&hjson=t&cp=1&format=5&alt=json",
@@ -342,7 +356,7 @@ $( document ).on( "pagecreate", "#manul_youtube_page", function() {
 $(document).on('click', '#navBtn', function() {
     showLoading();
     var linkStr = $(this).attr("data-link");
-    $('#manul_youtube_page_result').html("");
+    $('#result_div').html("");
     $.ajax({
         type: "GET",
         url: baseUrl+"manual_youtube_search.php",
@@ -351,7 +365,7 @@ $(document).on('click', '#navBtn', function() {
         },
         success: function(html) {
             $.mobile.loading("hide");
-            $("#manul_youtube_page_result").append(html).listview("refresh");
+            $("#result_div").html(html);
             $('#manul_youtube_page .ui-content').trigger("create");
             $('#manul_youtube_page .ui-content').fadeIn('slow');
             $('#manul_youtube_page_suggestions').html("");
@@ -361,7 +375,7 @@ $(document).on('click', '#navBtn', function() {
 
 function orderChanged(linkStr,pageType){
     showLoading();
-    $('#manul_youtube_page_result').html("");
+    $('#result_div').html("");
     $.ajax({
         type: "GET",
          url: baseUrl+"manual_youtube_search.php",
@@ -376,7 +390,7 @@ function orderChanged(linkStr,pageType){
                 },300);
             }
             $.mobile.loading("hide");
-            $("#manul_youtube_page_result").append(html).listview("refresh");
+            $("#result_div").html(html);
             $('#manul_youtube_page .ui-content').trigger("create");
             $('#manul_youtube_page .ui-content').fadeIn('slow');
             $('#manul_youtube_page_suggestions').html("");

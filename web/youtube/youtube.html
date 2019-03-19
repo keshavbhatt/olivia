@@ -7,37 +7,34 @@
 
     <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
     <script src="qrc:///web/js/jquery-1.11.1.min.js"></script>
-    <script src="qrc:///web/youtube/main.js"></script>
     <script src="qrc:///web/js/jquery.mobile-1.4.5.min.js"></script>
     <link rel="stylesheet" href="qrc:///web/youtube/main.css" />
 
     <script src="qrc:///web/js/color-thief.min.js"></script>
     <link rel="stylesheet" href="qrc:///web/scroll.css" />
     <script src="qrc:///web/js/common.js"></script>
+    <script src="qrc:///web/youtube/main.js"></script>
+
 
 </head>
 <!-- oncontextmenu="return false;" -->
 <body  onselectstart="return false;" ondragstart="return false;" ondrop="return false;">
 
-    <img style="display:none;" src="" id="coverImage" />
-
     <div class="ui-loader-background"> </div>
-     
-
-     
 
     <div id="manul_youtube_page" data-role="page" data-theme="b" data-title="YOUTUBE SEARCH">
         <div role="main" class="ui-content">
-        <form class="ui-filterable">
-            <input data-mini='true' data-type="search" name='manual_search' id='manual_search' value='' >
-            <a data-mini='true' type='submit' data-role='button' onclick="manual_youtube_search()">Search on Youtube</a>
-        </form>
+        <h3>Youtube Search</h3>
+
+        <input  type="search" id='manual_search' value='' placeholder="Your query...">
 
         <ul   class="list" id="manul_youtube_page_suggestions"  data-filter="true" data-input="#manual_search"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
+        <!-- load suggestions here -->
         </ul>
-            <!--load data here-->
-            <ul   class="list" id="manul_youtube_page_result"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
-            </ul>
+
+            <div id="result_div">
+                <!-- load data here -->
+            </div>
         </div>
     </div>
     

@@ -133,14 +133,15 @@ function track_search(term){
 }
 
 
-function manual_youtube_search(){
+function manual_youtube_search(term){
     $.mobile.changePage($('#manul_youtube_page'));
-    var term = $("#manual_search").val();
+    if(term===""){
+        term = $("#manual_search").val();
+    }
     showLoading();
     $('#manul_youtube_page_result').html("");
     $.ajax({
        url: baseUrl+"manual_youtube_search.php",
-//         url:"http://localhost/projects/manual_youtube_search.php",
               type:"GET",
               data:{
                    "query":term
