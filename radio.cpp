@@ -43,6 +43,8 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
     }
     radioProcess->waitForStarted();
 
+    radioPlaybackTimer->disconnect();
+
     connect(radioPlaybackTimer, &QTimer::timeout, [=](){
 
         //check olivia's idle state
@@ -50,6 +52,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
         connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
         fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"idle-active\"]}' | socat - "+ setting_path+"/fifofile");
         fifo->waitForStarted();
+
         connect(fifo,&QProcess::readyRead,[=](){
             QString out = fifo->readAll();
             if(out.contains("success")){

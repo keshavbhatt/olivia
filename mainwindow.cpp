@@ -1194,11 +1194,27 @@ void MainWindow::internet_radio(){
 void MainWindow::on_right_list_itemDoubleClicked(QListWidgetItem *item)
 {
     listItemDoubleClicked(ui->right_list,item);
+
+    //hide playing labels in other list
+    QList<QLabel*> playing_label_list_other;
+    playing_label_list_other = ui->right_list_2->findChildren<QLabel*>("playing");
+    foreach (QLabel *playing, playing_label_list_other) {
+        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        playing->setToolTip("");
+    }
 }
 
 void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
 {
     listItemDoubleClicked(ui->right_list_2,item);
+
+    //hide playing labels in other list
+    QList<QLabel*> playing_label_list_other;
+    playing_label_list_other = ui->right_list->findChildren<QLabel*>("playing");
+    foreach (QLabel *playing, playing_label_list_other) {
+        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        playing->setToolTip("");
+    }
 }
 
 void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
@@ -1227,7 +1243,7 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     QLabel *cover = list->itemWidget(item)->findChild<QLabel *>("cover");
     ui->cover->setPixmap(QPixmap(*cover->pixmap()).scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
-   //hide all playing labels
+   //hide playing labels in current list
     QList<QLabel*> playing_label_list_;
     playing_label_list_ = list->findChildren<QLabel*>("playing");
     foreach (QLabel *playing, playing_label_list_) {
@@ -1243,7 +1259,6 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     getNowPlayingTrackId();
 
     ui->nowplaying_widget->setImage(*cover->pixmap());
-
 
     if(!ui->state->isVisible())
         ui->state->show();
@@ -1305,7 +1320,6 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     if(store_manager->isDownloaded(songId)){
         radio_manager->playRadio(false,QUrl(url));
     }else{
-        //TODO get saveTracksAfterBuffer value from settings before calling this
         saveTracksAfterBuffer =  settingsObj.value("saveAfterBuffer","true").toBool();
         radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url));
     }

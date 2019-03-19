@@ -142,7 +142,6 @@ function manual_youtube_search(term){
     $("#result_div").html("");
     $.ajax({
        url: baseUrl+"manual_youtube_search.php",
-//         url:"http://localhost/projects/manual_youtube_search.php",
               type:"GET",
               data:{
                    "query":term
