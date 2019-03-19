@@ -102,9 +102,6 @@ MainWindow::MainWindow(QWidget *parent) :
             }
         }
     });
-    ui->tabWidget->setCurrentIndex(1);
-    ui->tabWidget->setCurrentIndex(0);
-
 
     browse();
 
@@ -137,6 +134,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->maximize->setStyleSheet(btn_style_2);
     ui->fullScreen->setStyleSheet(btn_style_2);
     ui->settings->setStyleSheet(btn_style_2);
+
+    loadSettings();
 }
 
 void MainWindow::init_settings(){
@@ -180,7 +179,6 @@ void MainWindow::init_settings(){
     settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
     add_colors_to_color_widget();
 
-    loadSettings();
 }
 
 void MainWindow::dynamicThemeChanged(bool enabled){
@@ -189,8 +187,6 @@ void MainWindow::dynamicThemeChanged(bool enabled){
 
 void MainWindow::loadSettings(){
 
-    restoreGeometry(settingsObj.value("geometry").toByteArray());
-    restoreState(settingsObj.value("windowState").toByteArray());
 
     settingsUi.saveAfterBuffer->setChecked(settingsObj.value("saveAfterBuffer","true").toBool());
     settingsUi.showSearchSuggestion->setChecked(settingsObj.value("showSearchSuggestion","true").toBool());
@@ -200,6 +196,10 @@ void MainWindow::loadSettings(){
     setZoom(settingsObj.value("zoom","100.0").toFloat());
     settingsUi.miniModeTransperancySlider->setValue(settingsObj.value("miniModeTransperancy","95").toInt());
     settingsUi.transperancyLabel->setText(QString::number(settingsUi.miniModeTransperancySlider->value()));
+
+    restoreGeometry(settingsObj.value("geometry").toByteArray());
+    restoreState(settingsObj.value("windowState").toByteArray());
+
 }
 
 void MainWindow::add_colors_to_color_widget(){
@@ -248,7 +248,6 @@ void MainWindow::set_app_theme(QColor rgb){
 
     settingsObj.setValue("customTheme",rgb);
 
-
     QString r = QString::number(rgb.red());
     QString g = QString::number(rgb.green());
     QString b = QString::number(rgb.blue());
@@ -274,10 +273,20 @@ void MainWindow::set_app_theme(QColor rgb){
                          "stop:0.38764 rgba("+r+", "+g+", "+b+", 120),"
                          "stop:0.679775 rgba("+r+", "+g+", "+b+", 84),"
                          "stop:1 rgba("+r+", "+g+", "+b+", 30));";
+    QString scrollbarStyle ="QScrollBar:vertical {"
+                                "background-color: transparent;"
+                                "border:none;"
+                                "width: 10px;"
+                                "margin: 22px 0 22px 0;"
+                            "}"
+                            "QScrollBar::handle:vertical {"
+                                "background: grey;"
+                                "min-height: 20px;"
+                            "}";
     ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
     ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
-    ui->right_list->setStyleSheet("QListWidget{"+widgetStyle+"}");
-    ui->right_list_2->setStyleSheet("QListWidget{"+widgetStyle+"}");
+    ui->right_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
+    ui->right_list_2->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
 
 
     miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
@@ -1832,8 +1841,8 @@ void MainWindow::on_miniMode_clicked()
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
     Q_UNUSED(index);
-   // ui->tabWidget->resize(ui->tabWidget->size().width()-1,ui->tabWidget->size().height());
-    //ui->tabWidget->resize(ui->tabWidget->size().width()+1,ui->tabWidget->size().height());
+    ui->tabWidget->resize(ui->tabWidget->size().width()-1,ui->tabWidget->size().height());
+    ui->tabWidget->resize(ui->tabWidget->size().width()+1,ui->tabWidget->size().height());
 }
 
 void MainWindow::on_close_clicked()
