@@ -49,6 +49,7 @@ private:
     QString setting_path;
     QTimer *radioPlaybackTimer = nullptr;
     QString streamUrl;
+    QString state_line;
 
 
 };

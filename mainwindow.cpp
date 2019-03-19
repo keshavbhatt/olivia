@@ -106,7 +106,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->top_widget->installEventFilter(this);
     ui->windowControls->installEventFilter(this);
-    ui->search->installEventFilter(this);
     ui->label_6->installEventFilter(this);
     ui->nowPlayingGrip->installEventFilter(this);
 
@@ -584,7 +583,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event){
-    if ((obj == ui->nowPlayingGrip || ui->top_widget  || ui->windowControls || ui->search || ui->label_6 ) && (event->type() == QEvent::MouseMove)) {
+    if ((obj == ui->nowPlayingGrip || ui->top_widget  || ui->windowControls || ui->label_6 ) && (event->type() == QEvent::MouseMove)) {
             const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
             if (me->buttons() & Qt::LeftButton) {
                 if(obj==ui->nowPlayingGrip){
@@ -596,7 +595,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
             }
             return true;
     }
-    if ((obj == ui->nowPlayingGrip || ui->top_widget  || ui->windowControls || ui->search || ui->label_6) &&
+    if ((obj == ui->nowPlayingGrip || ui->top_widget  || ui->windowControls || ui->label_6) &&
         (event->type() == QEvent::MouseButtonPress)) {
             const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
             if (me->button() == Qt::LeftButton) {

@@ -66,7 +66,8 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
 
         if(radioProcess->state()==QProcess::Running){
 
-            QString state_line = this->parent()->findChild<QTextBrowser *>("console")->toPlainText().trimmed();
+//            QString state_line = this->parent()->findChild<QTextBrowser *>("console")->toPlainText().trimmed();
+
             QString position,duration,paused,paused_for_cache,idle_active,cache_buffering_state,
                     demuxer_cache_duration,seekable,audio_bitrate,seeking,eof;
             QStringList items;
@@ -137,8 +138,10 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
 
 
 void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
-    QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
-    ((QTextBrowser*)(console))->clear();
+//    QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
+//    ((QTextBrowser*)(console))->clear();
+    state_line.clear();
+
     streamUrl = url.toString();
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
     if(radioProcess!=nullptr){
@@ -152,8 +155,10 @@ void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
 }
 
 void radio::loadMedia(QUrl url){
-    QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
-    ((QTextBrowser*)(console))->clear();
+//    QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
+//    ((QTextBrowser*)(console))->clear();
+    state_line.clear();
+
    // qDebug()<<"loadmedia called";
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
@@ -174,8 +179,14 @@ void radio::radioReadyRead(){
         output = output.trimmed();
         if(output.at(output.count()-1)!=']')
             output.append("]");
+            state_line = output.trimmed();
+//        QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
+//        ((QTextBrowser*)(console))->setText(output);
+    }else if(output.contains("failed",Qt::CaseInsensitive)){
         QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
         ((QTextBrowser*)(console))->setText(output);
+        radioState="failed";
+        emit radioStatus(radioState);
     }
 }
 
