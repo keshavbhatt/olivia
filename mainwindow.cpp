@@ -108,6 +108,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->windowControls->installEventFilter(this);
     ui->search->installEventFilter(this);
     ui->label_6->installEventFilter(this);
+    ui->nowPlayingGrip->installEventFilter(this);
 
 
     QString btn_style_2= "QPushButton{background-color:transparent ;border:0px;}"
@@ -583,29 +584,32 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event){
-    if (obj == ui->search &&event->type() == QEvent::KeyPress) {
-         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-            Q_UNUSED(keyEvent);
-      }
-
-    if ((obj == ui->top_widget  || ui->windowControls || ui->search || ui->label_6 ) && (event->type() == QEvent::MouseMove)) {
+    if ((obj == ui->nowPlayingGrip || ui->top_widget  || ui->windowControls || ui->search || ui->label_6 ) && (event->type() == QEvent::MouseMove)) {
             const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
             if (me->buttons() & Qt::LeftButton) {
-                move(me->globalPos() - oldPos);
+                if(obj==ui->nowPlayingGrip){
+                    miniModeWidget->move(me->globalPos() - oldPosMiniWidget);
+                }else{
+                    move(me->globalPos() - oldPos);
+                }
                 event->accept();
             }
             return true;
     }
-    if ((obj == ui->top_widget  || ui->windowControls || ui->search || ui->label_6) &&
-       (event->type() == QEvent::MouseButtonPress)) {
+    if ((obj == ui->nowPlayingGrip || ui->top_widget  || ui->windowControls || ui->search || ui->label_6) &&
+        (event->type() == QEvent::MouseButtonPress)) {
             const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
             if (me->button() == Qt::LeftButton) {
-                oldPos = me->globalPos() - frameGeometry().topLeft();
+                if(obj==ui->nowPlayingGrip){
+                    oldPosMiniWidget = QCursor::pos() - miniModeWidget->frameGeometry().topLeft();
+                }else{
+                    oldPos = me->globalPos() - frameGeometry().topLeft();
+                }
                 event->accept();
             }
             return true;
     }
-    return QMainWindow::eventFilter(obj, event);
+    return obj->eventFilter(obj, event);
 }
 
 

@@ -99,7 +99,7 @@
         <number>3</number>
        </property>
        <property name="bottomMargin">
-        <number>3</number>
+        <number>12</number>
        </property>
       </layout>
      </item>

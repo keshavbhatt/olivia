@@ -35,7 +35,7 @@ void volumeSlider::mousePressEvent(QMouseEvent *ev){
 }
 
 void volumeSlider::wheelEvent(QWheelEvent *e){
-    emit showToolTip(QPoint(0,0));
+    //emit showToolTip(QPoint(0,0));
     QSlider::wheelEvent(e);
 }
 

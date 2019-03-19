@@ -49,5 +49,7 @@
         <file>icons/_maximize.png</file>
         <file>icons/_minimize.png</file>
         <file>icons/fullscreen.png</file>
+        <file>icons/olivia_bw.png</file>
+        <file>icons/olivia_bw_flat.png</file>
     </qresource>
 </RCC>

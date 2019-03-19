@@ -185,7 +185,7 @@ private slots:
 private:
     float zoom;
     int horizontalDpi;
-    QPoint oldPos;
+    QPoint oldPos,oldPosMiniWidget;
 
     Ui::MainWindow *ui;
     Ui::track track_ui;
