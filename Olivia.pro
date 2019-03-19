@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     onlinesearchsuggestion.cpp \
     seekslider.cpp \
     volumeslider.cpp \
-    settings.cpp
+    settings.cpp \
+    paginator.cpp
 
 HEADERS  += mainwindow.h \
     DarkStyle.h \
@@ -57,7 +58,8 @@ HEADERS  += mainwindow.h \
     onlinesearchsuggestion.h \
     seekslider.h \
     volumeslider.h \
-    settings.h
+    settings.h \
+    paginator.h
 
 FORMS    += mainwindow.ui \
     track.ui \
