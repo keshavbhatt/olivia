@@ -17,7 +17,6 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     radioPlaybackTimer = new QTimer(this);
     volume= volumeValue;
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
-  //  qDebug()<<saveTracksAfterBuffer;
 
     startRadioProcess(saveTracksAfterBuffer,"");
 
@@ -43,9 +42,6 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
             radioProcess->start("bash",QStringList()<<"-c"<<"wget -O - '"+urlString+"' | tee "+setting_path+"/downloadedTemp/current.temp"+" | mpv "+status_message_arg+" --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle -");
     }
     radioProcess->waitForStarted();
-
-
-    //qDebug()<<"restarted";
 
     connect(radioPlaybackTimer, &QTimer::timeout, [=](){
 
@@ -79,7 +75,6 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
                 }
             }
             //assign items to vars
-           // qDebug()<<items.count()<<"ITEMS COUNT";
             if(items.count()==12){
                 position                = items.at(1);
                 duration                = items.at(2);
@@ -91,7 +86,6 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
                 seekable                = items.at(8);
                 audio_bitrate           = items.at(9);
                 seeking                 = items.at(10);
-//                eof                     = items.at(11);
             }
 
             if(paused=="no"){
@@ -190,8 +184,8 @@ void radio::radioFinished(int code){
         radioProcess->deleteLater();
         radioPlaybackTimer->stop();
     }else{
-        radioState = "crashed";
-        emit radioStatus("crashed");
+        radioState = "loading";
+        emit radioStatus("loading");
         radioProcess->deleteLater();
         radioPlaybackTimer->stop();
         startRadioProcess(saveTracksAfterBuffer,streamUrl);
