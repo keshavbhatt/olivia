@@ -58,7 +58,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(radio_manager,SIGNAL(radioStatus(QString)),this,SLOT(radioStatus(QString)));
     connect(radio_manager,SIGNAL(radioPosition(int)),this,SLOT(radioPosition(int)));
     connect(radio_manager,SIGNAL(radioDuration(int)),this,SLOT(radioDuration(int)));
-//    connect(radio_manager,SIGNAL(radioEOF(QString)),this,SLOT(radioEOF(QString)));
     connect(radio_manager,SIGNAL(demuxer_cache_duration_changed(double,double)),this,SLOT(radio_demuxer_cache_duration_changed(double,double)));
     connect(radio_manager,SIGNAL(saveTrack(QString)),this,SLOT(saveTrack(QString)));
 
@@ -105,18 +104,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     browse();
 
-    //keep this at last
-    if(settingsObj.value("dynamicTheme").toBool()==false){
-        QString rgbhash = settingsObj.value("customTheme","#3BBAC6").toString();
-        set_app_theme(QColor(rgbhash));
-        if(color_list.contains(rgbhash,Qt::CaseInsensitive)){
-            if(settingsWidget->findChild<QPushButton*>(rgbhash.toUpper())){
-                settingsWidget->findChild<QPushButton*>(rgbhash.toUpper())->setText("*");
-            }
-        }
-    }
-
-
     ui->top_widget->installEventFilter(this);
     ui->windowControls->installEventFilter(this);
     ui->search->installEventFilter(this);
@@ -128,12 +115,10 @@ MainWindow::MainWindow(QWidget *parent) :
                          "padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px;color: #636363;}"
                          "QPushButton:pressed {padding-bottom:0px;background-color:transparent;border:0px;}"
                          "QPushButton:hover {border:none;padding-bottom:1px;background-color:transparent;border:0px;}";
-
     ui->close->setStyleSheet(btn_style_2);
     ui->minimize->setStyleSheet(btn_style_2);
     ui->maximize->setStyleSheet(btn_style_2);
     ui->fullScreen->setStyleSheet(btn_style_2);
-    ui->settings->setStyleSheet(btn_style_2);
 
     loadSettings();
 }
@@ -186,8 +171,6 @@ void MainWindow::dynamicThemeChanged(bool enabled){
 }
 
 void MainWindow::loadSettings(){
-
-
     settingsUi.saveAfterBuffer->setChecked(settingsObj.value("saveAfterBuffer","true").toBool());
     settingsUi.showSearchSuggestion->setChecked(settingsObj.value("showSearchSuggestion","true").toBool());
     settingsUi.miniModeStayOnTop->setChecked(settingsObj.value("miniModeStayOnTop","false").toBool());
@@ -197,9 +180,20 @@ void MainWindow::loadSettings(){
     settingsUi.miniModeTransperancySlider->setValue(settingsObj.value("miniModeTransperancy","95").toInt());
     settingsUi.transperancyLabel->setText(QString::number(settingsUi.miniModeTransperancySlider->value()));
 
+    //keep this after init of settings widget
+    if(settingsObj.value("dynamicTheme").toBool()==false){
+        QString rgbhash = settingsObj.value("customTheme","#3BBAC6").toString();
+        set_app_theme(QColor(rgbhash));
+        if(color_list.contains(rgbhash,Qt::CaseInsensitive)){
+            if(settingsWidget->findChild<QPushButton*>(rgbhash.toUpper())){
+                settingsWidget->findChild<QPushButton*>(rgbhash.toUpper())->setText("*");
+            }
+        }
+    }
+
+    ui->tabWidget->setCurrentIndex(settingsObj.value("currentQueueTab","0").toInt());
     restoreGeometry(settingsObj.value("geometry").toByteArray());
     restoreState(settingsObj.value("windowState").toByteArray());
-
 }
 
 void MainWindow::add_colors_to_color_widget(){
@@ -566,6 +560,8 @@ void MainWindow::loadPlayerQueue(){ //  #7
             ui->right_list->addItem(item);
         }
     }
+    ui->tabWidget->resize(ui->tabWidget->size().width()-1,ui->tabWidget->size().height());
+    ui->tabWidget->resize(ui->tabWidget->size().width()+1,ui->tabWidget->size().height());
 }
 
 
@@ -634,7 +630,6 @@ void MainWindow::setPlayerPosition(qint64 position){
 
 void MainWindow::on_play_pause_clicked()
 {
-    //qDebug()<<radio_manager->radioState;
     if(radio_manager->radioState=="paused"){
         radio_manager->resumeRadio();
     }else if(radio_manager->radioState=="playing"){
@@ -677,6 +672,8 @@ void MainWindow::quitApp(){
 void MainWindow::closeEvent(QCloseEvent *event){
     settingsObj.setValue("geometry",saveGeometry());
     settingsObj.setValue("windowState", saveState());
+    radio_manager->killRadioProcess(); //kill radio and all other processes
+    qApp->quit();
     QMainWindow::closeEvent(event);
 }
 
@@ -728,7 +725,7 @@ void MainWindow::webViewLoaded(bool loaded){
     }
 
     if( loaded && pageType == "youtube" && !youtubeSearchTerm.isEmpty()){
-        ui->webview->page()->mainFrame()->evaluateJavaScript("$('.ui-content').fadeOut('slow');$('#manual_search').val('"+youtubeSearchTerm+"');manual_youtube_search();");
+        ui->webview->page()->mainFrame()->evaluateJavaScript("$('.ui-content').fadeOut('slow');$('#manual_search').val('"+youtubeSearchTerm+"');manual_youtube_search('"+youtubeSearchTerm+"');");
         youtubeSearchTerm.clear();
     }
     if(pageType=="search"){
@@ -746,11 +743,10 @@ void MainWindow::webViewLoaded(bool loaded){
 
 void MainWindow::setSearchTermAndOpenYoutube(QVariant term){
     youtubeSearchTerm = term.toString();
-    ui->left_list->setCurrentRow(14);
+    ui->left_list->setCurrentRow(14); //set youtube page
 }
 
 void MainWindow::resultLoaded(){
-// qDebug()<<"resultLoaded for page"+QString::number(currentResultPage);
   isLoadingResults =false;
 }
 
@@ -799,7 +795,6 @@ void MainWindow::addToQueue(QString id,QString title,QString artist,QString albu
 
         track_ui.id->setText(id);
         track_ui.dominant_color->setText(dominantColor);
-//        qDebug()<<"songId:"<<songId;
         track_ui.songId->setText(songId);
         track_ui.playing->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
@@ -1017,14 +1012,8 @@ void MainWindow::processYtdlQueue(){
         QString ytIds = QString(ytdlQueue.at(0).at(0).split(",").first());
         QString songId = QString(ytdlQueue.at(0).at(1).split(",").last());
 
-       // qDebug()<<songId<<ytIds<<"....processing";
-
         ytdlQueue.removeAt(0);
-
-      //  qDebug()<<"process queue called";
-
         if(ytdlProcess == nullptr){
-          //  qDebug()<<"ENtered loop";
                 ytdlProcess = new QProcess(this);
                 ytdlProcess->setObjectName(songId);
 
@@ -1047,7 +1036,6 @@ void MainWindow::processYtdlQueue(){
 void MainWindow::ytdlFinished(int code){
     Q_UNUSED(code);
     ytdlProcess = nullptr;
-  //  qDebug()<<"Process Finishned"<<code;
     if(ytdlQueue.count()>0){
         qDebug()<<"YoutubedlQueueSize:"<<ytdlQueue.count();
         processYtdlQueue();
@@ -1401,6 +1389,8 @@ void MainWindow::getNowPlayingTrackId(){
 
 void MainWindow::resizeEvent(QResizeEvent *resizeEvent){
     left_panel_width = ui->left_panel->width();
+    ui->tabWidget->resize(ui->tabWidget->size().width()-1,ui->tabWidget->size().height());
+    ui->tabWidget->resize(ui->tabWidget->size().width()+1,ui->tabWidget->size().height());
     QMainWindow::resizeEvent(resizeEvent);
 }
 
@@ -1843,6 +1833,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     Q_UNUSED(index);
     ui->tabWidget->resize(ui->tabWidget->size().width()-1,ui->tabWidget->size().height());
     ui->tabWidget->resize(ui->tabWidget->size().width()+1,ui->tabWidget->size().height());
+    settingsObj.setValue("currentQueueTab",index);
 }
 
 void MainWindow::on_close_clicked()
