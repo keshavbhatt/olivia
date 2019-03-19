@@ -239,6 +239,35 @@ function playStation(streamDetail){
     mainwindow.playRadioFromWeb(streamDetail);
 }
 
+$(document).on("pagebeforeshow","#radio_page",function(){
+    $('#radio_search_input').unbind();
+
+    $('#radio_search_input').keypress(function(event){
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if(keycode == '13'){
+            station_search($(this).val())
+        }
+    });
+
+    function station_search(query){
+        showLoading();
+        $.ajax({
+           url: baseUrl+"list/search.php",
+                  type:"GET",
+                   data:{
+                    "query":query
+                   },
+           success: function(html) {
+               $.mobile.loading("hide");
+               $.mobile.changePage($('#stations_page'));
+               $("#stations_result").html(html).listview("refresh");
+               $('#stations_page .ui-content').trigger('create');
+               $('#stations_page .ui-content').fadeIn('slow');
+           }
+       });
+    }
+});
+
 
 
 

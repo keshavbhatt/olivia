@@ -38,9 +38,9 @@
     <div id="radio_page" data-role="page" data-theme="b" data-title="INTERNET RADIO">
         <div role="main" class="ui-content">
             <!--search radio stations-->
-            <form class="ui-filterable">
-                 <input id="radiofilter-input" data-type="search" placeholder="Search by station,tag,country...">
-            </form>
+
+            <input id="radio_search_input" type="search" placeholder="Search by station,tag,country...">
+
 
             <div data-role="collapsible" id="country" data-mini="true">
                 <h4>By Country</h4>
@@ -102,7 +102,7 @@
         <div role="main" class="ui-content">
         <!-- search language -->
         <form class="ui-filterable">
-             <input id="station-list-filter-input" data-type="search" placeholder="Search station by name,tags,country,state,languages etc...">
+             <input id="station-list-filter-input" data-type="search" placeholder="Filter listed stations by name,tags,country,state,languages etc...">
         </form>
         <ul class="list" id="stations_result"  data-input="#station-list-filter-input" data-filter="true" data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
             <!--load data here-->
