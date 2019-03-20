@@ -64,25 +64,6 @@
         </div>
     </div>
 
-    <div id="manul_youtube_page" data-role="page" data-theme="b" data-title="YOUTUBE SEARCH">
-        <div role="main" class="ui-content">
-            <form class="ui-filterable">
-                <input data-mini='true' data-type="search" name='manual_search' id='manual_search' value='' >
-                <a data-mini='true' type='submit' data-role='button' onclick="manual_youtube_search('$(this.val()')">Search on Youtube</a>
-            </form>
-
-            <ul class="list" id="manul_youtube_page_suggestions"  data-filter="true" data-input="#manual_search"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
-            </ul>
-            <!--load data here-->
-            <ul class="list" id="manul_youtube_page_result"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
-            </ul>
-        </div>
-        <div data-role="footer" data-position="fixed" data-tap-toggle="false">
-            <a style="display: block;background-color: rgba(36, 142, 179, 0.5)" onclick="$.mobile.changePage($('#tracks_page'));" class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all">Back to Search</a>
-        </div><!-- /footer -->
-    </div>
-
-
     <div id="albums_page" data-role="page" data-theme="b" data-title="ALBUMS">
         <div role="main" class="ui-content">
         <ul class="list" id="albums_result" data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="false">

@@ -111,50 +111,48 @@ function open_artist_search(){
 
 function track_search(term){
      showLoading();
-     $.ajax({
-        url: baseUrl+"search.php",
-               type:"GET",
-               data:{
-                    "query":term
-               },
-        success: function(html) {
-            $.mobile.loading("hide");
-            if($(html).text().indexOf("Olivia suggest")>0){
-                $('#tracks_page .ui-content').html(html);
-            }else{
-                $("#tracks_result").append(html).listview("refresh");
-            }
-            $('#tracks_page .ui-content').trigger('create');
-            $('#tracks_page .ui-content').fadeIn('slow');
-            track_loaded = true;
-            mainwindow.resultLoaded();
+    if(paginator.isOffline("discover","track_search",term)){
+        $.mobile.loading("hide");
+
+        var html = paginator.load("discover","track_search",term);
+
+        if($(html).text().indexOf("Olivia suggest")>0){
+            $('#tracks_page .ui-content').html(html);
+        }else{
+            $("#tracks_result").append(html).listview("refresh");
         }
-    });
-}
+        $('#tracks_page .ui-content').trigger('create');
+        $('#tracks_page .ui-content').fadeIn('slow');
+        track_loaded = true;
+        mainwindow.resultLoaded();
 
+    }else{
+        $.ajax({
+           url: baseUrl+"search.php",
+                  type:"GET",
+                  data:{
+                       "query":term
+                  },
+           success: function(html) {
 
-function manual_youtube_search(term){
-    $.mobile.changePage($('#manul_youtube_page'));
-    if(term===""){
-        term = $("#manual_search").val();
+               paginator.save("discover","track_search",term,html);
+
+               $.mobile.loading("hide");
+               if($(html).text().indexOf("Olivia suggest")>0){
+                   $('#tracks_page .ui-content').html(html);
+               }else{
+                   $("#tracks_result").append(html).listview("refresh");
+               }
+               $('#tracks_page .ui-content').trigger('create');
+               $('#tracks_page .ui-content').fadeIn('slow');
+               track_loaded = true;
+               mainwindow.resultLoaded();
+           }
+       });
     }
-    showLoading();
-    $('#manul_youtube_page_result').html("");
-    $.ajax({
-       url: baseUrl+"manual_youtube_search.php",
-              type:"GET",
-              data:{
-                   "query":term
-              },
-       success: function(html) {
-           $.mobile.loading("hide");
-           $("#manul_youtube_page_result").append(html).listview("refresh");
-           $('#manul_youtube_page .ui-content').trigger("create");
-           $('#manul_youtube_page .ui-content').fadeIn('slow');
-       }
-   });
 
 }
+
 
 function album_search(term){
      showLoading();
@@ -197,6 +195,17 @@ function artist_search(term){
 
 function album_view(id){
      showLoading();
+    if(paginator.isOffline("album_view","album_view",id))
+    {
+        var html = paginator.load("album_view","album_view",id);
+
+        $.mobile.loading("hide");
+        $.mobile.changePage($('#album_view_page'));
+        $("#album_view_page .ui-content").html(html);
+        $('#album_view_page .ui-content').trigger('create');
+        $('#album_view_page .ui-content').fadeIn('slow');
+    }
+    else{
      $.ajax({
         url: baseUrl+"album_view.php",
                type:"GET",
@@ -204,13 +213,15 @@ function album_view(id){
                     "query":id
                },
         success: function(html) {
+            paginator.save("album_view","album_view",id,html);
+
             $.mobile.loading("hide");
             $.mobile.changePage($('#album_view_page'));
             $("#album_view_page .ui-content").html(html);
             $('#album_view_page .ui-content').trigger('create');
             $('#album_view_page .ui-content').fadeIn('slow');
         }
-    });
+    });}
 }
 
 function artist_view(id){

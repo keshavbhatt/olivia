@@ -62,6 +62,7 @@
 #include "radio.h"
 #include "onlinesearchsuggestion.h"
 #include "settings.h"
+#include "paginator.h"
 
 #include "ui_settings.h"
 #include "ui_minimode.h"
@@ -182,6 +183,7 @@ private slots:
     void on_fullScreen_clicked();
     void on_minimize_clicked();
     void on_maximize_clicked();
+    void reloadREquested(QString dataType, QString query);
 private:
     float zoom;
     int horizontalDpi;
@@ -207,6 +209,7 @@ private:
 
     store *store_manager = nullptr;
     radio *radio_manager = nullptr;
+    paginator *pagination_manager = nullptr;
     QString themeColor = "4,42,59,0.2";
 
     QStringList searchSuggestionList;

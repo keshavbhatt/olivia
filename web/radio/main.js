@@ -248,9 +248,20 @@ $(document).on("pagebeforeshow","#radio_page",function(){
             station_search($(this).val())
         }
     });
+});
 
-    function station_search(query){
-        showLoading();
+function station_search(query){
+    showLoading();
+    if(paginator.isOffline("radio","station_search",query)){
+        $.mobile.loading("hide");
+        $.mobile.changePage($('#stations_page'));
+
+        var html = paginator.load("radio","station_search",query);
+
+        $("#stations_result").html(html).listview("refresh");
+        $('#stations_page .ui-content').trigger('create');
+        $('#stations_page .ui-content').fadeIn('slow');
+    }else{
         $.ajax({
            url: baseUrl+"list/search.php",
                   type:"GET",
@@ -260,13 +271,16 @@ $(document).on("pagebeforeshow","#radio_page",function(){
            success: function(html) {
                $.mobile.loading("hide");
                $.mobile.changePage($('#stations_page'));
+
+               paginator.save("radio","station_search",query,html);
+
                $("#stations_result").html(html).listview("refresh");
                $('#stations_page .ui-content').trigger('create');
                $('#stations_page .ui-content').fadeIn('slow');
            }
        });
     }
-});
+}
 
 
 

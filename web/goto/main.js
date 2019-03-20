@@ -170,21 +170,35 @@ function artist_search(term){
 
 function album_view(id){
      showLoading();
-     $.ajax({
-        url: baseUrl+"album_view.php",
-               type:"GET",
-               data:{
-                    "query":id
-               },
-        success: function(html) {
-            $.mobile.loading("hide");
-            $.mobile.changePage($('#album_view_page'));
-            $("#album_view_page .ui-content").html(html);
-            $('#album_view_page .ui-content').trigger('create');
-            $('#album_view_page .ui-content').fadeIn('slow');
-            setNowPlaying(NowPlayingTrackId);
-        }
-    });
+    if(paginator.isOffline("album_view","album_view",id))
+    {
+        var html = paginator.load("album_view","album_view",id);
+
+        $.mobile.loading("hide");
+        $.mobile.changePage($('#album_view_page'));
+        $("#album_view_page .ui-content").html(html);
+        $('#album_view_page .ui-content').trigger('create');
+        $('#album_view_page .ui-content').fadeIn('slow');
+        setNowPlaying(NowPlayingTrackId);
+    }else{
+         $.ajax({
+            url: baseUrl+"album_view.php",
+                   type:"GET",
+                   data:{
+                        "query":id
+                   },
+            success: function(html) {
+                paginator.save("album_view","album_view",id,html);
+
+                $.mobile.loading("hide");
+                $.mobile.changePage($('#album_view_page'));
+                $("#album_view_page .ui-content").html(html);
+                $('#album_view_page .ui-content').trigger('create');
+                $('#album_view_page .ui-content').fadeIn('slow');
+                setNowPlaying(NowPlayingTrackId);
+            }
+        });
+    }
 }
 
 function artist_view(id){

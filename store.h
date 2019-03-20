@@ -17,11 +17,8 @@ public:
     Q_INVOKABLE QString web_print_saved_artists();
     Q_INVOKABLE QString web_print_album_tracks(QVariant albumId);
 
-signals:
-
 private:
     QSqlDatabase db;
-
 
 public slots:
 

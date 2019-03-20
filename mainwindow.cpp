@@ -19,6 +19,7 @@
 #include "onlinesearchsuggestion.h"
 #include "seekslider.h"
 #include "settings.h"
+#include "paginator.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -42,10 +43,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
     store_manager = new store(this,"hjkfdsll");// #6
+
+    pagination_manager = new paginator(this);
+    connect(pagination_manager,SIGNAL(reloadRequested(QString,QString)),this,SLOT(reloadREquested(QString,QString)));
+
     ui->debug_widget->hide();
 
     loadPlayerQueue();// #7 loads previous playing track queue
-   // connect(qApp,SIGNAL(aboutToQuit()),this,SLOT(quitApp()));
     init_search_autoComplete();
 
     ui->radioVolumeSlider->setMinimum(0);
@@ -424,7 +428,6 @@ void MainWindow::init_offline_storage(){
             qDebug()<<"created storeDatabase dir";
         }
     }
-
 }
 
 void MainWindow::loadPlayerQueue(){ //  #7
@@ -514,13 +517,13 @@ void MainWindow::loadPlayerQueue(){ //  #7
 
             // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
             if(url.isEmpty() || (store_manager->getExpiry(songId) && track_ui.url->text().contains("http"))){
-//                track_ui.loading->setPixmap(QPixmap(":/icons/url_issue.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+            //track_ui.loading->setPixmap(QPixmap(":/icons/url_issue.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
                 ui->right_list_2->itemWidget(item)->setEnabled(false);
                 if(!track_ui.id->text().isEmpty()){
                     getAudioStream(track_ui.id->text().trimmed(),track_ui.songId->text().trimmed());
                 }
             }else{
-//                track_ui.loading->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+            //track_ui.loading->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }
             QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
             a->setDuration(500);
@@ -543,13 +546,13 @@ void MainWindow::loadPlayerQueue(){ //  #7
 
             // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
             if(url.isEmpty() || (store_manager->getExpiry(songId) && track_ui.url->text().contains("http"))){
-//                track_ui.loading->setPixmap(QPixmap(":/icons/url_issue.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+            //track_ui.loading->setPixmap(QPixmap(":/icons/url_issue.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
                 ui->right_list->itemWidget(item)->setEnabled(false);
                 if(!track_ui.id->text().isEmpty()){
                     getAudioStream(track_ui.id->text().trimmed(),track_ui.songId->text().trimmed());
                 }
             }else{
-//                track_ui.loading->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+            //track_ui.loading->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }
             QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
             a->setDuration(500);
@@ -690,6 +693,7 @@ void MainWindow::webViewLoaded(bool loaded){
 
     if(loaded){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"),  this);
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("paginator"), pagination_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+themeColor+"')");
         ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongId+"'");
 
@@ -1877,4 +1881,9 @@ void MainWindow::on_fullScreen_clicked()
         this->setWindowState(Qt::WindowNoState);
     }else
         this->setWindowState(Qt::WindowFullScreen);
+}
+
+
+void MainWindow::reloadREquested(QString dataType,QString query){
+    ui->webview->page()->mainFrame()->evaluateJavaScript(dataType+"(\""+query+"\")");
 }
