@@ -60,6 +60,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
                 if(out=="true"){
                     radioState = "stopped";
                     emit radioStatus(radioState);
+                    radioPlaybackTimer->stop();
                 }
             }
         });
