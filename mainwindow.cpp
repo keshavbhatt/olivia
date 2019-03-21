@@ -1293,9 +1293,30 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
                              "stop:0.38764 rgba("+r+", "+g+", "+b+", 120),"
                              "stop:0.679775 rgba("+r+", "+g+", "+b+", 84),"
                              "stop:1 rgba("+r+", "+g+", "+b+", 30));";
+        QString scrollbarStyle ="QScrollBar:vertical {"
+                                    "background-color: transparent;"
+                                    "border:none;"
+                                    "width: 10px;"
+                                    "margin: 22px 0 22px 0;"
+                                "}"
+                                "QScrollBar::handle:vertical {"
+                                    "background: grey;"
+                                    "min-height: 20px;"
+                                "}";
         ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
         ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
+        ui->right_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
+        ui->right_list_2->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
+
+
         miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
+
+        ui->search->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
+        ui->label_5->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
+
+        settingsWidget->setStyleSheet("QWidget#settingsWidget{"+widgetStyle+"}");
+
+
     }
 
     ElidedLabel *title2 = this->findChild<ElidedLabel *>("nowP_title");
