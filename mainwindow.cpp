@@ -68,6 +68,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->radioSeekSlider,&seekSlider::setPosition,[=](QPoint localPos){
         ui->radioSeekSlider->blockSignals(true);
         int pos = ui->radioSeekSlider->minimum() + ((ui->radioSeekSlider->maximum()-ui->radioSeekSlider->minimum()) * localPos.x()) / ui->radioSeekSlider->width();
+
+        QPropertyAnimation *a = new QPropertyAnimation(ui->radioSeekSlider,"value");
+        a->setDuration(150);
+        a->setStartValue(ui->radioSeekSlider->value());
+        a->setEndValue(pos);
+        a->setEasingCurve(QEasingCurve::InCurve);
+        a->start(QPropertyAnimation::DeleteWhenStopped);
+
         radio_manager->radioSeek(pos);
         ui->radioSeekSlider->blockSignals(false);
     });
@@ -82,7 +90,13 @@ MainWindow::MainWindow(QWidget *parent) :
      });
 
     connect(ui->radioVolumeSlider,&volumeSlider::setPosition,[=](QPoint localPos){
-        ui->radioVolumeSlider->setValue(ui->radioVolumeSlider->minimum() + ((ui->radioVolumeSlider->maximum()-ui->radioVolumeSlider->minimum()) * localPos.x()) / ui->radioVolumeSlider->width());
+        int pos = ui->radioVolumeSlider->minimum() + ((ui->radioVolumeSlider->maximum()-ui->radioVolumeSlider->minimum()) * localPos.x()) / ui->radioVolumeSlider->width();
+        QPropertyAnimation *a = new QPropertyAnimation(ui->radioVolumeSlider,"value");
+        a->setDuration(150);
+        a->setStartValue(ui->radioVolumeSlider->value());
+        a->setEndValue(pos);
+        a->setEasingCurve(QEasingCurve::InCurve);
+        a->start(QPropertyAnimation::DeleteWhenStopped);
     });
 
     connect(ui->radioVolumeSlider,&volumeSlider::showToolTip,[=](QPoint localPos){
@@ -1517,12 +1531,6 @@ void MainWindow::radio_demuxer_cache_duration_changed(double seconds_available,d
         ui->radioSeekSlider->subControlWidth = (double)width*100;
     }
 }
-
-//void MainWindow::radioEOF(QString value){
-//   if(value=="false"){
-//   }
-//}
-
 
 //this method plays tracks from webpage
 void MainWindow::playLocalTrack(QVariant songIdVar){

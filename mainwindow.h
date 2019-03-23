@@ -55,6 +55,7 @@
 #include <QBuffer>
 #include <QDateTime>
 #include <QColorDialog>
+#include <QPropertyAnimation>
 
 
 #include "ui_track.h"
