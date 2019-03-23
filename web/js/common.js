@@ -1,3 +1,10 @@
+$(document).bind("mobileinit", function(){
+      $.mobile.defaultPageTransition = 'slidefade';
+      $.mobile.defaultDialogTransition = 'pop';
+      $.mobile.useFastClick = true;
+});
+
+
 //include this lib after loading jquery
 
 if (!String.prototype.includes) {
