@@ -61,7 +61,7 @@
        <number>0</number>
       </property>
       <property name="rightMargin">
-       <number>0</number>
+       <number>4</number>
       </property>
       <property name="bottomMargin">
        <number>0</number>
@@ -205,7 +205,7 @@ border:none;</string>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <property name="topMargin">
-             <number>4</number>
+             <number>0</number>
             </property>
             <item>
              <widget class="QPushButton" name="option">
