@@ -67,11 +67,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->radioSeekSlider,&seekSlider::setPosition,[=](QPoint localPos){
         ui->radioSeekSlider->blockSignals(true);
-        radio_manager->radioSeek(ui->radioSeekSlider->minimum() + ((ui->radioSeekSlider->maximum()-ui->radioSeekSlider->minimum()) * localPos.x()) / ui->radioSeekSlider->width());
+        int pos = ui->radioSeekSlider->minimum() + ((ui->radioSeekSlider->maximum()-ui->radioSeekSlider->minimum()) * localPos.x()) / ui->radioSeekSlider->width();
+        radio_manager->radioSeek(pos);
         ui->radioSeekSlider->blockSignals(false);
     });
-
-
 
     connect(ui->radioSeekSlider,&seekSlider::showToolTip,[=](QPoint localPos){
         int pos = ui->radioSeekSlider->minimum() + ((ui->radioSeekSlider->maximum()-ui->radioSeekSlider->minimum()) * localPos.x()) / ui->radioSeekSlider->width();
@@ -653,8 +652,8 @@ void MainWindow::on_radioVolumeSlider_valueChanged(int value)
 void MainWindow::on_radioSeekSlider_sliderMoved(int position)
 {
     ui->radioSeekSlider->blockSignals(true);
-    ui->radioSeekSlider->setSliderPosition(position);
     radio_manager->radioSeek(position);
+//    ui->radioSeekSlider->setSliderPosition(position);
     ui->radioSeekSlider->blockSignals(false);
 }
 
@@ -1259,13 +1258,29 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     playing->setPixmap(QPixmap(":/icons/now_playing.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
     playing->setToolTip("playing...");
 
+
+    //assign next track to next button
+    if(list->currentRow()==0){
+        ui->previous->setEnabled(false);
+    }else{
+        ui->previous->setEnabled(true);
+        assignPreviousTrack(list,list->currentRow()-1);
+    }
+
+    if(list->currentRow()==list->count()-1){
+        ui->next->setEnabled(false);
+    }else{
+        ui->next->setEnabled(true);
+        assignNextTrack(list,list->currentRow()+1);
+    }
+
     getNowPlayingTrackId();
 
     ui->nowplaying_widget->setImage(*cover->pixmap());
 
     if(!ui->state->isVisible())
         ui->state->show();
-    ui->state->setText("Connecting...");
+    ui->state->setText("loading");
 
 
     if(settingsObj.value("dynamicTheme").toBool()==true){
@@ -1451,13 +1466,20 @@ void MainWindow::setThemeColor(QString color){
 void MainWindow::radioStatus(QString radioState){
     if(radioState=="playing"){
         ui->stop->setEnabled(true);
+        ui->play_pause->setEnabled(true);
         ui->play_pause->setIcon(QIcon(":/icons/p_pause.png"));
     }else if(radioState=="paused"){
         ui->stop->setEnabled(true);
+        ui->play_pause->setEnabled(true);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
-    }else if(radioState=="stopped"){
+    }else if (radioState=="eof") {
+        if(ui->next->isEnabled()){
+            ui->next->click();
+        }
+    }
+    else if(radioState=="stopped"){
         ui->stop->setEnabled(false);
-        ui->console->setText("stopped");
+        ui->play_pause->setEnabled(false);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
         for (int i= 0;i<ui->right_list->count();i++) {
           ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
@@ -1815,13 +1837,13 @@ void MainWindow::setZoom(float val){
 }
 
 void MainWindow::init_miniMode(){
-    miniModeWidget = new QWidget(this);
+    miniModeWidget = new QWidget(0);
     miniMode_ui.setupUi(miniModeWidget);
     miniModeWidget->setObjectName("miniModeWidget");
     if(settingsObj.value("miniModeStayOnTop","false").toBool()==true){
-        miniModeWidget->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+        miniModeWidget->setWindowFlags(Qt::Widget  | Qt::CustomizeWindowHint  | Qt::WindowStaysOnTopHint  | Qt::FramelessWindowHint );
     }else{
-        miniModeWidget->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+        miniModeWidget->setWindowFlags(Qt::Widget | Qt::CustomizeWindowHint | Qt::FramelessWindowHint  );
     }
     miniModeWidget->adjustSize();
 }
@@ -1908,3 +1930,25 @@ void MainWindow::on_fullScreen_clicked()
 void MainWindow::reloadREquested(QString dataType,QString query){
     ui->webview->page()->mainFrame()->evaluateJavaScript(dataType+"(\""+query+"\")");
 }
+
+void MainWindow::assignNextTrack(QListWidget *list ,int index){
+    ui->next->disconnect();
+    connect(ui->next,&QPushButton::clicked,[=](){
+        list->setCurrentRow(index);
+        listItemDoubleClicked(list,list->item(index));
+        list->scrollToItem(list->item(index));
+    });
+}
+
+
+void MainWindow::assignPreviousTrack(QListWidget *list ,int index)
+{
+    ui->previous->disconnect();
+    connect(ui->previous,&QPushButton::clicked,[=](){
+        list->setCurrentRow(index);
+        listItemDoubleClicked(list,list->item(index));
+        list->scrollToItem(list->item(index));
+    });
+}
+
+

@@ -184,7 +184,15 @@ private slots:
     void on_minimize_clicked();
     void on_maximize_clicked();
     void reloadREquested(QString dataType, QString query);
+
+
+    void assignNextTrack(QListWidget *list, int index);
+    void assignPreviousTrack(QListWidget *list, int index);
+
+
+
 private:
+
     float zoom;
     int horizontalDpi;
     QPoint oldPos,oldPosMiniWidget;

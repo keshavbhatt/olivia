@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>708</width>
+    <width>720</width>
     <height>421</height>
    </rect>
   </property>
@@ -691,13 +691,13 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
                 <number>0</number>
                </property>
                <property name="leftMargin">
-                <number>4</number>
+                <number>0</number>
                </property>
                <property name="topMargin">
-                <number>7</number>
+                <number>4</number>
                </property>
                <property name="rightMargin">
-                <number>7</number>
+                <number>0</number>
                </property>
                <property name="bottomMargin">
                 <number>7</number>
@@ -705,8 +705,14 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
                <item>
                 <widget class="QWidget" name="nowPlayingGrip" native="true">
                  <layout class="QHBoxLayout" name="horizontalLayout_12">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
                   <property name="topMargin">
                    <number>1</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
                   </property>
                   <item>
                    <widget class="QPushButton" name="miniMode_2">
@@ -829,7 +835,7 @@ background-color: transparent;
                  </property>
                  <layout class="QGridLayout" name="gridLayout">
                   <property name="leftMargin">
-                   <number>0</number>
+                   <number>7</number>
                   </property>
                   <item row="1" column="1">
                    <layout class="QHBoxLayout" name="title_horizontalLayout">
@@ -1128,7 +1134,7 @@ QScrollBar:vertical {
                       <bool>false</bool>
                      </property>
                      <property name="autoScrollMargin">
-                      <number>8</number>
+                      <number>5</number>
                      </property>
                      <property name="dragEnabled">
                       <bool>true</bool>
@@ -1243,7 +1249,7 @@ QScrollBar:vertical {
                       <bool>false</bool>
                      </property>
                      <property name="autoScrollMargin">
-                      <number>8</number>
+                      <number>5</number>
                      </property>
                      <property name="dragEnabled">
                       <bool>true</bool>
@@ -1333,7 +1339,7 @@ QScrollBar:vertical {
           <number>0</number>
          </property>
          <item>
-          <widget class="QPushButton" name="pushButton_3">
+          <widget class="QPushButton" name="previous">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -1411,7 +1417,7 @@ QScrollBar:vertical {
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_2">
+          <widget class="QPushButton" name="next">
            <property name="minimumSize">
             <size>
              <width>0</width>

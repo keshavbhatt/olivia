@@ -16,7 +16,7 @@ public:
     QString radioState;
     int volume ;
     bool saveTracksAfterBuffer;
-
+    QTimer *radioPlaybackTimer = nullptr;
 
 signals:
     void radioStatus(QString radioState);
@@ -47,7 +47,7 @@ private slots:
 private:
     QProcess *radioProcess = nullptr;
     QString setting_path;
-    QTimer *radioPlaybackTimer = nullptr;
+
     QString streamUrl;
     QString state_line;
 
