@@ -39,7 +39,6 @@ void waveformseekslider::loadPixmap(QString localFileUrl)
         }else{
              setPixmap(QPixmap(":/icons/others/blankWave.png"));
         }
-
         ffmpeg->deleteLater();
     });
 }
