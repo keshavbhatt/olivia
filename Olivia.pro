@@ -46,7 +46,8 @@ SOURCES += main.cpp\
     seekslider.cpp \
     volumeslider.cpp \
     settings.cpp \
-    paginator.cpp
+    paginator.cpp \
+    waveformseekslider.cpp
 
 HEADERS  += mainwindow.h \
     DarkStyle.h \
@@ -59,7 +60,8 @@ HEADERS  += mainwindow.h \
     seekslider.h \
     volumeslider.h \
     settings.h \
-    paginator.h
+    paginator.h \
+    waveformseekslider.h
 
 FORMS    += mainwindow.ui \
     track.ui \
