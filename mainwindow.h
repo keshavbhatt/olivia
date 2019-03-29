@@ -192,6 +192,8 @@ private slots:
 
 
 
+    void setWavefrom(QString urlStr);
+    void on_radioSeekSlider_valueChanged(int value);
 private:
 
     float zoom;
