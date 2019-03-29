@@ -50,7 +50,7 @@
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
-         <string>Downlaod/Update</string>
+         <string>Download/Update</string>
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
