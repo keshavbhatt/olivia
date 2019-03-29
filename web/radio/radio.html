@@ -73,21 +73,21 @@
             <div data-role="tabs" id="tabs">
               <div data-role="navbar">
                 <ul>
-                  <li class="ui-state-active"><a href="#most-played" data-ajax="false">Most Played</a></li>
-                  <li><a href="#most-voted" data-ajax="false">Most Voted</a></li>
+                  <li class="ui-state-active"><a onclick="loadTopStations('most-played')" href="#most-played" data-ajax="false">Most Played</a></li>
+                  <li><a href="#most-voted" onclick="loadTopStations('most-voted')" data-ajax="false">Most Voted</a></li>
                 </ul>
               </div>
               <div id="most-played-tab">
                 <ul id="most-played" data-role="listview" data-inset="true">
                     <script>
-                        loadTopStations("most-played");
+                        //loadTopStations("most-played");
                     </script>
                 </ul>
               </div>
               <div id="most-voted-tab">
                 <ul id="most-voted" data-role="listview" data-inset="true">
                     <script>
-                         loadTopStations("most-voted");
+                         //loadTopStations("most-voted");
                     </script>
                 </ul>
               </div>
@@ -112,6 +112,5 @@
         </div><!-- /footer -->
     </div>
     </div>
-
 </body>
 </html>

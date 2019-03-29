@@ -767,6 +767,7 @@ void MainWindow::webViewLoaded(bool loaded){
     }
     if(pageType=="radio"){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("loadTopStations('most-played');");
     }
 
     if(pageType=="goto_album"){
@@ -1119,7 +1120,7 @@ void MainWindow::ytdlReadyRead(){
                 QString url_str = s_data.trimmed();
                 ((QLineEdit*)(url))->setText(url_str);
 
-                QProcess* senderProcess = qobject_cast<QProcess*>(sender()); // retrieve the button clicked
+                QProcess* senderProcess = qobject_cast<QProcess*>(sender());
                 senderProcess->kill();
 
                 QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(url_str.toUtf8())).queryItemValue("expire").trimmed();
@@ -1677,7 +1678,6 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
 }
 
 
-//TODO
 void MainWindow::saveTrack(QString format){
     Q_UNUSED(format);
     QString download_Path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/downloadedTracks/";

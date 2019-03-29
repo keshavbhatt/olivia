@@ -217,22 +217,35 @@ function showStations(query,queryType){
 }
 
 function loadTopStations(type){
-//topStations
-    $.ajax({
-       url: baseUrl+"list/top-stations.php",
-              type:"GET",
-               data:{
-                "type":type
-               },
-       success: function(html) {
-           if(type==="most-played"){
-                $("#most-played").html(html).listview("refresh");
+    if(paginator.isOffline("radio","loadTopStations",type)){
+        if(type==="most-played"){
+             var html_ = paginator.load("radio","loadTopStations",type);
+             $("#most-played").html(html_).listview("refresh");
+        }
+        if(type==="most-voted"){
+             var html = paginator.load("radio","loadTopStations",type);
+             $("#most-voted").html(html).listview("refresh");
+        }
+    }else{
+    //topStations
+        $.ajax({
+           url: baseUrl+"list/top-stations.php",
+                  type:"GET",
+                   data:{
+                    "type":type
+                   },
+           success: function(html) {
+               if(type==="most-played"){
+                    paginator.save("radio","loadTopStations",type,html);
+                    $("#most-played").html(html).listview("refresh");
+               }
+               if(type==="most-voted"){
+                    paginator.save("radio","loadTopStations",type,html);
+                    $("#most-voted").html(html).listview("refresh");
+               }
            }
-           if(type==="most-voted"){
-                $("#most-voted").html(html).listview("refresh");
-           }
-       }
-   });
+       });
+    }
 }
 
 function playStation(streamDetail){
