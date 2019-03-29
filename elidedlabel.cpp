@@ -25,7 +25,6 @@ void ElidedLabel::setText(const QString& txt) {
     QLabel::setText(txt);
     cacheElidedText(geometry().width());
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-
 }
 
 
