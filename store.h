@@ -42,6 +42,8 @@ public slots:
     QString getOfflineUrl(QString trackId);
     void removeFromCollection(QString);
     bool isInCollection(QString trackId);
+    QString getDominantColor(QString albumId);//was private before
+
 
 private slots:
     void initStore(QString dbName);
@@ -53,7 +55,6 @@ private slots:
     QString getAlbum(QString albumId);
     QString getThumbnail(QString artId);
     QString getYoutubeIds(QString trackId);
-    QString getDominantColor(QString albumId);
     QList<QStringList> getAllTracks();
     QList<QStringList> getAllAlbums();
     QStringList getAlbumDetails(QString albumId);
