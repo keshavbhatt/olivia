@@ -17,6 +17,7 @@
 
 .ui-mobile a img{
     height:100%;
+    max-width:144px;
 }
 
 /*transparent theme*/
@@ -41,8 +42,16 @@
   background: transparent !important;
 }
 
+#albums_result_view_page{
+  background: transparent !important;
+}
+
 /*list element*/
 #country {
+ background: transparent !important;
+}
+
+#country_2 {
  background: transparent !important;
 }
 

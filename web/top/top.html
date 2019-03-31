@@ -26,8 +26,8 @@
         <div data-role="tabs" id="tabs">
             <div data-role="navbar">
               <ul>
-                <li><a onclick="open_top_tracks()" id="tracks" >TOP TRACKS</a></li>
-                <li><a onclick="open_top_albums()" id="artists" >TOP ALBUMS</a></li>
+                <li><a onclick="$.mobile.changePage($('#top_tracks_page'));" >TOP TRACKS</a></li>
+                <li><a onclick="$.mobile.changePage($('#top_albums_page'));" >TOP ALBUMS</a></li>
               </ul>
             </div>
          </div> <!--tabs-->
@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <div id="track_result_view_page" data-role="page" data-theme="b" data-title="CHART VIEW">
+    <div id="track_result_view_page" data-role="page" data-theme="b" data-title="TOP TRACKS">
         <div role="main" class="ui-content">
             <!--load data here-->
         </div>
@@ -61,13 +61,32 @@
         </div><!-- /footer -->
     </div>
 
-    <div id="top_albums_page" data-role="page" data-theme="b" data-title="ARTISTS">
+    <div id="top_albums_page" data-role="page" data-theme="b" data-title="TOP ALBUMS">
         <div role="main" class="ui-content">
-        <ul class="list" id="top_albums_result" data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="false">
-        </ul>
-            <!--load data here-->
-           <!-- <script>open_artist_search()</script>-->
+        <h3>Select Country</h3>
+                <!-- search sites -->
+                <form class="ui-filterable">
+                <input id="rich-autocomplete-input_2" data-type="search" placeholder="Search country">
+                </form>
+                <ul id="countries_2" data-role="listview" data-filter="true" data-inset="true" data-input="#rich-autocomplete-input_2">
+                    <script>
+                    $.each( countries, function( title, code ) {
+                      $("#countries_2").append("<li id='country_2' onclick='get_top_albums(\""+$.trim(code)+"\")' data-filtertext='"+title+"'>"+title+"</li>");
+                    });
+                    </script>
+                </ul>
+            <ul class="list" id="top_albums_result" data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="false">
+            </ul>
         </div>
+    </div>
+
+    <div id="albums_result_view_page" data-role="page" data-theme="b" data-title="TOP ALBUMS">
+        <div role="main" class="ui-content">
+            <!--load data here-->
+        </div>
+        <div style="opacity:0.9" data-role="footer" data-position="fixed" data-tap-toggle="false">
+            <a style="display: block;background-color: rgba(36, 142, 179, 0.5)" onclick="$.mobile.changePage($('#top_albums_page'));" class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+        </div><!-- /footer -->
     </div>
 
     <div id="album_view_page" data-role="page" data-theme="b" data-title="ALBUMS VIEW">
@@ -75,7 +94,7 @@
             <!--load data here-->
         </div>
         <div style="opacity:0.9" data-role="footer" data-position="fixed" data-tap-toggle="false">
-            <a style="display: block;background-color: rgba(36, 142, 179, 0.5)" onclick="$.mobile.changePage($('#albums_page'));" class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all">Back to Albums</a>
+            <a style="display: block;background-color: rgba(36, 142, 179, 0.5)" onclick="$.mobile.changePage($('#albums_result_view_page'));" class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all">Back to Albums</a>
         </div><!-- /footer -->
     </div>
 

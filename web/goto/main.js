@@ -270,6 +270,19 @@ function gettrackinfo(searchterm){
     });
 }
 
+//called from album_view.php
+function setAlbumMeta(album,album_art,album_art_header,artist,tracks_count,copyright
+                     ,genere,release_date){
+    $.mobile.activePage.find("#ALBUM").text(album);
+    $.mobile.activePage.find("#ALBUM_ART").attr("src",album_art);
+    $.mobile.activePage.find("#HEADER_DIV").get(0).style.cssText=document.querySelector("#HEADER_DIV").style.cssText+"background: url('"+album_art_header+"');background-size: cover;";
+    $.mobile.activePage.find("#ARTIST").text(artist);
+    $.mobile.activePage.find("#TRACKS_COUNT").text(tracks_count);
+    $.mobile.activePage.find("#COPYRIGHT").text(copyright);
+    $.mobile.activePage.find("#PRIMARY_GENRE").text(genere);
+    $.mobile.activePage.find("#RELEASE_DATE").text(release_date);
+}
+
 
 
 
