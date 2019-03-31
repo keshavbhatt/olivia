@@ -107,6 +107,7 @@ function manual_youtube_search(term){
            }
        });
     }
+    $("#history_div").hide();
 }
 
 function toDataUrl(url, callback) {
@@ -271,6 +272,16 @@ function orderChanged(linkStr,pageType){
             $('#manul_youtube_page_suggestions').html("");
          }
         });
+}
+
+function load_history(){
+    var html = paginator.getList("youtube","manual_youtube_search");
+    if(html.length===0){
+        $("#history_div").hide();
+    }else{
+        $("#history_div").show();
+        $("#history").html(html);
+    }
 }
 
 

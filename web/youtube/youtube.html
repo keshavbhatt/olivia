@@ -26,17 +26,29 @@
 
     <div id="manul_youtube_page" data-role="page" data-theme="b" data-title="YOUTUBE SEARCH">
         <div role="main" class="ui-content">
-        <h3>Youtube Search</h3>
 
-        <input  type="search" id='manual_search' value='' placeholder="Your query...">
 
-        <ul   class="list" id="manul_youtube_page_suggestions"  data-filter="true" data-input="#manual_search"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
-        <!-- load suggestions here -->
-        </ul>
-
-            <div id="result_div">
-                <!-- load data here -->
+            <div data-role="header" class="ui-shadow ui-corner-all">
+                 <h1>Youtube Search</h1>
+                 <a id="home" onclick="$('#result_div').empty();load_history();$('#history_div').fadeIn()" class="ui-btn-left ui-btn ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext">Home</a>
             </div>
+
+
+            <input  type="search" id='manual_search' value='' placeholder="Your query...">
+            <ul   class="list" id="manul_youtube_page_suggestions"  data-filter="true" data-input="#manual_search"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
+            <!-- load suggestions here -->
+            </ul>
+                <div id="result_div">
+                    <!-- load data here -->
+                </div>
+
+            <div id="history_div">
+                <h5 style="margin: 2px 0px 5px 5px;" id="history_valid">Your recent searches:</h5>
+                <div id="history" class="ui-grid-b">
+                    <!--load data here-->
+                </div>
+            </div>
+
         </div>
     </div>
     
