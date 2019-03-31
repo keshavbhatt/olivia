@@ -17,6 +17,7 @@ public:
     Q_INVOKABLE bool isOffline(QString pageType, QString dataType, QString query);
     Q_INVOKABLE QString load(QString pageType, QString dataType, QString query);
     Q_INVOKABLE void deleteCache(QString pageType, QString dataType, QString query);
+    Q_INVOKABLE QString getList(QString page, QString dataType);
 
 signals:
     void reloadRequested(QString dataType,QString query);

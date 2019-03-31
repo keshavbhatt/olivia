@@ -3,6 +3,7 @@
 #include <QWebView>
 #include <QWebFrame>
 #include <QWebPage>
+#include <QFlag>
 
 paginator::paginator(QObject *parent) : QObject(parent)
 {
@@ -70,4 +71,34 @@ void paginator::deleteCache(QString pageType,QString dataType,QString query){
     QFile file(path+query.trimmed());
     file.remove();
     emit reloadRequested(dataType,query);
+}
+
+
+//load hostory
+
+//currently used to get youtube_history (recent searches)
+QString paginator::getList(QString page,QString dataType){
+    QStringList files;
+    files<<"fake-item"<<QDir(getPath(page,dataType,"")).entryList(QDir::Files,QDir::Time);
+
+    QString html;
+    int row=0;
+    int numberOfButtons=0;
+    QString col;
+    while (numberOfButtons<=files.count())
+    {
+        for (int f2=0; f2<3; f2++)
+        {   numberOfButtons++;
+            if (numberOfButtons>files.count()-1)
+                break;
+            if(f2==0) col = "a";
+            if(f2==1) col = "b";
+            if(f2==2) col = "c";
+            if(numberOfButtons>=10)
+                break;
+            html.append("<div class='ui-block-"+col+"'><a onclick='"+dataType+"(\""+files.at(numberOfButtons)+"\")' class='ui-shadow-icon ui-btn ui-shadow ui-corner-all ui-icon-clock ui-btn-icon-left ui-mini'>"+files.at(numberOfButtons)+"</a></div>");
+        }
+        row++;
+    }
+    return html;
 }

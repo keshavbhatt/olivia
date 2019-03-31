@@ -781,9 +781,14 @@ void MainWindow::webViewLoaded(bool loaded){
     }
 
     if( loaded && pageType == "youtube" && !youtubeSearchTerm.isEmpty()){
-        ui->webview->page()->mainFrame()->evaluateJavaScript("$('.ui-content').fadeOut('slow');$('#manual_search').val('"+youtubeSearchTerm+"');manual_youtube_search('"+youtubeSearchTerm+"');");
+        ui->webview->page()->mainFrame()->evaluateJavaScript("$('.ui-content').fadeOut('fast');$('#manual_search').val('"+youtubeSearchTerm+"');manual_youtube_search('"+youtubeSearchTerm+"');");
         youtubeSearchTerm.clear();
     }
+    if( loaded && pageType == "youtube" && youtubeSearchTerm.isEmpty()){
+        ui->webview->page()->mainFrame()->evaluateJavaScript("load_history()");
+        youtubeSearchTerm.clear();
+    }
+
     if(pageType=="search"){
         if(!ui->search->text().isEmpty() && loaded && !offsetstr.contains("offset")){
             ui->left_list->setCurrentRow(3);
