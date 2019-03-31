@@ -13,7 +13,7 @@ architectures:
 
 apps:
   olivia:
-    command: desktop-launch QT_STYLE_OVERRIDE=gtk olivia
+    command: desktop-launch olivia
     desktop: usr/share/applications/olivia.desktop
     plugs:
         - home
