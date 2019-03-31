@@ -1536,6 +1536,9 @@ void MainWindow::radioStatus(QString radioState){
         ui->play_pause->setEnabled(true);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
     }else if (radioState=="eof") {
+        ui->stop->setEnabled(false);
+        ui->play_pause->setEnabled(false);
+        ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
         if(ui->next->isEnabled()){
             ui->next->click();
         }
