@@ -45,5 +45,6 @@
         <file>web/youtube/main.js</file>
         <file>web/youtube/youtube.html</file>
         <file>web/js/jquery.mobile-1.4.5.min.map</file>
+        <file>web/top/top_charts.jpeg</file>
     </qresource>
 </RCC>
