@@ -230,17 +230,6 @@ $(document).ready(function($) {
     });
 });
 
-
-
-function capitalize(str) {
-    strVal = '';
-    str = str.split(' ');
-    for (var chr = 0; chr < str.length; chr++) {
-      strVal += str[chr].substring(0, 1).toUpperCase() + str[chr].substring(1, str[chr].length) + ' '
-    }
-    return strVal;
-}
-
 //  core functions -------------
 
 function open_album_search(){
@@ -270,21 +259,35 @@ function open_artist_search(){
 
 
 function get_top_tracks(country){
-     showLoading();
-     $.ajax({
-        url: baseUrl+"top_lists.php",
-               type:"GET",
-               data:{
-                    "con":country
-               },
-        success: function(html) {
-            $.mobile.loading("hide");
-            $.mobile.changePage($('#track_result_view_page'));
-            $("#track_result_view_page .ui-content").html(html);
-            $('#track_result_view_page .ui-content').trigger('create');
-            $('#track_result_view_page .ui-content').fadeIn('slow');
-        }
-    });
+    showLoading();
+    if(paginator.isOffline("top_lists","get_top_tracks",country)){
+        var html = paginator.load("top_lists","get_top_tracks",country);
+        $.mobile.loading("hide");
+        $.mobile.changePage($('#track_result_view_page'));
+        $("#track_result_view_page .ui-content").html(html);
+        $('#track_result_view_page .ui-content').trigger('create');
+        $('#track_result_view_page .ui-content').fadeIn('slow');
+    }else{
+        $.ajax({
+           url: baseUrl+"top_lists.php",
+                  type:"GET",
+                  data:{
+                       "con":country
+                  },
+           success: function(html) {
+               paginator.save("top_lists","get_top_tracks",country,html);
+
+               $.mobile.loading("hide");
+               $.mobile.changePage($('#track_result_view_page'));
+               $("#track_result_view_page .ui-content").html(html);
+               $('#track_result_view_page .ui-content').trigger('create');
+               $('#track_result_view_page .ui-content').fadeIn('slow');
+           }
+       });
+    }
+
+
+
 }
 
 
