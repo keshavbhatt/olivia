@@ -1599,10 +1599,9 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
     nowPlayingSongId = songId;
     QString setting_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     url = "file://"+setting_path+"/downloadedTracks/"+songId;
-    QVariant data = url+"=,="+title+"=,="+album+"=,="+artist+"=,="+base64;
-    playRadioFromWeb(data);
-    ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
-
+   // QVariant data = url+"=,="+title+"=,="+album+"=,="+artist+"=,="+base64;
+   // playRadioFromWeb(data);
+   // ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
 
     //if track is not in lists add it to queue
     if(!store_manager->isInQueue(songIdVar.toString())){
