@@ -102,3 +102,12 @@ QString paginator::getList(QString page,QString dataType){
     }
     return html;
 }
+
+//used to clear youtube search history
+void paginator::clearRecentSearches(){
+    QFileInfoList filesInfo;
+    filesInfo<<QDir(getPath("youtube","manual_youtube_search","")).entryInfoList(QDir::Files,QDir::Time);
+    foreach (QFileInfo fileName, filesInfo) {
+        QFile(fileName.filePath()).remove();
+    }
+}
