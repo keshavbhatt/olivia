@@ -1,12 +1,12 @@
+//include this lib after loading jquery
+
 $(document).bind("mobileinit", function(){
       $.mobile.defaultPageTransition = 'slidefade';
       $.mobile.defaultDialogTransition = 'pop';
       $.mobile.useFastClick = true;
 });
 
-
-//include this lib after loading jquery
-
+//add String.include protype for copatibility with older webkit versions
 if (!String.prototype.includes) {
     String.prototype.includes = function() {
         'use strict';
@@ -15,12 +15,8 @@ if (!String.prototype.includes) {
 }
 
 
-var themeColor; //sets the global themeColor for webview is accsible from all web
+var themeColor; //sets the global themeColor for webview is accessible from all web
 var NowPlayingTrackId;
-
-function func() {
-
-}
 
 function hideLoading(){
     $.mobile.loading("hide");
@@ -39,45 +35,193 @@ function changeBg(rgba){ // sets bg color var in mainwindow and changes bg color
     var b = arr[2];
     var a = arr[3];
     $("body").css("cssText","background-color:rgba("+rgba+") !important;");
-//    $(".ui-header-fixed .ui-btn").css("cssText","background-color:rgba("+rgba+") !important;");
-//    $("html .ui-bar-b .ui-btn.ui-btn-active").css("cssText","background-color:rgba("+r+','+g+','+b+','+'0.5'+") !important;"); // dark
     $(".ui-listview>.ui-li-divider").css("cssText","background-color:rgba("+rgba+") !important;");
-//    $(".ui-input-search.ui-body-inherit.ui-corner-all.ui-shadow-inset.ui-input-has-clear").css("cssText","background-color:rgba("+r+','+g+','+b+','+'0.4'+") !important;"); //dark
     mainwindow.setThemeColor(themeColor);
 }
 
 function setNowPlaying(songId){ //nowPlaying styles are in main.css
-    //removes all now playing
+    if(songId.length>0){
+        //removes all now playing
+        $(".nowPlaying").remove();
+        $.mobile.activePage.remove(".nowPlaying");
 
-    $(".nowPlaying").remove();
-    $.mobile.activePage.remove(".nowPlaying");
+        var songIdStr = "#"+songId;
 
-    var songIdStr = "#"+songId;
+        var maxWidth,width;
+        if($(songIdStr).css("max-width")!== "undefined"){
+            maxWidth = $(songIdStr).css("max-width");
+            width =$(songIdStr).width().toString();
+        }else{
+            maxWidth = "100";
+        }
+        //adds nowPlaying pages
+        $(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth.toString()+'px; width:'+width.toString()+'px;');
+        $(songIdStr).each(function( index ) {
+          $( this ).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
+        });
 
-    var maxWidth,width;
-    if($(songIdStr).css("max-width")!== "undefined"){
-        maxWidth = $(songIdStr).css("max-width");
-        width =$(songIdStr).width().toString();
-//        if(maxWidth>width){
-//            maxWidth = width;
-//        }
-    }else{
-        maxWidth = "100";
+        //for album [adds nowPlaying active page]
+        $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px;max-width:'+maxWidth.toString()+'px; width:'+width.toString()+'px;');
+        $.mobile.activePage.find(songIdStr).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
     }
-
-    //adds nowPlaying pages
-    $(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth.toString()+'px; width:'+width.toString()+'px;');
-    $(songIdStr).each(function( index ) {
-      $( this ).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
-    });
-
-    //for album [adds nowPlaying active page]
-    $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px;max-width:'+maxWidth.toString()+'px; width:'+width.toString()+'px;');
-    $.mobile.activePage.find(songIdStr).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
 }
 
+var countries = {
+    "Albania":"al",
+    "Algeria":"dz",
+    "Angola":"ao",
+    "Anguilla":"ai",
+    "Antigua and Barbuda":"ag",
+    "Argentina":"ar",
+    "Armenia":"am",
+    "Australia":"au",
+    "Austria":"at",
+    "Azerbaijan":"az",
+    "Bahamas":"bs",
+    "Bahrain":"bh",
+    "Barbados":"bb",
+    "Belarus":"by",
+    "Belgium":"be",
+    "Belize":"bz",
+    "Benin":"bj",
+    "Bermuda":"bm",
+    "Bhutan":"bt",
+    "Bolivia":"bo",
+    "Botswana":"bw",
+    "Brazil":"br",
+    "British Virgin Islands":"vg",
+    "Brunei Darussalam":"bn",
+    "Bulgaria":"bg",
+    "Burkina Faso":"bf",
+    "Cambodia":"kh",
+    "Canada":"ca",
+    "Cape Verde":"cv",
+    "Cayman Islands":"ky",
+    "Chad":"td",
+    "Chile":"cl",
+    "China":"cn",
+    "Colombia":"co",
+    "Congo, Republic of the":"cg",
+    "Costa Rica":"cr",
+    "Croatia":"hr",
+    "Cyprus":"cy",
+    "Czech Republic":"cz",
+    "Denmark":"dk",
+    "Dominica":"dm",
+    "Dominican Republic":"do",
+    "Ecuador":"ec",
+    "Egypt":"eg",
+    "El Salvador":"sv",
+    "Estonia":"ee",
+    "Fiji":"fj",
+    "Finland":"fi",
+    "France":"fr",
+    "Gambia":"gm",
+    "Germany":"de",
+    "Ghana":"gh",
+    "Greece":"gr",
+    "Grenada":"gd",
+    "Guatemala":"gt",
+    "Guinea-Bissau":"gw",
+    "Guyana":"gy",
+    "Honduras":"hn",
+    "Hong Kong":"hk",
+    "Hungary":"hu",
+    "Iceland":"is",
+    "India":"in",
+    "Indonesia":"id",
+    "Ireland":"ie",
+    "Israel":"il",
+    "Italy":"it",
+    "Jamaica":"jm",
+    "Japan":"jp",
+    "Jordan":"jo",
+    "Kazakhstan":"kz",
+    "Kenya":"ke",
+    "Korea, Republic Of":"kr",
+    "Kuwait":"kw",
+    "Kyrgyzstan":"kg",
+    "Lao, People's Democratic Republic":"la",
+    "Latvia":"lv",
+    "Lebanon":"lb",
+    "Liberia":"lr",
+    "Lithuania":"lt",
+    "Luxembourg":"lu",
+    "Macau":"mo",
+    "Macedonia":"mk",
+    "Madagascar":"mg",
+    "Malawi":"mw",
+    "Malaysia":"my",
+    "Mali":"ml",
+    "Malta":"mt",
+    "Mauritania":"mr",
+    "Mauritius":"mu",
+    "Mexico":"mx",
+    "Micronesia, Federated States of":"fm",
+    "Moldova":"md",
+    "Mongolia":"mn",
+    "Montserrat":"ms",
+    "Mozambique":"mz",
+    "Namibia":"na",
+    "Nepal":"np",
+    "Netherlands":"nl",
+    "New Zealand":"nz",
+    "Nicaragua":"ni",
+    "Niger":"ne",
+    "Nigeria":"ng",
+    "Norway":"no",
+    "Oman":"om",
+    "Pakistan":"pk",
+    "Palau":"pw",
+    "Panama":"pa",
+    "Papua New Guinea":"pg",
+    "Paraguay":"py",
+    "Peru":"pe",
+    "Philippines":"ph",
+    "Poland":"pl",
+    "Portugal":"pt",
+    "Qatar":"qa",
+    "Romania":"ro",
+    "Russia":"ru",
+    "Saudi Arabia":"sa",
+    "Senegal":"sn",
+    "Seychelles":"sc",
+    "Sierra Leone":"sl",
+    "Singapore":"sg",
+    "Slovakia":"sk",
+    "Slovenia":"si",
+    "Solomon Islands":"sb",
+    "South Africa":"za",
+    "Spain":"es",
+    "Sri Lanka":"lk",
+    "St. Kitts and Nevis":"kn",
+    "St. Lucia":"lc",
+    "St. Vincent and The Grenadines":"vc",
+    "Suriname":"sr",
+    "Swaziland":"sz",
+    "Sweden":"se",
+    "Switzerland":"ch",
+    "São Tomé and Príncipe":"st",
+    "Taiwan":"tw",
+    "Tajikistan":"tj",
+    "Tanzania":"tz",
+    "Thailand":"th",
+    "Trinidad and Tobago":"tt",
+    "Tunisia":"tn",
+    "Turkey":"tr",
+    "Turkmenistan":"tm",
+    "Turks and Caicos":"tc",
+    "Uganda":"ug",
+    "Ukraine":"ua",
+    "United Arab Emirates":"ae",
+    "United Kingdom":"gb",
+    "United States":"us",
+    "Uruguay":"uy",
+    "Uzbekistan":"uz",
+    "Venezuela":"ve",
+    "Vietnam":"vn",
+    "Yemen":"ye",
+    "Zimbabwe":"zw"
+}
 
-//function escape_str( str ) {
-//    return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
-//}
 
