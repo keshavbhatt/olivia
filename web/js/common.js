@@ -57,24 +57,23 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
     var maxWidth,width;
     if($(songIdStr).css("max-width")!== "undefined"){
         maxWidth = $(songIdStr).css("max-width");
-        width =$(songIdStr).width();
+        width =$(songIdStr).width().toString();
 //        if(maxWidth>width){
-            maxWidth = width;
+//            maxWidth = width;
 //        }
     }else{
-        maxWidth = "100px";
+        maxWidth = "100";
     }
 
     //adds nowPlaying pages
-    $(songIdStr).css("cssText","position: absolute;left: 0px;top: 0px;max-width:"+maxWidth+"; width:"+maxWidth+"; ");
+    $(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth.toString()+'px; width:'+width.toString()+'px;');
     $(songIdStr).each(function( index ) {
-      $( this ).before("<div style='max-width:"+maxWidth+"; width:"+maxWidth+";' class='nowPlaying'></div>");
+      $( this ).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
     });
 
     //for album [adds nowPlaying active page]
-    $.mobile.activePage.find(songIdStr).css("cssText","position: absolute;left: 0px;top: 0px;max-width:"+maxWidth+"; width:"+maxWidth+";");
-    $.mobile.activePage.find(songIdStr).before("<div style='max-width:"+maxWidth+"; width:"+maxWidth+";' class='nowPlaying'></div>");
-
+    $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px;max-width:'+maxWidth.toString()+'px; width:'+width.toString()+'px;');
+    $.mobile.activePage.find(songIdStr).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
 }
 
 
