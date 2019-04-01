@@ -20,6 +20,7 @@
 #include "seekslider.h"
 #include "settings.h"
 #include "paginator.h"
+#include "youtube.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -29,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     qApp->setQuitOnLastWindowClosed(true);
 
+
+
     init_app(); // #1
     init_webview();// #2
     init_offline_storage();//  #3
@@ -37,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_miniMode();
 
     checkEngine();
+
 
     //sets search icon in label
     ui->label_5->resize(ui->label_5->width(),ui->search->height());
@@ -168,7 +172,6 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 void MainWindow::init_settings(){
-
     settUtils = new settings(this);
     connect(settUtils,SIGNAL(dynamicTheme(bool)),this,SLOT(dynamicThemeChanged(bool)));
 
@@ -367,6 +370,9 @@ const QColor& SelectColorButton::getColor(){
 
 //set up app #1
 void MainWindow::init_app(){
+    //init youtube class
+    youtube = new Youtube(this);
+    connect(youtube,SIGNAL(setCountry(QString)),this,SLOT(setCountry(QString)));
 
     QSplitter *split1 = new QSplitter;
     split1->setObjectName("split1");
@@ -411,6 +417,14 @@ void MainWindow::init_app(){
 
 //    browse();
 
+}
+
+//used to set county settings in youtube right now
+void MainWindow::setCountry(QString country){
+    if(pageType=="youtube"){
+        ui->webview->page()->mainFrame()->findFirstElement("#currentCountry").setInnerXml(country);
+        ui->webview->page()->mainFrame()->findFirstElement("#home").evaluateJavaScript("this.click()");
+    }
 }
 
 //set up webview #2
@@ -781,11 +795,13 @@ void MainWindow::webViewLoaded(bool loaded){
     }
 
     if( loaded && pageType == "youtube" && !youtubeSearchTerm.isEmpty()){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->evaluateJavaScript("$('.ui-content').fadeOut('fast');$('#manual_search').val('"+youtubeSearchTerm+"');manual_youtube_search('"+youtubeSearchTerm+"');");
         youtubeSearchTerm.clear();
     }
     if( loaded && pageType == "youtube" && youtubeSearchTerm.isEmpty()){
-        ui->webview->page()->mainFrame()->evaluateJavaScript("load_history()");
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("load_history();");
         youtubeSearchTerm.clear();
     }
 
@@ -1515,7 +1531,7 @@ void MainWindow::resizeEvent(QResizeEvent *resizeEvent){
 }
 
 void MainWindow::showAjaxError(){
-    qDebug()<<"NETWORK ERROR";
+    qDebug()<<"NETWORK ERROR OR USER CANCELED REQUEST";
 }
 
 //returns theme color from common.js
@@ -1625,7 +1641,7 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
                 ui->right_list->setCurrentRow(i);
                 listItemDoubleClicked(ui->right_list,ui->right_list->item(i));
                 ui->right_list->scrollToItem(ui->right_list->item(i));
-                 break;
+                break;
             }
         }
         for (int i= 0;i<ui->right_list_2->count();i++) {

@@ -16,12 +16,12 @@
 
 .ui-listview .ui-li-has-thumb>.ui-btn>img:first-child{
     max-height:100%;
-    max-width:144px;
+    max-width:250px;
 }
 
 .ui-mobile a img{
     height:100%;
-    max-width:144px;
+    max-width:250px;
 }
 
 /*transparent theme*/
@@ -118,5 +118,14 @@ padding:0px;
     background-color: rgba(26, 152, 199, 0.47);
 }
 
+.ui-icon-loading{
+/*    background:url("qrc://///web/css/images/ajax-loader.gif")*/
+}
 
+#select-custom-14-button{
+    padding: 8px;
+}
 
+.ui-select {
+    margin: -5px 0px;
+}

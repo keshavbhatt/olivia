@@ -23,15 +23,16 @@
     <img style="display:none;" src="" id="coverImage" />
 
     <div class="ui-loader-background"> </div>
+    <div data-role="header" data-theme="b">
+         <h1>Youtube Search</h1>
+         <a id="home" onclick="$('#result_div').empty();load_history();$('#history_div').fadeIn();$('#trending_div').show();" class="ui-btn-left ui-btn ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext">Home</a>
+         <a id="settings" href="#settingsDialog" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn-right ui-btn ui-shadow ui-corner-all ui-icon-gear ui-btn-icon-notext">Settings</a>
+    </div>
 
     <div id="manul_youtube_page" data-role="page" data-theme="b" data-title="YOUTUBE SEARCH">
         <div role="main" class="ui-content">
 
 
-            <div data-role="header" class="ui-shadow ui-corner-all">
-                 <h1>Youtube Search</h1>
-                 <a id="home" onclick="$('#result_div').empty();load_history();$('#history_div').fadeIn()" class="ui-btn-left ui-btn ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext">Home</a>
-            </div>
 
 
             <input  type="search" id='manual_search' value='' placeholder="Your query...">
@@ -42,6 +43,8 @@
                     <!-- load data here -->
                 </div>
 
+            <hr>
+
             <div id="history_div">
                 <h5 style="margin: 2px 0px 5px 5px;" id="history_valid">Your recent searches:</h5>
                 <div id="history" class="ui-grid-b">
@@ -49,6 +52,43 @@
                 </div>
             </div>
 
+            <hr>
+
+            <div id="trending_div">
+                <h5 style="margin: 2px 0px 5px 5px;" id="history_valid">Trending Music :</h5>
+                <div id="trending">
+                    <!--load data here-->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<!--settings dialog below-->
+    <div data-role="popup" id="settingsDialog" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">
+        <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+        <div class="ui-bar ui-bar-b" >
+            <h4>Youtube Settings - Olivia</h4>
+        </div>
+        <div role="main" class="ui-content"> 
+            <p>Selected Country :</p>
+                <span id="currentCountry"></span>
+            <hr style="margin: 12px 0px;">
+            <p>Change Country :</p>
+            <!-- search sites -->
+            <form class="ui-filterable">
+            <input id="rich-autocomplete-input_2" data-type="search" placeholder="Search country">
+            </form>
+            <ul id="countries_2" data-filter-reveal="true" data-role="listview" data-filter="true" data-inset="false" data-input="#rich-autocomplete-input_2">
+                <script>
+                $.each( countries, function( title, code ) {
+                  $("#countries_2").append("<li onclick='youtube.saveGeo(\""+$.trim(code)+"\");$(this).siblings().addBack().addClass(\"ui-screen-hidden\")' data-filtertext='"+title+"'>"+title+"</li>");
+                });
+                </script>
+            </ul>
+            <hr style="margin-top: 30px;">
+            <p>Clear recent searches :</p>
+            <a data-mini="true" onclick="paginator.clearRecentSearches();" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-icon-delete ui-btn-icon-left" data-transition="flow">Clear</a>
         </div>
     </div>
     

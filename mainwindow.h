@@ -64,9 +64,11 @@
 #include "onlinesearchsuggestion.h"
 #include "settings.h"
 #include "paginator.h"
+#include "youtube.h"
 
 #include "ui_settings.h"
 #include "ui_minimode.h"
+
 
 
 namespace Ui {
@@ -194,6 +196,7 @@ private slots:
 
     void setWavefrom(QString urlStr);
     void on_radioSeekSlider_valueChanged(int value);
+    void setCountry(QString country);
 private:
 
     float zoom;
@@ -207,6 +210,7 @@ private:
     Ui::settings settingsUi;
     QWidget *settingsWidget;
     settings *settUtils;
+    Youtube *youtube;
 
    // QSettings * settings;
     QString pageType;

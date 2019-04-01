@@ -107,6 +107,7 @@ function manual_youtube_search(term){
            }
        });
     }
+    $("#trending_div").hide();
     $("#history_div").hide();
 }
 
@@ -176,23 +177,21 @@ function gettrackinfo(searchterm){
 
 function setManualSearchVal(text){
     $("#manual_search").val(text);
-    $( "#manul_youtube_page_suggestions" ).empty();
+    $("#manual_search").focus();
+    $("#manul_youtube_page_suggestions" ).empty();
 }
 
 
-
 $(document).on("pagebeforeshow","#manul_youtube_page",function(){
-    $('#manual_search').unbind();
 
-    $('#manual_search').keypress(function(event){
+    $('#manual_search').keydown(function(event){
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
             manual_youtube_search($(this).val());
+            event.preventDefault();
         }
     });
 });
-
-
 
 
 $( document ).on( "pagecreate", "#manul_youtube_page", function() {
@@ -282,6 +281,58 @@ function load_history(){
         $("#history_div").show();
         $("#history").html(html);
     }
+    if(youtube.getCurrentCountry().length>0){
+         $('#currentCountry').text(youtube.getCurrentCountry());
+    }else{
+        getCountry();
+    }
+    //get trending
+    youtube_trending(youtube.getCurrentCountry());
 }
 
+function youtube_trending(country){
+    $("#trending").fadeOut("slow");
+    $.ajax({
+       url: baseUrl+"youtube_trending.php",
+              type:"GET",
+              data:{
+                   "country":country
+              },
+       success: function(html) {
+           $.mobile.loading("hide");
 
+           $("#trending").html("");
+           $("#trending").html(html);
+           $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
+       }
+   });
+}
+
+$(document).on('click', '#trendingNavBtn', function() {
+    showLoading();
+    $("#trending").fadeOut("slow");
+    var linkStr = $(this).attr("data-link");
+
+    $.ajax({
+        type: "GET",
+        url: baseUrl+"youtube_trending.php",
+        data: {
+            nav : linkStr+"&region="+youtube.getCurrentCountry()
+        },
+        success: function(html) {
+            $.mobile.loading("hide");
+            $("#trending").fadeOut("slow");
+            $("#trending").html("");
+            $("#trending").html(html);
+            $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
+         }
+        });
+});
+
+
+
+function getCountry(){
+    $.get("https://ipinfo.io", function(response) {
+        youtube.saveGeo(response.country);
+    }, "jsonp");
+}
