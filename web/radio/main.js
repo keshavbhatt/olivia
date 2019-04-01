@@ -211,10 +211,14 @@ function loadTopStations(type){
         if(type==="most-played"){
              var html_ = paginator.load("radio","loadTopStations",type);
              $("#most-played").html(html_).listview("refresh");
+             $("#most-played-tab-anchor").attr("style","background-color: rgba(26, 152, 199, 0.67) !important;border-color:transparent !important;");
+             $("#most-voted-tab-anchor").attr("style","");
         }
         if(type==="most-voted"){
              var html = paginator.load("radio","loadTopStations",type);
              $("#most-voted").html(html).listview("refresh");
+             $("#most-voted-tab-anchor").attr("style","background-color: rgba(26, 152, 199, 0.67) !important;border-color:transparent !important;");
+             $("#most-played-tab-anchor").attr("style","");
         }
     }else{
     //topStations
@@ -228,10 +232,14 @@ function loadTopStations(type){
                if(type==="most-played"){
                     paginator.save("radio","loadTopStations",type,html);
                     $("#most-played").html(html).listview("refresh");
+                    $("#most-played-tab-anchor").attr("style","background-color: rgba(26, 152, 199, 0.67) !important;border-color:transparent !important;")
+                    $("#most-voted-tab-anchor").attr("style","");
                }
                if(type==="most-voted"){
                     paginator.save("radio","loadTopStations",type,html);
                     $("#most-voted").html(html).listview("refresh");
+                    $("#most-voted-tab-anchor").attr("style","background-color: rgba(26, 152, 199, 0.67) !important;border-color:transparent !important;");
+                    $("#most-played-tab-anchor").attr("style","");
                }
            }
        });

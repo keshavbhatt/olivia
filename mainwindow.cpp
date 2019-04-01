@@ -766,7 +766,7 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->evaluateJavaScript("open_saved_artists();");
     }
     if(pageType=="radio"){
-        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
+        qDebug()<<"radio";
         ui->webview->page()->mainFrame()->evaluateJavaScript("loadTopStations('most-played');");
     }
 

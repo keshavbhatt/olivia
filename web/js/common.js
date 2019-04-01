@@ -54,9 +54,13 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
 
     var songIdStr = "#"+songId;
 
-    var maxWidth;
+    var maxWidth,width;
     if($(songIdStr).css("max-width")!== "undefined"){
         maxWidth = $(songIdStr).css("max-width");
+        width =$(songIdStr).width();
+//        if(maxWidth>width){
+            maxWidth = width;
+//        }
     }else{
         maxWidth = "100px";
     }
