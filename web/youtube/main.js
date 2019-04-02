@@ -329,8 +329,6 @@ $(document).on('click', '#trendingNavBtn', function() {
         });
 });
 
-
-
 function getCountry(){
     $.get("https://ipinfo.io", function(response) {
         youtube.saveGeo(response.country);
