@@ -26,9 +26,9 @@ void paginator::save(QString pageType,QString dataType,QString query,QString dat
     QTextStream out(&file);
     QString loadOnlineBtn;
     if(pageType=="album_view"){
-        loadOnlineBtn  = "<a  class='ui-shadow-icon ui-btn ui-shadow ui-corner-all ui-icon-clock ui-btn-icon-left' href='#' onclick='paginator.deleteCache(\""+pageType+"\",\""+dataType+"\",\""+query+"\")'> showing old snapshot("+QDateTime::currentDateTime().toLocalTime().toString()+") Refresh</a>";
+        loadOnlineBtn  = "<a style='padding-top: 7px;margin: 11px 0px;' class='ui-shadow-icon ui-btn ui-shadow ui-corner-all ui-icon-clock ui-btn-icon-left' href='#' onclick='paginator.deleteCache(\""+pageType+"\",\""+dataType+"\",\""+query+"\")'> showing old snapshot("+QDateTime::currentDateTime().toLocalTime().toString()+") Refresh</a>";
     }else{
-        loadOnlineBtn  = "<a  class='ui-shadow-icon ui-btn ui-shadow ui-corner-all ui-icon-clock ui-btn-icon-left' href='#' onclick='paginator.deleteCache(\""+pageType+"\",\""+dataType+"\",\""+query+"\")'> showing old snapshot("+QDateTime::currentDateTime().toLocalTime().toString()+") Refresh</a>";
+        loadOnlineBtn  = "<a style='padding-top: 7px;margin: 11px 0px;' class='ui-shadow-icon ui-btn ui-shadow ui-corner-all ui-icon-clock ui-btn-icon-left' href='#' onclick='paginator.deleteCache(\""+pageType+"\",\""+dataType+"\",\""+query+"\")'> showing old snapshot("+QDateTime::currentDateTime().toLocalTime().toString()+") Refresh</a>";
     }
     out <<loadOnlineBtn<< data.trimmed();
 }
