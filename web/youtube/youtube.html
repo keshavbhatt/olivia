@@ -23,7 +23,7 @@
     <img style="display:none;" src="" id="coverImage" />
 
     <div class="ui-loader-background"> </div>
-    <div data-role="header" data-theme="b">
+    <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false'>
          <h1>Youtube Search</h1>
          <a id="home" onclick="$('#result_div').empty();load_history();$('#history_div').fadeIn();$('#trending_div').show();" class="ui-btn-left ui-btn ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext">Home</a>
          <a id="settings" href="#settingsDialog" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn-right ui-btn ui-shadow ui-corner-all ui-icon-gear ui-btn-icon-notext">Settings</a>
@@ -50,9 +50,10 @@
                 <div id="history" class="ui-grid-b">
                     <!--load data here-->
                 </div>
+                <hr>
             </div>
 
-            <hr>
+
 
             <div id="trending_div">
                 <h5 style="margin: 2px 0px 5px 5px;" id="history_valid">Trending Music :</h5>
