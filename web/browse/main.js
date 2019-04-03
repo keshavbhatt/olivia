@@ -12,9 +12,7 @@ $(document).bind("mobileinit", function(){
 $(function() {
     $( "[data-role='navbar']" ).navbar();
     $( "[data-role='header']" ).toolbar();
- });
-
-
+});
 
 
 
@@ -37,36 +35,34 @@ $( document ).on( "pageshow", "[data-role='page']", function() {
 });
 
 function showLoading() {
-        $.mobile.loading("show", {
-            text: "Loading..",
-            textVisible: true,
-            theme: "b",
-            overlay: true
-        });
-    }
+    $.mobile.loading("show", {
+        text: "Loading..",
+        textVisible: false,
+        theme: "b",
+        overlay: true
+    });
+}
 
 
 
-//  onclicks functions
-
+//onclicks functions
 $(document).on("click","#overview",function(){
     overview();
 });
 
 
 //  core functions -------------
-
 function overview(){
-    $.mobile.loading("show");
     showLoading();
     $('#overview_page .ui-content').fadeOut('slow');
     $.ajax({
         url: baseUrl+"overview.php",
         success: function(html) {
             $.mobile.loading("hide");
+            $('#overview_page .ui-content').fadeOut('slow');
+            $('#overview_page .ui-content').html('');
             $('#overview_page .ui-content').html(html);
-            $('#overview_page .ui-content').trigger('create');
-            $('#overview_page .ui-content').fadeIn('slow');
+            $('#overview_page .ui-content').trigger('create').fadeIn('slow');
         }
     });
 }
