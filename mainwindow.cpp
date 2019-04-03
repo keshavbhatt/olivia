@@ -429,6 +429,9 @@ void MainWindow::setCountry(QString country){
 
 //set up webview #2
 void MainWindow::init_webview(){
+
+
+
     connect(ui->webview,SIGNAL(loadFinished(bool)),this,SLOT(webViewLoaded(bool)));
 
     //websettings---------------------------------------------------------------
@@ -441,15 +444,20 @@ void MainWindow::init_webview(){
     }else{
        cookieJarPath  =  setting_path+"cookiejar_olivia.dat";
     }
+
+    #ifdef QT_DEBUG
+      QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    #else
+      QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, false);
+      ui->webview->setContextMenuPolicy(Qt::NoContextMenu);
+    #endif
     ui->webview->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     ui->webview->settings()->enablePersistentStorage(setting_path);
-    QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+
     QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, false);
-
     ui->webview->page()->settings()->setMaximumPagesInCache(0);
     ui->webview->page()->settings()->setAttribute(QWebSettings::PluginsEnabled, false);
-
     QNetworkDiskCache* diskCache = new QNetworkDiskCache(this);
     diskCache->setCacheDirectory(setting_path);
     ui->webview->page()->networkAccessManager()->setCache(diskCache);
