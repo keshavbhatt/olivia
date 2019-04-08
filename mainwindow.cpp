@@ -675,6 +675,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
             return true;
     }
 
+    if ((obj ==  ui->top_widget || ui->label_6) &&
+        (event->type() == QEvent::MouseButtonDblClick)) {
+            const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
+            if (me->button() == Qt::LeftButton) {
+                if(this->isMaximized()){
+                    this->setWindowState(Qt::WindowNoState);
+                }else{
+                    this->setWindowState(Qt::WindowMaximized);
+                }
+                event->accept();
+            }
+            return true;
+    }
     return obj->eventFilter(obj, event);
 }
 
@@ -750,6 +763,10 @@ void MainWindow::closeEvent(QCloseEvent *event){
     settingsObj.setValue("geometry",saveGeometry());
     settingsObj.setValue("windowState", saveState());
     settingsObj.setValue("volume",radio_manager->volume);
+    if(ytdlProcess!=nullptr && ytdlQueue.count()>0){
+        ytdlQueue.clear();
+        ytdlProcess->close();
+    }
     radio_manager->killRadioProcess(); //kill radio and all other processes
     qApp->quit();
     QMainWindow::closeEvent(event);
