@@ -80,7 +80,7 @@ DATADIR = /usr/share
 
 target.path = $$BINDIR
 
-icon.files = com.github.Bleuzen.FFaudioConverter.png
+icon.files = olivia.png
 icon.path = $$DATADIR/icons/hicolor/512x512/apps/
 
 desktop.files = olivia.desktop
