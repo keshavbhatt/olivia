@@ -53,7 +53,7 @@ With all build requirements in place go to project root and execute:
 
 Build:
 
-    qmake
+    qmake (or qmake-qt5, depending on your distro)
     make
     
 Execute :
