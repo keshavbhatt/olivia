@@ -1067,10 +1067,7 @@ background-color: transparent;</string>
                <item>
                 <widget class="QTabWidget" name="tabWidget">
                  <property name="styleSheet">
-                  <string notr="true">QTabWidget#tabWidget{
-		background-color: transparent;
-}
-</string>
+                  <string notr="true"/>
                  </property>
                  <property name="tabPosition">
                   <enum>QTabWidget::North</enum>
@@ -1079,7 +1076,7 @@ background-color: transparent;</string>
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>2</number>
                  </property>
                  <property name="documentMode">
                   <bool>false</bool>
@@ -1313,6 +1310,11 @@ QScrollBar:vertical {
                     </widget>
                    </item>
                   </layout>
+                 </widget>
+                 <widget class="QWidget" name="tab_3">
+                  <attribute name="title">
+                   <string>Tasks</string>
+                  </attribute>
                  </widget>
                 </widget>
                </item>
