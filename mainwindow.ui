@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1067</width>
-    <height>474</height>
+    <height>476</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -238,8 +238,8 @@ border-radius:0px;</string>
             </property>
             <property name="maximumSize">
              <size>
-              <width>24</width>
-              <height>24</height>
+              <width>20</width>
+              <height>20</height>
              </size>
             </property>
             <property name="focusPolicy">
@@ -261,8 +261,8 @@ background-color: transparent;</string>
             </property>
             <property name="iconSize">
              <size>
-              <width>18</width>
-              <height>18</height>
+              <width>20</width>
+              <height>20</height>
              </size>
             </property>
            </widget>
@@ -1067,7 +1067,10 @@ background-color: transparent;</string>
                <item>
                 <widget class="QTabWidget" name="tabWidget">
                  <property name="styleSheet">
-                  <string notr="true"/>
+                  <string notr="true"> 
+	background-color: rgb(239, 235, 231);
+
+</string>
                  </property>
                  <property name="tabPosition">
                   <enum>QTabWidget::North</enum>
@@ -1078,7 +1081,16 @@ background-color: transparent;</string>
                  <property name="currentIndex">
                   <number>2</number>
                  </property>
+                 <property name="elideMode">
+                  <enum>Qt::ElideNone</enum>
+                 </property>
+                 <property name="usesScrollButtons">
+                  <bool>false</bool>
+                 </property>
                  <property name="documentMode">
+                  <bool>false</bool>
+                 </property>
+                 <property name="tabBarAutoHide">
                   <bool>false</bool>
                  </property>
                  <widget class="QWidget" name="tab">
@@ -1312,9 +1324,88 @@ QScrollBar:vertical {
                   </layout>
                  </widget>
                  <widget class="QWidget" name="tab_3">
+                  <attribute name="icon">
+                   <iconset resource="icons.qrc">
+                    <normaloff>:/icons/sidebar/tasks.png</normaloff>:/icons/sidebar/tasks.png</iconset>
+                  </attribute>
                   <attribute name="title">
                    <string>Tasks</string>
                   </attribute>
+                  <layout class="QVBoxLayout" name="verticalLayout_12">
+                   <property name="spacing">
+                    <number>6</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>4</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>2</number>
+                   </property>
+                   <item>
+                    <widget class="QGroupBox" name="stream_info">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="title">
+                      <string>Stream Info Process Operations</string>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_13">
+                      <item>
+                       <widget class="QLabel" name="ytdlQueueLabel">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>.</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="ytdlStopAll">
+                        <property name="text">
+                         <string>Stop all (does nothing ryt now)</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="ytdlRefreshAll">
+                        <property name="text">
+                         <string>Refresh all tracks (does nothing ryt now)</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="verticalSpacer_3">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
                  </widget>
                 </widget>
                </item>

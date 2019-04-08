@@ -330,15 +330,27 @@ void MainWindow::set_app_theme(QColor rgb){
     ui->right_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
     ui->right_list_2->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
 
-
     miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
 
     ui->search->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
     ui->label_5->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
 
     settingsWidget->setStyleSheet("QWidget#settingsWidget{"+widgetStyle+"}");
+    ui->tabWidget->setStyleSheet("QTabWidget#tabWidget{"+widgetStyle+"}"); //to remove style set by designer
 
+    ui->stream_info->setStyleSheet("QWidget#stream_info{"+widgetStyle+"}"); //to remove style set by designer
 
+   QString btn_style ="QPushButton{color: silver; background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 3px; padding-right: 3px; border-radius: 2px; outline: none;}"
+   "QPushButton:disabled { background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; /*border-radius: 2px;*/ color: #636363;}"
+   "QPushButton:hover{border: 1px solid #272727;background-color:#5A584F; color:silver ;}"
+   "QPushButton:pressed {background-color: #45443F;color: silver;padding-bottom:1px;}";
+
+    ui->ytdlRefreshAll->setStyleSheet(btn_style);
+    ui->ytdlStopAll->setStyleSheet(btn_style);
+
+    settingsUi.download_engine->setStyleSheet(btn_style);
+    settingsUi.plus->setStyleSheet(btn_style);
+    settingsUi.minus->setStyleSheet(btn_style);
 }
 
 void MainWindow::customColor(){
@@ -415,7 +427,6 @@ void MainWindow::init_app(){
     ui->title_horizontalLayout->addWidget(title);
     ui->artist_horizontalLayout->addWidget(artist);
     ui->album_horizontalLayout->addWidget(album);
-
 //    browse();
 
 }
@@ -1113,6 +1124,7 @@ void MainWindow::getAudioStream(QString ytIds,QString songId){
 void MainWindow::processYtdlQueue(){
 
     if(ytdlQueue.count()>0){
+        ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
         QString ytIds = QString(ytdlQueue.at(0).at(0).split(",").first());
         QString songId = QString(ytdlQueue.at(0).at(1).split(",").last());
 
@@ -1134,6 +1146,8 @@ void MainWindow::processYtdlQueue(){
                 connect(ytdlProcess,SIGNAL(readyRead()),this,SLOT(ytdlReadyRead()));
                 connect(ytdlProcess,SIGNAL(finished(int)),this,SLOT(ytdlFinished(int)));
         }
+    }else{
+        ui->ytdlQueueLabel->setText("Idle");
     }
 }
 
