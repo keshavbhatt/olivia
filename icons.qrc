@@ -53,5 +53,6 @@
         <file>icons/olivia_bw_flat.png</file>
         <file>icons/olivia_mini_icon.png</file>
         <file>icons/others/blankWave.png</file>
+        <file>icons/sidebar/tasks.png</file>
     </qresource>
 </RCC>
