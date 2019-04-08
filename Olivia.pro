@@ -80,10 +80,10 @@ DATADIR = /usr/share
 
 target.path = $$BINDIR
 
-icon.files = olivia.png
+icon.files = icons/olivia.png
 icon.path = $$DATADIR/icons/hicolor/512x512/apps/
 
-desktop.files = icons/olivia.desktop
+desktop.files = olivia.desktop
 desktop.path = $$DATADIR/applications/
 
 INSTALLS += target icon desktop
