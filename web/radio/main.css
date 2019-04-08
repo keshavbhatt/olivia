@@ -112,7 +112,7 @@ background: transparent !important;
     z-index: 1;
     background: url("qrc:///icons/p_play.png") no-repeat center;
     background-size: 35%;
-    background-color: rgba(26, 152, 199, 0.47);
+    background-color: rgba(42, 42, 42, 0.49);
 }
 
 
