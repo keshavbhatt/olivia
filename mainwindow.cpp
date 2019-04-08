@@ -61,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->radioVolumeSlider->setValue(100);
     saveTracksAfterBuffer = settingsObj.value("saveAfterBuffer","true").toBool();
+    ui->radioVolumeSlider->setValue(settingsObj.value("volume","100").toInt());
     radio_manager = new radio(this,ui->radioVolumeSlider->value(),saveTracksAfterBuffer);
 
     connect(radio_manager,SIGNAL(radioStatus(QString)),this,SLOT(radioStatus(QString)));
@@ -748,6 +749,7 @@ void MainWindow::quitApp(){
 void MainWindow::closeEvent(QCloseEvent *event){
     settingsObj.setValue("geometry",saveGeometry());
     settingsObj.setValue("windowState", saveState());
+    settingsObj.setValue("volume",radio_manager->volume);
     radio_manager->killRadioProcess(); //kill radio and all other processes
     qApp->quit();
     QMainWindow::closeEvent(event);
@@ -1123,6 +1125,7 @@ void MainWindow::ytdlFinished(int code){
     ytdlProcess = nullptr;
     if(ytdlQueue.count()>0){
         qDebug()<<"YoutubedlQueueSize:"<<ytdlQueue.count();
+
         processYtdlQueue();
     }
 }
@@ -1566,6 +1569,8 @@ void MainWindow::radioStatus(QString radioState){
         if(ui->next->isEnabled()){
             ui->next->click();
         }
+        //remove nowplaying from central widget
+        ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('0000000')");
     }
     else if(radioState=="stopped"){
         ui->stop->setEnabled(false);
@@ -1666,14 +1671,15 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
 }
 
 void MainWindow::playRadioFromWeb(QVariant streamDetails){
-    QString url,title,country,language,base64;
+    QString url,title,country,language,base64,stationId;
     QStringList list = streamDetails.toString().split("=,=");
-    url = list.at(0);
-    title = list.at(1);
-    country = list.at(2);
-    language = list.at(3);
-    if(list.count()>4){
-        base64 = list.at(4);
+    stationId = list.at(0);
+    url = list.at(1);
+    title = list.at(2);
+    country = list.at(3);
+    language = list.at(4);
+    if(list.count()>5){
+        base64 = list.at(5);
         base64 = base64.split("base64,").last();
         QByteArray ba = base64.toUtf8();
         QPixmap image;
@@ -1698,6 +1704,7 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
     //always false as we don't want record radio for now
     saveTracksAfterBuffer=false;
     radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url.trimmed()));
+    ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+stationId+"')");
 
     //clear playing icon from player queue
     for (int i= 0;i<ui->right_list->count();i++) {
