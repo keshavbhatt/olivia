@@ -83,7 +83,7 @@ target.path = $$BINDIR
 icon.files = olivia.png
 icon.path = $$DATADIR/icons/hicolor/512x512/apps/
 
-desktop.files = olivia.desktop
+desktop.files = icons/olivia.desktop
 desktop.path = $$DATADIR/applications/
 
 INSTALLS += target icon desktop
