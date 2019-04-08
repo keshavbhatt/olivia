@@ -8,15 +8,14 @@ QT       += core gui webkit webkitwidgets sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = olivia
 TEMPLATE = app
-INSTALLS += target
-target.path = /usr/bin
 
-desktop.path = /usr/share/applications/
-desktop.files = olivia.desktop
+# Set program name
+TARGET = olivia
 
-INSTALLS += desktop
+# Set program version
+VERSION = 0.0.1
+DEFINES += VERSIONSTR=\\\"$${VERSION}\\\"
 
 CONFIG += c++11
 
@@ -74,3 +73,17 @@ RESOURCES += \
     darkstyle.qrc \
     icons.qrc \
     web.qrc
+    
+# Deployment
+BINDIR = /usr/bin
+DATADIR = /usr/share
+
+target.path = $$BINDIR
+
+icon.files = icons/olivia.png
+icon.path = $$DATADIR/icons/hicolor/512x512/apps/
+
+desktop.files = olivia.desktop
+desktop.path = $$DATADIR/applications/
+
+INSTALLS += target icon desktop
