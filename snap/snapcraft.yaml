@@ -5,7 +5,7 @@ description: |
   Olivia is a online/offline cloud based music player like iTunes, Spotify etc,Olivia allows you to search any music online stream it, you can set player to cache your streams while playback. Olivia lets you create and manage your music library.
 grade: stable
 confinement: strict
-icon: usr/share/icons/hicolor/512x512/apps/olivia.png
+icon: snap/gui/olivia.png
 
 architectures:
   - build-on: amd64
