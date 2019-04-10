@@ -30,8 +30,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     qApp->setQuitOnLastWindowClosed(true);
 
-
-
     init_app(); // #1
     init_webview();// #2
     init_offline_storage();//  #3
@@ -172,6 +170,25 @@ MainWindow::MainWindow(QWidget *parent) :
     loadSettings();
 }
 
+void MainWindow::closeEvent(QCloseEvent *event){
+    settingsObj.setValue("geometry",saveGeometry());
+    settingsObj.setValue("windowState", saveState());
+    settingsObj.setValue("volume",radio_manager->volume);
+    if(ytdlProcess!=nullptr && ytdlQueue.count()>0){
+        ytdlQueue.clear();
+        ytdlProcess->close();
+    }
+    radio_manager->quitRadio();
+    radio_manager->killRadioProcess();
+    radio_manager->deleteLater();
+    QMainWindow::closeEvent(event);
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
 void MainWindow::init_settings(){
     settUtils = new settings(this);
     connect(settUtils,SIGNAL(dynamicTheme(bool)),this,SLOT(dynamicThemeChanged(bool)));
@@ -211,7 +228,6 @@ void MainWindow::init_settings(){
 
     settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
     add_colors_to_color_widget();
-
 }
 
 void MainWindow::dynamicThemeChanged(bool enabled){
@@ -761,33 +777,14 @@ void MainWindow::on_stop_clicked()
 
 
 //NETWORK
-void MainWindow::quitApp(){
-    settingsObj.setValue("geometry",saveGeometry());
-    settingsObj.setValue("windowState", saveState());
-    radio_manager->quitRadio();
-    radio_manager->killRadioProcess();
-    radio_manager->deleteProcess(0);
-    radio_manager->deleteLater();
-}
-
-void MainWindow::closeEvent(QCloseEvent *event){
-    settingsObj.setValue("geometry",saveGeometry());
-    settingsObj.setValue("windowState", saveState());
-    settingsObj.setValue("volume",radio_manager->volume);
-    if(ytdlProcess!=nullptr && ytdlQueue.count()>0){
-        ytdlQueue.clear();
-        ytdlProcess->close();
-    }
-    radio_manager->killRadioProcess(); //kill radio and all other processes
-    qApp->quit();
-    QMainWindow::closeEvent(event);
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-
+//void MainWindow::quitApp(){
+//    settingsObj.setValue("geometry",saveGeometry());
+//    settingsObj.setValue("windowState", saveState());
+//    radio_manager->quitRadio();
+//  //  radio_manager->killRadioProcess();
+//    radio_manager->deleteProcess(0);
+//    radio_manager->deleteLater();
+//}
 
 void MainWindow::webViewLoaded(bool loaded){
 
@@ -1124,7 +1121,9 @@ void MainWindow::getAudioStream(QString ytIds,QString songId){
 void MainWindow::processYtdlQueue(){
 
     if(ytdlQueue.count()>0){
+        //update ytdlQueueLabel
         ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
+
         QString ytIds = QString(ytdlQueue.at(0).at(0).split(",").first());
         QString songId = QString(ytdlQueue.at(0).at(1).split(",").last());
 
@@ -1149,15 +1148,28 @@ void MainWindow::processYtdlQueue(){
     }else{
         ui->ytdlQueueLabel->setText("Idle");
     }
+
+    //update stream info buttons
+    if(ytdlProcess!=nullptr){
+        ui->ytdlStopAll->setEnabled(true);
+        ui->ytdlRefreshAll->setEnabled(false);
+    }
 }
 
 void MainWindow::ytdlFinished(int code){
     Q_UNUSED(code);
     ytdlProcess = nullptr;
     if(ytdlQueue.count()>0){
-        qDebug()<<"YoutubedlQueueSize:"<<ytdlQueue.count();
-
+        ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
+        //qDebug()<<"YoutubedlQueueSize:"<<ytdlQueue.count();
         processYtdlQueue();
+    }else{
+        ui->ytdlQueueLabel->setText("Idle");
+    }
+    //update stream info buttons
+    if(ytdlProcess==nullptr){
+        ui->ytdlStopAll->setEnabled(false);
+        ui->ytdlRefreshAll->setEnabled(true);
     }
 }
 
@@ -1597,24 +1609,31 @@ void MainWindow::radioStatus(QString radioState){
         ui->stop->setEnabled(false);
         ui->play_pause->setEnabled(false);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
+        //remove nowplaying from central widget
+        ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('0000000')");
+        setTrackItemNowPlaying();
+
         if(ui->next->isEnabled()){
             ui->next->click();
         }
-        //remove nowplaying from central widget
-        ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('0000000')");
     }
     else if(radioState=="stopped"){
         ui->stop->setEnabled(false);
         ui->play_pause->setEnabled(false);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
-        for (int i= 0;i<ui->right_list->count();i++) {
-          ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
-        }
-        for (int i= 0;i<ui->right_list_2->count();i++) {
-          ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
-        }
+        setTrackItemNowPlaying();
     }
     ui->state->setText(radioState);
+}
+
+
+void MainWindow::setTrackItemNowPlaying(){ //removes playing icon from lists
+    for (int i= 0;i<ui->right_list->count();i++) {
+      ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
+    }
+    for (int i= 0;i<ui->right_list_2->count();i++) {
+      ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
+    }
 }
 
 void MainWindow::radioPosition(int pos){
@@ -1738,12 +1757,7 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
     ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+stationId+"')");
 
     //clear playing icon from player queue
-    for (int i= 0;i<ui->right_list->count();i++) {
-      ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
-    }
-    for (int i= 0;i<ui->right_list_2->count();i++) {
-      ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
-    }
+    setTrackItemNowPlaying();
 }
 
 
@@ -2073,3 +2087,49 @@ void MainWindow::assignPreviousTrack(QListWidget *list ,int index)
 }
 
 
+
+void MainWindow::on_ytdlStopAll_clicked()
+{
+    if(ytdlProcess!=nullptr && ytdlQueue.count()>0){
+        ytdlQueue.clear();
+        ytdlProcess->close();
+    }
+    if(ytdlProcess==nullptr){
+        ui->ytdlStopAll->setEnabled(false);
+        ui->ytdlRefreshAll->setEnabled(true);
+    }
+}
+
+void MainWindow::on_ytdlRefreshAll_clicked()
+{
+    //process Olivia queue
+    for (int i= 0;i<ui->right_list->count();i++) {
+        //get disabled items
+        if(ui->right_list->itemWidget(ui->right_list->item(i))->isEnabled()==false){
+            //get id and songId
+            QString id,songId;
+            id = ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("id")->text();
+            songId = ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId")->text();
+            //check if ytids are present
+            if(!id.isEmpty()){
+                //add to ytdlProcessQueue
+                getAudioStream(id,songId);
+            }
+        }
+    }
+    //process Youtube queue
+    for (int i= 0;i<ui->right_list_2->count();i++) {
+        //get disabled items
+        if(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->isEnabled()==false){
+            //get id and songId
+            QString id,songId;
+            id = ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("id")->text();
+            songId = ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId")->text();
+            //check if ytids are present
+            if(!id.isEmpty()){
+                //add to ytdlProcessQueue
+                getAudioStream(id,songId);
+            }
+        }
+    }
+}

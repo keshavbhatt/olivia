@@ -18,12 +18,16 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     volume= volumeValue;
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
 
-    startRadioProcess(saveTracksAfterBuffer,"");
+    startRadioProcess(saveTracksAfterBuffer,"",false);
 
 }
 
-void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString){
-
+void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString, bool calledByCloseEvent){
+    if(calledByCloseEvent){
+        qDebug()<<"not starting radio process"<<calledByCloseEvent;
+     return;
+    }
+    qDebug()<<"starting radio process"<<calledByCloseEvent;
     radioProcess = new QProcess(this);
     radioProcess->setProcessChannelMode(QProcess::MergedChannels);
     connect(radioProcess,SIGNAL(readyRead()),this,SLOT(radioReadyRead()));
@@ -129,11 +133,9 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
             }
 
 
-
             if(!demuxer_cache_duration.isEmpty()){
                 emit demuxer_cache_duration_changed((double)demuxer_cache_duration.toDouble(),(double)position.toDouble());
             }
-
 
 
             if(!audio_bitrate.isEmpty()){
@@ -143,7 +145,6 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString)
 
             int playerPosition = (int)position.toDouble();
             int playerDuration = (int)duration.toDouble();
-
 
 
            // qDebug()<<playerPosition;
@@ -171,7 +172,7 @@ void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
         else
             loadMedia(url);
     }else{
-         startRadioProcess(saveTracksAfterBuffer,streamUrl);
+         startRadioProcess(saveTracksAfterBuffer,streamUrl,false);
     }
 }
 
@@ -227,7 +228,7 @@ void radio::radioFinished(int code){
         emit radioStatus("loading");
         radioProcess->deleteLater();
         radioPlaybackTimer->stop();
-        startRadioProcess(saveTracksAfterBuffer,streamUrl);
+        startRadioProcess(saveTracksAfterBuffer,streamUrl,false);
     }
 }
 
@@ -277,14 +278,10 @@ void radio::quitRadio()
 {
     if(radioProcess!=nullptr){
         if(radioPlaybackTimer->isActive() || radioProcess->state()==QProcess::Running){
-            QProcess *fifo = new QProcess(this);
-            connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-            fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\": [\"quit\"]}' | socat - "+ setting_path+"/fifofile");
-            fifo->waitForStarted();
             radioState="exit";
             emit radioStatus(radioState);
             radioPlaybackTimer->stop();
-            startRadioProcess(saveTracksAfterBuffer,"http://google.com");
+            startRadioProcess(saveTracksAfterBuffer,"http://google.com",true);
         }
     }
 }
@@ -299,9 +296,10 @@ void radio::deleteProcess(int code){
 }
 
 void radio::killRadioProcess(){
-    if(radioProcess->state()==QProcess::Running)
+    if(radioProcess->state()==QProcess::Running){
       QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(radioProcess->processId()));
       delete radioProcess;
+    }
 }
 
 void radio::stop(){

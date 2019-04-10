@@ -518,7 +518,7 @@ QScrollBar:vertical {
                 </item>
                 <item>
                  <property name="text">
-                  <string>Activity</string>
+                  <string>Recommendations</string>
                  </property>
                  <property name="icon">
                   <iconset resource="icons.qrc">
@@ -1378,14 +1378,22 @@ QScrollBar:vertical {
                       <item>
                        <widget class="QPushButton" name="ytdlStopAll">
                         <property name="text">
-                         <string>Stop all (does nothing ryt now)</string>
+                         <string>Stop all</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="icons.qrc">
+                          <normaloff>:/icons/others/stop.png</normaloff>:/icons/others/stop.png</iconset>
                         </property>
                        </widget>
                       </item>
                       <item>
                        <widget class="QPushButton" name="ytdlRefreshAll">
                         <property name="text">
-                         <string>Refresh all tracks (does nothing ryt now)</string>
+                         <string>Refresh all tracks</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="icons.qrc">
+                          <normaloff>:/icons/others/reset2.png</normaloff>:/icons/others/reset2.png</iconset>
                         </property>
                        </widget>
                       </item>

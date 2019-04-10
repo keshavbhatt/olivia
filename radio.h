@@ -41,7 +41,7 @@ private slots:
     void radioReadyRead();
     void radioFinished(int code);
 
-    void startRadioProcess(bool saveTracksAfterBufferMode, QString);
+    void startRadioProcess(bool saveTracksAfterBufferMode, QString urlString, bool calledByCloseEvent);
 
 
 private:

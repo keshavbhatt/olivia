@@ -138,7 +138,7 @@ private slots:
     void show_saved_artists();
     void internet_radio();
     void radioStatus(QString);
-    void quitApp();
+    //void quitApp();
     void radioPosition(int pos);
     void radioDuration(int dur);
 //    void radioEOF(QString value);
@@ -197,6 +197,11 @@ private slots:
     void setWavefrom(QString urlStr);
     void on_radioSeekSlider_valueChanged(int value);
     void setCountry(QString country);
+    void setTrackItemNowPlaying();
+    void on_ytdlStopAll_clicked();
+
+    void on_ytdlRefreshAll_clicked();
+
 private:
 
     float zoom;
