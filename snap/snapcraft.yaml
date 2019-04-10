@@ -56,6 +56,15 @@ parts:
             - build-essential
             - qtbase5-dev
             - libqt5webkit5-dev
+     override-build: |
+      set -xe
+      snapcraftctl build
+      part_src=$SNAPCRAFT_PART_INSTALL/../src
+      snap_gui=$SNAPCRAFT_STAGE/../snap/gui
+      mkdir -vp $snap_gui
+      cp -v $part_src/olivia.desktop $snap_gui
+      cp -v $part_src/icons/olivia.png $snap_gui/icon.png
+      sed -i "s|^Icon=.*|Icon=\${SNAP}/meta/gui/icon.png|g" $snap_gui/olivia.desktop
      stage:
           - -usr/share/pkgconfig
      stage-packages:
