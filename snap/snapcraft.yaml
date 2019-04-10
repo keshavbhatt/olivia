@@ -58,6 +58,13 @@ parts:
             - libqt5webkit5-dev
      stage:
           - -usr/share/pkgconfig
+     override-build: |
+      set -xe
+      snapcraftctl build
+      part_src=$SNAPCRAFT_PART_INSTALL/../src
+      snap_gui=$SNAPCRAFT_STAGE/../snap/gui
+      mkdir -vp $snap_gui
+      cp -v $part_src/snap/gui/olivia.desktop $snap_gui
      stage-packages:
           - libqt5sql5-sqlite
           - libqt5webkit5
