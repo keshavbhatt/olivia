@@ -65,5 +65,5 @@ parts:
           - libdb5.3
      install: |
             sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_SRC}/olivia.desktop
-            cp -rf ${SNAPCRAFT_PART_SRC}/olivia.desktop ${SNAPCRAFT_PART_SRC}/usr/share/applications/olivia.desktop
+            cp -rf ${SNAPCRAFT_PART_SRC}/olivia.desktop ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/olivia.desktop
      after: [desktop-qt5]
