@@ -14,6 +14,7 @@ architectures:
 apps:
   olivia:
     command: desktop-launch olivia
+    desktop: share/applications/olivia.desktop
     plugs:
         - home
         - unity7
@@ -57,15 +58,11 @@ parts:
             - libqt5webkit5-dev
      stage:
           - -usr/share/pkgconfig
-     override-build: |
-      set -xe
-      snapcraftctl build
-      part_src=$SNAPCRAFT_PART_INSTALL/../src
-      snap_gui=$SNAPCRAFT_STAGE/../snap/gui
-      mkdir -vp $snap_gui
-      cp -v $part_src/snap/gui/olivia.desktop $snap_gui
      stage-packages:
           - libqt5sql5-sqlite
           - libqt5webkit5
           - libqt5x11extras5
+          - libdb5.3
+     install: |
+            sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_INSTALL}/share/applications/olivia.desktop
      after: [desktop-qt5]
