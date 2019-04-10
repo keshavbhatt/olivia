@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+GenericName=Olivia
+Name=Olivia
+Type=Application
+Icon=${SNAP}/meta/gui/icon.png
+Keywords=Music Player;itunes;spotify
+Exec=olivia %F
+Categories=AudioVideo;Player;Qt;Audio;
+Terminal=false
