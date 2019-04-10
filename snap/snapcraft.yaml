@@ -14,7 +14,6 @@ architectures:
 apps:
   olivia:
     command: desktop-launch olivia
-    desktop: snap/gui/olivia.desktop
     plugs:
         - home
         - unity7
