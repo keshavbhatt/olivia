@@ -14,7 +14,7 @@ being developed in BANKUBAD LABS by [@keshavbhatt](https://github.com/keshavbhat
 
 Run Olivia with the following command:
 
-    QT_STYLE_OVERRIDE='gtk' olivia.test.olivia
+    QT_STYLE_OVERRIDE='gtk' olivia-test.olivia
 
 **Features**
 * Allows search music online
