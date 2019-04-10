@@ -14,7 +14,7 @@ architectures:
 apps:
   olivia:
     command: desktop-launch olivia
-    desktop: share/applications/olivia.desktop
+    desktop: usr/share/applications/olivia.desktop
     plugs:
         - home
         - unity7
