@@ -253,6 +253,9 @@ void MainWindow::loadSettings(){
                 settingsWidget->findChild<QPushButton*>(rgbhash.toUpper())->setText("*");
             }
         }
+    }else{
+        QString rgbhash = settingsObj.value("customTheme","#3BBAC6").toString();
+        set_app_theme(QColor(rgbhash));
     }
 
     ui->tabWidget->setCurrentIndex(settingsObj.value("currentQueueTab","0").toInt());
@@ -856,6 +859,7 @@ void MainWindow::webViewLoaded(bool loaded){
 void MainWindow::setSearchTermAndOpenYoutube(QVariant term){
     youtubeSearchTerm = term.toString();
     ui->left_list->setCurrentRow(14); //set youtube page
+    qDebug()<<"called";
 }
 
 void MainWindow::resultLoaded(){
@@ -1111,6 +1115,9 @@ void MainWindow::getAudioStream(QString ytIds,QString songId){
         }
     });
     ytdlQueue.append(QStringList()<<ytIds<<songId);
+    //update ytdlQueueLabel
+    ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
+
 
     if(ytdlProcess==nullptr && ytdlQueue.count()>0){
         processYtdlQueue();
@@ -1121,6 +1128,7 @@ void MainWindow::getAudioStream(QString ytIds,QString songId){
 void MainWindow::processYtdlQueue(){
 
     if(ytdlQueue.count()>0){
+
         //update ytdlQueueLabel
         ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
 
@@ -1158,6 +1166,7 @@ void MainWindow::processYtdlQueue(){
 
 void MainWindow::ytdlFinished(int code){
     Q_UNUSED(code);
+    ytdlProcess->close();
     ytdlProcess = nullptr;
     if(ytdlQueue.count()>0){
         ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
@@ -1389,14 +1398,26 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         ui->previous->setEnabled(false);
     }else{
         ui->previous->setEnabled(true);
-        assignPreviousTrack(list,list->currentRow()-1);
+        //assign next track in list if next item in list is valid
+        for(int i=list->currentRow()-1;i>-1;i--){
+            if(list->itemWidget(list->item(i))->isEnabled()){
+                assignPreviousTrack(list,i);
+                break;
+            }
+        }
     }
 
     if(list->currentRow()==list->count()-1){
         ui->next->setEnabled(false);
     }else{
         ui->next->setEnabled(true);
-        assignNextTrack(list,list->currentRow()+1);
+        //assign next track in list if next item in list is valid
+        for(int i=list->currentRow()+1;i<list->count();i++){
+            if(list->itemWidget(list->item(i))->isEnabled()){
+                assignNextTrack(list,i);
+                break;
+            }
+        }
     }
 
     getNowPlayingTrackId();
@@ -1609,10 +1630,12 @@ void MainWindow::radioStatus(QString radioState){
         ui->stop->setEnabled(false);
         ui->play_pause->setEnabled(false);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
+
         //remove nowplaying from central widget
         ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('0000000')");
         setTrackItemNowPlaying();
 
+        // play next track
         if(ui->next->isEnabled()){
             ui->next->click();
         }
@@ -2090,14 +2113,17 @@ void MainWindow::assignPreviousTrack(QListWidget *list ,int index)
 
 void MainWindow::on_ytdlStopAll_clicked()
 {
-    if(ytdlProcess!=nullptr && ytdlQueue.count()>0){
+    qDebug()<<ytdlQueue.count()<<ytdlProcess;
+    if(ytdlProcess!=nullptr){
+        qDebug()<<"called";
         ytdlQueue.clear();
         ytdlProcess->close();
+        ytdlProcess=nullptr;
     }
     if(ytdlProcess==nullptr){
         ui->ytdlStopAll->setEnabled(false);
         ui->ytdlRefreshAll->setEnabled(true);
-    }
+    }    
 }
 
 void MainWindow::on_ytdlRefreshAll_clicked()
@@ -2133,3 +2159,62 @@ void MainWindow::on_ytdlRefreshAll_clicked()
         }
     }
 }
+
+
+//=========================================Track item click handler==========================================
+void MainWindow::on_right_list_2_itemClicked(QListWidgetItem *item)
+{
+    trackItemClicked(ui->right_list_2,item);
+}
+
+void MainWindow::on_right_list_itemClicked(QListWidgetItem *item)
+{
+    trackItemClicked(ui->right_list,item);
+}
+
+void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item){
+    //check if track is not enabled
+    if(listWidget->itemWidget(item)->isEnabled()==false){
+        QAction *updateTrack= new QAction("Refresh Track",0);
+        QAction *getYtIds = new QAction("Set Stream Source",0);
+//        updateTrack->setEnabled(false);
+//        getYtIds->setEnabled(false);
+        //not enabled, decide menu option to popup
+        QString ytIds = listWidget->itemWidget(item)->findChild<QLineEdit*>("id")->text().trimmed();
+        QString songId = listWidget->itemWidget(item)->findChild<QLineEdit*>("songId")->text().trimmed();
+        //qDebug()<<songId<<ytIds;
+        //if no ytIds set for track
+        if(ytIds.isEmpty()){
+             updateTrack->setEnabled(false);
+             getYtIds->setEnabled(true);
+             connect(getYtIds,&QAction::triggered,[=](){
+                //open youtube page and find track using track's metadata
+                QString  songTitle =  listWidget->itemWidget(item)->findChild<ElidedLabel*>("title_elided")->text();
+                QString  songArtist =  listWidget->itemWidget(item)->findChild<ElidedLabel*>("artist_elided")->text();
+                if(pageType=="youtube"){
+                    ui->webview->page()->mainFrame()->evaluateJavaScript("mainwindow.setSearchTermAndOpenYoutube('"+songTitle+"','"+songArtist+"'");
+                }else{
+                    setSearchTermAndOpenYoutube(QVariant(songTitle+" - "+songArtist));
+                }
+             });
+        }else{
+            getYtIds->setEnabled(false);
+        }
+        //if ytdlProcess is not running
+        if(ytdlProcess==nullptr && !ytIds.isEmpty()){
+            updateTrack->setEnabled(true);
+            connect(updateTrack,&QAction::triggered,[=](){
+               getAudioStream(ytIds,songId);
+            });
+        }else if(ytdlProcess!=nullptr && ytdlQueue.count()>0){ // if ytdlProcess is running set the track to upcoming process in ytdlQueue
+            //move this to upcoming ytdlProcess
+        }
+        //show menu
+        QMenu menu;
+        menu.addAction(updateTrack);
+        menu.addAction(getYtIds);
+        menu.exec(QCursor::pos());
+    }
+}
+//=========================================END Track item click handler==========================================
+

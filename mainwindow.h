@@ -202,6 +202,10 @@ private slots:
 
     void on_ytdlRefreshAll_clicked();
 
+    void on_right_list_2_itemClicked(QListWidgetItem *item);
+
+    void on_right_list_itemClicked(QListWidgetItem *item);
+    void trackItemClicked(QListWidget *listWidget, QListWidgetItem *item);
 private:
 
     float zoom;
