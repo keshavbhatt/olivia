@@ -208,11 +208,16 @@ void radio::radioReadyRead(){
             state_line = output.trimmed();
 //        QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
 //        ((QTextBrowser*)(console))->setText(output);
-    }else if(output.contains("failed",Qt::CaseInsensitive)){
+    }else{
         QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
-        ((QTextBrowser*)(console))->setText(output);
-        radioState="failed";
-        emit radioStatus(radioState);
+        ((QTextBrowser*)(console))->append(output);
+        if(output.contains("failed",Qt::CaseInsensitive)
+                ||output.contains("unable to resolve host address",Qt::CaseInsensitive)
+                ||output.contains("Failed to recognize file format",Qt::CaseInsensitive)){
+                radioState="failed";
+                emit radioStatus(radioState);
+        }
+
     }
 }
 
