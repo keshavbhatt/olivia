@@ -1354,6 +1354,11 @@ void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
 }
 
 void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
+    //clear debug console
+    ui->console->clear();
+    //hide console
+    if(ui->debug_widget->isVisible())
+        ui->debug_widget->hide();
 
     if(!list->itemWidget(item)->isEnabled())
         return;
@@ -1641,10 +1646,15 @@ void MainWindow::radioStatus(QString radioState){
         }
     }
     else if(radioState=="stopped"){
+        ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('0000000')");
         ui->stop->setEnabled(false);
         ui->play_pause->setEnabled(false);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
         setTrackItemNowPlaying();
+    }
+    if(radioState=="failed"){
+        if(!ui->debug_widget->isVisible())
+            ui->debug_widget->show();
     }
     ui->state->setText(radioState);
 }
