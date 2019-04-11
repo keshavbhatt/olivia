@@ -96,7 +96,7 @@ QString paginator::getList(QString page,QString dataType){
             if(f2==2) col = "c";
             if(numberOfButtons>=10)
                 break;
-            html.append("<div class='ui-block-"+col+"'><a onclick='"+dataType+"(\""+files.at(numberOfButtons)+"\")' class='ui-shadow-icon ui-btn ui-shadow ui-corner-all ui-icon-clock ui-btn-icon-left ui-mini'>"+files.at(numberOfButtons)+"</a></div>");
+            html.append("<div class='ui-block-"+col+"'><a onclick='"+dataType+"(\""+files.at(numberOfButtons)+"\");$(\"#manual_search\").val(\""+files.at(numberOfButtons)+"\")' class='ui-shadow-icon ui-btn ui-shadow ui-corner-all ui-icon-clock ui-btn-icon-left ui-mini'>"+files.at(numberOfButtons)+"</a></div>");
         }
         row++;
     }
