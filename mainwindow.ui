@@ -106,7 +106,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="QWidget" name="searchWidget" native="true">
          <property name="styleSheet">
-          <string notr="true">border-bottom: 2px solid #2A82DA;</string>
+          <string notr="true">border-bottom: 1px solid #2A82DA;</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <property name="spacing">
@@ -719,7 +719,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
-                   <height>16777215</height>
+                   <height>1</height>
                   </size>
                  </property>
                  <property name="styleSheet">
@@ -1079,7 +1079,7 @@ background-color: transparent;</string>
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
                  <property name="elideMode">
                   <enum>Qt::ElideNone</enum>
