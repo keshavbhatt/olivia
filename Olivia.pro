@@ -75,8 +75,12 @@ RESOURCES += \
     web.qrc
     
 # Deployment
-BINDIR = /usr/bin
-DATADIR = /usr/share
+isEmpty(PREFIX) {
+ PREFIX = /usr
+}
+
+BINDIR = $$PREFIX/bin
+DATADIR = $$PREFIX/share
 
 target.path = $$BINDIR
 
