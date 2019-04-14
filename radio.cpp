@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
+#include "elidedlabel.h"
 
 
 radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : QObject(parent)
@@ -217,9 +218,29 @@ void radio::radioReadyRead(){
                 radioState="failed";
                 emit radioStatus(radioState);
         }
+        if(output.contains("icy-title:")){
+            if(!output.split("icy-title:").last().trimmed().isEmpty()){
+                QString icy_title = output.split("icy-title:").last().trimmed();
+                QString title = "\"""t\""":";
+                QString cover = "\"""c\""":\"""";
+                if(icy_title.contains(title)){
+                    this->parent()->findChild<ElidedLabel*>("nowP_title")->setText(icy_title.split("\"""t\""":\"").last().split("\""",\"").first());
+                }else{
+                    this->parent()->findChild<ElidedLabel*>("nowP_title")->setText(icy_title);
+                }
+                if(icy_title.contains(cover)){
+                    qDebug()<<"cover";
+                    QString url =  icy_title.split("\"""c\""":\"""").last().split("\""",\"").first().remove("\\");
+                    qDebug()<<url;
+
+                    LoadAvatar(QUrl(url));
+                }
+            }
+        }
 
     }
 }
+
 
 
 void radio::radioFinished(int code){

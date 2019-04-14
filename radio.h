@@ -7,6 +7,11 @@
 #include <QTextBrowser>
 #include <QStandardPaths>
 #include <QTimer>
+#include <QLabel>
+#include <QEventLoop>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 
 class radio : public QObject
 {
@@ -25,6 +30,7 @@ signals:
 //    void radioEOF(QString);
     void demuxer_cache_duration_changed(double,double);
     void saveTrack(QString format);
+    void icy_cover_changed(QPixmap pix);
 
 public slots:
     void playRadio(bool saveTracksAfterBuffer, QUrl url );
@@ -43,6 +49,31 @@ private slots:
 
     void startRadioProcess(bool saveTracksAfterBufferMode, QString urlString, bool calledByCloseEvent);
 
+    void LoadAvatar(const QUrl &avatarUrl)
+    {
+
+       QNetworkAccessManager manager;
+       QEventLoop loop;
+       QNetworkReply *reply = manager.get(QNetworkRequest(avatarUrl));
+       QObject::connect(reply, &QNetworkReply::finished, &loop, [&reply, this,&loop](){
+        if (reply->error() == QNetworkReply::NoError)
+        {
+            QByteArray jpegData = reply->readAll();
+            QPixmap pixmap;
+            pixmap.loadFromData(jpegData);
+            if (!pixmap.isNull())
+            {
+                emit icy_cover_changed(pixmap);
+//                lable.setPixmap(pixmap);
+            }
+        }else{
+            qDebug()<<reply->errorString();
+        }
+        loop.quit();
+      });
+
+      loop.exec();
+    }
 
 private:
     QProcess *radioProcess = nullptr;
