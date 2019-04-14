@@ -4,11 +4,15 @@
 
 being developed in BANKUBAD LABS by [@keshavbhatt](https://github.com/keshavbhatt)
 
-[![Snap Status](https://build.snapcraft.io/badge/keshavbhatt/olivia.svg)](https://build.snapcraft.io/user/keshavbhatt/olivia) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Percentage of issues still open") 
+[![Snap Status](https://build.snapcraft.io/badge/keshavbhatt/olivia.svg)](https://build.snapcraft.io/user/keshavbhatt/olivia) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Percentage of issues still open") 
 
-﻿**Nightly Build can be installed using:**
+﻿**Nightly Build on any [snapd](https://docs.snapcraft.io/installing-snapd) enabled Linux Distribution can be installed using:**
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/olivia-test)
+
+**Arch Linux ([AUR](https://aur.archlinux.org/packages/olivia/)):**
+
+![Arch Linux User's Repository ](http://badge.kloud51.com/aur/v/olivia.svg)  ![Maintainer](http://badge.kloud51.com/aur/m/olivia.svg) ![Popularity](http://badge.kloud51.com/aur/p/olivia.svg)
 
 **If you are having issues in desktop theming like big fonts and weird cursor theme**
 
