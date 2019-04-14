@@ -29,6 +29,7 @@ void nowPlaying::paintEvent( QPaintEvent* e )
     painter.fillRect(rect(), bgBrush); //image
     painter.fillRect(rect(), fgBrush); //tint color
     painter.drawRect(rect());
+    painter.end();
 
     QWidget::paintEvent(e);
 }

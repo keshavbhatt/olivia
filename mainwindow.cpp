@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     qApp->setQuitOnLastWindowClosed(true);
+//    connect(qApp,SIGNAL(aboutToQuit()),this,SLOT(close()));
 
     init_app(); // #1
     init_webview();// #2
