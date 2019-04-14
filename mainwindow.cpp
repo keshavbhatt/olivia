@@ -67,6 +67,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(radio_manager,SIGNAL(radioDuration(int)),this,SLOT(radioDuration(int)));
     connect(radio_manager,SIGNAL(demuxer_cache_duration_changed(double,double)),this,SLOT(radio_demuxer_cache_duration_changed(double,double)));
     connect(radio_manager,SIGNAL(saveTrack(QString)),this,SLOT(saveTrack(QString)));
+    connect(radio_manager,&radio::icy_cover_changed,[=](QPixmap pix){
+        ui->cover->clear();
+        ui->cover->setPixmap(pix.scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+    });
 
     connect(ui->radioSeekSlider,&seekSlider::setPosition,[=](QPoint localPos){
         ui->radioSeekSlider->blockSignals(true);
@@ -1148,7 +1152,7 @@ void MainWindow::processYtdlQueue(){
                     }
                 }
                 QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-                ytdlProcess->start("python",QStringList()<<addin_path+"/core"<<"--get-url" <<"-i"<< "--extract-audio"<<urlsFinal);
+                ytdlProcess->start("python",QStringList()<<addin_path+"/core"<<"--force-ipv4"<<"--get-url" <<"-i"<< "--extract-audio"<<urlsFinal);
                 ytdlProcess->waitForStarted();
                 connect(ytdlProcess,SIGNAL(readyRead()),this,SLOT(ytdlReadyRead()));
                 connect(ytdlProcess,SIGNAL(finished(int)),this,SLOT(ytdlFinished(int)));
@@ -1754,6 +1758,7 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
 }
 
 void MainWindow::playRadioFromWeb(QVariant streamDetails){
+    ui->console->clear();
     QString url,title,country,language,base64,stationId;
     QStringList list = streamDetails.toString().split("=,=");
     stationId = list.at(0);
