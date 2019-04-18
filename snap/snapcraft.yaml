@@ -14,6 +14,8 @@ architectures:
 apps:
   olivia:
     command: desktop-launch olivia
+    environment:
+       QT_STYLE_OVERRIDE: "gtk"
     desktop: usr/share/applications/olivia.desktop
     plugs:
         - home
@@ -29,6 +31,23 @@ apps:
         - network-manager
         - gsettings
         - process-control
+        - desktop-legacy
+        - network-manager
+
+plugs:
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/usr/share/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/usr/share/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/usr/share/sounds
+    default-provider: gtk-common-themes
+
 parts:
    deps:
      plugin: nil
