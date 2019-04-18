@@ -32,7 +32,6 @@ apps:
         - gsettings
         - process-control
         - desktop-legacy
-        - network-manager
 
 plugs:
   gtk-3-themes:
