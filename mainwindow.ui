@@ -1079,7 +1079,7 @@ background-color: transparent;</string>
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <property name="elideMode">
                   <enum>Qt::ElideNone</enum>
@@ -1138,7 +1138,7 @@ background-color: transparent;
                     </widget>
                    </item>
                    <item>
-                    <widget class="QListWidget" name="right_list">
+                    <widget class="playerQueue" name="right_list">
                      <property name="minimumSize">
                       <size>
                        <width>200</width>
@@ -1174,18 +1174,6 @@ QScrollBar:vertical {
                      <property name="autoScrollMargin">
                       <number>5</number>
                      </property>
-                     <property name="dragEnabled">
-                      <bool>true</bool>
-                     </property>
-                     <property name="dragDropMode">
-                      <enum>QAbstractItemView::DropOnly</enum>
-                     </property>
-                     <property name="defaultDropAction">
-                      <enum>Qt::MoveAction</enum>
-                     </property>
-                     <property name="selectionBehavior">
-                      <enum>QAbstractItemView::SelectRows</enum>
-                     </property>
                      <property name="verticalScrollMode">
                       <enum>QAbstractItemView::ScrollPerPixel</enum>
                      </property>
@@ -1193,7 +1181,7 @@ QScrollBar:vertical {
                       <enum>QAbstractItemView::ScrollPerPixel</enum>
                      </property>
                      <property name="movement">
-                      <enum>QListView::Static</enum>
+                      <enum>QListView::Free</enum>
                      </property>
                      <property name="spacing">
                       <number>3</number>
@@ -1293,7 +1281,7 @@ QScrollBar:vertical {
                       <bool>true</bool>
                      </property>
                      <property name="dragDropMode">
-                      <enum>QAbstractItemView::DropOnly</enum>
+                      <enum>QAbstractItemView::DragDrop</enum>
                      </property>
                      <property name="defaultDropAction">
                       <enum>Qt::MoveAction</enum>
@@ -1308,7 +1296,7 @@ QScrollBar:vertical {
                       <enum>QAbstractItemView::ScrollPerPixel</enum>
                      </property>
                      <property name="movement">
-                      <enum>QListView::Static</enum>
+                      <enum>QListView::Free</enum>
                      </property>
                      <property name="spacing">
                       <number>3</number>
@@ -1723,6 +1711,11 @@ border-radius:2px;</string>
    <class>volumeSlider</class>
    <extends>QSlider</extends>
    <header>volumeslider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>playerQueue</class>
+   <extends>QListWidget</extends>
+   <header>playerqueue.h</header>
   </customwidget>
  </customwidgets>
  <resources>

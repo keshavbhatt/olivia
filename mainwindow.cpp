@@ -11,6 +11,7 @@
 #include <QCompleter>
 #include <QAction>
 #include <QToolTip>
+#include <QAbstractItemView>
 
 #include "cookiejar.h"
 #include "elidedlabel.h"
@@ -174,6 +175,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     loadSettings();
 }
+
 
 void MainWindow::closeEvent(QCloseEvent *event){
     settingsObj.setValue("geometry",saveGeometry());
@@ -658,7 +660,8 @@ void MainWindow::loadPlayerQueue(){ //  #7
             a->setEndValue(1);
             a->setEasingCurve(QEasingCurve::InCirc);
             a->start(QPropertyAnimation::DeleteWhenStopped);
-            ui->right_list->addItem(item);
+            item->setData(playerQueue::IdentifierRole,true);
+             ui->right_list->addItem(item,true);
         }
     }
     ui->tabWidget->resize(ui->tabWidget->size().width()-1,ui->tabWidget->size().height());
@@ -682,6 +685,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
         }
        }
 }
+
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event){
     if ((obj == ui->nowPlayingGrip || ui->top_widget  || ui->windowControls || ui->label_6 ) && (event->type() == QEvent::MouseMove)) {
@@ -723,14 +727,17 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
             }
             return true;
     }
+    if(obj==ui->search)
+        return false;
+
     return obj->eventFilter(obj, event);
 }
 
 
 
 void MainWindow::init_search_autoComplete(){
-    ui->search->installEventFilter(this);
     _onlineSearchSuggestion_ = new onlineSearchSuggestion(ui->search);
+    ui->search->installEventFilter(_onlineSearchSuggestion_);
 }
 
 
@@ -2233,4 +2240,6 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
     }
 }
 //=========================================END Track item click handler==========================================
+
+
 

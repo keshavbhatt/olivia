@@ -100,6 +100,8 @@ protected slots:
     bool eventFilter(QObject *obj, QEvent *event);
     void closeEvent(QCloseEvent *event);
 
+
+
 private slots:
     void init_app();
     void init_webview();
@@ -206,6 +208,7 @@ private slots:
 
     void on_right_list_itemClicked(QListWidgetItem *item);
     void trackItemClicked(QListWidget *listWidget, QListWidgetItem *item);
+
 private:
 
     float zoom;
