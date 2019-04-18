@@ -47,7 +47,8 @@ SOURCES += main.cpp\
     settings.cpp \
     paginator.cpp \
     waveformseekslider.cpp \
-    youtube.cpp
+    youtube.cpp \
+    playerqueue.cpp
 
 HEADERS  += mainwindow.h \
     DarkStyle.h \
@@ -62,7 +63,8 @@ HEADERS  += mainwindow.h \
     settings.h \
     paginator.h \
     waveformseekslider.h \
-    youtube.h
+    youtube.h \
+    playerqueue.h
 
 FORMS    += mainwindow.ui \
     track.ui \
@@ -75,12 +77,8 @@ RESOURCES += \
     web.qrc
     
 # Deployment
-isEmpty(PREFIX) {
- PREFIX = /usr
-}
-
-BINDIR = $$PREFIX/bin
-DATADIR = $$PREFIX/share
+BINDIR = /usr/bin
+DATADIR = /usr/share
 
 target.path = $$BINDIR
 
@@ -91,4 +89,3 @@ desktop.files = olivia.desktop
 desktop.path = $$DATADIR/applications/
 
 INSTALLS += target icon desktop
-
