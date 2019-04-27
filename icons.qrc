@@ -56,5 +56,6 @@
         <file>icons/sidebar/tasks.png</file>
         <file>icons/others/reset2.png</file>
         <file>icons/others/stop.png</file>
+        <file>icons/others/update.png</file>
     </qresource>
 </RCC>
