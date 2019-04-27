@@ -141,8 +141,7 @@ function showLoading() {
 
 var title,artist,album,coverUrl,songId,albumId,artistId,millis;
 var base64; //returns base64 versio of album art to c++
-var colorThief ; // colorThief object init
-var dominantColor; //global
+
 var html_data; //global html_data for youtube search
 var stations_loaded = false;
 var track_loaded = false;
@@ -159,9 +158,6 @@ $(document).ready(function($) {
            $.mobile.defaultHomeScroll = 0;
     });
 
-    $("#coverImage").load(function(){
-          dominantColor = colorThief.getColor(document.querySelector("#coverImage"));
-    });
 });
 
 
