@@ -1118,8 +1118,10 @@ void MainWindow::showTrackOption(){
     });
 
     QMenu menu;
-    menu.addAction(gotoAlbum);
-    menu.addAction(gotoArtist);
+    if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
+        menu.addAction(gotoAlbum);
+        menu.addAction(gotoArtist);
+    }
     menu.addAction(sepe);
     menu.addAction(removeSong);
 //    menu.addAction(deleteSong);
