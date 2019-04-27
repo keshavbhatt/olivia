@@ -1077,7 +1077,7 @@ background-color: transparent;</string>
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>2</number>
                  </property>
                  <property name="elideMode">
                   <enum>Qt::ElideNone</enum>
@@ -1363,6 +1363,9 @@ QScrollBar:vertical {
                       </item>
                       <item>
                        <widget class="QPushButton" name="ytdlStopAll">
+                        <property name="toolTip">
+                         <string>Stop processing current queue of dead tracks</string>
+                        </property>
                         <property name="text">
                          <string>Stop all</string>
                         </property>
@@ -1374,6 +1377,9 @@ QScrollBar:vertical {
                       </item>
                       <item>
                        <widget class="QPushButton" name="ytdlRefreshAll">
+                        <property name="toolTip">
+                         <string>Refresh all dead tracks</string>
+                        </property>
                         <property name="text">
                          <string>Refresh all tracks</string>
                         </property>
