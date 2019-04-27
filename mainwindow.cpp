@@ -339,9 +339,11 @@ void MainWindow::set_app_theme(QColor rgb){
 
     themeColor = r+","+g+","+b+","+"0.2";
 
-    this->setStyleSheet(this->styleSheet()+"QMainWindow{"
+    this->setStyleSheet("QMainWindow{"
                             "background-color:rgba("+r+","+g+","+b+","+"0.1"+");"
+                            "background-image:url(:/icons/texture.png), linear-gradient(hsla(0,0%,32%,.99), hsla(0,0%,27%,.95));"
                             "}");
+
     QString rgba = r+","+g+","+b+","+"0.2";
     ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+rgba+"')");
     QString widgetStyle= "background-color:"
@@ -816,9 +818,10 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"),  this);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("paginator"), pagination_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+themeColor+"')");
-        ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongId+"'");
-
-        ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+nowPlayingSongId+"')");
+        if(!nowPlayingSongId.isEmpty() && pageType!="browse"){
+            ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongId+"'");
+            ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+nowPlayingSongId+"')");
+        }
         QWebSettings::globalSettings()->clearMemoryCaches();
         ui->webview->history()->clear();
     }
@@ -1141,7 +1144,6 @@ void MainWindow::getAudioStream(QString ytIds,QString songId){
     if(ytdlProcess==nullptr && ytdlQueue.count()>0){
         processYtdlQueue();
     }
-
 }
 
 void MainWindow::processYtdlQueue(){
@@ -1385,8 +1387,6 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     QString url = list->itemWidget(item)->findChild<QLineEdit*>("url")->text();
     QString songId = list->itemWidget(item)->findChild<QLineEdit*>("songId")->text();
 
-    ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
-
     Q_UNUSED(id);
 
     ElidedLabel *title = list->itemWidget(item)->findChild<ElidedLabel *>("title_elided");
@@ -1452,58 +1452,6 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         ui->state->show();
     ui->state->setText("loading");
 
-
-    if(settingsObj.value("dynamicTheme").toBool()==true){
-        QString r,g,b;
-        QStringList colors = dominant_color.split(",");
-        if(colors.count()==3){
-            r=colors.at(0);
-            g=colors.at(1);
-            b=colors.at(2);
-        }else{
-            r="98";
-            g="164";
-            b="205";
-        }
-        ui->nowplaying_widget->setColor(QColor(r.toInt(),g.toInt(),b.toInt()));
-        //change the color of main window according to album cover
-        this->setStyleSheet(this->styleSheet()+"QMainWindow{"
-                                "background-color:rgba("+r+","+g+","+b+","+"0.1"+");"
-                                "}");
-        QString rgba = r+","+g+","+b+","+"0.2";
-        ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+rgba+"')");
-        QString widgetStyle= "background-color:"
-                             "qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,"
-                             "stop:0.129213 rgba("+r+", "+g+", "+b+", 30),"
-                             "stop:0.38764 rgba("+r+", "+g+", "+b+", 120),"
-                             "stop:0.679775 rgba("+r+", "+g+", "+b+", 84),"
-                             "stop:1 rgba("+r+", "+g+", "+b+", 30));";
-        QString scrollbarStyle ="QScrollBar:vertical {"
-                                    "background-color: transparent;"
-                                    "border:none;"
-                                    "width: 10px;"
-                                    "margin: 22px 0 22px 0;"
-                                "}"
-                                "QScrollBar::handle:vertical {"
-                                    "background: grey;"
-                                    "min-height: 20px;"
-                                "}";
-        ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
-        ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
-        ui->right_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
-        ui->right_list_2->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
-
-
-        miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
-
-        ui->search->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
-        ui->label_5->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
-
-        settingsWidget->setStyleSheet("QWidget#settingsWidget{"+widgetStyle+"}");
-
-
-    }
-
     ElidedLabel *title2 = this->findChild<ElidedLabel *>("nowP_title");
     ((ElidedLabel*)(title2))->setText(titleStr);
 
@@ -1533,6 +1481,61 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         saveTracksAfterBuffer =  settingsObj.value("saveAfterBuffer","true").toBool();
         radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url));
         // setWavefrom(url);
+    }
+
+    //TODO this is making app slow when the list of tracks if huge
+    if(settingsObj.value("dynamicTheme").toBool()==true){
+        QString r,g,b;
+        QStringList colors = dominant_color.split(",");
+        if(colors.count()==3){
+            r=colors.at(0);
+            g=colors.at(1);
+            b=colors.at(2);
+        }else{
+            r="98";
+            g="164";
+            b="205";
+        }
+
+        ui->nowplaying_widget->setColor(QColor(r.toInt(),g.toInt(),b.toInt()));
+        //change the color of main window according to album cover bug here
+        this->setStyleSheet(+"QMainWindow{"
+                               "background-color:rgba("+r+","+g+","+b+","+"0.1"+");"
+                               "background-image:url(:/icons/texture.png), linear-gradient(hsla(0,0%,32%,.99), hsla(0,0%,27%,.95));"
+                               "}");
+
+        QString widgetStyle= "background-color:"
+                             "qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,"
+                             "stop:0.129213 rgba("+r+", "+g+", "+b+", 30),"
+                             "stop:0.38764 rgba("+r+", "+g+", "+b+", 120),"
+                             "stop:0.679775 rgba("+r+", "+g+", "+b+", 84),"
+                             "stop:1 rgba("+r+", "+g+", "+b+", 30));";
+        QString scrollbarStyle ="QScrollBar:vertical {"
+                                    "background-color: transparent;"
+                                    "border:none;"
+                                    "width: 10px;"
+                                    "margin: 22px 0 22px 0;"
+                                "}"
+                                "QScrollBar::handle:vertical {"
+                                    "background: grey;"
+                                    "min-height: 20px;"
+                                "}";
+        ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
+        ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
+        ui->right_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
+        ui->right_list_2->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
+
+        miniModeWidget->setStyleSheet (ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
+
+        ui->search->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
+        ui->label_5->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
+
+        //settingsUi theme is set when it is opened;
+        ui->stream_info->setStyleSheet("QWidget#stream_info{"+widgetStyle+"}"); //to remove style set by designer
+
+        QString rgba = r+","+g+","+b+","+"0.2";
+        ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+rgba+"')");
+        ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
     }
 }
 //END PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
@@ -1601,6 +1604,7 @@ void MainWindow::on_settings_clicked()
                 qApp->desktop()->availableGeometry()
             )
         );
+        settingsWidget->setStyleSheet("QWidget#settingsWidget{"+ui->search->styleSheet()+"}");
         settingsWidget->showNormal();
     }
 }
