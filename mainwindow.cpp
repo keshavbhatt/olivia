@@ -1669,6 +1669,7 @@ void MainWindow::radioStatus(QString radioState){
         if(ui->next->isEnabled()){
             ui->next->click();
         }
+
     }
     else if(radioState=="stopped"){
         ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('0000000')");
