@@ -209,8 +209,11 @@ private slots:
     void on_right_list_itemClicked(QListWidgetItem *item);
     void trackItemClicked(QListWidget *listWidget, QListWidgetItem *item);
 
+    void get_engine_version_info();
+    void compare_versions(QString date, QString n_date);
+    void check_engine_updates();
 private:
-
+    QString core_local_date,core_remote_date;
     float zoom;
     int horizontalDpi;
     QPoint oldPos,oldPosMiniWidget;

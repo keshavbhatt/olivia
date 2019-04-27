@@ -39,7 +39,16 @@ MainWindow::MainWindow(QWidget *parent) :
     init_settings();
     init_miniMode();
 
-    checkEngine();
+//    checkEngine();
+
+    QTimer::singleShot(1000, [this]() {
+        if(!checkEngine()){
+            evoke_engine_check();
+            return;
+        }else{
+            check_engine_updates();
+        }
+    });
 
 
     //sets search icon in label
@@ -1120,12 +1129,6 @@ void MainWindow::showTrackOption(){
 
 void MainWindow::getAudioStream(QString ytIds,QString songId){
 
-    QTimer::singleShot(1000, [this]() {
-        if(!checkEngine()){
-            evoke_engine_check();
-            return;
-        }
-    });
     ytdlQueue.append(QStringList()<<ytIds<<songId);
     //update ytdlQueueLabel
     ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
@@ -1882,7 +1885,6 @@ void MainWindow::download_engine_clicked()
 
 void MainWindow::slot_netwManagerFinished(QNetworkReply *reply)
 {
-    reply->deleteLater();
     if(reply->error() == QNetworkReply::NoError){
         // Get the http status code
         int v = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -1891,10 +1893,11 @@ void MainWindow::slot_netwManagerFinished(QNetworkReply *reply)
             if(reply->error() == QNetworkReply::NoError){
                 core_file->write(reply->readAll());
                 core_file->close();
+                get_engine_version_info();
                 checkEngine();
                 settingsUi.loading_movie->movie()->stop();
                 settingsUi.loading_movie->setVisible(false);
-                }else{
+            }else{
                 core_file->remove();
             }
             settingsUi.download_engine->setEnabled(true);
@@ -1924,23 +1927,122 @@ void MainWindow::slot_netwManagerFinished(QNetworkReply *reply)
         settingsUi.download_engine->setEnabled(true);
         reply->manager()->deleteLater();
     }
+    reply->deleteLater();
+}
+
+//writes core_version file with version info after core downloaded
+void MainWindow::get_engine_version_info(){
+    QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
+    connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
+        if(rep->error() == QNetworkReply::NoError){
+            QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+            QDir dir(addin_path);
+            if (!dir.exists())
+            dir.mkpath(addin_path);
+
+            QString filename = "core_version";
+            QFile *core_version_file =  new QFile(addin_path+"/"+filename ); //addin_path
+            if(!core_version_file->open(QIODevice::ReadWrite | QIODevice::Truncate)){
+                qDebug()<<"Could not open a core_version_file to write.";
+            }
+            core_version_file->write(rep->readAll());
+            core_version_file->close();
+            core_version_file->deleteLater();
+        }
+        rep->deleteLater();
+        m_netwManager->deleteLater();
+    });
+    QUrl url("https://rg3.github.io/youtube-dl/update/LATEST_VERSION");
+    QNetworkRequest request(url);
+    m_netwManager->get(request);
+}
+
+void MainWindow::check_engine_updates(){
+
+    //read version from local core_version file
+    QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QFile *core_version_file =  new QFile(addin_path+"/"+"core_version" );
+    if (!core_version_file->open(QIODevice::ReadOnly | QIODevice::Text))
+              return;
+    core_local_date  = core_version_file->readAll().trimmed();
+
+    //read version from remote
+    QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
+    connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
+        if(rep->error() == QNetworkReply::NoError){
+             core_remote_date = rep->readAll().trimmed();
+             if(!core_local_date.isNull() && !core_remote_date.isNull()){
+                compare_versions(core_local_date,core_remote_date);
+             }
+        }
+        rep->deleteLater();
+        m_netwManager->deleteLater();
+    });
+    QUrl url("https://rg3.github.io/youtube-dl/update/LATEST_VERSION");
+    QNetworkRequest request(url);
+    m_netwManager->get(request);
+}
+
+void MainWindow::compare_versions(QString date,QString n_date){
+
+    int year,month,day,n_year,n_month,n_day;
+
+    year = QDate::fromString(date,Qt::ISODate).year();
+    month = QDate::fromString(date,Qt::ISODate).month();
+    day = QDate::fromString(date,Qt::ISODate).day();
+
+    n_year = QDate::fromString(n_date,Qt::ISODate).year();
+    n_month = QDate::fromString(n_date,Qt::ISODate).month();
+    n_day = QDate::fromString(n_date,Qt::ISODate).day();
+
+    bool update= false;
+
+    if(n_year>year || n_month>month || n_day>day ){
+       update=true;
+    }
+
+    if(update){
+        QMessageBox msgBox;
+          msgBox.setText("Olivia Engine update available");
+          msgBox.setInformativeText("Olivia engine needs an update please update engine for better results. Update now ?");
+          msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+          msgBox.setDefaultButton(QMessageBox::Ok);
+
+          int ret = msgBox.exec();
+          switch (ret) {
+            case QMessageBox::Ok:
+                  on_settings_clicked();
+                  settingsUi.download_engine->click();
+              break;
+            case  QMessageBox::Cancel:
+                  check_engine_updates();
+              break;
+          }
+    }
 }
 
 void MainWindow::evoke_engine_check(){
     if(settingsUi.engine_status->text()=="Absent"){
         QMessageBox msgBox;
           msgBox.setText("Olivia component is missing");
-          msgBox.setInformativeText("Olivia engine is missing, download now ?");
+          msgBox.setInformativeText("Olivia engine (1.4Mb in size) is missing, without this the app will not work properly. Download now ?");
           msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+          QPushButton *p = new QPushButton("Quit",0);
+          msgBox.addButton(p,QMessageBox::NoRole);
           msgBox.setDefaultButton(QMessageBox::Ok);
+
           int ret = msgBox.exec();
           switch (ret) {
             case QMessageBox::Ok:
-                      on_settings_clicked();
-                      settingsUi.download_engine->click();
+                  on_settings_clicked();
+                  settingsUi.download_engine->click();
               break;
             case  QMessageBox::Cancel:
+                  evoke_engine_check();
               break;
+            default:
+                qApp->quit();
+            break;
           }
     }
 }
