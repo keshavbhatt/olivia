@@ -81,6 +81,7 @@ private:
 
     QString streamUrl;
     QString state_line;
+    QString used_fifo_file_path;
 
 
 };

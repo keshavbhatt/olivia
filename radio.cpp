@@ -3,6 +3,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QDir>
+#include <QDateTime>
 #include "elidedlabel.h"
 
 
@@ -11,9 +13,27 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     this->setObjectName("radio-manager");
     setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 
+    QString fifoDir= setting_path+"/fifos";
+    QDir dir(fifoDir);
+    if (!dir.exists())
+    dir.mkpath(fifoDir);
+
+    QString fifoFileName =  QString::number(QDateTime::currentMSecsSinceEpoch())+".fifo";
+
+    //delete fifoFiles which are older then 10hr
+    QStringList fifoFileInfoList = dir.entryList(QDir::System); //filter devices files
+    qint64 currentTime =  QDateTime::currentMSecsSinceEpoch();
+    foreach(QString fifoFileInfo, fifoFileInfoList) {
+        if(currentTime - fifoFileInfo.remove(".fifo").toLong() > 36000000){ //36000000
+            QFile::remove(fifoDir+"/"+fifoFileInfo+".fifo");
+        }
+    }
+
+    //make new fifo file for new radio process
     QProcess *fifo = new QProcess(this);
-    fifo->start("mkfifo",QStringList()<<setting_path+"/fifofile");
+    fifo->start("mkfifo",QStringList()<<fifoDir+"/"+fifoFileName);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
+    used_fifo_file_path = fifoDir+"/"+fifoFileName;
 
     radioPlaybackTimer = new QTimer(this);
     volume= volumeValue;
@@ -39,12 +59,12 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
     radioProcess->setObjectName("_radio_");
 
     if(urlString.isEmpty()){
-            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --keep-open --keep-open-pause=no  --demuxer-max-back-bytes=5000000 --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle");
+            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --keep-open --keep-open-pause=no  --demuxer-max-back-bytes=5000000 --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+used_fifo_file_path +" --volume "+QString::number(volume)+" --idle");
     }else{
         if(!saveTracksAfterBufferMode)
-            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+"  --keep-open --keep-open-pause=no --demuxer-max-back-bytes=5000000 --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle");
+            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+"  --keep-open --keep-open-pause=no --demuxer-max-back-bytes=5000000 --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+used_fifo_file_path +" --volume "+QString::number(volume)+" --idle");
         else
-            radioProcess->start("bash",QStringList()<<"-c"<<"wget -O - '"+urlString+"' | tee "+setting_path+"/downloadedTemp/current.temp"+" | mpv "+status_message_arg+" --keep-open --keep-open-pause=no --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+setting_path+"/fifofile --volume "+QString::number(volume)+" --idle -");
+            radioProcess->start("bash",QStringList()<<"-c"<<"wget -O - '"+urlString+"' | tee "+setting_path+"/downloadedTemp/current.temp"+" | mpv "+status_message_arg+" --keep-open --keep-open-pause=no --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+used_fifo_file_path +" --volume "+QString::number(volume)+" --idle -");
     }
     radioProcess->waitForStarted();
 
@@ -55,7 +75,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
         //check olivia's idle state
         QProcess *fifo = new QProcess(this);
         connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-        fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"idle-active\"]}' | socat - "+ setting_path+"/fifofile");
+        fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"idle-active\"]}' | socat - "+ used_fifo_file_path);
         fifo->waitForStarted();
 
         connect(fifo,&QProcess::readyRead,[=](){
@@ -73,7 +93,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
         //check olivia's EOF state
         QProcess *fifoEOF = new QProcess(this);
         connect(fifoEOF, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-        fifoEOF->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"eof-reached\"]}' | socat - "+ setting_path+"/fifofile");
+        fifoEOF->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"eof-reached\"]}' | socat - "+ used_fifo_file_path);
         fifoEOF->waitForStarted();
 
         connect(fifoEOF,&QProcess::readyRead,[=](){
@@ -185,7 +205,7 @@ void radio::loadMedia(QUrl url){
    // qDebug()<<"loadmedia called";
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-    fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"loadfile\" ,\""+url.toString()+"\""+"]}' | socat - "+ setting_path+"/fifofile");
+    fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"loadfile\" ,\""+url.toString()+"\""+"]}' | socat - "+ used_fifo_file_path);
     fifo->waitForStarted();
 
     if(radioState=="paused"){
@@ -261,7 +281,7 @@ void radio::radioFinished(int code){
 void radio::radioSeek(int pos){
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-    fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"time-pos\","+QString::number(pos)+"]}' | socat - "+ setting_path+"/fifofile");
+    fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"time-pos\","+QString::number(pos)+"]}' | socat - "+ used_fifo_file_path);
     fifo->waitForStarted();
 }
 
@@ -269,7 +289,7 @@ void radio::pauseRadio()
 {
       QProcess *fifo = new QProcess(this);
       connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-      fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\": [\"cycle\" , \"pause\"]}' | socat - "+ setting_path+"/fifofile");
+      fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\": [\"cycle\" , \"pause\"]}' | socat - "+ used_fifo_file_path);
       fifo->waitForStarted();
 
       radioState = "paused";
@@ -282,7 +302,7 @@ void radio::resumeRadio()
 {
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-    fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\": [\"cycle\" , \"pause\"]}' | socat - "+ setting_path+"/fifofile");
+    fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\": [\"cycle\" , \"pause\"]}' | socat - "+ used_fifo_file_path);
     fifo->waitForStarted();
 
     radioState = "playing";
@@ -296,7 +316,7 @@ void radio::changeVolume(int val)
     volume = val;
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-    fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"volume\","+QString::number(volume)+"]}' | socat - "+ setting_path+"/fifofile");
+    fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"volume\","+QString::number(volume)+"]}' | socat - "+ used_fifo_file_path);
 }
 
 //will use to quit radio process when it will take too much RAM
@@ -331,7 +351,7 @@ void radio::killRadioProcess(){
 void radio::stop(){
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-    fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"stop\"]}' | socat - "+ setting_path+"/fifofile");
+    fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"stop\"]}' | socat - "+ used_fifo_file_path);
     fifo->waitForStarted();
     radioPlaybackTimer->stop();
 }
