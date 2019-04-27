@@ -1129,7 +1129,11 @@ void MainWindow::showTrackOption(){
 
 void MainWindow::getAudioStream(QString ytIds,QString songId){
 
+    if(!checkEngine())
+        return;
+
     ytdlQueue.append(QStringList()<<ytIds<<songId);
+
     //update ytdlQueueLabel
     ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
 
@@ -2003,8 +2007,9 @@ void MainWindow::compare_versions(QString date,QString n_date){
 
     if(update){
         QMessageBox msgBox;
-          msgBox.setText("Olivia Engine update available");
-          msgBox.setInformativeText("Olivia engine needs an update please update engine for better results. Update now ?");
+          msgBox.setText("Olivia Engine update (<b>ver: "+n_date+"</b>) available !");
+          msgBox.setIcon(QMessageBox::Information);
+          msgBox.setInformativeText("You are having an outdated engine (<b>ver: "+date+"</b>), please update to latest engine for better performance. Update now ?");
           msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
           msgBox.setDefaultButton(QMessageBox::Ok);
 
@@ -2024,7 +2029,8 @@ void MainWindow::compare_versions(QString date,QString n_date){
 void MainWindow::evoke_engine_check(){
     if(settingsUi.engine_status->text()=="Absent"){
         QMessageBox msgBox;
-          msgBox.setText("Olivia component is missing");
+          msgBox.setText("Olivia component is missing !");
+          msgBox.setIcon(QMessageBox::Information);
           msgBox.setInformativeText("Olivia engine (1.4Mb in size) is missing, without this the app will not work properly. Download now ?");
           msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
           QPushButton *p = new QPushButton("Quit",0);
