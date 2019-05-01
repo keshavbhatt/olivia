@@ -57,5 +57,36 @@
         <file>icons/others/reset2.png</file>
         <file>icons/others/stop.png</file>
         <file>icons/others/update.png</file>
+        <file>icons/others/eye.png</file>
+        <file>icons/micro/clear.png</file>
+        <file>icons/micro/close.png</file>
+        <file>icons/micro/cursor_on.png</file>
+        <file>icons/micro/cut.png</file>
+        <file>icons/micro/deattach.png</file>
+        <file>icons/micro/duplicate.png</file>
+        <file>icons/micro/fonts.png</file>
+        <file>icons/micro/grid.png</file>
+        <file>icons/micro/line_count.png</file>
+        <file>icons/micro/new.png</file>
+        <file>icons/micro/normal.png</file>
+        <file>icons/micro/notes.png</file>
+        <file>icons/micro/open_editor.png</file>
+        <file>icons/micro/open_folder.png</file>
+        <file>icons/micro/open.png</file>
+        <file>icons/micro/package_manager.png</file>
+        <file>icons/micro/paste_bin.png</file>
+        <file>icons/micro/paste.png</file>
+        <file>icons/micro/recent_small.png</file>
+        <file>icons/micro/recent.png</file>
+        <file>icons/micro/redo.png</file>
+        <file>icons/micro/save.png</file>
+        <file>icons/micro/search_store.png</file>
+        <file>icons/micro/select_all.png</file>
+        <file>icons/micro/settings.png</file>
+        <file>icons/micro/tree.png</file>
+        <file>icons/micro/undo.png</file>
+        <file>icons/micro/url.png</file>
+        <file>icons/micro/zoom-in.png</file>
+        <file>icons/micro/zoom-out.png</file>
     </qresource>
 </RCC>
