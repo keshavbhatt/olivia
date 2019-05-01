@@ -176,7 +176,7 @@ void Lyrics::showLyrics(){
 }
 
 void Lyrics::showLyricsWidget(QString data){
-    ui->lyrics->setHtml(data);
+    ui->lyrics->setHtml(data.split("Song Discussions is protected").first());
 //    ui->lyrics->append(QString("<img src=\"https://tpc.googlesyndication.com/simgad/16094122936629946910\" />"));
     QPropertyAnimation *animation = new QPropertyAnimation(ui->lyricsWidget, "maximumHeight");
     animation->setDuration(500);
@@ -283,11 +283,6 @@ void Lyrics::hideEvent(QHideEvent *event){
 }
 
 
-void Lyrics::on_selectAll_clicked()
-{
-    ui->lyrics->selectAll();
-    ui->lyrics->copy();
-}
 
 void Lyrics::on_lyrics_textChanged()
 {
@@ -300,4 +295,10 @@ void Lyrics::on_lyrics_textChanged()
     }else{
         ui->copy->setEnabled(true);
     }
+}
+
+void Lyrics::on_copy_clicked()
+{
+    ui->lyrics->selectAll();
+    ui->lyrics->copy();
 }

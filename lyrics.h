@@ -77,9 +77,10 @@ private slots:
 
     void hideResult();
     void setLyricsTitle(QString title);
-    void on_selectAll_clicked();
 
     void on_lyrics_textChanged();
+
+    void on_copy_clicked();
 
 private:
     Ui::Lyrics *ui;
