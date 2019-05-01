@@ -65,9 +65,11 @@
 #include "settings.h"
 #include "paginator.h"
 #include "youtube.h"
+#include "lyrics.h"
 
 #include "ui_settings.h"
 #include "ui_minimode.h"
+
 
 
 
@@ -212,6 +214,10 @@ private slots:
     void get_engine_version_info();
     void compare_versions(QString date, QString n_date);
     void check_engine_updates();
+    void init_lyrics();
+
+    void on_miniMode_option_clicked();
+
 private:
     QString core_local_date,core_remote_date;
     float zoom;
@@ -260,6 +266,8 @@ private:
     QString setting_path;
 
     QStringList color_list ;
+
+    Lyrics *lyricsWidget;
 
 };
 

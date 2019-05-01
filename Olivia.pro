@@ -48,7 +48,8 @@ SOURCES += main.cpp\
     paginator.cpp \
     waveformseekslider.cpp \
     youtube.cpp \
-    playerqueue.cpp
+    playerqueue.cpp \
+    lyrics.cpp
 
 HEADERS  += mainwindow.h \
     DarkStyle.h \
@@ -64,12 +65,15 @@ HEADERS  += mainwindow.h \
     paginator.h \
     waveformseekslider.h \
     youtube.h \
-    playerqueue.h
+    playerqueue.h \
+    lyrics.h
 
 FORMS    += mainwindow.ui \
     track.ui \
     settings.ui \
-    minimode.ui
+    minimode.ui \
+    lyrics.ui \
+    lyricitem.ui
 
 RESOURCES += \
     darkstyle.qrc \

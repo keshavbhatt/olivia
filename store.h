@@ -44,6 +44,11 @@ public slots:
     bool isInCollection(QString trackId);
     QString getDominantColor(QString albumId);//was private before
 
+    QString getArtist(QString artistId);//was private before
+    QString getAlbum(QString albumId);//was private before
+    QString getThumbnail(QString artId);//was private before
+    QString getYoutubeIds(QString trackId);//was private before
+
 
 private slots:
     void initStore(QString dbName);
@@ -51,10 +56,7 @@ private slots:
     void openDb(QString dbName, QString type);
     void closeDb(QString dbName);
     void saveArts(QString albumId, QString artId);
-    QString getArtist(QString artistId);
-    QString getAlbum(QString albumId);
-    QString getThumbnail(QString artId);
-    QString getYoutubeIds(QString trackId);
+
     QList<QStringList> getAllTracks();
     QList<QStringList> getAllAlbums();
     QStringList getAlbumDetails(QString albumId);

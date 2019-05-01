@@ -22,6 +22,7 @@
 #include "settings.h"
 #include "paginator.h"
 #include "youtube.h"
+#include "lyrics.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -38,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     init_settings();
     init_miniMode();
+    init_lyrics();
 
 //    checkEngine();
 
@@ -478,8 +480,6 @@ void MainWindow::setCountry(QString country){
 
 //set up webview #2
 void MainWindow::init_webview(){
-
-
 
     connect(ui->webview,SIGNAL(loadFinished(bool)),this,SLOT(webViewLoaded(bool)));
 
@@ -1031,6 +1031,7 @@ void MainWindow::showTrackOption(){
 
     QAction *gotoArtist= new QAction("Go to Artist",0);
     QAction *gotoAlbum = new QAction("Go to Album",0);
+    QAction *showLyrics = new QAction("Show Lyrics",0);
     QAction *sepe = new QAction("",0);
     sepe->setSeparator(true);
     QAction *sepe2 = new QAction("",0);
@@ -1044,6 +1045,19 @@ void MainWindow::showTrackOption(){
     QString albumId = store_manager->getAlbumId(songId);
     QString artistId = store_manager->getArtistId(songId);
 
+    connect(showLyrics,&QAction::triggered,[=](){
+        QString songTitle, artistTitle,lyrics_search_string;
+        songTitle = store_manager->getTrack(songId).at(1);
+       if(store_manager->getAlbum(albumId).contains("undefined")){
+            lyrics_search_string = songTitle;
+       }else{
+            artistTitle = store_manager->getArtist(artistId);
+            lyrics_search_string = songTitle +" - "+  artistTitle;
+       }
+       lyricsWidget->setStyleSheet("");
+       lyricsWidget->setCustomStyle(ui->search->styleSheet(),ui->right_list->styleSheet(),this->styleSheet());
+       lyricsWidget->setQueryString(lyrics_search_string);
+    });
 
     connect(gotoAlbum,&QAction::triggered,[=](){
             qDebug()<<"goto Album :"<<albumId;
@@ -1121,7 +1135,9 @@ void MainWindow::showTrackOption(){
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
         menu.addAction(gotoAlbum);
         menu.addAction(gotoArtist);
+        menu.addAction(showLyrics);
     }
+    menu.addAction(showLyrics);
     menu.addAction(sepe);
     menu.addAction(removeSong);
 //    menu.addAction(deleteSong);
@@ -2131,6 +2147,12 @@ void MainWindow::setZoom(float val){
     ui->webview->setZoomFactor( horizontalDpi / val);
 }
 
+void MainWindow::init_lyrics(){
+    lyricsWidget = new Lyrics(this);
+    lyricsWidget->setWindowFlags(Qt::Dialog);
+    lyricsWidget->setWindowModality(Qt::NonModal);
+}
+
 void MainWindow::init_miniMode(){
     miniModeWidget = new QWidget(this);
     miniMode_ui.setupUi(miniModeWidget);
@@ -2358,3 +2380,13 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
 
 
 
+
+void MainWindow::on_miniMode_option_clicked()
+{
+    if(!lyricsWidget->isVisible()){
+        lyricsWidget->setStyleSheet("");
+        lyricsWidget->setCustomStyle(ui->search->styleSheet(),ui->right_list->styleSheet(),this->styleSheet());
+        lyricsWidget->show();
+    }
+    else lyricsWidget->hide();
+}
