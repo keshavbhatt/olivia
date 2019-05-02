@@ -482,21 +482,26 @@ QString store::getDominantColor(QString albumId){
 
 
 bool store::getExpiry(QString trackId){
-    QSqlQuery query;
-    query.exec("SELECT timeOfExpiry FROM stream_url WHERE trackId = '"+trackId+"'");
     bool expired = false;
-    QString timeOfExpiry;
-    if(query.record().count()>0){
-        while(query.next()){
-             timeOfExpiry =  query.value("timeOfExpiry").toString();
+    if(!trackId.trimmed().isEmpty()){
+        QSqlQuery query;
+        query.exec("SELECT timeOfExpiry FROM stream_url WHERE trackId = '"+trackId+"'");
+
+        QString timeOfExpiry;
+        if(query.record().count()>0){
+            while(query.next()){
+                 timeOfExpiry =  query.value("timeOfExpiry").toString();
+            }
         }
-    }
-    //qDebug()<<QDateTime::currentMSecsSinceEpoch()/1000<<timeOfExpiry;
-    if(timeOfExpiry.toInt() < QDateTime::currentMSecsSinceEpoch()/1000)
-    {
-        expired =  true;
+        //qDebug()<<QDateTime::currentMSecsSinceEpoch()/1000<<timeOfExpiry;
+        if(timeOfExpiry.toInt() < QDateTime::currentMSecsSinceEpoch()/1000)
+        {
+            expired =  true;
+        }else{
+            expired = false;
+        }
     }else{
-        expired = false;
+        expired = true;
     }
     return expired;
 }
