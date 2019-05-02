@@ -45,10 +45,10 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
 
 void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString, bool calledByCloseEvent){
     if(calledByCloseEvent){
-        qDebug()<<"not starting radio process"<<calledByCloseEvent;
+//        qDebug()<<"not starting radio process"<<calledByCloseEvent;
      return;
     }
-    qDebug()<<"starting radio process"<<calledByCloseEvent;
+//    qDebug()<<"starting radio process"<<calledByCloseEvent;
     radioProcess = new QProcess(this);
     radioProcess->setProcessChannelMode(QProcess::MergedChannels);
     connect(radioProcess,SIGNAL(readyRead()),this,SLOT(radioReadyRead()));
@@ -232,9 +232,9 @@ void radio::radioReadyRead(){
     }else{
         QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
         ((QTextBrowser*)(console))->append(output);
-        if(output.contains("failed",Qt::CaseInsensitive)
+        if((output.contains("failed",Qt::CaseInsensitive)
                 ||output.contains("unable to resolve host address",Qt::CaseInsensitive)
-                ||output.contains("Failed to recognize file format",Qt::CaseInsensitive)){
+                ||output.contains("Failed to recognize file format",Qt::CaseInsensitive))&& !output.contains("Seek failed")){
                 radioState="failed";
                 emit radioStatus(radioState);
         }
