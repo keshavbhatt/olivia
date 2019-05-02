@@ -216,8 +216,16 @@ private slots:
     void check_engine_updates();
     void init_lyrics();
 
-    void on_miniMode_option_clicked();
+    QString menuStyle();
 
+    void on_olivia_queue_options_clicked();
+
+    void on_youtube_queue_options_clicked();
+
+    void queueShowOption(QListWidget *queue);
+    bool hasDeadTracks(QListWidget *queue);
+    bool hasUnCachedTracks(QListWidget *queue);
+    bool trackIsBeingProcessed(QString songId);
 private:
     QString core_local_date,core_remote_date;
     float zoom;

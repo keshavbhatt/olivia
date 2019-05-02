@@ -1028,19 +1028,26 @@ void MainWindow::showTrackOption(){
     QPushButton* senderButton = qobject_cast<QPushButton*>(sender());
     QString songId = senderButton->objectName().remove("optionButton").trimmed();
 
-
+    QAction *showLyrics = new QAction("Show Lyrics",0);
     QAction *gotoArtist= new QAction("Go to Artist",0);
     QAction *gotoAlbum = new QAction("Go to Album",0);
-    QAction *showLyrics = new QAction("Show Lyrics",0);
     QAction *sepe = new QAction("",0);
     sepe->setSeparator(true);
     QAction *sepe2 = new QAction("",0);
     sepe2->setSeparator(true);
     QAction *removeSong = new QAction("Remove from queue",0);
-//    QAction *deleteSong = new QAction("Remove from collection && queue",0);
     QAction *deleteSongCache = new QAction("Delete song cache",0);
     deleteSongCache->setEnabled(store_manager->isDownloaded(songId));
-//    deleteSong->setEnabled(store_manager->isInCollection(songId));
+    //QAction *deleteSong = new QAction("Remove from collection && queue",0);
+
+    //deleteSong->setEnabled(store_manager->isInCollection(songId));
+
+    //setIcons
+    gotoArtist->setIcon(QIcon(":/icons/sidebar/artist.png"));
+    gotoAlbum->setIcon(QIcon(":/icons/sidebar/album.png"));
+    showLyrics->setIcon(QIcon(":/icons/sidebar/playlist.png"));
+    removeSong->setIcon(QIcon(":/icons/sidebar/remove.png"));
+    deleteSongCache->setIcon(QIcon(":/icons/sidebar/delete.png"));
 
     QString albumId = store_manager->getAlbumId(songId);
     QString artistId = store_manager->getArtistId(songId);
@@ -1060,90 +1067,87 @@ void MainWindow::showTrackOption(){
     });
 
     connect(gotoAlbum,&QAction::triggered,[=](){
-            qDebug()<<"goto Album :"<<albumId;
-            ui->webview->load(QUrl("qrc:///web/goto/album.html"));
-            pageType = "goto_album";
-            gotoAlbumId = albumId;
+        ui->webview->load(QUrl("qrc:///web/goto/album.html"));
+        pageType = "goto_album";
+        gotoAlbumId = albumId;
     });
 
     connect(gotoArtist,&QAction::triggered,[=](){
-            qDebug()<<"goto Artist :"<<artistId;
-            ui->webview->load(QUrl("qrc:///web/goto/artist.html"));
-            pageType = "goto_artist";
-            gotoArtistId = artistId;
+        ui->webview->load(QUrl("qrc:///web/goto/artist.html"));
+        pageType = "goto_artist";
+        gotoArtistId = artistId;
     });
 
 
     connect(deleteSongCache,&QAction::triggered,[=](){
         QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-            qDebug()<<"deleted Song cache :"<<songId;
-            QFile cache(setting_path+"/downloadedTracks/"+songId);
-            cache.remove();
-            store_manager->update_track("downloaded",songId,"0");
-            for (int i= 0;i<ui->right_list->count();i++) {
-               QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-                if(songId==songIdFromWidget){
-                    ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
-                    ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
-                    break;
-                }
+        QFile cache(setting_path+"/downloadedTracks/"+songId);
+        cache.remove();
+        store_manager->update_track("downloaded",songId,"0");
+        for (int i= 0;i<ui->right_list->count();i++) {
+           QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+            if(songId==songIdFromWidget){
+                ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
+                ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
+                break;
             }
-            for (int i= 0;i<ui->right_list_2->count();i++) {
-               QString songIdFromWidget = ((QLineEdit*) ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-                if(songId==songIdFromWidget){
-                    ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
-                    ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
-                    break;
-                }
+        }
+        for (int i= 0;i<ui->right_list_2->count();i++) {
+           QString songIdFromWidget = ((QLineEdit*) ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+            if(songId==songIdFromWidget){
+                ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
+                ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
+                break;
             }
+        }
     });
 
 //    connect(deleteSong,&QAction::triggered,[=](){
-//            qDebug()<<"deleted Song from collection :"<<songId;
-//            store_manager->removeFromCollection(songId);
-//            for (int i= 0;i<ui->right_list->count();i++) {
-//               QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-//                if(songId==songIdFromWidget){
-//                    ui->right_list->takeItem(i);
-//                    store_manager->removeFromQueue(songId);
-//                    break;
-//                }
+//        qDebug()<<"deleted Song from collection :"<<songId;
+//        store_manager->removeFromCollection(songId);
+//        for (int i= 0;i<ui->right_list->count();i++) {
+//           QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+//            if(songId==songIdFromWidget){
+//                ui->right_list->takeItem(i);
+//                store_manager->removeFromQueue(songId);
+//                break;
 //            }
+//        }
 //    });
 
     connect(removeSong,&QAction::triggered,[=](){
-          //  qDebug()<<"removed Song :"<<songId;
-            for (int i= 0;i<ui->right_list->count();i++) {
-               QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-                if(songId==songIdFromWidget){
-                    ui->right_list->takeItem(i);
-                    store_manager->removeFromQueue(songId);
-                    break;
-                }
+        for (int i= 0;i<ui->right_list->count();i++) {
+           QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+            if(songId==songIdFromWidget){
+                ui->right_list->takeItem(i);
+                store_manager->removeFromQueue(songId);
+                break;
             }
-            for (int i= 0;i<ui->right_list_2->count();i++) {
-               QString songIdFromWidget = ((QLineEdit*) ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-                if(songId==songIdFromWidget){
-                    ui->right_list_2->takeItem(i);
-                    store_manager->removeFromQueue(songId);
-                    break;
-                }
+        }
+        for (int i= 0;i<ui->right_list_2->count();i++) {
+           QString songIdFromWidget = ((QLineEdit*) ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+            if(songId==songIdFromWidget){
+                ui->right_list_2->takeItem(i);
+                store_manager->removeFromQueue(songId);
+                break;
             }
+        }
     });
 
     QMenu menu;
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
+        menu.addAction(showLyrics);
         menu.addAction(gotoAlbum);
         menu.addAction(gotoArtist);
+    }else{
         menu.addAction(showLyrics);
     }
-    menu.addAction(showLyrics);
     menu.addAction(sepe);
     menu.addAction(removeSong);
-//    menu.addAction(deleteSong);
+    //menu.addAction(deleteSong);
     menu.addAction(sepe2);
     menu.addAction(deleteSongCache);
-
+    menu.setStyleSheet(menuStyle());
     menu.exec(QCursor::pos());
 }
 
@@ -1193,7 +1197,7 @@ void MainWindow::processYtdlQueue(){
                 connect(ytdlProcess,SIGNAL(finished(int)),this,SLOT(ytdlFinished(int)));
         }
     }else{
-        ui->ytdlQueueLabel->setText("Idle");
+        ui->ytdlQueueLabel->setText("idle");
     }
 
     //update stream info buttons
@@ -1207,12 +1211,13 @@ void MainWindow::ytdlFinished(int code){
     Q_UNUSED(code);
     ytdlProcess->close();
     ytdlProcess = nullptr;
+
     if(ytdlQueue.count()>0){
         ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
         //qDebug()<<"YoutubedlQueueSize:"<<ytdlQueue.count();
         processYtdlQueue();
     }else{
-        ui->ytdlQueueLabel->setText("Idle");
+        ui->ytdlQueueLabel->setText("idle");
     }
     //update stream info buttons
     if(ytdlProcess==nullptr){
@@ -1236,21 +1241,29 @@ void MainWindow::ytdlReadyRead(){
             if(listWidget==nullptr){
                 listWidget= ui->right_list_2->findChild<QWidget*>("track-widget-"+songId);
             }
-            if(s_data.contains("https")){
-                listWidget->setEnabled(true);
-//              listWidget->findChild<QLabel*>("loading")->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-                QLineEdit *url = listWidget->findChild<QLineEdit *>("url");
-                QString url_str = s_data.trimmed();
-                ((QLineEdit*)(url))->setText(url_str);
-
-                QProcess* senderProcess = qobject_cast<QProcess*>(sender());
-                senderProcess->kill();
-
-                QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(url_str.toUtf8())).queryItemValue("expire").trimmed();
-                if(expiryTime.isEmpty()){
-                    expiryTime = url_str.split("/expire/").last().split("/").first().trimmed();
-                }
+            if(listWidget==nullptr){
+                //saves song and metadata to store even it was removed
                 store_manager->saveStreamUrl(songId,url_str,expiryTime);
+                qDebug()<<"TRACK NOT FOUND IN LIST";
+            }else{
+                if(s_data.contains("https")){
+                    listWidget->setEnabled(true);
+                    //listWidget->findChild<QLabel*>("loading")->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+                    QLineEdit *url = listWidget->findChild<QLineEdit *>("url");
+                    QString url_str = s_data.trimmed();
+                    ((QLineEdit*)(url))->setText(url_str);
+
+                    QProcess* senderProcess = qobject_cast<QProcess*>(sender());
+                    senderProcess->close();
+                    senderProcess->kill();
+                    senderProcess->deleteLater();
+
+                    QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(url_str.toUtf8())).queryItemValue("expire").trimmed();
+                    if(expiryTime.isEmpty()){
+                        expiryTime = url_str.split("/expire/").last().split("/").first().trimmed();
+                    }
+                    store_manager->saveStreamUrl(songId,url_str,expiryTime);
+                }
             }
     }
 }
@@ -2373,20 +2386,158 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
         QMenu menu;
         menu.addAction(updateTrack);
         menu.addAction(getYtIds);
+        menu.setStyleSheet(menuStyle());
         menu.exec(QCursor::pos());
     }
 }
 //=========================================END Track item click handler==========================================
 
 
+//returns Qmenu stylesheet according to current theme
+QString MainWindow::menuStyle(){
+    //set theme for menu
+    QStringList rgba = themeColor.split(",");
+    QString r,g,b,a;
+    r= rgba.at(0);
+    g= rgba.at(1);
+    b= rgba.at(2);
+    a= rgba.at(3);
+    QString  menuStyle(
+             "QMenu:icon{"
+              "padding-left:4px;"
+             "}"
+             "QMenu::item{"
+                "background-color:rgba("
+                 +r+","+g+","+b+","+a+");"
+                "color: rgb(255, 255, 255);"
+             "}"
 
+             "QMenu::item:selected{"
+                "border:none;"
+                "background-color:"
+                "qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,"
+                "stop:0.129213 rgba("+r+", "+g+", "+b+", 35),"
+                "stop:0.38764 rgba("+r+", "+g+", "+b+", 120),"
+                "stop:0.679775 rgba("+r+", "+g+", "+b+", 110),"
+                "stop:1 rgba("+r+", "+g+", "+b+", 35));"
+             "color: rgb(255, 255, 255);"
+             "}"
 
-void MainWindow::on_miniMode_option_clicked()
-{
-    if(!lyricsWidget->isVisible()){
-        lyricsWidget->setStyleSheet("");
-        lyricsWidget->setCustomStyle(ui->search->styleSheet(),ui->right_list->styleSheet(),this->styleSheet());
-        lyricsWidget->show();
-    }
-    else lyricsWidget->hide();
+            "QMenu::item:disabled{"
+              "background-color:rgba("
+               +r+","+g+","+b+",0.1);"
+              "color: grey;"
+            "}"
+          );
+    return menuStyle;
 }
+
+//create and show queue option
+void MainWindow::on_olivia_queue_options_clicked()
+{
+    queueShowOption(ui->right_list);
+}
+
+void MainWindow::on_youtube_queue_options_clicked()
+{
+    queueShowOption(ui->right_list_2);
+}
+
+void MainWindow::queueShowOption(QListWidget *queue){
+
+    QAction *clearQueue  = new QAction(QIcon(":/icons/sidebar/remove.png"),"Clear this queue",0);
+    QAction *clearUnCached = new QAction(QIcon(":/icons/sidebar/remove.png"),"Clear un-cached songs",0);
+    QAction *refreshDeadTracks = new QAction(QIcon(":/icons/sidebar/refresh.png"),"Refresh dead tracks",0);
+
+    //connect
+    if(queue->count()>0){
+
+        clearQueue->setEnabled(true);
+        refreshDeadTracks->setEnabled(hasDeadTracks(queue));
+        clearUnCached->setEnabled(hasUnCachedTracks(queue));
+
+        connect(clearQueue,&QAction::triggered,[=](){
+            for (int i=0; i<queue->count();i++) {
+                QString songIdFromWidget = ((QLineEdit*) queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+                store_manager->removeFromQueue(songIdFromWidget);
+            }
+            queue->clear();
+
+        });
+        connect(clearUnCached,&QAction::triggered,[=](){
+            QList<QListWidgetItem*> items_to_remove;
+            for (int i=0; i<queue->count();i++) {
+                QString songIdFromWidget = ((QLineEdit*) queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+                if(!store_manager->isDownloaded(songIdFromWidget) && !trackIsBeingProcessed(songIdFromWidget)){
+                    items_to_remove.append(queue->item(i));
+                    store_manager->removeFromQueue(songIdFromWidget);
+                }
+            }
+            foreach(QListWidgetItem* item, items_to_remove){
+                 queue->removeItemWidget(item);
+                 delete item;
+            }
+        });
+
+        connect(refreshDeadTracks,&QAction::triggered,[=](){
+            for (int i=0; i<queue->count();i++) {
+                QString songIdFromWidget = ((QLineEdit*) queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+                if(store_manager->getExpiry(songIdFromWidget)&& !store_manager->isDownloaded(songIdFromWidget)){
+                    getAudioStream(store_manager->getYoutubeIds(songIdFromWidget),songIdFromWidget);
+                }
+            }
+        });
+    }else{
+        clearQueue->setEnabled(false);
+        clearUnCached->setEnabled(false);
+        refreshDeadTracks->setEnabled(false);
+    }
+
+    QMenu menu;
+    menu.addAction(clearQueue);
+    menu.addAction(clearUnCached);
+    menu.addSeparator();
+    menu.addAction(refreshDeadTracks);
+    menu.setStyleSheet(menuStyle());
+    menu.exec(QCursor::pos());
+
+}
+
+bool MainWindow::hasDeadTracks(QListWidget *queue){
+    bool has = false;
+     for (int i=0; i<queue->count();i++) {
+         QString songIdFromWidget = ((QLineEdit*) queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+         if(store_manager->getExpiry(songIdFromWidget)){
+             has = true;
+         }
+         if(has)break;
+     }
+     return has;
+}
+
+bool MainWindow::hasUnCachedTracks(QListWidget *queue){
+    bool has = false;
+     for (int i=0; i<queue->count();i++) {
+         QString songIdFromWidget = ((QLineEdit*) queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+         if(!store_manager->isDownloaded(songIdFromWidget)){
+             has = true;
+         }
+         if(has)break;
+     }
+     return has;
+}
+
+bool MainWindow::trackIsBeingProcessed(QString songId){
+    bool isProcessing = false;
+    QList<QProcess*> ytDlProcessList;
+    ytDlProcessList = this->findChildren<QProcess*>();
+    foreach (QProcess *process, ytDlProcessList) {
+        if(process->objectName().trimmed()==songId){
+            isProcessing = true;
+            qDebug()<<process->objectName().trimmed()<<songId;
+        }
+        if(isProcessing)break;
+    }
+    return isProcessing;
+}
+

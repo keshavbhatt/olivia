@@ -1020,7 +1020,8 @@ border-right:0px;
                     </font>
                    </property>
                    <property name="styleSheet">
-                    <string notr="true">background-color: transparent;</string>
+                    <string notr="true">background-color: transparent;
+color: rgb(180, 180, 180);</string>
                    </property>
                    <property name="text">
                     <string>PLAYER QUEUE</string>
@@ -1039,7 +1040,7 @@ border-right:0px;
                     <enum>Qt::NoFocus</enum>
                    </property>
                    <property name="toolTip">
-                    <string>Settings</string>
+                    <string>Application Settings</string>
                    </property>
                    <property name="styleSheet">
                     <string notr="true">border:none;
@@ -1121,19 +1122,68 @@ background-color: transparent;
                     <number>2</number>
                    </property>
                    <item>
-                    <widget class="QLineEdit" name="filter_olivia">
-                     <property name="styleSheet">
-                      <string notr="true">border:none;
+                    <layout class="QHBoxLayout" name="horizontalLayout">
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>4</number>
+                     </property>
+                     <item>
+                      <widget class="QLineEdit" name="filter_olivia">
+                       <property name="styleSheet">
+                        <string notr="true">border:none;
 background-color: transparent;
 </string>
-                     </property>
-                     <property name="placeholderText">
-                      <string>Filter this queue</string>
-                     </property>
-                     <property name="clearButtonEnabled">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
+                       </property>
+                       <property name="placeholderText">
+                        <string>Filter this queue</string>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="olivia_queue_options">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="focusPolicy">
+                        <enum>Qt::NoFocus</enum>
+                       </property>
+                       <property name="toolTip">
+                        <string>This queue options</string>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">border:none;
+background-color: transparent;</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="icons.qrc">
+                         <normaloff>:/icons/sidebar/playlist.png</normaloff>:/icons/sidebar/playlist.png</iconset>
+                       </property>
+                       <property name="iconSize">
+                        <size>
+                         <width>20</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                    <item>
                     <widget class="playerQueue" name="right_list">
@@ -1224,19 +1274,68 @@ background-color: transparent;
                     <number>2</number>
                    </property>
                    <item>
-                    <widget class="QLineEdit" name="filter_youtube">
-                     <property name="styleSheet">
-                      <string notr="true">border:none;
+                    <layout class="QHBoxLayout" name="horizontalLayout_7">
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>4</number>
+                     </property>
+                     <item>
+                      <widget class="QLineEdit" name="filter_youtube">
+                       <property name="styleSheet">
+                        <string notr="true">border:none;
 background-color: transparent;
 </string>
-                     </property>
-                     <property name="placeholderText">
-                      <string>Filter this queue</string>
-                     </property>
-                     <property name="clearButtonEnabled">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
+                       </property>
+                       <property name="placeholderText">
+                        <string>Filter this queue</string>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="youtube_queue_options">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="focusPolicy">
+                        <enum>Qt::NoFocus</enum>
+                       </property>
+                       <property name="toolTip">
+                        <string>This queue options</string>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">border:none;
+background-color: transparent;</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="icons.qrc">
+                         <normaloff>:/icons/sidebar/playlist.png</normaloff>:/icons/sidebar/playlist.png</iconset>
+                       </property>
+                       <property name="iconSize">
+                        <size>
+                         <width>20</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                    <item>
                     <widget class="QListWidget" name="right_list_2">
@@ -1354,7 +1453,7 @@ QScrollBar:vertical {
                          </sizepolicy>
                         </property>
                         <property name="text">
-                         <string>.</string>
+                         <string>idle</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignCenter</set>
@@ -1363,6 +1462,9 @@ QScrollBar:vertical {
                       </item>
                       <item>
                        <widget class="QPushButton" name="ytdlStopAll">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
                         <property name="toolTip">
                          <string>Stop processing current queue of dead tracks</string>
                         </property>
