@@ -51,13 +51,16 @@
    <item>
     <widget class="QPushButton" name="showLyrics">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="toolTip">
+      <string>showLyrics</string>
+     </property>
      <property name="text">
-      <string> Show Lyrics</string>
+      <string/>
      </property>
      <property name="icon">
       <iconset resource="icons.qrc">
