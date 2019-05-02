@@ -2011,6 +2011,9 @@ void MainWindow::check_engine_updates(){
              if(!core_local_date.isNull() && !core_remote_date.isNull()){
                 compare_versions(core_local_date,core_remote_date);
              }
+             if(core_local_date.trimmed().isEmpty()){
+                 compare_versions(core_local_date,core_remote_date);
+             }
         }
         rep->deleteLater();
         m_netwManager->deleteLater();
@@ -2021,6 +2024,9 @@ void MainWindow::check_engine_updates(){
 }
 
 void MainWindow::compare_versions(QString date,QString n_date){
+    if(date.isEmpty()){
+        date = "2019.01.01";
+    }
 
     int year,month,day,n_year,n_month,n_day;
 
