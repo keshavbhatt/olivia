@@ -76,7 +76,7 @@
       <item>
        <widget class="QCheckBox" name="saveAfterBuffer">
         <property name="text">
-         <string>Save tracks after buffer</string>
+         <string>Save tracks while buffering</string>
         </property>
        </widget>
       </item>
