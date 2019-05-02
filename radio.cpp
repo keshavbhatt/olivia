@@ -45,16 +45,14 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
 
 void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString, bool calledByCloseEvent){
     if(calledByCloseEvent){
-//        qDebug()<<"not starting radio process"<<calledByCloseEvent;
      return;
     }
-//    qDebug()<<"starting radio process"<<calledByCloseEvent;
     radioProcess = new QProcess(this);
     radioProcess->setProcessChannelMode(QProcess::MergedChannels);
     connect(radioProcess,SIGNAL(readyRead()),this,SLOT(radioReadyRead()));
     connect(radioProcess,SIGNAL(finished(int)),this,SLOT(radioFinished(int)));
 
-    QString status_message_arg = "--term-status-msg='[olivia:][${=time-pos}][${=duration}][${=pause}][${=paused-for-cache}][${idle-active}][${cache-buffering-state}%][${=demuxer-cache-duration}][${=seekable}][${=audio-bitrate}][${seeking}]'";//[${=eof-reached}]
+    QString status_message_arg = "--term-status-msg='[olivia:][${=time-pos}][${=duration}][${=pause}][${=paused-for-cache}][${idle-active}][${cache-buffering-state}%][${=demuxer-cache-duration}][${=seekable}][${=audio-bitrate}][${seeking}]'"; //[${=eof-reached}]
 
     radioProcess->setObjectName("_radio_");
 
@@ -180,7 +178,6 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
        radioPlaybackTimer->start(500);
 }
 
-
 void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
 
     state_line.clear();
@@ -267,11 +264,13 @@ void radio::radioFinished(int code){
     if(code == 0){
         radioState = "exit";
         emit radioStatus("exit");
+        radioProcess->close();
         radioProcess->deleteLater();
         radioPlaybackTimer->stop();
     }else{
         radioState = "loading";
         emit radioStatus("loading");
+        radioProcess->close();
         radioProcess->deleteLater();
         radioPlaybackTimer->stop();
         startRadioProcess(saveTracksAfterBuffer,streamUrl,false);
@@ -335,7 +334,6 @@ void radio::quitRadio()
 void radio::deleteProcess(int code){
     QList<QProcess*> radio_process_list;
     radio_process_list = this->findChildren<QProcess*>();
-//    qDebug()<<"NUMBER OF PROCESS:"<<radio_process_list.count();
     Q_UNUSED(code);
     const QObject *sen = sender();
     delete sen;
@@ -343,8 +341,9 @@ void radio::deleteProcess(int code){
 
 void radio::killRadioProcess(){
     if(radioProcess->state()==QProcess::Running){
-      QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(radioProcess->processId()));
-      delete radioProcess;
+        QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(radioProcess->processId()));
+        if(radioProcess)
+        delete radioProcess;
     }
 }
 

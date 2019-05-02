@@ -75,7 +75,7 @@ private slots:
       loop.exec();
     }
 
-private:
+ private:
     QProcess *radioProcess = nullptr;
     QString setting_path;
 

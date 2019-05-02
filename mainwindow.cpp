@@ -315,9 +315,9 @@ void MainWindow::add_colors_to_color_widget(){
         QPushButton *pb =new QPushButton();
         pb->setIcon(QIcon(":/icons/picker.png"));
         pb->setIconSize(QSize(22,22));
-        pb->setObjectName("custom color");
+        pb->setObjectName("custom_color");
         pb->setText("Select color");
-        pb->setToolTip("Choose custom color from Color Dialog");
+        pb->setToolTip("Choose custom color from color dialog.");
         connect(pb,SIGNAL(clicked(bool)),this,SLOT(customColor()));
         ((QGridLayout *)(layout))->addWidget(pb, row+1, 0);
         settingsWidget->adjustSize();
