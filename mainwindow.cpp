@@ -1214,7 +1214,6 @@ void MainWindow::ytdlFinished(int code){
 
     if(ytdlQueue.count()>0){
         ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
-        //qDebug()<<"YoutubedlQueueSize:"<<ytdlQueue.count();
         processYtdlQueue();
     }else{
         ui->ytdlQueueLabel->setText("idle");
@@ -1242,8 +1241,6 @@ void MainWindow::ytdlReadyRead(){
                 listWidget= ui->right_list_2->findChild<QWidget*>("track-widget-"+songId);
             }
             if(listWidget==nullptr){
-                //saves song and metadata to store even it was removed
-                store_manager->saveStreamUrl(songId,url_str,expiryTime);
                 qDebug()<<"TRACK NOT FOUND IN LIST";
             }else{
                 if(s_data.contains("https")){
@@ -2482,7 +2479,7 @@ void MainWindow::queueShowOption(QListWidget *queue){
         connect(refreshDeadTracks,&QAction::triggered,[=](){
             for (int i=0; i<queue->count();i++) {
                 QString songIdFromWidget = ((QLineEdit*) queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-                if(store_manager->getExpiry(songIdFromWidget)&& !store_manager->isDownloaded(songIdFromWidget)){
+                if( !queue->itemWidget(queue->item(i))->isEnabled() && !store_manager->isDownloaded(songIdFromWidget)){
                     getAudioStream(store_manager->getYoutubeIds(songIdFromWidget),songIdFromWidget);
                 }
             }
@@ -2507,7 +2504,7 @@ bool MainWindow::hasDeadTracks(QListWidget *queue){
     bool has = false;
      for (int i=0; i<queue->count();i++) {
          QString songIdFromWidget = ((QLineEdit*) queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-         if(store_manager->getExpiry(songIdFromWidget)){
+         if(store_manager->getExpiry(songIdFromWidget) && !store_manager->isDownloaded(songIdFromWidget)){
              has = true;
          }
          if(has)break;
