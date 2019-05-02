@@ -1999,8 +1999,12 @@ void MainWindow::check_engine_updates(){
     //read version from local core_version file
     QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QFile *core_version_file =  new QFile(addin_path+"/"+"core_version" );
-    if (!core_version_file->open(QIODevice::ReadOnly | QIODevice::Text))
-              return;
+    if (!core_version_file->open(QIODevice::ReadOnly | QIODevice::Text)){
+        core_local_date = "2019.01.01";
+        core_remote_date = QDate::currentDate().toString(Qt::ISODate);
+        compare_versions(core_local_date,core_remote_date);
+        return;
+    }
     core_local_date  = core_version_file->readAll().trimmed();
 
     //read version from remote
@@ -2010,9 +2014,6 @@ void MainWindow::check_engine_updates(){
              core_remote_date = rep->readAll().trimmed();
              if(!core_local_date.isNull() && !core_remote_date.isNull()){
                 compare_versions(core_local_date,core_remote_date);
-             }
-             if(core_local_date.trimmed().isEmpty()){
-                 compare_versions(core_local_date,core_remote_date);
              }
         }
         rep->deleteLater();
@@ -2024,9 +2025,6 @@ void MainWindow::check_engine_updates(){
 }
 
 void MainWindow::compare_versions(QString date,QString n_date){
-    if(date.isEmpty()){
-        date = "2019.01.01";
-    }
 
     int year,month,day,n_year,n_month,n_day;
 
@@ -2068,9 +2066,9 @@ void MainWindow::compare_versions(QString date,QString n_date){
 void MainWindow::evoke_engine_check(){
     if(settingsUi.engine_status->text()=="Absent"){
         QMessageBox msgBox;
-          msgBox.setText("Olivia component is missing !");
+          msgBox.setText("Olivia need to download its engine which is responsible for finding music online!");
           msgBox.setIcon(QMessageBox::Information);
-          msgBox.setInformativeText("Olivia engine (1.4Mb in size) is missing, without this the app will not work properly. Download now ?");
+          msgBox.setInformativeText("Olivia engine (1.4Mb in size) is youtube-dl with some modifications, without this the app will not work properly, Download now ?");
           msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
           QPushButton *p = new QPushButton("Quit",0);
           msgBox.addButton(p,QMessageBox::NoRole);
