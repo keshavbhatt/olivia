@@ -88,5 +88,8 @@
         <file>icons/micro/url.png</file>
         <file>icons/micro/zoom-in.png</file>
         <file>icons/micro/zoom-out.png</file>
+        <file>icons/sidebar/remove.png</file>
+        <file>icons/sidebar/delete.png</file>
+        <file>icons/sidebar/refresh.png</file>
     </qresource>
 </RCC>
