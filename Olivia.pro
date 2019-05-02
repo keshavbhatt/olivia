@@ -17,6 +17,9 @@ TARGET = olivia
 VERSION = 0.0.1
 DEFINES += VERSIONSTR=\\\"$${VERSION}\\\"
 
+
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+
 CONFIG += c++11
 
 
