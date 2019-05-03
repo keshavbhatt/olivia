@@ -466,7 +466,6 @@ void MainWindow::init_app(){
     ui->title_horizontalLayout->addWidget(title);
     ui->artist_horizontalLayout->addWidget(artist);
     ui->album_horizontalLayout->addWidget(album);
-//    browse();
 
 }
 
@@ -1236,13 +1235,52 @@ void MainWindow::ytdlReadyRead(){
   //  qDebug()<<s_data;
 
     if(!s_data.isEmpty()){
+            QString listName;
             QWidget *listWidget = ui->right_list->findChild<QWidget*>("track-widget-"+songId);
+            listName = "olivia";
             if(listWidget==nullptr){
                 listWidget= ui->right_list_2->findChild<QWidget*>("track-widget-"+songId);
+                listName = "youtube";
             }
             if(listWidget==nullptr){
                 qDebug()<<"TRACK NOT FOUND IN LIST";
+                listName = "";
             }else{
+                //algo to assign next/previous song if current processed track is next to currently playing track.
+                int row;
+                if(!listName.isEmpty()){
+                    if(listName=="olivia"){
+                        for(int i=0;i<ui->right_list->count();i++){
+                            if(ui->right_list->itemWidget(ui->right_list->item(i))->objectName()==listWidget->objectName()){
+                                row = i;
+                                if(row-1 <= ui->right_list->count() && ui->right_list->itemWidget(ui->right_list->item(row-1))->objectName().contains(nowPlayingSongId)){
+                                    assignNextTrack(ui->right_list,row);
+                                    ui->next->setEnabled(true);
+                                }else if(row+1 <= ui->right_list->count() && ui->right_list->itemWidget(ui->right_list->item(row+1))->objectName().contains(nowPlayingSongId)){
+                                    assignPreviousTrack(ui->right_list,row);
+                                    ui->previous->setEnabled(true);
+                                }
+                                break;
+                            }
+                        }
+                    }else{
+                        for(int i=0;i<ui->right_list_2->count();i++){
+                            if(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->objectName()==listWidget->objectName()){
+                                row = i;
+                                if(row !=0 && ui->right_list_2->itemWidget(ui->right_list_2->item(row-1))->objectName().contains(nowPlayingSongId)){
+                                    assignNextTrack(ui->right_list_2,row);
+                                    ui->next->setEnabled(true);
+                                }else if(row+1 <= ui->right_list_2->count() && ui->right_list_2->itemWidget(ui->right_list_2->item(row+1))->objectName().contains(nowPlayingSongId)){
+                                    assignPreviousTrack(ui->right_list_2,row);
+                                    ui->previous->setEnabled(true);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                //END algo to assign next/previous song if current processed track is next to currently playing track.
+
                 if(s_data.contains("https")){
                     listWidget->setEnabled(true);
                     //listWidget->findChild<QLabel*>("loading")->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
@@ -1449,10 +1487,10 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     if(list->currentRow()==0){
         ui->previous->setEnabled(false);
     }else{
-        ui->previous->setEnabled(true);
         //assign next track in list if next item in list is valid
         for(int i=list->currentRow()-1;i>-1;i--){
             if(list->itemWidget(list->item(i))->isEnabled()){
+                ui->previous->setEnabled(true);
                 assignPreviousTrack(list,i);
                 break;
             }
@@ -1462,10 +1500,10 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     if(list->currentRow()==list->count()-1){
         ui->next->setEnabled(false);
     }else{
-        ui->next->setEnabled(true);
         //assign next track in list if next item in list is valid
         for(int i=list->currentRow()+1;i<list->count();i++){
             if(list->itemWidget(list->item(i))->isEnabled()){
+                ui->next->setEnabled(true);
                 assignNextTrack(list,i);
                 break;
             }
@@ -2350,12 +2388,34 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
     //check if track is not enabled
     if(listWidget->itemWidget(item)->isEnabled()==false){
         QAction *updateTrack= new QAction("Refresh Track",0);
-        QAction *getYtIds = new QAction("Set Stream Source",0);
-//        updateTrack->setEnabled(false);
-//        getYtIds->setEnabled(false);
+        QAction *getYtIds = new QAction("Search on Youtube",0);
+        QAction *removeTrack = new QAction("Search on Youtube && Remove track",0);
+
+        //set Icons
+        updateTrack->setIcon(QIcon(":/icons/sidebar/refresh.png"));
+        getYtIds->setIcon(QIcon(":/icons/sidebar/search.png"));
+        removeTrack->setIcon(QIcon(":/icons/sidebar/remove.png"));
+
+
         //not enabled, decide menu option to popup
         QString ytIds = listWidget->itemWidget(item)->findChild<QLineEdit*>("id")->text().trimmed();
         QString songId = listWidget->itemWidget(item)->findChild<QLineEdit*>("songId")->text().trimmed();
+
+        connect(removeTrack,&QAction::triggered,[=](){
+            //youtube search
+            QString  songTitle =  listWidget->itemWidget(item)->findChild<ElidedLabel*>("title_elided")->text();
+            QString  songArtist =  listWidget->itemWidget(item)->findChild<ElidedLabel*>("artist_elided")->text();
+            if(pageType=="youtube"){
+                ui->webview->page()->mainFrame()->evaluateJavaScript("mainwindow.setSearchTermAndOpenYoutube('"+songTitle+"','"+songArtist+"'");
+            }else{
+                setSearchTermAndOpenYoutube(QVariant(songTitle+" - "+songArtist));
+            }
+            //remove
+            listWidget->removeItemWidget(item);
+            delete item;
+            store_manager->removeFromQueue(songId);
+        });
+
         //qDebug()<<songId<<ytIds;
         //if no ytIds set for track
         if(ytIds.isEmpty()){
@@ -2387,6 +2447,8 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
         QMenu menu;
         menu.addAction(updateTrack);
         menu.addAction(getYtIds);
+        menu.addSeparator();
+        menu.addAction(removeTrack);
         menu.setStyleSheet(menuStyle());
         menu.exec(QCursor::pos());
     }

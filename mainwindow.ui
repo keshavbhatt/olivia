@@ -1564,6 +1564,9 @@ QScrollBar:vertical {
          </property>
          <item>
           <widget class="QPushButton" name="previous">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -1642,6 +1645,9 @@ QScrollBar:vertical {
          </item>
          <item>
           <widget class="QPushButton" name="next">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
