@@ -16,6 +16,7 @@ public slots:
 
 protected slots:
     void mouseMoveEvent(QMouseEvent *e);
+    bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif // CONTROLBUTTON_H
