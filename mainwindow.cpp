@@ -707,6 +707,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
                 }else{
                     move(me->globalPos() - oldPos);
                 }
+                event->accept();
             }
         return true;
     }
@@ -720,6 +721,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
                 }else{
                     oldPos = me->globalPos() - frameGeometry().topLeft();
                 }
+                 event->accept();
             }
             return true;
         }
@@ -734,6 +736,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
                 }else{
                     this->setWindowState(Qt::WindowMaximized);
                 }
+                 event->accept();
             }
             return true;
         }
