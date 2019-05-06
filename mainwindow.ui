@@ -1563,7 +1563,7 @@ QScrollBar:vertical {
           <number>0</number>
          </property>
          <item>
-          <widget class="QPushButton" name="previous">
+          <widget class="controlButton" name="previous">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -1572,6 +1572,9 @@ QScrollBar:vertical {
              <width>0</width>
              <height>0</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string notr="true"/>
            </property>
            <property name="styleSheet">
             <string notr="true">border:none;</string>
@@ -1644,7 +1647,7 @@ QScrollBar:vertical {
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="next">
+          <widget class="controlButton" name="next">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -1653,6 +1656,9 @@ QScrollBar:vertical {
              <width>0</width>
              <height>0</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string notr="true"/>
            </property>
            <property name="styleSheet">
             <string notr="true">border:none;</string>
@@ -1828,6 +1834,11 @@ border-radius:2px;</string>
    <class>playerQueue</class>
    <extends>QListWidget</extends>
    <header>playerqueue.h</header>
+  </customwidget>
+  <customwidget>
+   <class>controlButton</class>
+   <extends>QPushButton</extends>
+   <header>controlbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>

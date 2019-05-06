@@ -52,7 +52,8 @@ SOURCES += main.cpp\
     waveformseekslider.cpp \
     youtube.cpp \
     playerqueue.cpp \
-    lyrics.cpp
+    lyrics.cpp \
+    controlbutton.cpp
 
 HEADERS  += mainwindow.h \
     DarkStyle.h \
@@ -69,7 +70,8 @@ HEADERS  += mainwindow.h \
     waveformseekslider.h \
     youtube.h \
     playerqueue.h \
-    lyrics.h
+    lyrics.h \
+    controlbutton.h
 
 FORMS    += mainwindow.ui \
     track.ui \

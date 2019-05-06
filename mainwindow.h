@@ -118,8 +118,6 @@ private slots:
     void ytdlReadyRead();
 
 
-
-
     //MEDIAPLAYER
     void init_offline_storage();
     void setPlayerPosition(qint64 position);
@@ -226,6 +224,13 @@ private slots:
     bool hasDeadTracks(QListWidget *queue);
     bool hasUnCachedTracks(QListWidget *queue);
     bool trackIsBeingProcessed(QString songId);
+
+    //return pain text version of text which contains html symbolic notations
+    QString htmlToPlainText(QString html){
+        QTextDocument text;
+        text.setHtml(html);
+        return text.toPlainText();
+    }
 private:
     QString core_local_date,core_remote_date;
     float zoom;

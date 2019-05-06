@@ -172,6 +172,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->nowPlayingGrip->installEventFilter(this);
 
 
+
     QString btn_style_2= "QPushButton{background-color:transparent ;border:0px;}"
                          "QPushButton:disabled { background-color: transparent; border-bottom:1px solid #727578;"
                          "padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px;color: #636363;}"
@@ -698,7 +699,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
 
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event){
-    if ((obj == ui->nowPlayingGrip || ui->top_widget  || ui->windowControls || ui->label_6 ) && (event->type() == QEvent::MouseMove)) {
+    if ((obj == ui->nowPlayingGrip || obj == ui->top_widget  || obj == ui->windowControls || obj == ui->label_6 ) && (event->type() == QEvent::MouseMove)) {
             const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
             if (me->buttons() & Qt::LeftButton) {
                 if(obj==ui->nowPlayingGrip){
@@ -706,12 +707,12 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
                 }else{
                     move(me->globalPos() - oldPos);
                 }
-                event->accept();
             }
-            return true;
+        return true;
     }
-    if ((obj == ui->nowPlayingGrip || ui->top_widget  || ui->windowControls || ui->label_6) &&
-        (event->type() == QEvent::MouseButtonPress)) {
+
+    if (obj == ui->nowPlayingGrip || obj == ui->top_widget  || obj == ui->windowControls || obj == ui->label_6){
+        if (event->type() == QEvent::MouseButtonPress){
             const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
             if (me->button() == Qt::LeftButton) {
                 if(obj==ui->nowPlayingGrip){
@@ -719,13 +720,13 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
                 }else{
                     oldPos = me->globalPos() - frameGeometry().topLeft();
                 }
-                event->accept();
             }
             return true;
+        }
     }
 
-    if ((obj ==  ui->top_widget || ui->label_6) &&
-        (event->type() == QEvent::MouseButtonDblClick)) {
+    if (obj ==  ui->top_widget || obj == ui->label_6) {
+        if(event->type() == QEvent::MouseButtonDblClick){
             const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
             if (me->button() == Qt::LeftButton) {
                 if(this->isMaximized()){
@@ -733,14 +734,15 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
                 }else{
                     this->setWindowState(Qt::WindowMaximized);
                 }
-                event->accept();
             }
             return true;
+        }
     }
-    if(obj==ui->search)
-        return false;
 
-    return obj->eventFilter(obj, event);
+    if(obj==ui->search){
+        return false;
+    }
+        return obj->eventFilter(obj, event);
 }
 
 
@@ -1865,11 +1867,9 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
         ui->cover->setPixmap(QPixmap(":/web/radio/station_cover.jpg"));
     }
 
-    QTextDocument text;
-    text.setHtml(title);
-    QString plainTitle = text.toPlainText();
 
-    this->findChild<ElidedLabel *>("nowP_title")->setText(plainTitle);
+
+    this->findChild<ElidedLabel *>("nowP_title")->setText(htmlToPlainText(title));
 
     this->findChild<ElidedLabel *>("nowP_artist")->setText(language);
 
@@ -2302,6 +2302,12 @@ void MainWindow::reloadREquested(QString dataType,QString query){
 }
 
 void MainWindow::assignNextTrack(QListWidget *list ,int index){
+    QString songId = list->itemWidget(list->item(index))->findChild<QLineEdit *>("songId")->text().trimmed();
+    if(!songId.isEmpty()){
+        ui->next->setToolTip(htmlToPlainText(store_manager->getTrack(songId).at(1)));
+    }else{
+        ui->next->setToolTip("");
+    }
     ui->next->disconnect();
     connect(ui->next,&QPushButton::clicked,[=](){
         list->setCurrentRow(index);
@@ -2313,6 +2319,12 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
 
 void MainWindow::assignPreviousTrack(QListWidget *list ,int index)
 {
+    QString songId = list->itemWidget(list->item(index))->findChild<QLineEdit *>("songId")->text().trimmed();
+    if(!songId.isEmpty()){
+        ui->previous->setToolTip(htmlToPlainText(store_manager->getTrack(songId).at(1)));
+    }else{
+        ui->previous->setToolTip("");
+    }
     ui->previous->disconnect();
     connect(ui->previous,&QPushButton::clicked,[=](){
         list->setCurrentRow(index);
