@@ -35,4 +35,8 @@ void settings::changeMiniModeTransperancy(int val){
     settingsObj.setValue("miniModeTransperancy",val);
 }
 
+void settings::changeSystemTitlebar(bool checked){
+    settingsObj.setValue("systemTitlebar",checked);
+}
+
 

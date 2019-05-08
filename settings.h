@@ -28,6 +28,7 @@ public slots:
     void changeMiniModeStayOnTop(bool checked);
     void changeZoom(QString zoom);
     void changeMiniModeTransperancy(int val);
+    void changeSystemTitlebar(bool checked);
 };
 
 #endif // SETTINGS_H

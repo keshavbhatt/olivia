@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>282</width>
-    <height>402</height>
+    <width>293</width>
+    <height>426</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -154,6 +154,13 @@
        <widget class="QCheckBox" name="dynamicTheme">
         <property name="text">
          <string>Use dynamic theme (based on cover-art)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="systemTitlebar">
+        <property name="text">
+         <string>Use system Titlebar (Disable CSD)</string>
         </property>
        </widget>
       </item>
