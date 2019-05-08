@@ -2248,7 +2248,7 @@ void MainWindow::on_miniMode_clicked()
     if(!miniModeWidget->isVisible())
     {
         ui->miniMode->setIcon(QIcon(":/icons/restore_mini_mode.png"));
-        ui->miniMode->setToolTip("Restore back to main window");
+        ui->miniMode->setToolTip("Restore back to full mode");
 
         miniMode_ui.nowPlayingLayout->addWidget(ui->nowplaying_widget);
 
