@@ -171,6 +171,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->windowControls->installEventFilter(this);
     ui->label_6->installEventFilter(this);
     ui->nowPlayingGrip->installEventFilter(this);
+    qApp->installEventFilter(ui->next);
+    qApp->installEventFilter(ui->previous);
 
 
 
@@ -312,8 +314,8 @@ void MainWindow::loadSettings(){
 
 void MainWindow::add_colors_to_color_widget(){
 
-        color_list<<"fakeitem"<<"#FF0034"<<"#0070FF"<<"#029013"
-                        <<"#D22298"<<"#FF901F"<<"#836C50";
+        color_list<<"fakeitem"<<"#FF0034"<<"#2A82DA"<<"#029013"
+                        <<"#D22298"<<"#FF901F"<<"#565655";
 
         QObject *layout = settingsWidget->findChild<QObject*>("themeHolderGridLayout");
         int row=0;
@@ -1269,66 +1271,60 @@ void MainWindow::ytdlReadyRead(){
 
     if(!s_data.isEmpty()){
             QString listName;
-            QWidget *listWidget = ui->right_list->findChild<QWidget*>("track-widget-"+songId);
+            QListWidget *listWidget;
+            QWidget *listWidgetItem = ui->right_list->findChild<QWidget*>("track-widget-"+songId);
             listName = "olivia";
-            if(listWidget==nullptr){
-                listWidget= ui->right_list_2->findChild<QWidget*>("track-widget-"+songId);
+            listWidget = ui->right_list;
+            if(listWidgetItem==nullptr){
+                listWidgetItem= ui->right_list_2->findChild<QWidget*>("track-widget-"+songId);
                 listName = "youtube";
+                listWidget = ui->right_list_2;
             }
-            if(listWidget==nullptr){
+            //check if listWidgetItem found in one of list
+            if(listWidgetItem==nullptr){
                 qDebug()<<"TRACK NOT FOUND IN LIST";
                 listName = "";
+                QProcess* senderProcess = qobject_cast<QProcess*>(sender());
+                senderProcess->close();
+                if(senderProcess != nullptr)
+                senderProcess->deleteLater();
             }else{
                 //algo to assign next/previous song if current processed track is next to currently playing track.
                 int row;
                 if(!listName.isEmpty()){
-                    if(listName=="olivia"){
-                        for(int i=0;i<ui->right_list->count();i++){
-                            if(ui->right_list->itemWidget(ui->right_list->item(i))->objectName()==listWidget->objectName()){
-                                row = i;
-                                if(row>=1){
-                                    if(row-1 <= ui->right_list->count() && ui->right_list->itemWidget(ui->right_list->item(row-1))->objectName().contains(nowPlayingSongId)){
-                                        assignNextTrack(ui->right_list,row);
-                                        ui->next->setEnabled(true);
-                                    }else if(row+1 <= ui->right_list->count() && ui->right_list->itemWidget(ui->right_list->item(row+1))->objectName().contains(nowPlayingSongId)){
-                                        assignPreviousTrack(ui->right_list,row);
-                                        ui->previous->setEnabled(true);
-                                    }
-                                    break;
+                    for(int i=0;i<listWidget->count();i++){
+                        if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
+                            row = i;
+                            if( row+1 <= listWidget->count()){
+                             if(row != 0){
+                                if(listWidget->itemWidget(listWidget->item(row-1))->objectName().contains(nowPlayingSongId)){
+                                    assignNextTrack(listWidget,row);
+                                    ui->next->setEnabled(true);
                                 }
-
-                            }
-                        }
-                    }else{
-                        for(int i=0;i<ui->right_list_2->count();i++){
-                            if(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->objectName()==listWidget->objectName()){
-                                row = i;
-                                if(row>=1){
-                                    if(row !=0 && ui->right_list_2->itemWidget(ui->right_list_2->item(row-1))->objectName().contains(nowPlayingSongId)){
-                                        assignNextTrack(ui->right_list_2,row);
-                                        ui->next->setEnabled(true);
-                                    }else if(row <= ui->right_list_2->count() && ui->right_list_2->itemWidget(ui->right_list_2->item(row))->objectName().contains(nowPlayingSongId)){
-                                        assignPreviousTrack(ui->right_list_2,row);
-                                        ui->previous->setEnabled(true);
-                                    }
-                                    break;
+                             }
+                             if(row+1 != listWidget->count()){
+                                if(listWidget->itemWidget(listWidget->item(row+1))->objectName().contains(nowPlayingSongId)){
+                                    assignPreviousTrack(listWidget,row);
+                                    ui->previous->setEnabled(true);
                                 }
+                             }
                             }
+                          break;
                         }
                     }
                 }
                 //END algo to assign next/previous song if current processed track is next to currently playing track.
 
                 if(s_data.contains("https")){
-                    listWidget->setEnabled(true);
-                    //listWidget->findChild<QLabel*>("loading")->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-                    QLineEdit *url = listWidget->findChild<QLineEdit *>("url");
+                    listWidgetItem->setEnabled(true);
+                    //listWidgetItem->findChild<QLabel*>("loading")->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+                    QLineEdit *url = listWidgetItem->findChild<QLineEdit *>("url");
                     QString url_str = s_data.trimmed();
                     ((QLineEdit*)(url))->setText(url_str);
 
                     QProcess* senderProcess = qobject_cast<QProcess*>(sender());
                     senderProcess->close();
-                    senderProcess->kill();
+                    if(senderProcess != nullptr)
                     senderProcess->deleteLater();
 
                     QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(url_str.toUtf8())).queryItemValue("expire").trimmed();
