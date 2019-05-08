@@ -230,6 +230,23 @@ void MainWindow::init_settings(){
     connect(settingsUi.saveAfterBuffer,SIGNAL(toggled(bool)),settUtils,SLOT(changeSaveAfterSetting(bool)));
     connect(settingsUi.showSearchSuggestion,SIGNAL(toggled(bool)),settUtils,SLOT(changeShowSearchSuggestion(bool)));
     connect(settingsUi.dynamicTheme,SIGNAL(toggled(bool)),settUtils,SLOT(changeDynamicTheme(bool)));
+
+    connect(settingsUi.systemTitlebar,&QCheckBox::toggled,[=](bool checked){
+        settUtils->changeSystemTitlebar(checked);
+        if(checked){
+            hide();
+            ui->windowControls_main->hide();
+            this->setWindowFlags(Qt::Window|Qt::WindowTitleHint|Qt::WindowSystemMenuHint
+                                 |Qt::WindowMinMaxButtonsHint|Qt::WindowCloseButtonHint|Qt::WindowFullscreenButtonHint);
+            show();
+        }else{
+            hide();
+            this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+            ui->windowControls_main->show();
+            show();
+        }
+    });
+
     connect(settingsUi.miniModeTransperancySlider,&QSlider::valueChanged,[=](int val){
         settUtils->changeMiniModeTransperancy(val);
         settingsUi.transperancyLabel->setText(QString::number(settingsUi.miniModeTransperancySlider->value()));
@@ -1258,28 +1275,33 @@ void MainWindow::ytdlReadyRead(){
                         for(int i=0;i<ui->right_list->count();i++){
                             if(ui->right_list->itemWidget(ui->right_list->item(i))->objectName()==listWidget->objectName()){
                                 row = i;
-                                if(row-1 <= ui->right_list->count() && ui->right_list->itemWidget(ui->right_list->item(row-1))->objectName().contains(nowPlayingSongId)){
-                                    assignNextTrack(ui->right_list,row);
-                                    ui->next->setEnabled(true);
-                                }else if(row+1 <= ui->right_list->count() && ui->right_list->itemWidget(ui->right_list->item(row+1))->objectName().contains(nowPlayingSongId)){
-                                    assignPreviousTrack(ui->right_list,row);
-                                    ui->previous->setEnabled(true);
+                                if(row>=1){
+                                    if(row-1 <= ui->right_list->count() && ui->right_list->itemWidget(ui->right_list->item(row-1))->objectName().contains(nowPlayingSongId)){
+                                        assignNextTrack(ui->right_list,row);
+                                        ui->next->setEnabled(true);
+                                    }else if(row+1 <= ui->right_list->count() && ui->right_list->itemWidget(ui->right_list->item(row+1))->objectName().contains(nowPlayingSongId)){
+                                        assignPreviousTrack(ui->right_list,row);
+                                        ui->previous->setEnabled(true);
+                                    }
+                                    break;
                                 }
-                                break;
+
                             }
                         }
                     }else{
                         for(int i=0;i<ui->right_list_2->count();i++){
                             if(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->objectName()==listWidget->objectName()){
                                 row = i;
-                                if(row !=0 && ui->right_list_2->itemWidget(ui->right_list_2->item(row-1))->objectName().contains(nowPlayingSongId)){
-                                    assignNextTrack(ui->right_list_2,row);
-                                    ui->next->setEnabled(true);
-                                }else if(row+1 <= ui->right_list_2->count() && ui->right_list_2->itemWidget(ui->right_list_2->item(row+1))->objectName().contains(nowPlayingSongId)){
-                                    assignPreviousTrack(ui->right_list_2,row);
-                                    ui->previous->setEnabled(true);
+                                if(row>=1){
+                                    if(row !=0 && ui->right_list_2->itemWidget(ui->right_list_2->item(row-1))->objectName().contains(nowPlayingSongId)){
+                                        assignNextTrack(ui->right_list_2,row);
+                                        ui->next->setEnabled(true);
+                                    }else if(row <= ui->right_list_2->count() && ui->right_list_2->itemWidget(ui->right_list_2->item(row))->objectName().contains(nowPlayingSongId)){
+                                        assignPreviousTrack(ui->right_list_2,row);
+                                        ui->previous->setEnabled(true);
+                                    }
+                                    break;
                                 }
-                                break;
                             }
                         }
                     }
