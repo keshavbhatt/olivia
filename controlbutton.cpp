@@ -2,6 +2,7 @@
 #include <QToolTip>
 #include <QEvent>
 #include <QMouseEvent>
+#include <QDebug>
 
 controlButton::controlButton(QWidget *parent)
     : QPushButton(parent)
@@ -12,8 +13,7 @@ controlButton::controlButton(QWidget *parent)
 bool controlButton::eventFilter(QObject *obj, QEvent *event){
     Q_UNUSED(obj);
     if(event->type() == QEvent::ToolTip){
-        return false;
-        event->ignore();
+        return true;
     }
     return false;
 }
