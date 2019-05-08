@@ -29,7 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+
     qApp->setQuitOnLastWindowClosed(true);
 //    connect(qApp,SIGNAL(aboutToQuit()),this,SLOT(close()));
 
@@ -193,6 +194,7 @@ void MainWindow::closeEvent(QCloseEvent *event){
     settingsObj.setValue("geometry",saveGeometry());
     settingsObj.setValue("windowState", saveState());
     settingsObj.setValue("volume",radio_manager->volume);
+    settUtils->changeSystemTitlebar(settingsUi.systemTitlebar->isChecked());
     if(ytdlProcess!=nullptr && ytdlQueue.count()>0){
         ytdlQueue.clear();
         ytdlProcess->close();
@@ -232,11 +234,11 @@ void MainWindow::init_settings(){
     connect(settingsUi.dynamicTheme,SIGNAL(toggled(bool)),settUtils,SLOT(changeDynamicTheme(bool)));
 
     connect(settingsUi.systemTitlebar,&QCheckBox::toggled,[=](bool checked){
-        settUtils->changeSystemTitlebar(checked);
+        qDebug()<<"system title bar"<<checked;
         if(checked){
             hide();
             ui->windowControls_main->hide();
-            this->setWindowFlags(Qt::Window|Qt::WindowTitleHint|Qt::WindowSystemMenuHint
+            this->setWindowFlags(Qt::Window | Qt::WindowTitleHint|Qt::WindowSystemMenuHint
                                  |Qt::WindowMinMaxButtonsHint|Qt::WindowCloseButtonHint|Qt::WindowFullscreenButtonHint);
             show();
         }else{
@@ -271,6 +273,7 @@ void MainWindow::dynamicThemeChanged(bool enabled){
 }
 
 void MainWindow::loadSettings(){
+
     settingsUi.saveAfterBuffer->setChecked(settingsObj.value("saveAfterBuffer","true").toBool());
     settingsUi.showSearchSuggestion->setChecked(settingsObj.value("showSearchSuggestion","true").toBool());
     settingsUi.miniModeStayOnTop->setChecked(settingsObj.value("miniModeStayOnTop","false").toBool());
@@ -297,6 +300,13 @@ void MainWindow::loadSettings(){
     ui->tabWidget->setCurrentIndex(settingsObj.value("currentQueueTab","0").toInt());
     restoreGeometry(settingsObj.value("geometry").toByteArray());
     restoreState(settingsObj.value("windowState").toByteArray());
+
+    settingsUi.systemTitlebar->setChecked(settingsObj.value("systemTitlebar","true").toBool());
+
+    if(!settingsObj.value("systemTitlebar","true").toBool()){
+        this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        ui->windowControls_main->show();
+    }
 }
 
 void MainWindow::add_colors_to_color_widget(){
