@@ -176,6 +176,7 @@ void Lyrics::showLyrics(){
 }
 
 void Lyrics::showLyricsWidget(QString data){
+//    data = htmlToPlainText(data);
     ui->lyrics->setHtml(data.split("Song Discussions is protected").first());
 //    ui->lyrics->append(QString("<img src=\"https://tpc.googlesyndication.com/simgad/16094122936629946910\" />"));
     QPropertyAnimation *animation = new QPropertyAnimation(ui->lyricsWidget, "maximumHeight");

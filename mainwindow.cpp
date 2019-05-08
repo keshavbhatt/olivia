@@ -302,7 +302,8 @@ void MainWindow::loadSettings(){
     restoreState(settingsObj.value("windowState").toByteArray());
 
     settingsUi.systemTitlebar->setChecked(settingsObj.value("systemTitlebar","true").toBool());
-
+    //load the system titlebar settings if its set to false, this is not following the connection we already having cause
+    // toggle is not being triggered by default on checkbox due to its initial false state.
     if(!settingsObj.value("systemTitlebar","true").toBool()){
         this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
         ui->windowControls_main->show();
@@ -1094,7 +1095,7 @@ void MainWindow::showTrackOption(){
        }
        lyricsWidget->setStyleSheet("");
        lyricsWidget->setCustomStyle(ui->search->styleSheet(),ui->right_list->styleSheet(),this->styleSheet());
-       lyricsWidget->setQueryString(lyrics_search_string);
+       lyricsWidget->setQueryString(htmlToPlainText(lyrics_search_string));
     });
 
     connect(gotoAlbum,&QAction::triggered,[=](){

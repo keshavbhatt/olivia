@@ -7,6 +7,7 @@
 #include <QNetworkReply>
 #include <QNetworkDiskCache>
 #include <QStandardPaths>
+#include <QTextDocument>
 
 #include "ui_lyricitem.h"
 
@@ -81,6 +82,13 @@ private slots:
     void on_lyrics_textChanged();
 
     void on_copy_clicked();
+
+    //return pain text version of text which contains html symbolic notations
+    QString htmlToPlainText(QString html){
+        QTextDocument text;
+        text.setHtml(html);
+        return text.toPlainText();
+    }
 
 private:
     Ui::Lyrics *ui;
