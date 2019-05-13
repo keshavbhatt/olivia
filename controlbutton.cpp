@@ -26,5 +26,3 @@ void controlButton::mouseMoveEvent(QMouseEvent *e){
     }
     QPushButton::mouseMoveEvent(e);
 }
-
-

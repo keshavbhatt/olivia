@@ -260,6 +260,7 @@ void Lyrics::on_close_clicked()
 
 //for external calls with automatic search enabled
 void Lyrics::setQueryString(QString query){
+    query = query.split("(").first();
     this->show();
     ui->result->clear();
     ui->noResult->hide();
