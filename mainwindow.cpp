@@ -240,12 +240,14 @@ void MainWindow::init_settings(){
         if(checked){
             hide();
             ui->windowControls_main->hide();
+            ui->systemTitleBarSpacerWidget->show();
             this->setWindowFlags(Qt::Window | Qt::WindowTitleHint|Qt::WindowSystemMenuHint
                                  |Qt::WindowMinMaxButtonsHint|Qt::WindowCloseButtonHint|Qt::WindowFullscreenButtonHint);
             show();
         }else{
             hide();
             this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+            ui->systemTitleBarSpacerWidget->hide();
             ui->windowControls_main->show();
             show();
         }
@@ -309,13 +311,15 @@ void MainWindow::loadSettings(){
     if(!settingsObj.value("systemTitlebar","true").toBool()){
         this->setWindowFlags(Qt::FramelessWindowHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
         ui->windowControls_main->show();
+        ui->systemTitleBarSpacerWidget->hide();
     }
 }
 
 void MainWindow::add_colors_to_color_widget(){
 
         color_list<<"fakeitem"<<"#FF0034"<<"#2A82DA"<<"#029013"
-                        <<"#D22298"<<"#FF901F"<<"#565655";
+                        <<"#D22298"<<"#FF901F"<<"#565655"
+                        <<"#2B2929"<<"#E95420"<<"#6C2164";
 
         QObject *layout = settingsWidget->findChild<QObject*>("themeHolderGridLayout");
         int row=0;
@@ -890,6 +894,10 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->evaluateJavaScript("artist_view('"+gotoArtistId+"')");
     }
 
+    if( loaded && pageType == "recommendation"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
+     }
+
     if( loaded && pageType == "youtube" && !youtubeSearchTerm.isEmpty()){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->evaluateJavaScript("$('.ui-content').fadeOut('fast');$('#manual_search').val('"+youtubeSearchTerm+"');manual_youtube_search('"+youtubeSearchTerm+"');");
@@ -949,7 +957,7 @@ void MainWindow::addToQueue(QString id,QString title,QString artist,QString albu
 
         //to convert html sequence to plaintext
         QTextDocument text;
-        text.setHtml(title);
+        text.setHtml(title.replace("\\\"","'"));
         QString plainTitle = text.toPlainText();
 
         ElidedLabel *titleLabel = new ElidedLabel(plainTitle,0);
@@ -1343,6 +1351,9 @@ void MainWindow::on_left_list_currentRowChanged(int currentRow)
     case 1:
         browse();
         break;
+    case 2:
+        recommendations();
+        break;
     case 3:
          search("");
         break;
@@ -1378,6 +1389,11 @@ void MainWindow::on_left_list_currentRowChanged(int currentRow)
 void MainWindow::browse_youtube(){
     pageType="youtube";
     ui->webview->load(QUrl("qrc:///web/youtube/youtube.html"));
+}
+
+void MainWindow::recommendations(){
+    pageType = "recommendation";
+    ui->webview->load(QUrl("qrc:///web/recommendation/recommendation.html"));
 }
 
 void MainWindow::clear_youtubeSearchTerm(){

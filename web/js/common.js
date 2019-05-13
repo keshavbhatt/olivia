@@ -22,6 +22,8 @@ function isEmpty(obj) {
     return true;
 }
 
+
+
 var themeColor; //sets the global themeColor for webview is accessible from all web
 var NowPlayingTrackId;
 
@@ -74,6 +76,7 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
         $.mobile.activePage.find(songIdStr).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
     }
 }
+
 
 var countries = {
     "Albania":"al",

@@ -104,7 +104,8 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="QWidget" name="searchWidget" native="true">
          <property name="styleSheet">
-          <string notr="true">border-bottom: 1px solid #2A82DA;</string>
+          <string notr="true">border-bottom: 1px solid rgba(42,130,218,169);
+ </string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <property name="spacing">
@@ -206,6 +207,22 @@ border-radius:0px;</string>
         </spacer>
        </item>
        <item>
+        <spacer name="systemTitleBarSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
         <widget class="QFrame" name="windowControls">
          <property name="styleSheet">
           <string notr="true">border-radius:0px;</string>
@@ -263,6 +280,27 @@ background-color: transparent;</string>
               <height>20</height>
              </size>
             </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="systemTitleBarSpacerWidget" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+            </layout>
            </widget>
           </item>
           <item>
@@ -613,7 +651,7 @@ QScrollBar:vertical {
                 </item>
                 <item>
                  <property name="text">
-                  <string>Add New Playlist</string>
+                  <string>Playlists</string>
                  </property>
                  <property name="icon">
                   <iconset resource="icons.qrc">
@@ -743,7 +781,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
                  </property>
                  <property name="styleSheet">
                   <string notr="true">
-background-color: #2A82DA ;</string>
+background-color: rgba(42,130,218,169);</string>
                  </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>

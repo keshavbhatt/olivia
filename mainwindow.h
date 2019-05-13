@@ -110,6 +110,7 @@ private slots:
     void on_left_list_currentRowChanged(int currentRow);
 
     void browse();
+    void recommendations();
     void search(QString offset);
     void webViewLoaded(bool loaded);
     void getAudioStream(QString ytIds, QString songId);
