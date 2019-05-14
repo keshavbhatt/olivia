@@ -229,7 +229,7 @@ private slots:
     //return pain text version of text which contains html symbolic notations
     QString htmlToPlainText(QString html){
         QTextDocument text;
-        text.setHtml(html);
+        text.setHtml(html.replace("\\\"","'"));
         return text.toPlainText();
     }
 private:

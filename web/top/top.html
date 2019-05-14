@@ -43,7 +43,7 @@
                 <ul id="countries" data-role="listview" data-filter="true" data-inset="true" data-input="#rich-autocomplete-input">
                     <script>
                     $.each( countries, function( title, code ) {
-                      $("#countries").append("<li id='country' onclick='get_top_tracks(\""+$.trim(code)+"\")' data-filtertext='"+title+"'>"+title+"</li>");
+                      $("#countries").append("<li style='cursor: pointer;' id='country' onclick='get_top_tracks(\""+$.trim(code)+"\")' data-filtertext='"+title+"'>"+title+"</li>");
                     });
                     </script>
                 </ul>
@@ -71,7 +71,7 @@
                 <ul id="countries_2" data-role="listview" data-filter="true" data-inset="true" data-input="#rich-autocomplete-input_2">
                     <script>
                     $.each( countries, function( title, code ) {
-                      $("#countries_2").append("<li id='country_2' onclick='get_top_albums(\""+$.trim(code)+"\")' data-filtertext='"+title+"'>"+title+"</li>");
+                      $("#countries_2").append("<li style='cursor: pointer;' id='country_2' onclick='get_top_albums(\""+$.trim(code)+"\")' data-filtertext='"+title+"'>"+title+"</li>");
                     });
                     </script>
                 </ul>

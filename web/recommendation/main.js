@@ -84,7 +84,6 @@ function toDataUrl(url, callback) {
     xhr.send();
 }
 
-
 function gettrackinfo(searchterm){
     var videoId;
     colorThief = new ColorThief();
@@ -97,6 +96,8 @@ function gettrackinfo(searchterm){
     albumId = arr[5];
     artistId= arr[6];
     millis = arr[7];
+
+
 
     if(albumId.includes("undefined")){ //yt case
         videoId = arr[4];
@@ -134,6 +135,15 @@ function gettrackinfo(searchterm){
     });
 }
 
+function show_playOriginal()
+{
+    document.getElementById('playOriginal').style.visibility="visible";
+}
+
+function hide_playOriginal()
+{
+    document.getElementById('playOriginal').style.visibility="hidden";
+}
 
 
 function msToTime(s) {
@@ -183,7 +193,7 @@ function setPlaylistBaseId(trackId){
         }
     })
     .then( function ( response ) {
-
+        $("#result_div").css("visibility","visible");
         var title,artist,album,coverUrl,songId,albumId,artistId,millis;
 
         $.each( response, function ( i, val ){
@@ -192,10 +202,19 @@ function setPlaylistBaseId(trackId){
                 var albumArt600 = val['original']['album']['images'][0]['url'];
 
                 var basedOn =  val['original']['name'];
-                $.mobile.activePage.find("#BASETRACK").text(basedOn);
+                var basedOnArtist =  val['original']['artists'][0]['name'];
+                var basedOnAlbum = val['original']['album']['name'];
+                var basedAlbumId = val['original']['album']['id'];
+                var basedArtistId = val['original']['artists'][0]['id'];
+                var basedMillis = val['original']['duration_ms'];
+
+
+                $.mobile.activePage.find("#BASETRACK").text(basedOn+", "+basedOnArtist);
                 $.mobile.activePage.find("#ALBUM_ART").attr("src",albumArt300);
                 $.mobile.activePage.find("#HEADER_DIV").get(0).style.cssText=document.querySelector("#HEADER_DIV").style.cssText+"background: url('"+albumArt600+"');background-size: cover;";
-
+                $.mobile.activePage.find("#playOriginalButton").click(function (){
+                    gettrackinfo(quoteEscape(basedOn)+"!=-=!"+quoteEscape(basedOnArtist)+"!=-=!"+quoteEscape(basedOnAlbum)+"!=-=!"+albumArt300+"!=-=!"+trackId+"!=-=!"+basedAlbumId+"!=-=!"+basedArtistId+"!=-=!"+basedMillis);
+                });
                 var playlist = val['playlist'];
 
                 for(var j=0;j<playlist.length;j++){
@@ -212,7 +231,7 @@ function setPlaylistBaseId(trackId){
 
                     html += "<li>"+
                         "<a onclick='gettrackinfo(&apos;"+quoteEscape(title)+"!=-=!"+quoteEscape(artist)+"!=-=!"+quoteEscape(album)+"!=-=!"+coverUrl+"!=-=!"+songId+"!=-=!"+albumId+"!=-=!"+artistId+"!=-=!"+millis+"&apos;)'>"+
-                        "<img style='max-width:144px  !important ;max-height:144px' id='"+trackId+"' src='"+coverUrl+"'>"+
+                        "<img style='max-width:144px  !important ;max-height:144px' id='"+songId+"' src='"+coverUrl+"'>"+
                         "<p>"+
                            " Title: "+title+
                            " <br>"+
@@ -242,7 +261,7 @@ $(document).on("pagebeforeshow","#recommendation_page",function(){
     $('#manual_search').keydown(function(event){
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
-            manual_youtube_search($(this).val());
+            forceSearch($("#manual_search").val());
             event.preventDefault();
             event.stopPropagation();
         }
@@ -251,6 +270,7 @@ $(document).on("pagebeforeshow","#recommendation_page",function(){
 
 
 $( document ).on( "pagecreate", "#recommendation_page", function() {
+
     $( "#recommendation_page_suggestions" ).on( "filterablebeforefilter", function ( e, data ) {
         var $ul = $(this),
             $input = $( data.input ),
@@ -260,6 +280,7 @@ $( document ).on( "pagecreate", "#recommendation_page", function() {
         if ( value && value.length > 2 ) {
             $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'>loading..</span></div></li>" );
             $ul.listview( "refresh" );
+            $("#result_div").css("visibility","hidden");
             $.ajax({
                 url: "https://api.magicplaylist.co/mp/search",
                 type: "GET",
@@ -283,6 +304,31 @@ $( document ).on( "pagecreate", "#recommendation_page", function() {
         }
     });
 });
+
+function forceSearch(val){
+    var $ul =  $("#recommendation_page_suggestions"),
+        value = val,
+        html = "";
+        $ul.html( "" );
+    if ( value && value.length > 2 ) {
+        $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'>loading..</span></div></li>" );
+        $ul.listview( "refresh" );
+        $.get("https://api.magicplaylist.co/mp/search?txt=haunted", function(response) {
+            $.each( response, function ( i, val ) {
+                console.log(i,val);
+                for(var j=0;j<val.length;j++){
+                    var title = val[j]['name'];
+                    var artist = val[j]['artists'][0]['name'];
+                    var trackid = val[j]['id'];
+                    html += '<li><a onclick="setPlaylistBaseId(\''+trackid+'\');" >'+title+', '+artist+'</a></li>';
+                }
+                $ul.html( html );
+                $ul.listview( "refresh" );
+                $ul.trigger( "updatelayout");
+            });
+            }, "json");
+    }
+}
 
 function getCountry(){
     $.get("https://ipinfo.io", function(response) {

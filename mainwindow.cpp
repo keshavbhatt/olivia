@@ -957,20 +957,22 @@ void MainWindow::addToQueue(QString id,QString title,QString artist,QString albu
 
         //to convert html sequence to plaintext
         QTextDocument text;
-        text.setHtml(title.replace("\\\"","'"));
+        text.setHtml(htmlToPlainText(title));
         QString plainTitle = text.toPlainText();
+
+
 
         ElidedLabel *titleLabel = new ElidedLabel(plainTitle,0);
         titleLabel->setFont(font);
         titleLabel->setObjectName("title_elided");
         track_ui.verticalLayout_2->addWidget(titleLabel);
 
-        ElidedLabel *artistLabel = new ElidedLabel(artist,0);
+        ElidedLabel *artistLabel = new ElidedLabel(htmlToPlainText(artist),0);
         artistLabel->setObjectName("artist_elided");
         artistLabel->setFont(font);
         track_ui.verticalLayout_2->addWidget(artistLabel);
 
-        ElidedLabel *albumLabel = new ElidedLabel(album,0);
+        ElidedLabel *albumLabel = new ElidedLabel(htmlToPlainText(album),0);
         albumLabel->setObjectName("album_elided");
         albumLabel->setFont(font);
         track_ui.verticalLayout_2->addWidget(albumLabel);
@@ -1131,6 +1133,10 @@ void MainWindow::showTrackOption(){
             if(songId==songIdFromWidget){
                 ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
                 ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
+                if(store_manager->getExpiry(songId)){
+                    ui->right_list->itemWidget(ui->right_list->item(i))->setEnabled(false);
+                    getAudioStream(store_manager->getYoutubeIds(songId),songId);
+                }
                 break;
             }
         }
@@ -1139,6 +1145,10 @@ void MainWindow::showTrackOption(){
             if(songId==songIdFromWidget){
                 ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
                 ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
+                if(store_manager->getExpiry(songId)){
+                    ui->right_list_2->itemWidget(ui->right_list_2->item(i))->setEnabled(false);
+                    getAudioStream(store_manager->getYoutubeIds(songId),songId);
+                }
                 break;
             }
         }
