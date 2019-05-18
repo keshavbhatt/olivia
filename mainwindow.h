@@ -283,6 +283,7 @@ private:
 
     Lyrics *lyricsWidget;
 
+
 };
 
 class SelectColorButton : public QPushButton

@@ -23,6 +23,7 @@
 #include "paginator.h"
 #include "youtube.h"
 #include "lyrics.h"
+#include "manifest_resolver.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -1334,22 +1335,44 @@ void MainWindow::ytdlReadyRead(){
                 //END algo to assign next/previous song if current processed track is next to currently playing track.
 
                 if(s_data.contains("https")){
-                    listWidgetItem->setEnabled(true);
-                    //listWidgetItem->findChild<QLabel*>("loading")->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-                    QLineEdit *url = listWidgetItem->findChild<QLineEdit *>("url");
-                    QString url_str = s_data.trimmed();
-                    ((QLineEdit*)(url))->setText(url_str);
+                    if(s_data.contains("manifest/dash/")){
+                        qDebug()<<"MENIFEAT URL:"<<s_data;
+                        ManifestResolver *mfr= new ManifestResolver(s_data.trimmed(),this);
+                        connect(mfr,&ManifestResolver::m4aAvailable,[=](QString m48url){
+                            listWidgetItem->setEnabled(true);
+                            QLineEdit *url = listWidgetItem->findChild<QLineEdit *>("url");
+                            ((QLineEdit*)(url))->setText(m48url);
+                            qDebug()<<"NEW URL:"<<m48url;
+                            QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(m48url.toUtf8())).queryItemValue("expire").trimmed();
+                            if(expiryTime.isEmpty()){
+                                expiryTime = m48url.split("/expire/").last().split("/").first().trimmed();
+                            }
+                            store_manager->saveStreamUrl(songId,m48url,expiryTime);
+                        });
+                        connect(mfr,&ManifestResolver::error,[=](){
+                                qDebug()<<"error resolving audio node";
+                                return;
+                        });
 
+                    }else{
+                        listWidgetItem->setEnabled(true);
+                        //listWidgetItem->findChild<QLabel*>("loading")->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+                        QLineEdit *url = listWidgetItem->findChild<QLineEdit *>("url");
+                        QString url_str = s_data.trimmed();
+                        ((QLineEdit*)(url))->setText(url_str);
+
+
+                        QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(url_str.toUtf8())).queryItemValue("expire").trimmed();
+                        if(expiryTime.isEmpty()){
+                            expiryTime = url_str.split("/expire/").last().split("/").first().trimmed();
+                        }
+                        store_manager->saveStreamUrl(songId,url_str,expiryTime);
+                    }
+                    //delete process/task
                     QProcess* senderProcess = qobject_cast<QProcess*>(sender());
                     senderProcess->close();
                     if(senderProcess != nullptr)
                     senderProcess->deleteLater();
-
-                    QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(url_str.toUtf8())).queryItemValue("expire").trimmed();
-                    if(expiryTime.isEmpty()){
-                        expiryTime = url_str.split("/expire/").last().split("/").first().trimmed();
-                    }
-                    store_manager->saveStreamUrl(songId,url_str,expiryTime);
                 }
             }
     }

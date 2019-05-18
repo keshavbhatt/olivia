@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui webkit webkitwidgets sql
+QT       += core gui webkit webkitwidgets sql xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -71,7 +71,8 @@ HEADERS  += mainwindow.h \
     youtube.h \
     playerqueue.h \
     lyrics.h \
-    controlbutton.h
+    controlbutton.h \
+    manifest_resolver.h
 
 FORMS    += mainwindow.ui \
     track.ui \
