@@ -66,10 +66,11 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
             maxWidth = "100";
         }
         //adds nowPlaying pages
-        $(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth.toString()+'px; width:'+width.toString()+'px;');
+        $(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth.toString()+'px');// removed width:'+width.toString()+'px;
         $(songIdStr).each(function( index ) {
           $( this ).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
         });
+
 
         //for album [adds nowPlaying active page]
         $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px;max-width:'+maxWidth.toString()+'px; width:'+width.toString()+'px;');
