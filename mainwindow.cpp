@@ -926,7 +926,6 @@ void MainWindow::webViewLoaded(bool loaded){
 void MainWindow::setSearchTermAndOpenYoutube(QVariant term){
     youtubeSearchTerm = term.toString();
     ui->left_list->setCurrentRow(14); //set youtube page
-    qDebug()<<"called";
 }
 
 void MainWindow::resultLoaded(){
@@ -1348,6 +1347,7 @@ void MainWindow::ytdlReadyRead(){
                                 expiryTime = m48url.split("/expire/").last().split("/").first().trimmed();
                             }
                             store_manager->saveStreamUrl(songId,m48url,expiryTime);
+                            mfr->deleteLater();
                         });
                         connect(mfr,&ManifestResolver::error,[=](){
                                 qDebug()<<"error resolving audio node";
@@ -2483,11 +2483,14 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
         QAction *updateTrack= new QAction("Refresh Track",0);
         QAction *getYtIds = new QAction("Search on Youtube",0);
         QAction *removeTrack = new QAction("Search on Youtube && Remove track",0);
+        QAction *removeTrack2 = new QAction("Remove track",0);
+
 
         //set Icons
         updateTrack->setIcon(QIcon(":/icons/sidebar/refresh.png"));
         getYtIds->setIcon(QIcon(":/icons/sidebar/search.png"));
         removeTrack->setIcon(QIcon(":/icons/sidebar/remove.png"));
+        removeTrack2->setIcon(QIcon(":/icons/sidebar/remove.png"));
 
 
         //not enabled, decide menu option to popup
@@ -2495,19 +2498,29 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
         QString songId = listWidget->itemWidget(item)->findChild<QLineEdit*>("songId")->text().trimmed();
 
         connect(removeTrack,&QAction::triggered,[=](){
+
             //youtube search
             QString  songTitle =  listWidget->itemWidget(item)->findChild<ElidedLabel*>("title_elided")->text();
             QString  songArtist =  listWidget->itemWidget(item)->findChild<ElidedLabel*>("artist_elided")->text();
+            QString term = songTitle+" - "+songArtist;
             if(pageType=="youtube"){
-                ui->webview->page()->mainFrame()->evaluateJavaScript("mainwindow.setSearchTermAndOpenYoutube('"+songTitle+"','"+songArtist+"'");
+                youtubeSearchTerm = term;
+                ui->webview->page()->mainFrame()->evaluateJavaScript("$('.ui-content').fadeOut('fast');$('#manual_search').val('"+youtubeSearchTerm+"');manual_youtube_search('"+youtubeSearchTerm+"');");
+                youtubeSearchTerm.clear();
             }else{
-                setSearchTermAndOpenYoutube(QVariant(songTitle+" - "+songArtist));
+                setSearchTermAndOpenYoutube(QVariant(term));
             }
             //remove
             listWidget->removeItemWidget(item);
             delete item;
             store_manager->removeFromQueue(songId);
         });
+
+         connect(removeTrack2,&QAction::triggered,[=](){
+             listWidget->removeItemWidget(item);
+             delete item;
+             store_manager->removeFromQueue(songId);
+         });
 
         //qDebug()<<songId<<ytIds;
         //if no ytIds set for track
@@ -2518,10 +2531,13 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
                 //open youtube page and find track using track's metadata
                 QString  songTitle =  listWidget->itemWidget(item)->findChild<ElidedLabel*>("title_elided")->text();
                 QString  songArtist =  listWidget->itemWidget(item)->findChild<ElidedLabel*>("artist_elided")->text();
+                QString term = songTitle+" - "+songArtist;
                 if(pageType=="youtube"){
-                    ui->webview->page()->mainFrame()->evaluateJavaScript("mainwindow.setSearchTermAndOpenYoutube('"+songTitle+"','"+songArtist+"'");
+                    youtubeSearchTerm = term;
+                    ui->webview->page()->mainFrame()->evaluateJavaScript("$('.ui-content').fadeOut('fast');$('#manual_search').val('"+youtubeSearchTerm+"');manual_youtube_search('"+youtubeSearchTerm+"');");
+                    youtubeSearchTerm.clear();
                 }else{
-                    setSearchTermAndOpenYoutube(QVariant(songTitle+" - "+songArtist));
+                    setSearchTermAndOpenYoutube(QVariant(term));
                 }
              });
         }else{
@@ -2542,6 +2558,7 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
         menu.addAction(getYtIds);
         menu.addSeparator();
         menu.addAction(removeTrack);
+        menu.addAction(removeTrack2);
         menu.setStyleSheet(menuStyle());
         menu.exec(QCursor::pos());
     }

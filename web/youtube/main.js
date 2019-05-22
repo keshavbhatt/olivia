@@ -334,3 +334,64 @@ function getCountry(){
         youtube.saveGeo(response.country);
     }, "jsonp");
 }
+
+
+function track_option(track_id){
+    var searchterm = $('#'+track_id).parent().attr("onclick").split("gettrackinfo(\"")[1].split(");")[0];
+    var arr = searchterm.split("!=-=!")
+    title = arr[0];
+    artist = arr[1];
+    album = arr[2];
+    coverUrl = arr[3];
+    songId = arr[4];
+    albumId = arr[5];
+    artistId= arr[6];
+    millis = arr[7];
+    var channelId = "kesha";
+
+    //onclick=\''+$('#'+track_id).parent().attr("onclick")+'\'
+    //https://www.youtube.com/watch?v=eqBkiu4M0Os
+    var target = $( this ),
+            options = '<hr><ul style="padding-bottom:5px" data-inset="true">'+
+                        '<li>'+
+                            '<a href="#" id="'+songId+'_addToQueue" >Add to queue</a>'+
+                        '</li>'+
+                        '<li>'+
+                            '<a href="#" onclick="open_channel('+channelId+')" >Open Channel</a>'+
+                        '</li>'+
+                      '</ul>',
+                link = "<span >id: "+ songId+"</span>",
+                closebtn = '<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>',
+                header = '<div style="margin: -12px -12px 0px -12px;" data-role="header"><h2>Options</h2></div>',
+                img = '<img style="padding: 20px 0px 10px 0px;" src="'+coverUrl+'" alt="' + title + '" class="photo">',
+                details = $('#'+track_id).parent().find("p")[0].outerHTML,
+                popup = '<div style="text-align:center;padding:12px 12px; max-width:400px" data-transition="slideup" data-overlay-theme="b" data-dismissible="false" data-position-to="window" data-role="popup" id="popup-' + songId + '" data-short="' + songId +'"  data-corners="false" data-tolerance="15"></div>';
+            $( link ).appendTo($( details ));
+            // Create the popup.
+            $( header )
+                .appendTo( $( popup )
+                .appendTo( $.mobile.activePage )
+                .popup() )
+                .toolbar()
+                .before( closebtn )
+                .after( img + details + options);
+                $( "#popup-" + songId ).find('p').attr('style',"");
+                $( "#popup-" + songId ).find("ul").listview();
+                $( "#popup-" + songId ).popup( "open" ).trigger("create");
+                $('body').css('overflow','hidden');
+
+        $("#"+songId+"_addToQueue").on("click",function(){
+                $( this ).parent().parent().parent().parent().parent().find("#"+songId).click();
+        });
+
+        $( document ).on( "popupbeforeposition", ".ui-popup", function() {
+            $( this ).find("ul").listview();
+            $('body').css('overflow','hidden');
+        });
+
+        // Remove the popup after it has been closed
+        $( document ).on( "popupafterclose", ".ui-popup", function() {
+            $( this ).remove();
+            $('body').css('overflow','auto');
+        });
+}
