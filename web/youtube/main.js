@@ -337,6 +337,7 @@ function getCountry(){
 
 
 function track_option(track_id){
+    var channelHref = $('#'+track_id).parent().attr("data-channelhref");
     var searchterm = $('#'+track_id).parent().attr("onclick").split("gettrackinfo(\"")[1].split(");")[0];
     var arr = searchterm.split("!=-=!")
     title = arr[0];
@@ -347,7 +348,7 @@ function track_option(track_id){
     albumId = arr[5];
     artistId= arr[6];
     millis = arr[7];
-    var channelId = "kesha";
+
 
     //onclick=\''+$('#'+track_id).parent().attr("onclick")+'\'
     //https://www.youtube.com/watch?v=eqBkiu4M0Os
@@ -357,7 +358,7 @@ function track_option(track_id){
                             '<a href="#" id="'+songId+'_addToQueue" >Add to queue</a>'+
                         '</li>'+
                         '<li>'+
-                            '<a href="#" onclick="open_channel('+channelId+')" >Open Channel</a>'+
+                            '<a href="#" onclick="open_channel(\''+channelHref.trim()+'\', \''+songId+'\')" >Open Channel</a>'+
                         '</li>'+
                       '</ul>',
                 link = "<span >id: "+ songId+"</span>",
@@ -365,7 +366,7 @@ function track_option(track_id){
                 header = '<div style="margin: -12px -12px 0px -12px;" data-role="header"><h2>Options</h2></div>',
                 img = '<img style="padding: 20px 0px 10px 0px;" src="'+coverUrl+'" alt="' + title + '" class="photo">',
                 details = $('#'+track_id).parent().find("p")[0].outerHTML,
-                popup = '<div style="text-align:center;padding:12px 12px; max-width:400px" data-transition="slideup" data-overlay-theme="b" data-dismissible="false" data-position-to="window" data-role="popup" id="popup-' + songId + '" data-short="' + songId +'"  data-corners="false" data-tolerance="15"></div>';
+                popup = '<div style="text-align:center;padding:12px 12px; max-width:400px" data-transition="slideup" data-overlay-theme="b" data-dismissible="true" data-position-to="window" data-role="popup" id="popup-' + songId + '" data-short="' + songId +'"  data-corners="false" data-tolerance="15"></div>';
             $( link ).appendTo($( details ));
             // Create the popup.
             $( header )
@@ -382,16 +383,41 @@ function track_option(track_id){
 
         $("#"+songId+"_addToQueue").on("click",function(){
                 $( this ).parent().parent().parent().parent().parent().find("#"+songId).click();
+                $( '#popup-'+songId ).remove();
+                $('body').css('overflow','auto');
         });
 
-        $( document ).on( "popupbeforeposition", ".ui-popup", function() {
-            $( this ).find("ul").listview();
+        $( document ).on( "popupbeforeposition", $('#popup-'+songId ), function() {
+            $( '#popup-'+songId).find("ul").listview();
             $('body').css('overflow','hidden');
         });
 
         // Remove the popup after it has been closed
-        $( document ).on( "popupafterclose", ".ui-popup", function() {
-            $( this ).remove();
+        $( document ).on( "popupafterclose", $('#popup-'+songId), function() {
+            $( '#popup-'+songId ).remove();
             $('body').css('overflow','auto');
+        });
+}
+
+function open_channel(channelHref,songId){
+    $("#popup-"+songId).remove();
+    $('body').css('overflow','auto');
+    showLoading();
+    $('.ui-content').fadeOut('slow');
+    $.ajax({
+        type: "GET",
+        url: baseUrl+"manual_youtube_search.php",
+        data: {
+            nav : channelHref
+        },
+        success: function(html) {
+            $.mobile.loading("hide");
+            $("#result_div").html(html);
+            $('#manul_youtube_page .ui-content').trigger("create");
+            $('#manul_youtube_page .ui-content').fadeIn('slow');
+            $('#manul_youtube_page_suggestions').html("");
+            $("#trending_div").hide();
+            $("#history_div").hide();
+         }
         });
 }
