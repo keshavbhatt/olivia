@@ -1,4 +1,4 @@
-var baseUrl = "http://ktechpit.com/USS/Olivia/"
+var baseUrl = "http://ktechpit.com/USS/Olivia/";
 
 $(document).bind("mobileinit", function(){
         $.mobile.defaultPageTransition = 'slidefade';
@@ -97,8 +97,6 @@ function gettrackinfo(searchterm){
     artistId= arr[6];
     millis = arr[7];
 
-
-
     if(albumId.includes("undefined")){ //yt case
         videoId = arr[4];
     }
@@ -130,8 +128,6 @@ function gettrackinfo(searchterm){
                 }
             });
         }
-
-
     });
 }
 
@@ -257,7 +253,6 @@ function setPlaylistBaseId(trackId){
 
 
 $(document).on("pagebeforeshow","#recommendation_page",function(){
-
     $('#manual_search').keydown(function(event){
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
@@ -270,7 +265,6 @@ $(document).on("pagebeforeshow","#recommendation_page",function(){
 
 
 $( document ).on( "pagecreate", "#recommendation_page", function() {
-
     $( "#recommendation_page_suggestions" ).on( "filterablebeforefilter", function ( e, data ) {
         var $ul = $(this),
             $input = $( data.input ),
