@@ -402,6 +402,7 @@ function track_option(track_id){
 function open_channel(channelHref,songId){
     $("#popup-"+songId).remove();
     $('body').css('overflow','auto');
+    $("#manul_youtube_page_suggestions").empty();
     showLoading();
     $('.ui-content').fadeOut('slow');
     $.ajax({
