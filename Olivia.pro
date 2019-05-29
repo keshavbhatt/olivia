@@ -53,7 +53,8 @@ SOURCES += main.cpp\
     youtube.cpp \
     playerqueue.cpp \
     lyrics.cpp \
-    controlbutton.cpp
+    controlbutton.cpp \
+    utils.cpp
 
 HEADERS  += mainwindow.h \
     DarkStyle.h \
@@ -72,7 +73,8 @@ HEADERS  += mainwindow.h \
     playerqueue.h \
     lyrics.h \
     controlbutton.h \
-    manifest_resolver.h
+    manifest_resolver.h \
+    utils.h
 
 FORMS    += mainwindow.ui \
     track.ui \
