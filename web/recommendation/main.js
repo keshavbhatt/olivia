@@ -314,7 +314,7 @@ function forceSearch(val){
                     var title = val[j]['name'];
                     var artist = val[j]['artists'][0]['name'];
                     var trackid = val[j]['id'];
-                    html += '<li><a onclick="setPlaylistBaseId(\''+trackid+'\');" >'+title+', '+artist+'</a></li>';
+                    html += '<li><a onclick="setPlaylistBaseId(\''+trackid+'\');" >'+title+" "+artist+'</a></li>';
                 }
                 $ul.html( html );
                 $ul.listview( "refresh" );
