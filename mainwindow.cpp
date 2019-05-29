@@ -24,6 +24,7 @@
 #include "youtube.h"
 #include "lyrics.h"
 #include "manifest_resolver.h"
+#include "utils.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -262,6 +263,13 @@ void MainWindow::init_settings(){
         settUtils->changeMiniModeStayOnTop(checked);
         miniModeWidget->deleteLater();
         init_miniMode();
+    });
+
+    connect(settingsUi.delete_offline_pages,&QPushButton::clicked,[=](){
+        qDebug()<<"delete offline _pages";
+    });
+    connect(settingsUi.delete_tracks_cache,&QPushButton::clicked,[=](){
+        qDebug()<<"delete offline tracks";
     });
 
     horizontalDpi = QApplication::desktop()->screen()->logicalDpiX();
@@ -1754,6 +1762,16 @@ void MainWindow::on_settings_clicked()
             )
         );
         settingsWidget->setStyleSheet("QWidget#settingsWidget{"+ui->search->styleSheet()+"}");
+        //refresh cache sizes
+        QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+
+        utils* util = new utils(this);
+
+        settingsUi.cached_tracks_size->setText(util->refreshCacheSize(setting_path+"/downloadedTracks"));
+        settingsUi.offline_pages_size->setText(util->refreshCacheSize(setting_path+"/paginator"));
+
+        util->deleteLater();
+
         settingsWidget->showNormal();
     }
 }
@@ -2638,11 +2656,9 @@ void MainWindow::queueShowOption(QListWidget *queue){
 
         });
         connect(clearUnCached,&QAction::triggered,[=](){
-           // QList<QListWidgetItem*> items_to_remove;
             for (int i=0; i<queue->count();i++) {
                 QString songIdFromWidget = ((QLineEdit*) queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
                 if(!store_manager->isDownloaded(songIdFromWidget) /*&& !trackIsBeingProcessed(songIdFromWidget)*/){
-                    //items_to_remove.append(queue->item(i));
                     store_manager->removeFromQueue(songIdFromWidget);
                     queue->removeItemWidget(queue->item(i));
                     if(queue->item(i) != nullptr){
@@ -2650,10 +2666,6 @@ void MainWindow::queueShowOption(QListWidget *queue){
                     }
                 }
             }
-//            foreach(QListWidgetItem* item, items_to_remove){
-//                 queue->removeItemWidget(item);
-//                 delete item;
-//            }
         });
 
         connect(refreshDeadTracks,&QAction::triggered,[=](){
@@ -2704,6 +2716,7 @@ bool MainWindow::hasUnCachedTracks(QListWidget *queue){
      return has;
 }
 
+//unused right now
 bool MainWindow::trackIsBeingProcessed(QString songId){
     bool isProcessing = false;
     QList<QProcess*> ytDlProcessList;
