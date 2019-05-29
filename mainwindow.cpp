@@ -2638,18 +2638,22 @@ void MainWindow::queueShowOption(QListWidget *queue){
 
         });
         connect(clearUnCached,&QAction::triggered,[=](){
-            QList<QListWidgetItem*> items_to_remove;
+           // QList<QListWidgetItem*> items_to_remove;
             for (int i=0; i<queue->count();i++) {
                 QString songIdFromWidget = ((QLineEdit*) queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-                if(!store_manager->isDownloaded(songIdFromWidget) && !trackIsBeingProcessed(songIdFromWidget)){
-                    items_to_remove.append(queue->item(i));
+                if(!store_manager->isDownloaded(songIdFromWidget) /*&& !trackIsBeingProcessed(songIdFromWidget)*/){
+                    //items_to_remove.append(queue->item(i));
                     store_manager->removeFromQueue(songIdFromWidget);
+                    queue->removeItemWidget(queue->item(i));
+                    if(queue->item(i) != nullptr){
+                        delete queue->item(i);
+                    }
                 }
             }
-            foreach(QListWidgetItem* item, items_to_remove){
-                 queue->removeItemWidget(item);
-                 delete item;
-            }
+//            foreach(QListWidgetItem* item, items_to_remove){
+//                 queue->removeItemWidget(item);
+//                 delete item;
+//            }
         });
 
         connect(refreshDeadTracks,&QAction::triggered,[=](){
