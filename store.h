@@ -50,7 +50,8 @@ public slots:
     QString getYoutubeIds(QString trackId);//was private before
 
 
-private slots:
+    void delete_track_cache(const QString download_path);
+ private slots:
     void initStore(QString dbName);
     void createTable(QString dbName);
     void openDb(QString dbName, QString type);

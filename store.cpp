@@ -1,4 +1,5 @@
 #include "store.h"
+#include "utils.h"
 
 #include <QSqlQuery>
 #include <QSqlResult>
@@ -19,6 +20,8 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+
+
 
 // init store class and creates defined directories
 store::store(QObject *parent, QString dbName) : QObject(parent)
@@ -140,6 +143,28 @@ void store::closeDb(QString dbName){
 }
 
 //MODIFICATION METHODS
+//function to set NULL in downloaded cloumn , used by setting dialog for delete_cached_tracks;
+void store::delete_track_cache(const QString download_path){
+    QSqlQuery query;
+    query.exec("SELECT trackId FROM tracks;");
+    if(query.record().count()>1){
+        while(query.next()){
+            QString trackName  = query.value("trackId").toString();
+            QFile file(download_path+"/"+trackName);
+            if(file.remove()){
+                 file.deleteLater();
+                 QSqlQuery query2;
+                 query2.exec("UPDATE tracks SET 'downloaded' = NULL WHERE trackId = '"+trackName+"';");
+            }
+        }
+    }else{
+        utils* util = new utils(this);
+        if(util->delete_cache(download_path)){
+            util->deleteLater();
+        }
+    }
+}
+
 //saves tracks in db with all columns in tracks table in DB
 void store::setTrack(QStringList meta){
     QString title = meta.at(3);
