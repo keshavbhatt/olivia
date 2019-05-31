@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Recommendation</title>
+<title>Recommendations</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
@@ -25,14 +25,14 @@
 
     <div id="recommendation_page" data-role="page" data-theme="b" data-title="RECOMMENDATION">
         <div role="main" class="ui-content">
-            <input  type="search" id='manual_search' value='' placeholder="Type a song name...">
-            <ul   class="list" id="recommendation_page_suggestions"  data-filter="true" data-input="#manual_search"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
+            <input  type="search" id='manual_search' value='' placeholder="Type a song name, ex- the river - aurora">
+            <ul   class="list" id="recommendation_page_suggestions"  data-filter="true" data-input="#manual_search"  data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
             <!-- load suggestions here -->
             </ul>
                 <div id="result_div"  style="visibility:hidden;">
                     <div id="HEADER_DIV" style="text-align:center;background-position: center;text-shadow: 1px 3px 14px rgb(0, 0, 0);box-shadow:rgb(0, 0, 0) 0px 0px 30px;">
                         <div id="HEADER_WRAPPER" style="background-color:rgba(0, 0, 0, 0.27);padding-bottom:25px;">
-                            <h2 style="padding:10px;background-color:rgba(0,0,0,0.53)" >Recommendation</h2>
+                            <h2 style="padding:10px;background-color:rgba(0,0,0,0.53)" >Recommendations</h2>
                             <div id="wrapper" style="margin:0 auto;width:200px;height:200px;" onMouseOver="show_playOriginal()" onMouseOut="hide_playOriginal()">
                                 <img style="max-height:200px;max-width:200px; box-shadow: 3px 2px 95px rgb(0, 0, 0);opacity: 0.8;" id="ALBUM_ART"/>
                                 <a href="#" id="playOriginalButton" style="height:100%;line-height:200px;text-decoration:none;display:block;" >
@@ -51,13 +51,24 @@
                     <hr>
                     <h5 style="margin: 0px 0px -12px 0px;">Tracks:</h5>
 
-                    <ul class="list" id="tracks_result_view" data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
+                    <ul class="list" id="tracks_result_view" data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
                         <!-- load result here -->
                     </ul>
 
                 </div>
             <hr>
         </div>
+    </div>
+
+
+
+    <div id="album_view_page" data-role="page" data-theme="b" data-title="ALBUMS VIEW">
+        <div role="main" class="ui-content">
+            <!--load data here-->
+        </div>
+        <div data-role="footer" data-position="fixed" data-tap-toggle="false">
+            <a style="display: block;background-color: rgba(36, 142, 179, 0.5)"  class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all" data-transition="slidefade" data-rel="back" href="#">Back to Recommendations</a>
+        </div><!-- /footer -->
     </div>
 
 </body>

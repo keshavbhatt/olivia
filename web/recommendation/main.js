@@ -165,6 +165,9 @@ function quoteEscape(string) {
 
 
 function setPlaylistBaseId(trackId){
+    showLoading();
+    $( '#popup-'+songId ).remove();
+    $('body').css('overflow','auto');
 
     $("#tracks_result_view").html("");
     $("#recommendation_page_suggestions").html("");
@@ -181,7 +184,7 @@ function setPlaylistBaseId(trackId){
     var html = "";
 
     $.ajax({
-        url: "https://api.magicplaylist.co/mp/create/"+trackId,
+        url: recomm_url_pl_create+trackId,
         type: "GET",
         crossDomain: true,
         data: {
@@ -189,6 +192,7 @@ function setPlaylistBaseId(trackId){
         }
     })
     .then( function ( response ) {
+        $.mobile.loading("hide");
         $("#result_div").css("visibility","visible");
         var title,artist,album,coverUrl,songId,albumId,artistId,millis;
 
@@ -240,6 +244,7 @@ function setPlaylistBaseId(trackId){
                             "Release Date: "+rel_date+
                         "</p>"+
                     "</a>"+
+                    "<a href='#' onclick='track_option(\""+songId+"\")'>More Options</a>"+
                    "</li>"
                 }
             }
@@ -248,6 +253,73 @@ function setPlaylistBaseId(trackId){
         $ul.listview( "refresh" );
         $ul.trigger( "updatelayout");
     });
+}
+
+
+function track_option(track_id){
+   // var channelHref = $('#'+track_id).parent().attr("data-channelhref");
+    var searchterm = $('#'+track_id).parent().attr("onclick").split("gettrackinfo(\'")[1].split(");")[0];
+    var arr = searchterm.split("!=-=!")
+    title = arr[0];
+    artist = arr[1];
+    album = arr[2];
+    coverUrl = arr[3];
+    songId = arr[4];
+    albumId = arr[5];
+    artistId= arr[6];
+    millis = arr[7];
+
+
+    //onclick=\''+$('#'+track_id).parent().attr("onclick")+'\'
+    //https://www.youtube.com/watch?v=eqBkiu4M0Os
+    var target = $( this ),
+            options = '<hr><ul style="padding-bottom:5px" data-inset="true">'+
+                        '<li>'+
+                            '<a href="#" onclick="setPlaylistBaseId(\''+songId+'\')" >Show recommended tracks</a>'+
+                        '</li>'+
+                        '<li>'+
+                            '<a href="#" id="'+songId+'_addToQueue" >Add to queue</a>'+
+                        '</li>'+
+                        '<li>'+
+                            '<a href="#" onclick="album_view(\''+albumId+'\')" >Go to Album</a>'+
+                        '</li>'+
+                      '</ul>',
+                link = "<span >id: "+ songId+"</span>",
+                closebtn = '<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>',
+                header = '<div style="margin: -12px -12px 0px -12px;" data-role="header"><h2>Options</h2></div>',
+                img = '<img style="padding: 20px 0px 10px 0px;max-width: 200px;" src="'+coverUrl+'" alt="' + title + '" class="photo">',
+                details = $('#'+track_id).parent().find("p")[0].outerHTML,
+                popup = '<div style="text-align:center;padding:12px 12px; max-width:400px" data-transition="slideup" data-overlay-theme="b" data-dismissible="true" data-position-to="window" data-role="popup" id="popup-' + songId + '" data-short="' + songId +'"  data-corners="false" data-tolerance="15"></div>';
+            $( link ).appendTo($( details ));
+            // Create the popup.
+            $( header )
+                .appendTo( $( popup )
+                .appendTo( $.mobile.activePage )
+                .popup() )
+                .toolbar()
+                .before( closebtn )
+                .after( img + details + options);
+                $( "#popup-" + songId ).find('p').attr('style',"");
+                $( "#popup-" + songId ).find("ul").listview();
+                $( "#popup-" + songId ).popup( "open" ).trigger("create");
+                $('body').css('overflow','hidden');
+
+        $("#"+songId+"_addToQueue").on("click",function(){
+                $( this ).parent().parent().parent().parent().parent().find("#"+songId).click();
+                $( '#popup-'+songId ).remove();
+                $('body').css('overflow','auto');
+        });
+
+        $( document ).on( "popupbeforeposition", $('#popup-'+songId ), function() {
+            $( '#popup-'+songId).find("ul").listview();
+            $('body').css('overflow','hidden');
+        });
+
+        // Remove the popup after it has been closed
+        $( document ).on( "popupafterclose", $('#popup-'+songId), function() {
+            $( '#popup-'+songId ).remove();
+            $('body').css('overflow','auto');
+        });
 }
 
 
@@ -265,7 +337,7 @@ $(document).on("pagebeforeshow","#recommendation_page",function(){
 
 
 $( document ).on( "pagecreate", "#recommendation_page", function() {
-    $( "#recommendation_page_suggestions" ).on( "filterablebeforefilter", function ( e, data ) {
+    $( "#recommendation_page_suggestions" ).on( "filterablebeforefilter", function ( e, data ){
         var $ul = $(this),
             $input = $( data.input ),
             value = $input.val(),
@@ -276,7 +348,7 @@ $( document ).on( "pagecreate", "#recommendation_page", function() {
             $ul.listview( "refresh" );
             $("#result_div").css("visibility","hidden");
             $.ajax({
-                url: "https://api.magicplaylist.co/mp/search",
+                url: recomm_url,
                 type: "GET",
                 crossDomain: true,
                 data: {
@@ -289,7 +361,7 @@ $( document ).on( "pagecreate", "#recommendation_page", function() {
                         var title = val[j]['name'];
                         var artist = val[j]['artists'][0]['name'];
                         var trackid = val[j]['id'];
-                        html += '<li><a onclick="setPlaylistBaseId(\''+trackid+'\');" >'+title+', '+artist+'</a></li>';
+                        html += '<li><a onclick="setPlaylistBaseId(\''+trackid+'\');" >'+title+' - '+artist+'</a></li>';
                     }            });
                 $ul.html( html );
                 $ul.listview( "refresh" );
@@ -307,14 +379,14 @@ function forceSearch(val){
     if ( value && value.length > 2 ) {
         $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'>loading..</span></div></li>" );
         $ul.listview( "refresh" );
-        $.get("https://api.magicplaylist.co/mp/search?txt=haunted", function(response) {
+        $.get(recomm_url_search+"txt=haunted", function(response) {
             $.each( response, function ( i, val ) {
                 console.log(i,val);
                 for(var j=0;j<val.length;j++){
                     var title = val[j]['name'];
                     var artist = val[j]['artists'][0]['name'];
                     var trackid = val[j]['id'];
-                    html += '<li><a onclick="setPlaylistBaseId(\''+trackid+'\');" >'+title+" "+artist+'</a></li>';
+                    html += '<li><a onclick="setPlaylistBaseId(\''+trackid+'\');" >'+title+" - "+artist+'</a></li>';
                 }
                 $ul.html( html );
                 $ul.listview( "refresh" );
@@ -328,4 +400,54 @@ function getCountry(){
     $.get("https://ipinfo.io", function(response) {
         youtube.saveGeo(response.country);
     }, "jsonp");
+}
+
+
+
+//  album view
+function album_view(id){
+    $.mobile.changePage($('#album_view_page'));
+    $('#album_view_page .ui-content').html("");
+    $('body').css('overflow','auto');
+    showLoading();
+    if(paginator.isOffline("album_view","album_view",id))
+    {
+        var html = paginator.load("album_view","album_view",id);
+
+        $.mobile.loading("hide");
+
+        $("#album_view_page .ui-content").html(html);
+        $('#album_view_page .ui-content').trigger('create');
+        $('#album_view_page .ui-content').fadeIn('slow');
+        setNowPlaying(NowPlayingTrackId);
+    }else{
+         $.ajax({
+            url: baseUrl+"album_view.php",
+                   type:"GET",
+                   data:{
+                        "query":id
+                   },
+            success: function(html) {
+                paginator.save("album_view","album_view",id,html);
+                $.mobile.loading("hide");
+                $("#album_view_page .ui-content").html(html);
+                $('#album_view_page .ui-content').trigger('create');
+                $('#album_view_page .ui-content').fadeIn('slow');
+                setNowPlaying(NowPlayingTrackId);
+            }
+        });
+    }
+}
+
+//called from album_view.php
+function setAlbumMeta(album,album_art,album_art_header,artist,tracks_count,copyright
+                     ,genere,release_date){
+    $.mobile.activePage.find("#ALBUM").text(album);
+    $.mobile.activePage.find("#ALBUM_ART").attr("src",album_art);
+    $.mobile.activePage.find("#HEADER_DIV").get(0).style.cssText=document.querySelector("#HEADER_DIV").style.cssText+"background: url('"+album_art_header+"');background-size: cover;";
+    $.mobile.activePage.find("#ARTIST").text(artist);
+    $.mobile.activePage.find("#TRACKS_COUNT").text(tracks_count);
+    $.mobile.activePage.find("#COPYRIGHT").text(copyright);
+    $.mobile.activePage.find("#PRIMARY_GENRE").text(genere);
+    $.mobile.activePage.find("#RELEASE_DATE").text(release_date);
 }
