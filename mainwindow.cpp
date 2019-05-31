@@ -60,7 +60,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_5->resize(ui->label_5->width(),ui->search->height());
     ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
-    store_manager = new store(this,"hjkfdsll");// #6
+    database = "hjkfdsll";
+
+    store_manager = new store(this,database);// #6
 
     pagination_manager = new paginator(this);
     connect(pagination_manager,SIGNAL(reloadRequested(QString,QString)),this,SLOT(reloadREquested(QString,QString)));
@@ -238,7 +240,6 @@ void MainWindow::init_settings(){
     connect(settingsUi.dynamicTheme,SIGNAL(toggled(bool)),settUtils,SLOT(changeDynamicTheme(bool)));
 
     connect(settingsUi.systemTitlebar,&QCheckBox::toggled,[=](bool checked){
-        qDebug()<<"system title bar"<<checked;
         if(checked){
             hide();
             ui->windowControls_main->hide();
@@ -266,11 +267,58 @@ void MainWindow::init_settings(){
     });
 
     connect(settingsUi.delete_offline_pages,&QPushButton::clicked,[=](){
-        qDebug()<<"delete offline _pages";
+        utils* util = new utils(this);
+        if(util->delete_cache(setting_path+"/paginator")){
+            settingsUi.offline_pages_size->setText(util->refreshCacheSize(setting_path+"/paginator"));
+            util->deleteLater();
+        }
     });
     connect(settingsUi.delete_tracks_cache,&QPushButton::clicked,[=](){
-        qDebug()<<"delete offline tracks";
+          QMessageBox msgBox;
+          msgBox.setText("This will delete all downloaded songs!");
+          msgBox.setIcon(QMessageBox::Information);
+          msgBox.setInformativeText("Delete all downloaded songs cache ?");
+          msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+          msgBox.setDefaultButton(QMessageBox::No);
+          int ret = msgBox.exec();
+          switch (ret) {
+            case QMessageBox::Yes:{
+                  utils* util = new utils(this);
+
+                      store_manager->delete_track_cache(setting_path+"/downloadedTracks");
+                      settingsUi.cached_tracks_size->setText(util->refreshCacheSize(setting_path+"/downloadedTracks"));
+                      util->deleteLater();
+                      clear_queue();
+                      loadPlayerQueue();
+              break;}
+            case  QMessageBox::No:
+              break;
+          }
     });
+
+    connect(settingsUi.drop_database,&QPushButton::clicked,[=](){
+          QMessageBox msgBox;
+          msgBox.setText("This will clear your local database !!");
+          msgBox.setIcon(QMessageBox::Information);
+          msgBox.setInformativeText("Delete local database ? \n\nThis only include database, downloaded songs cache will remain.");
+          msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+          msgBox.setDefaultButton(QMessageBox::No);
+          int ret = msgBox.exec();
+          switch (ret) {
+            case QMessageBox::Yes:{
+                  utils* util = new utils(this);
+                  if(util->delete_cache(setting_path+"/storeDatabase/"+database)){
+                      settingsUi.database_size->setText(util->refreshCacheSize(setting_path+"/storeDatabase/"+database));
+                      util->deleteLater();
+                      clear_queue();
+                      restart_required();
+                  }
+              break;}
+            case  QMessageBox::No:
+              break;
+          }
+    });
+
 
     horizontalDpi = QApplication::desktop()->screen()->logicalDpiX();
     zoom = 100.0;
@@ -279,6 +327,17 @@ void MainWindow::init_settings(){
 
     settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
     add_colors_to_color_widget();
+}
+
+void MainWindow::restart_required(){
+    QMessageBox msgBox;
+    msgBox.setText("Application need to restart!");
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.setInformativeText("Please restart application for new changes.");
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    msgBox.exec();
+    qApp->quit();
 }
 
 void MainWindow::dynamicThemeChanged(bool enabled){
@@ -434,6 +493,9 @@ void MainWindow::set_app_theme(QColor rgb){
     settingsUi.download_engine->setStyleSheet(btn_style);
     settingsUi.plus->setStyleSheet(btn_style);
     settingsUi.minus->setStyleSheet(btn_style);
+    settingsUi.delete_offline_pages->setStyleSheet(btn_style);
+    settingsUi.delete_tracks_cache->setStyleSheet(btn_style);
+    settingsUi.drop_database->setStyleSheet(btn_style);
 }
 
 void MainWindow::customColor(){
@@ -1386,6 +1448,21 @@ void MainWindow::ytdlReadyRead(){
     }
 }
 
+void MainWindow::queue_currentItemChanged(QListWidget *queue,QListWidgetItem *current, QListWidgetItem *previous)
+{
+    qDebug()<<queue->objectName()<<current<<previous;
+}
+
+void MainWindow::on_right_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+{
+    queue_currentItemChanged(ui->right_list,current,previous);
+}
+void MainWindow::on_right_list_2_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+{
+    queue_currentItemChanged(ui->right_list_2,current,previous);
+}
+
+
 void MainWindow::on_left_list_currentRowChanged(int currentRow)
 {
     switch (currentRow) {
@@ -1769,6 +1846,7 @@ void MainWindow::on_settings_clicked()
 
         settingsUi.cached_tracks_size->setText(util->refreshCacheSize(setting_path+"/downloadedTracks"));
         settingsUi.offline_pages_size->setText(util->refreshCacheSize(setting_path+"/paginator"));
+        settingsUi.database_size->setText(util->refreshCacheSize(setting_path+"/storeDatabase/"+database));
 
         util->deleteLater();
 
@@ -1832,6 +1910,7 @@ void MainWindow::radioStatus(QString radioState){
 
         // play next track
         if(ui->next->isEnabled()){
+
             ui->next->click();
         }
 
@@ -2730,4 +2809,12 @@ bool MainWindow::trackIsBeingProcessed(QString songId){
     }
     return isProcessing;
 }
+
+
+void MainWindow::clear_queue(){
+    ui->stop->click();
+    ui->right_list->clear();
+    ui->right_list_2->clear();
+}
+
 

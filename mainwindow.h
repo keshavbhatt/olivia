@@ -232,6 +232,13 @@ private slots:
         text.setHtml(html.replace("\\\"","'"));
         return text.toPlainText();
     }
+    void queue_currentItemChanged(QListWidget *queue, QListWidgetItem *current, QListWidgetItem *previous);
+
+    void on_right_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+
+    void on_right_list_2_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+    void clear_queue();
+    void restart_required();
 private:
     QString core_local_date,core_remote_date;
     float zoom;
@@ -256,7 +263,7 @@ private:
     QString gotoAlbumId,gotoArtistId;
     QString nowPlayingSongId;
 
-
+    QString database;
     store *store_manager = nullptr;
     radio *radio_manager = nullptr;
     paginator *pagination_manager = nullptr;
