@@ -49,7 +49,7 @@ function changeBg(rgba){ // sets bg color var in mainwindow and changes bg color
 }
 
 function setNowPlaying(songId){ //nowPlaying styles are in main.css
-    if(songId.length>0 && songId!=="0000000"){
+    if(songId.length>0 && songId!=="0000000" && $("#"+songId).length > 0){
         //removes all now playing
         $(".nowPlaying").remove();
         $.mobile.activePage.remove(".nowPlaying");
@@ -73,7 +73,7 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
 
 
         //for album [adds nowPlaying active page]
-        $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px;max-width:'+maxWidth.toString()+'px; width:'+width.toString()+'px;');
+        $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px;max-width:'+width+'px; width:'+width+'px;');
         $.mobile.activePage.find(songIdStr).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
     }
 }
@@ -236,5 +236,9 @@ var countries = {
     "Yemen":"ye",
     "Zimbabwe":"zw"
 }
+
+var recomm_url = "https://api.magicplaylist.co/mp/search";
+var recomm_url_pl_create = "https://api.magicplaylist.co/mp/create/";
+var recomm_url_search = "https://api.magicplaylist.co/mp/search?";
 
 

@@ -173,7 +173,11 @@ function album_view(id){
         $("#album_view_page .ui-content").html(html);
         $('#album_view_page .ui-content').trigger('create');
         $('#album_view_page .ui-content').fadeIn('slow');
+
         setNowPlaying(NowPlayingTrackId);
+        $("#"+NowPlayingTrackId).css("cssText","position: absolute;left: 0px;top: 0px;");
+        $(".nowPlaying").css("cssText","width:"+$("#"+NowPlayingTrackId).width()+"px");
+
     }else{
          $.ajax({
             url: baseUrl+"album_view.php",
