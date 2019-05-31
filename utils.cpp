@@ -36,7 +36,6 @@ quint64 utils::dir_size(const QString & directory)
 //get the size of cache folder in human readble format
 QString utils::refreshCacheSize(const QString cache_dir)
 {
-  //  QString cache_dir =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/data8";
     int cache_size = dir_size(cache_dir);
     QString cache_unit;
     if(cache_size > 1024*1024*1024)
@@ -60,4 +59,10 @@ QString utils::refreshCacheSize(const QString cache_dir)
         cache_unit = " B";
     }
     return QString::number(cache_size) + cache_unit;
+}
+
+bool utils::delete_cache(const QString cache_dir){
+    bool deleted = QDir(cache_dir).removeRecursively();
+    QDir(cache_dir).mkpath(cache_dir);
+    return deleted;
 }

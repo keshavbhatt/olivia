@@ -16,6 +16,7 @@ public:
     virtual ~utils();
 public slots:
     QString refreshCacheSize(const QString cache_dir);
+    bool delete_cache(const QString cache_dir);
 private slots:
     quint64 dir_size(const QString &directory);
 
