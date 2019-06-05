@@ -115,7 +115,9 @@ void onlineSearchSuggestion::showCompletion(const QVector<QString> &choices)
 
     popup->move(editor->mapToGlobal(QPoint(0, editor->height())));
     popup->setFocus();
-    popup->show();
+    if(editor->hasFocus()||!editor->text().isEmpty()){
+        popup->show();
+    }
 }
 
 void onlineSearchSuggestion::doneCompletion()
@@ -166,7 +168,9 @@ void onlineSearchSuggestion::handleNetworkData(QNetworkReply *networkReply)
                      }
                 }
             }
-        showCompletion(choices);
+            if(editor->hasFocus()||!editor->text().isEmpty()){
+                showCompletion(choices);
+            }
     }
     networkReply->deleteLater();
 }

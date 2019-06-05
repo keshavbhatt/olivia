@@ -29,7 +29,7 @@ void ElidedLabel::setText(const QString& txt) {
 
 
 void ElidedLabel::cacheElidedText(int w) {
-    m_cached_elided_text = fontMetrics().elidedText(text(), m_elide_mode, w, (buddy() == NULL)? 0 : Qt::TextShowMnemonic);
+    m_cached_elided_text = fontMetrics().elidedText(text(), m_elide_mode, w, (buddy() == nullptr)? 0 : Qt::TextShowMnemonic);
 }
 
 void ElidedLabel::resizeEvent(QResizeEvent* e) {
@@ -43,7 +43,7 @@ void ElidedLabel::paintEvent(QPaintEvent* e) {
     } else {
         QPainter p(this);
         p.drawText(0, 0, geometry().width(), geometry().height(),
-                   QStyle::visualAlignment(text().isRightToLeft()? Qt::RightToLeft : Qt::LeftToRight, alignment()) | ((buddy() == NULL)? 0 : Qt::TextShowMnemonic),
+                   QStyle::visualAlignment(text().isRightToLeft()? Qt::RightToLeft : Qt::LeftToRight, alignment()) | ((buddy() == nullptr)? 0 : Qt::TextShowMnemonic),
                    m_cached_elided_text);
     }
 }

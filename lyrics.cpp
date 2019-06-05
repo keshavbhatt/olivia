@@ -31,7 +31,7 @@ Lyrics::Lyrics(QWidget *parent) :
 
     ui->lyricsWidget->hide();
 
-    _networkManager = new QNetworkAccessManager(0);
+    _networkManager = new QNetworkAccessManager(nullptr);
     connect(_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(_networkManagerFinished(QNetworkReply*)));
 
     //make it fast
@@ -49,7 +49,7 @@ Lyrics::Lyrics(QWidget *parent) :
 
 
     //adds lyrics title widget in lyrics header
-    ElidedLabel *titleLabel = new ElidedLabel("title",0);
+    ElidedLabel *titleLabel = new ElidedLabel("title",nullptr);
     titleLabel->setObjectName("lyricsTitleWidget");
     titleLabel->setAlignment(Qt::AlignHCenter);
     ui->lyricsTitleLayout->addWidget(titleLabel);
@@ -63,7 +63,7 @@ void Lyrics::_networkManagerFinished(QNetworkReply *reply){
 
     //process JSON
 
-    QString strReply = (QString)reply->readAll();
+    QString strReply = static_cast<QString>(reply->readAll());
     QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
     QJsonArray jsonArray = jsonResponse.array();
 
@@ -92,7 +92,7 @@ void Lyrics::_networkManagerFinished(QNetworkReply *reply){
             font.setPixelSize(12);
             setFont(font);
 
-            ElidedLabel *titleLabel = new ElidedLabel(title,0);
+            ElidedLabel *titleLabel = new ElidedLabel(title,nullptr);
             titleLabel->setObjectName("lyric_title");
             titleLabel->setFont(font);
             lyricItem_Ui.verticalLayout->addWidget(titleLabel);

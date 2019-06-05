@@ -26,8 +26,9 @@ quint64 utils::dir_size(const QString & directory)
             {
                 sizex += dir_size(fileInfo.absoluteFilePath());
             }
-            else
-            sizex += fileInfo.size();
+            else{
+                sizex += fileInfo.size();
+            }
         }
     }
     return sizex;
@@ -36,7 +37,7 @@ quint64 utils::dir_size(const QString & directory)
 //get the size of cache folder in human readble format
 QString utils::refreshCacheSize(const QString cache_dir)
 {
-    int cache_size = dir_size(cache_dir);
+    qint64 cache_size = dir_size(cache_dir);
     QString cache_unit;
     if(cache_size > 1024*1024*1024)
     {
@@ -55,7 +56,6 @@ QString utils::refreshCacheSize(const QString cache_dir)
     }
     else
     {
-        cache_size = cache_size;
         cache_unit = " B";
     }
     return QString::number(cache_size) + cache_unit;

@@ -172,7 +172,7 @@ private slots:
 
     void zoomin();
     void zoomout();
-    void setZoom(float);
+    void setZoom(qreal);
     void listItemDoubleClicked(QListWidget *list, QListWidgetItem *item);
     void on_miniMode_clicked();
 
@@ -241,8 +241,8 @@ private slots:
     void restart_required();
 private:
     QString core_local_date,core_remote_date;
-    float zoom;
-    int horizontalDpi;
+    qreal zoom;
+    qreal horizontalDpi;
     QPoint oldPos,oldPosMiniWidget;
 
     Ui::MainWindow *ui;

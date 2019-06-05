@@ -153,7 +153,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
 
 
             if(!demuxer_cache_duration.isEmpty()){
-                emit demuxer_cache_duration_changed((double)demuxer_cache_duration.toDouble(),(double)position.toDouble());
+                emit demuxer_cache_duration_changed(static_cast<double>(demuxer_cache_duration.toDouble()),static_cast<double>(position.toDouble()));
             }
 
 
@@ -162,8 +162,8 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
             }
 
 
-            int playerPosition = (int)position.toDouble();
-            int playerDuration = (int)duration.toDouble();
+            int playerPosition = static_cast<int>(position.toDouble());
+            int playerDuration = static_cast<int>(duration.toDouble());
 
 
            // qDebug()<<playerPosition;
@@ -228,7 +228,7 @@ void radio::radioReadyRead(){
 //        ((QTextBrowser*)(console))->setText(output);
     }else{
         QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
-        ((QTextBrowser*)(console))->append(output);
+        static_cast<QTextBrowser*>(console)->append(output);
         if((output.contains("failed",Qt::CaseInsensitive)
                 ||output.contains("unable to resolve host address",Qt::CaseInsensitive)
                 ||output.contains("Failed to recognize file format",Qt::CaseInsensitive))&& !output.contains("Seek failed")){

@@ -23,7 +23,7 @@ void nowPlaying::paintEvent( QPaintEvent* e )
     }
 
     bgBrush = QBrush(m_image);
-    fgBrush = QBrush(QColor(m_color.red(),m_color.green(),m_color.blue(),0.8));
+    fgBrush = QBrush(QColor(m_color.red(),m_color.green(),m_color.blue(),8));
 
     painter.setPen(QColor(m_color.red(),m_color.green(),m_color.blue(),0)); //transparent borders
     painter.fillRect(rect(), bgBrush); //image

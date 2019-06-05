@@ -19,7 +19,7 @@ void seekSlider::paintEvent(QPaintEvent *ev) {
   }
   QRect groove_rect = style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderGroove, this);
   QSlider::paintEvent(ev);
-  QRect rect(groove_rect.left(), groove_rect.top(),(subControlWidth/100)*groove_rect.width() , groove_rect.height());//0.6 * groove_rect.width()
+  QRect rect(groove_rect.left(), groove_rect.top(),static_cast<int>((subControlWidth/100)*groove_rect.width()) , groove_rect.height());//0.6 * groove_rect.width()
   QPainter painter(this);
   painter.fillRect(rect, QBrush(QColor(42,130,218,80)));
 }
