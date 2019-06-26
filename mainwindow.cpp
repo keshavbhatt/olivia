@@ -256,6 +256,20 @@ void MainWindow::init_settings(){
         }
     });
 
+    //initial settings for app transparency
+    settingsUi.appTransperancySlider->setRange(50,100);
+    settingsUi.appTransperancyLabel->setText(QString::number(int(this->windowOpacity()*100)));
+    settingsUi.appTransperancySlider->setValue(int(this->windowOpacity()*100));
+    int labelWidth = settingsUi.appTransperancyLabel->fontMetrics().boundingRect(settingsUi.appTransperancyLabel->text()).width();
+    int oneCharWidth = labelWidth/3;
+    settingsUi.appTransperancyLabel->setMinimumWidth(oneCharWidth*4);
+    settingsUi.transperancyLabel->setMinimumWidth(oneCharWidth*4);
+
+    connect(settingsUi.appTransperancySlider,&QSlider::valueChanged,[=](int val){
+        settUtils->changeAppTransperancy(val);
+        this->setWindowOpacity(qreal(val)/100);
+        settingsUi.appTransperancyLabel->setText(QString::number(settingsUi.appTransperancySlider->value()));
+    });
     connect(settingsUi.miniModeTransperancySlider,&QSlider::valueChanged,[=](int val){
         settUtils->changeMiniModeTransperancy(val);
         settingsUi.transperancyLabel->setText(QString::number(settingsUi.miniModeTransperancySlider->value()));
@@ -2487,7 +2501,18 @@ void MainWindow::on_fullScreen_clicked()
 
 
 void MainWindow::reloadREquested(QString dataType,QString query){
-    ui->webview->page()->mainFrame()->evaluateJavaScript(dataType+"(\""+query+"\")");
+    //if the function contains two arguments they are seperated by '<==>'
+    //here on if we are checking that and passing the given dataType function two arguments by splitting query
+    //else we do handle single arg function.
+    QString arg1,arg2;
+    if(query.contains("<==>")){
+        arg1 = query.split("<==>").first();
+        arg2 = query.split("<==>").last();
+        ui->webview->page()->mainFrame()->evaluateJavaScript(dataType+"(\""+arg1+"\",\""+arg2+"\")");
+    }else{
+        ui->webview->page()->mainFrame()->evaluateJavaScript(dataType+"(\""+query+"\")");
+    }
+
 }
 
 void MainWindow::assignNextTrack(QListWidget *list ,int index){
@@ -2828,4 +2853,8 @@ void MainWindow::clear_queue(){
     ui->right_list_2->clear();
 }
 
-
+//change app transparency
+void MainWindow::transparency_changed(int value)
+{
+    setWindowOpacity(qreal(value)/100);
+}

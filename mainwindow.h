@@ -239,6 +239,8 @@ private slots:
     void on_right_list_2_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
     void clear_queue();
     void restart_required();
+    void transparency_changed(int value); //from settings widget
+
 private:
     QString core_local_date,core_remote_date;
     qreal zoom;

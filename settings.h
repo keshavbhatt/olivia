@@ -29,6 +29,7 @@ public slots:
     void changeZoom(QString zoom);
     void changeMiniModeTransperancy(int val);
     void changeSystemTitlebar(bool checked);
+    void changeAppTransperancy(int val);
 };
 
 #endif // SETTINGS_H

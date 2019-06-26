@@ -31,6 +31,10 @@ void settings::changeZoom(QString zoom){
     settingsObj.setValue("zoom",zoom);
 }
 
+void settings::changeAppTransperancy(int val){
+    settingsObj.setValue("appTransperancy",val);
+}
+
 void settings::changeMiniModeTransperancy(int val){
     settingsObj.setValue("miniModeTransperancy",val);
 }
