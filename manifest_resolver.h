@@ -15,7 +15,7 @@ class ManifestResolver : public QObject{
     Q_OBJECT
 
 public:
-    ManifestResolver(const QUrl& url, QObject* parent= 0);
+    ManifestResolver(const QUrl& url, QObject* parent= nullptr);
     virtual ~ManifestResolver();
 private slots:
     void downloadManifest(QUrl url);
@@ -39,7 +39,7 @@ inline ManifestResolver::~ManifestResolver(){
  }
 
 inline void ManifestResolver::downloadManifest(QUrl url){
-    QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(0);
+    QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(nullptr);
     connect(m_netwManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slot_netwManagerFinished(QNetworkReply*)));
     QNetworkRequest request(url);
     m_netwManager->get(request);
