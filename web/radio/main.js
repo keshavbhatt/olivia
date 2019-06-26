@@ -185,21 +185,32 @@ function loadLanguages(){
 
 function showStations(query,queryType){
     showLoading();
-    $.ajax({
-       url: baseUrl+"list/stations.php",
-              type:"GET",
-               data:{
-                   "query":escape(query),
-                   "type":queryType
-               },
-       success: function(html) {
-           $.mobile.loading("hide");
-           $.mobile.changePage($('#stations_page'));
-           $("#stations_result").html(html).listview("refresh");
-           $('#stations_page .ui-content').trigger('create');
-           $('#stations_page .ui-content').fadeIn('slow');
-       }
-   });
+    //if offline data available
+    if(paginator.isOffline("radio","showStations",query+"<==>"+queryType)){
+        var html_ = paginator.load("radio","showStations",query+"<==>"+queryType);
+        $.mobile.loading("hide");
+        $.mobile.changePage($('#stations_page'));
+        $("#stations_result").html(html_).listview("refresh");
+        $('#stations_page .ui-content').trigger('create');
+        $('#stations_page .ui-content').fadeIn('slow');
+    }else{
+        $.ajax({
+           url: baseUrl+"list/stations.php",
+                  type:"GET",
+                   data:{
+                       "query":escape(query),
+                       "type":queryType
+                   },
+           success: function(html) {
+               paginator.save("radio","showStations",query+"<==>"+queryType,html);
+               $.mobile.loading("hide");
+               $.mobile.changePage($('#stations_page'));
+               $("#stations_result").html(html).listview("refresh");
+               $('#stations_page .ui-content').trigger('create');
+               $('#stations_page .ui-content').fadeIn('slow');
+           }
+       });
+        }
 }
 
 function loadTopStations(type){
@@ -251,7 +262,7 @@ $(document).on("pagebeforeshow","#radio_page",function(){
 
     $('#radio_search_input').keypress(function(event){
         var keycode = (event.keyCode ? event.keyCode : event.which);
-        if(keycode == '13'){
+        if(keycode === '13'){
             station_search($(this).val())
         }
     });
