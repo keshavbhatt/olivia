@@ -989,6 +989,13 @@ void MainWindow::webViewLoaded(bool loaded){
 
     if( loaded && pageType == "recommendation"){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
+
+        //if the function is called from track action menu
+        if(!recommendationSongId.isEmpty()){
+            QString trackTitle = store_manager->getTrack(recommendationSongId).at(1);
+            ui->webview->page()->mainFrame()->evaluateJavaScript("$('#manual_search').val('"+trackTitle+"');setPlaylistBaseId('"+recommendationSongId+"');");
+        }
+        recommendationSongId.clear();
      }
 
     if( loaded && pageType == "youtube" && !youtubeSearchTerm.isEmpty()){
@@ -1165,6 +1172,15 @@ void MainWindow::showTrackOption(){
     QPushButton* senderButton = qobject_cast<QPushButton*>(sender());
     QString songId = senderButton->objectName().remove("optionButton").trimmed();
 
+    //check if track is from spotify
+
+    bool notSpotify;
+    int hex = songId.toInt(&notSpotify, 16);
+    int dec = songId.toInt(&notSpotify, 10);
+    qDebug()<<"isString"<<hex<<"isString"<<dec<<notSpotify;
+
+    QAction *showRecommendation = new QAction("Show Recommendations",nullptr);
+
     QAction *showLyrics = new QAction("Show Lyrics",nullptr);
     QAction *gotoArtist= new QAction("Go to Artist",nullptr);
     QAction *gotoAlbum = new QAction("Go to Album",nullptr);
@@ -1180,6 +1196,7 @@ void MainWindow::showTrackOption(){
     //deleteSong->setEnabled(store_manager->isInCollection(songId));
 
     //setIcons
+    showRecommendation->setIcon(QIcon(":/icons/sidebar/activity.png"));
     gotoArtist->setIcon(QIcon(":/icons/sidebar/artist.png"));
     gotoAlbum->setIcon(QIcon(":/icons/sidebar/album.png"));
     showLyrics->setIcon(QIcon(":/icons/sidebar/playlist.png"));
@@ -1201,6 +1218,13 @@ void MainWindow::showTrackOption(){
        lyricsWidget->setStyleSheet("");
        lyricsWidget->setCustomStyle(ui->search->styleSheet(),ui->right_list->styleSheet(),this->styleSheet());
        lyricsWidget->setQueryString(htmlToPlainText(lyrics_search_string));
+    });
+
+
+    connect(showRecommendation,&QAction::triggered,[=](){
+        ui->webview->load(QUrl("qrc:///web/recommendation/recommendation.html"));
+        pageType = "recommendation";
+        recommendationSongId = songId;
     });
 
     connect(gotoAlbum,&QAction::triggered,[=](){
@@ -1282,6 +1306,8 @@ void MainWindow::showTrackOption(){
     QMenu menu;
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
         menu.addAction(showLyrics);
+        if(!notSpotify)
+            menu.addAction(showRecommendation);
         menu.addAction(gotoAlbum);
         menu.addAction(gotoArtist);
     }else{

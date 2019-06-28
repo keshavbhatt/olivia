@@ -262,7 +262,8 @@ private:
     bool isLoadingResults;
     QString offsetstr;
 
-    QString gotoAlbumId,gotoArtistId;
+
+    QString gotoAlbumId,gotoArtistId,recommendationSongId;//jumper vars
     QString nowPlayingSongId;
 
     QString database;
