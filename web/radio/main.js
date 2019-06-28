@@ -210,7 +210,7 @@ function showStations(query,queryType){
                $('#stations_page .ui-content').fadeIn('slow');
            }
        });
-        }
+    }
 }
 
 function loadTopStations(type){
@@ -262,7 +262,7 @@ $(document).on("pagebeforeshow","#radio_page",function(){
 
     $('#radio_search_input').keypress(function(event){
         var keycode = (event.keyCode ? event.keyCode : event.which);
-        if(keycode === '13'){
+        if(keycode == "13" || keycode === "Enter"){ //ignore this warning
             station_search($(this).val())
         }
     });
