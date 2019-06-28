@@ -379,7 +379,7 @@ function forceSearch(val){
     if ( value && value.length > 2 ) {
         $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'>loading..</span></div></li>" );
         $ul.listview( "refresh" );
-        $.get(recomm_url_search+"txt=haunted", function(response) {
+        $.get(recomm_url_search+"txt="+val, function(response) {
             $.each( response, function ( i, val ) {
                 console.log(i,val);
                 for(var j=0;j<val.length;j++){
