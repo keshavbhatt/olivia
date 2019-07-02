@@ -153,7 +153,7 @@ void equalizer::updateEqLabel(int val){
      if(slider->objectName()=="tempo" && slider->value()>0){
          double constant = 10;
          double d_val = double(static_cast<double>(ui->tempo->value())/constant);
-         eq_args += "scaletempo=scale="+QString::number(d_val)+",";
+//         eq_args += "scaletempo=scale="+QString::number(d_val)+",";
          if(slider->objectName()=="tempo"){
              if(QString::number(d_val)=="1"){
                  ui->ig2->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">Tempo(Normal)</span></p>");
@@ -201,7 +201,7 @@ void equalizer::updateEqLabel(int val){
               }
          }
 
-         eq_args += "lavfi=[pan=stereo|c0="+c1vStr+"*c0|c1="+c2vStr+"*c1]"+",";
+//         eq_args += "lavfi=[pan=stereo|c0="+c1vStr+"*c0|c1="+c2vStr+"*c1]"+",";
          if(slider->objectName()=="balance"){
              ui->balanceL->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">L("+c1vStr+")</span></p>");
              ui->balanceR->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">R("+c2vStr+")</span></p>");
@@ -210,7 +210,6 @@ void equalizer::updateEqLabel(int val){
          //center
          ui->balanceL->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">L(1)</span></p>");
          ui->balanceR->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">R(1)</span></p>");
-
      }
 }
 
@@ -228,6 +227,55 @@ void equalizer::updateEqVal(){
     QSlider *slider = qobject_cast<QSlider*>(sender());
 
     eq_args.clear();
+
+    //tempo
+    if(slider->objectName()=="tempo" && slider->value()>0){
+        double constant = 10;
+        double d_val = double(static_cast<double>(ui->tempo->value())/constant);
+        eq_args += "scaletempo=scale="+QString::number(d_val)+",";
+    }
+
+    //balance
+    if(slider->objectName()=="balance" && (ui->balance->value()>10 || ui->balance->value()<10)){
+        double constant = 10;
+        double constant2 = 100;
+        int val = ui->balance->value();
+        double c1v = 0.0,c2v = 0.0;
+
+        QString c2vStr,c1vStr;
+
+
+        if(val<10){
+             val = 10 - val;
+             c1v = double(static_cast<double>(val)/constant);
+             if(val==0){
+                 c1vStr = "1";
+             }else{
+                 c1vStr = QString::number(c1v);
+             }
+             double c2vCores = double(1.0) - c1v ;
+             if(val==0){
+                 c2vStr = "0";
+             }else{
+                 c2vStr = QString::number(c2vCores);
+             }
+        }else{
+             c2v = double(static_cast<double>(val)/constant2);
+             if(val==20){
+                 c2vStr = "1";
+             }else if(val!=0){
+                 c2vStr = "0."+QString::number(c2v).split(".1").last();
+             }
+             double c1vCores = double(0.9) - c2v ;
+             if(val == 20 ){
+                 c1vStr = "0";
+             }else{
+                 c1vStr = "0."+QString::number(c1vCores).split(".7").last();
+             }
+        }
+
+        eq_args += "lavfi=[pan=stereo|c0="+c1vStr+"*c0|c1="+c2vStr+"*c1]"+",";
+    }
 
     //==========================================MEQ===============================================
     //      {keys = {'2', 'w'}, filter = {'equalizer=f=64:width_type=o:w=3.3:g=', 0}}, -- 20-200
