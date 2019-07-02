@@ -170,8 +170,8 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
                 if(eofVal.isBool() && eofVal.toBool()==true && !eofVal.isUndefined()){
                     radioState = "eof";
                     emit radioStatus(radioState);
-                    radioPlaybackTimer->stop();
-                    qDebug()<<"radioTiimer"<<radioPlaybackTimer->isActive();
+                   // radioPlaybackTimer->stop();
+                   // qDebug()<<"radioTiimer"<<radioPlaybackTimer->isActive();
                     //radioState = "playing";
                 }
         });
