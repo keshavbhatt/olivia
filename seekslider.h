@@ -10,7 +10,7 @@ class seekSlider : public QSlider
 {
     Q_OBJECT
 public:
-    seekSlider(QWidget* parent=0);
+    seekSlider(QWidget* parent=nullptr);
     double subControlWidth;
 signals:
     void setPosition(QPoint localPos);
