@@ -37,6 +37,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
+    equalizer.cpp \
         mainwindow.cpp \
     DarkStyle.cpp \
     cookiejar.cpp \
@@ -60,6 +61,7 @@ HEADERS  += mainwindow.h \
     DarkStyle.h \
     cookiejar.h \
     elidedlabel.h \
+    equalizer.h \
     nowplaying.h \
     store.h \
     radio.h \
@@ -77,6 +79,7 @@ HEADERS  += mainwindow.h \
     utils.h
 
 FORMS    += mainwindow.ui \
+    equalizer.ui \
     track.ui \
     settings.ui \
     minimode.ui \
