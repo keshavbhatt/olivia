@@ -91,5 +91,7 @@
         <file>icons/sidebar/remove.png</file>
         <file>icons/sidebar/delete.png</file>
         <file>icons/sidebar/refresh.png</file>
+        <file>icons/sidebar/video.png</file>
+        <file>icons/eq_button.png</file>
     </qresource>
 </RCC>
