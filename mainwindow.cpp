@@ -79,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
     saveTracksAfterBuffer = settingsObj.value("saveAfterBuffer","true").toBool();
     ui->radioVolumeSlider->setValue(settingsObj.value("volume","100").toInt());
     radio_manager = new radio(this,ui->radioVolumeSlider->value(),saveTracksAfterBuffer);
+    connect(radio_manager,SIGNAL(radioProcessReady()),this,SLOT(radioProcessReady()));
 
     connect(radio_manager,SIGNAL(radioStatus(QString)),this,SLOT(radioStatus(QString)));
     connect(radio_manager,SIGNAL(radioPosition(int)),this,SLOT(radioPosition(int)));
@@ -89,6 +90,9 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->cover->clear();
         ui->cover->setPixmap(pix.scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     });
+
+    radio_manager->startRadioProcess(saveTracksAfterBuffer,"",false);
+
 
     connect(ui->radioSeekSlider,&seekSlider::setPosition,[=](QPoint localPos){
         ui->radioSeekSlider->blockSignals(true);
@@ -239,6 +243,11 @@ void MainWindow::init_settings(){
     connect(settingsUi.showSearchSuggestion,SIGNAL(toggled(bool)),settUtils,SLOT(changeShowSearchSuggestion(bool)));
     connect(settingsUi.dynamicTheme,SIGNAL(toggled(bool)),settUtils,SLOT(changeDynamicTheme(bool)));
 
+    connect(settingsUi.equalizer,&QCheckBox::toggled,[=](bool checked){
+       settUtils->changeEqualizerSetting(checked);
+       ui->eq->setVisible(checked);
+    });
+
     connect(settingsUi.systemTitlebar,&QCheckBox::toggled,[=](bool checked){
         if(checked){
             hide();
@@ -338,6 +347,9 @@ void MainWindow::init_settings(){
 
     settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
     add_colors_to_color_widget();
+
+    //show hide eq
+    ui->eq->setVisible(settingsObj.value("equalizer").toBool());
 }
 
 void MainWindow::restart_required(){
@@ -352,6 +364,18 @@ void MainWindow::restart_required(){
 }
 
 void MainWindow::dynamicThemeChanged(bool enabled){
+    if(enabled){
+        QString color = store_manager->getDominantColor(store_manager->getAlbumId(nowPlayingSongId));
+        int r,g,b;
+        if(color.split(",").count()>2){
+            r = color.split(",").at(0).toInt();
+            g = color.split(",").at(1).toInt();
+            b = color.split(",").at(2).toInt();
+            set_app_theme(QColor(r,g,b));
+           // qDebug()<<QColor(r,g,b);
+        }
+
+    }
     settingsUi.themesWidget->setEnabled(!enabled);
 }
 
@@ -360,6 +384,7 @@ void MainWindow::loadSettings(){
     settingsUi.saveAfterBuffer->setChecked(settingsObj.value("saveAfterBuffer","true").toBool());
     settingsUi.showSearchSuggestion->setChecked(settingsObj.value("showSearchSuggestion","true").toBool());
     settingsUi.miniModeStayOnTop->setChecked(settingsObj.value("miniModeStayOnTop","false").toBool());
+    settingsUi.equalizer->setChecked(settingsObj.value("equalizer","false").toBool());
 
     settingsUi.dynamicTheme->setChecked(settingsObj.value("dynamicTheme","false").toBool());
 
@@ -500,6 +525,12 @@ void MainWindow::set_app_theme(QColor rgb){
 
     ui->ytdlRefreshAll->setStyleSheet(btn_style);
     ui->ytdlStopAll->setStyleSheet(btn_style);
+
+    if(eq != nullptr){
+        eq->setStyleSheet("QWidget#equalizer{"+ui->search->styleSheet()+"}"
+                                         +"QFrame{"+ui->search->styleSheet()+"}");
+        eq->removeStyle();
+    }
 
     settingsUi.download_engine->setStyleSheet(btn_style);
     settingsUi.plus->setStyleSheet(btn_style);
@@ -1174,13 +1205,13 @@ void MainWindow::showTrackOption(){
 
     //check if track is from spotify
 
-    bool notSpotify;
-    int hex = songId.toInt(&notSpotify, 16);
-    int dec = songId.toInt(&notSpotify, 10);
-    qDebug()<<"isString"<<hex<<"isString"<<dec<<notSpotify;
+//    bool notSpotify;
+//     songId.toInt(&notSpotify, 16);
+//     songId.toInt(&notSpotify, 10);
+    //qDebug()<<"isString"<<hex<<"isString"<<dec<<notSpotify;
 
     QAction *showRecommendation = new QAction("Show Recommendations",nullptr);
-
+    QAction *watchVideo = new QAction("Watch Video",nullptr);
     QAction *showLyrics = new QAction("Show Lyrics",nullptr);
     QAction *gotoArtist= new QAction("Go to Artist",nullptr);
     QAction *gotoAlbum = new QAction("Go to Album",nullptr);
@@ -1197,6 +1228,7 @@ void MainWindow::showTrackOption(){
 
     //setIcons
     showRecommendation->setIcon(QIcon(":/icons/sidebar/activity.png"));
+    watchVideo->setIcon(QIcon(":/icons/sidebar/video.png"));
     gotoArtist->setIcon(QIcon(":/icons/sidebar/artist.png"));
     gotoAlbum->setIcon(QIcon(":/icons/sidebar/album.png"));
     showLyrics->setIcon(QIcon(":/icons/sidebar/playlist.png"));
@@ -1225,6 +1257,10 @@ void MainWindow::showTrackOption(){
         ui->webview->load(QUrl("qrc:///web/recommendation/recommendation.html"));
         pageType = "recommendation";
         recommendationSongId = songId;
+    });
+
+    connect(watchVideo,&QAction::triggered,[=](){
+
     });
 
     connect(gotoAlbum,&QAction::triggered,[=](){
@@ -1306,7 +1342,7 @@ void MainWindow::showTrackOption(){
     QMenu menu;
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
         menu.addAction(showLyrics);
-        if(!notSpotify)
+        if(!isNumericStr(songId)) //spotify song ids are not numeric
             menu.addAction(showRecommendation);
         menu.addAction(gotoAlbum);
         menu.addAction(gotoArtist);
@@ -1461,11 +1497,8 @@ void MainWindow::ytdlReadyRead(){
                             QLineEdit *url = listWidgetItem->findChild<QLineEdit *>("url");
                             static_cast<QLineEdit*>(url)->setText(m48url);
                             qDebug()<<"NEW URL:"<<m48url;
-                            QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(m48url.toUtf8())).queryItemValue("expire").trimmed();
-                            if(expiryTime.isEmpty()){
-                                expiryTime = m48url.split("/expire/").last().split("/").first().trimmed();
-                            }
-                            store_manager->saveStreamUrl(songId,m48url,expiryTime);
+                            //TODO
+                            store_manager->saveStreamUrl(songId,m48url,getExpireTime(m48url));
                             mfr->deleteLater();
                         });
                         connect(mfr,&ManifestResolver::error,[=](){
@@ -1479,13 +1512,7 @@ void MainWindow::ytdlReadyRead(){
                         QLineEdit *url = listWidgetItem->findChild<QLineEdit *>("url");
                         QString url_str = s_data.trimmed();
                         static_cast<QLineEdit*>(url)->setText(url_str);
-
-
-                        QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(url_str.toUtf8())).queryItemValue("expire").trimmed();
-                        if(expiryTime.isEmpty()){
-                            expiryTime = url_str.split("/expire/").last().split("/").first().trimmed();
-                        }
-                        store_manager->saveStreamUrl(songId,url_str,expiryTime);
+                        store_manager->saveStreamUrl(songId,url_str,getExpireTime(url_str));
                     }
                     //delete process/task
                     QProcess* senderProcess = qobject_cast<QProcess*>(sender());
@@ -1497,9 +1524,41 @@ void MainWindow::ytdlReadyRead(){
     }
 }
 
+QString MainWindow::getExpireTime(const QString urlStr){
+    QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(urlStr.toUtf8())).queryItemValue("expire").trimmed();
+
+    if(expiryTime.isEmpty() || !isNumericStr(expiryTime)){
+        QString expiryTime = QUrlQuery(QUrl(urlStr.toUtf8())).queryItemValue("expire").trimmed();
+    }
+
+    if(expiryTime.isEmpty() || !isNumericStr(expiryTime)){
+        expiryTime = urlStr.split("/expire/").last().split("/").first().trimmed();
+    }
+
+    if(expiryTime.isEmpty() || !isNumericStr(expiryTime)){
+        expiryTime = urlStr.split("expire=").last().split("&").first();
+    }
+
+    if(expiryTime.isEmpty() || !isNumericStr(expiryTime)){
+        expiryTime = QString::number((QDateTime::currentMSecsSinceEpoch()/1000)+18000);
+    }
+
+    return expiryTime;
+}
+
+bool MainWindow::isNumericStr(const QString str){
+    bool isNumeric;
+     str.toInt(&isNumeric, 16);
+     str.toInt(&isNumeric, 10);
+     return  isNumeric;
+}
+
 void MainWindow::queue_currentItemChanged(QListWidget *queue,QListWidgetItem *current, QListWidgetItem *previous)
 {
-    qDebug()<<queue->objectName()<<current<<previous;
+    Q_UNUSED(queue);
+    Q_UNUSED(current);
+    Q_UNUSED(previous);
+    //qDebug()<<queue->objectName()<<current<<previous;
 }
 
 void MainWindow::on_right_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
@@ -1716,6 +1775,7 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         }
     }
 
+
     if(list->currentRow()==list->count()-1){
         ui->next->setEnabled(false);
     }else{
@@ -1725,8 +1785,20 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
                 ui->next->setEnabled(true);
                 assignNextTrack(list,i);
                 break;
+            }else {
+                ui->next->setEnabled(false);
             }
         }
+
+//        if(list->itemWidget(list->item(list->currentRow()+1))!=nullptr &&
+//                !list->itemWidget(list->item(list->currentRow()+1))->isEnabled()){
+//            ui->next->setEnabled(false);
+//        }
+//        if(list->currentRow()==assigned+1){
+//            ui->next->setEnabled(false);
+//        }
+
+
     }
 
     getNowPlayingTrackId();
@@ -1817,6 +1889,12 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
         //settingsUi theme is set when it is opened;
         ui->stream_info->setStyleSheet("QWidget#stream_info{"+widgetStyle+"}"); //to remove style set by designer
+
+        if(eq != nullptr){
+            eq->setStyleSheet("QWidget#equalizer{"+ui->search->styleSheet()+"}"
+                                             +"QFrame{"+ui->search->styleSheet()+"}");
+            eq->removeStyle();
+        }
 
         QString rgba = r+","+g+","+b+","+"0.2";
         ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+rgba+"')");
@@ -1961,7 +2039,6 @@ void MainWindow::radioStatus(QString radioState){
 
         // play next track
         if(ui->next->isEnabled()){
-
             ui->next->click();
         }
 
@@ -2577,9 +2654,8 @@ void MainWindow::assignPreviousTrack(QListWidget *list ,int index)
 
 void MainWindow::on_ytdlStopAll_clicked()
 {
-    qDebug()<<ytdlQueue.count()<<ytdlProcess;
+   // qDebug()<<ytdlQueue.count()<<ytdlProcess;
     if(ytdlProcess!=nullptr){
-        qDebug()<<"called";
         ytdlQueue.clear();
         ytdlProcess->close();
         ytdlProcess=nullptr;
@@ -2865,7 +2941,7 @@ bool MainWindow::trackIsBeingProcessed(QString songId){
     foreach (QProcess *process, ytDlProcessList) {
         if(process->objectName().trimmed()==songId){
             isProcessing = true;
-            qDebug()<<process->objectName().trimmed()<<songId;
+           // qDebug()<<process->objectName().trimmed()<<songId;
         }
         if(isProcessing)break;
     }
@@ -2884,3 +2960,61 @@ void MainWindow::transparency_changed(int value)
 {
     setWindowOpacity(qreal(value)/100);
 }
+
+
+//================================Equalizer=========================================================
+void MainWindow::on_eq_clicked()
+{
+    QString btn_style ="QPushButton{color: silver; background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 3px; padding-right: 3px; border-radius: 2px; outline: none;}"
+    "QPushButton:disabled { background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; /*border-radius: 2px;*/ color: #636363;}"
+    "QPushButton:hover{border: 1px solid #272727;background-color:#5A584F; color:silver ;}"
+    "QPushButton:pressed {background-color: #45443F;color: silver;padding-bottom:1px;}";
+    eq->setStyleSheet("");
+    eq->setStyleSheet("QWidget#equalizer{"+ui->search->styleSheet()+"}"
+                                     +"QFrame{"+ui->search->styleSheet()+"}"
+                                     +btn_style);
+    eq->removeStyle();
+    eq->show();
+}
+
+//called on every radio restart while eq class is initialzed once
+void MainWindow::init_eq(){
+    if(eq == nullptr){
+        eq = new equalizer(this);
+
+        eq->setWindowTitle(QApplication::applicationName()+" - Equalizers");
+        eq->setWindowFlags(Qt::Dialog);
+        eq->setWindowModality(Qt::NonModal);
+    }
+
+    connect(eq,SIGNAL(update_eq(QString)),this,SLOT(set_eq(QString)));
+    connect(eq,SIGNAL(disable_eq()),this,SLOT(disable_eq()));
+
+    eq->setRange();
+    eq->loadSettings();
+    eq->triggerEq();
+}
+
+void MainWindow::set_eq(QString eq_args){
+     QProcess *fifo = new QProcess(this);
+     connect(fifo, SIGNAL(finished(int)), radio_manager, SLOT(deleteProcess(int)) );
+     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"af\",\""+eq_args+"\"]}' | socat - "+ radio_manager->used_fifo_file_path);
+     ui->eq->setToolTip("Equalizer (Enabled)");
+}
+
+void MainWindow::disable_eq(){
+    QProcess *fifo = new QProcess(this);
+    connect(fifo, SIGNAL(finished(int)), radio_manager, SLOT(deleteProcess(int)) );
+    fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"af\",\"set\",\"""\"]}' | socat - "+ radio_manager->used_fifo_file_path);
+    ui->eq->setToolTip("Equalizer (Disabled)");
+}
+
+void MainWindow::radioProcessReady(){
+    if(eq==nullptr){
+        init_eq();
+    }
+    eq->setRange();
+    eq->loadSettings();
+    eq->triggerEq();
+}
+//================================Equalizer=========================================================

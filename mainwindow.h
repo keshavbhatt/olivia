@@ -13,6 +13,9 @@
 #include <QSettings>
 
 
+
+
+#include "equalizer.h"
 #include <QStringListModel>
 #include <QStandardItemModel>
 #include <QFile>
@@ -97,6 +100,9 @@ public:
     QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;
 
+public slots:
+    void set_eq(QString eq_args);
+    void disable_eq();
 protected slots:
     void resizeEvent(QResizeEvent *resizeEvent);
     bool eventFilter(QObject *obj, QEvent *event);
@@ -241,6 +247,12 @@ private slots:
     void restart_required();
     void transparency_changed(int value); //from settings widget
 
+    void on_eq_clicked();
+
+    QString getExpireTime(const QString urlStr);
+    bool isNumericStr(const QString str);
+    void init_eq();
+    void radioProcessReady();
 private:
     QString core_local_date,core_remote_date;
     qreal zoom;
@@ -255,6 +267,7 @@ private:
     QWidget *settingsWidget;
     settings *settUtils;
     Youtube *youtube;
+    equalizer *eq = nullptr;
 
    // QSettings * settings;
     QString pageType;
@@ -293,6 +306,7 @@ private:
 
     Lyrics *lyricsWidget;
 
+    QString previous_eqArg;
 
 };
 

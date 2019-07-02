@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1069</width>
+    <width>1154</width>
     <height>476</height>
    </rect>
   </property>
@@ -1143,7 +1143,7 @@ background-color: transparent;</string>
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <property name="elideMode">
                   <enum>Qt::ElideNone</enum>
@@ -1631,6 +1631,35 @@ QScrollBar:vertical {
           <number>0</number>
          </property>
          <item>
+          <widget class="QPushButton" name="eq">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border:none;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/eq_button.png</normaloff>:/icons/eq_button.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>22</width>
+             <height>22</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="controlButton" name="previous">
            <property name="enabled">
             <bool>false</bool>
@@ -1760,6 +1789,27 @@ QScrollBar:vertical {
              <height>16777215</height>
             </size>
            </property>
+           <property name="styleSheet">
+            <string notr="true">QSlider::handle:horizontal{
+  border-radius:4px;
+  border:1px solid rgba(25,25,25,255);
+  background-color:palette(alternate-base);
+  min-height:20px;
+  margin:0 -4px;
+}
+QSlider::handle:horizontal:hover{
+  background:palette(highlight);
+}
+QSlider::add-page:horizontal{
+  background:palette(base);
+}
+QSlider::sub-page:horizontal{
+  background:palette(highlight);
+}
+QSlider::sub-page:horizontal:disabled{
+  background:rgb(80,80,80);
+}</string>
+           </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -1786,7 +1836,25 @@ QScrollBar:vertical {
            <item>
             <widget class="seekSlider" name="radioSeekSlider">
              <property name="styleSheet">
-              <string notr="true"/>
+              <string notr="true">QSlider::handle:horizontal{
+  border-radius:4px;
+  border:1px solid rgba(25,25,25,255);
+  background-color:palette(alternate-base);
+  min-height:20px;
+  margin:0 -4px;
+}
+QSlider::handle:horizontal:hover{
+  background:palette(highlight);
+}
+QSlider::add-page:horizontal{
+  background:palette(base);
+}
+QSlider::sub-page:horizontal{
+  background:palette(highlight);
+}
+QSlider::sub-page:horizontal:disabled{
+  background:rgb(80,80,80);
+}</string>
              </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
