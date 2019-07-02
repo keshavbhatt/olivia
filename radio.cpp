@@ -40,8 +40,6 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     radioPlaybackTimer = new QTimer(this);
     volume= volumeValue;
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
-
-
 }
 
 void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString, bool calledByCloseEvent){
@@ -339,11 +337,12 @@ void radio::quitRadio()
 }
 
 void radio::deleteProcess(int code){
-    QList<QProcess*> radio_process_list;
-    radio_process_list = this->findChildren<QProcess*>();
-    Q_UNUSED(code);
-    const QObject *sen = sender();
-    delete sen;
+//   QList<QProcess*> radio_process_list;
+//   radio_process_list = this->findChildren<QProcess*>();
+     Q_UNUSED(code);
+     QProcess *process = qobject_cast<QProcess*>(sender());
+     process->close();
+     process->deleteLater();
 }
 
 void radio::killRadioProcess(){

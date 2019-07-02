@@ -212,6 +212,13 @@ void MainWindow::closeEvent(QCloseEvent *event){
     radio_manager->quitRadio();
     radio_manager->killRadioProcess();
     radio_manager->deleteLater();
+
+    QList<QProcess*> process_list;
+    process_list = this->findChildren<QProcess*>();
+    foreach(QProcess *process,process_list){
+        process->close();
+        process->deleteLater();
+    }
     QMainWindow::closeEvent(event);
 }
 
@@ -2969,10 +2976,43 @@ void MainWindow::on_eq_clicked()
     "QPushButton:disabled { background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; /*border-radius: 2px;*/ color: #636363;}"
     "QPushButton:hover{border: 1px solid #272727;background-color:#5A584F; color:silver ;}"
     "QPushButton:pressed {background-color: #45443F;color: silver;padding-bottom:1px;}";
+
+    QString checkBoxStyle = "QCheckBox::indicator{"
+                            "  width:18px;"
+                            "  height:18px;"
+                            "}"
+                            "QCheckBox::indicator:checked{"
+                            "  image:url(:/darkstyle/icon_checkbox_checked.png);"
+                            "}"
+                            "QCheckBox::indicator:checked:pressed{"
+                            "  image:url(:/darkstyle/icon_checkbox_checked_pressed.png);"
+                            "}"
+                            "QCheckBox::indicator:checked:disabled{"
+                            "  image:url(:/darkstyle/icon_checkbox_checked_disabled.png);"
+                            "}"
+                            "QCheckBox::indicator:unchecked{"
+                            "  image:url(:/darkstyle/icon_checkbox_unchecked.png);"
+                            "}"
+                            "QCheckBox::indicator:unchecked:pressed{"
+                            "  image:url(:/darkstyle/icon_checkbox_unchecked_pressed.png);"
+                            "}"
+                            "QCheckBox::indicator:unchecked:disabled{"
+                            "  image:url(:/darkstyle/icon_checkbox_unchecked_disabled.png);"
+                            "}"
+                            "QCheckBox::indicator:indeterminate{"
+                            "  image:url(:/darkstyle/icon_checkbox_indeterminate.png);"
+                            "}"
+                            "QCheckBox::indicator:indeterminate:pressed{"
+                            "  image:url(:/darkstyle/icon_checkbox_indeterminate_pressed.png);"
+                            "}"
+                            "QCheckBox::indicator:indeterminate:disabled{"
+                            "  image:url(:/darkstyle/icon_checkbox_indeterminate_disabled.png);"
+                            "}";
+
     eq->setStyleSheet("");
     eq->setStyleSheet("QWidget#equalizer{"+ui->search->styleSheet()+"}"
                                      +"QFrame{"+ui->search->styleSheet()+"}"
-                                     +btn_style);
+                                     +btn_style+checkBoxStyle);
     eq->removeStyle();
     eq->show();
 }
@@ -2996,14 +3036,14 @@ void MainWindow::init_eq(){
 }
 
 void MainWindow::set_eq(QString eq_args){
-     QProcess *fifo = new QProcess(this);
+     QProcess *fifo = new QProcess(radio_manager);
      connect(fifo, SIGNAL(finished(int)), radio_manager, SLOT(deleteProcess(int)) );
      fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"af\",\""+eq_args+"\"]}' | socat - "+ radio_manager->used_fifo_file_path);
      ui->eq->setToolTip("Equalizer (Enabled)");
 }
 
 void MainWindow::disable_eq(){
-    QProcess *fifo = new QProcess(this);
+    QProcess *fifo = new QProcess(radio_manager);
     connect(fifo, SIGNAL(finished(int)), radio_manager, SLOT(deleteProcess(int)) );
     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"af\",\"set\",\"""\"]}' | socat - "+ radio_manager->used_fifo_file_path);
     ui->eq->setToolTip("Equalizer (Disabled)");
