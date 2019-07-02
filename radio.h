@@ -13,6 +13,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
+
 class radio : public QObject
 {
     Q_OBJECT
@@ -22,6 +23,7 @@ public:
     int volume ;
     bool saveTracksAfterBuffer;
     QTimer *radioPlaybackTimer = nullptr;
+    QString used_fifo_file_path;
 
 signals:
     void radioStatus(QString radioState);
@@ -31,6 +33,7 @@ signals:
     void demuxer_cache_duration_changed(double,double);
     void saveTrack(QString format);
     void icy_cover_changed(QPixmap pix);
+    void radioProcessReady();
 
 public slots:
     void playRadio(bool saveTracksAfterBuffer, QUrl url );
@@ -43,11 +46,12 @@ public slots:
     void deleteProcess(int code);
     void killRadioProcess();
     void stop();
+    void startRadioProcess(bool saveTracksAfterBufferMode, QString urlString, bool calledByCloseEvent);
+
 private slots:
     void radioReadyRead();
     void radioFinished(int code);
 
-    void startRadioProcess(bool saveTracksAfterBufferMode, QString urlString, bool calledByCloseEvent);
 
     void LoadAvatar(const QUrl &avatarUrl)
     {
@@ -75,13 +79,14 @@ private slots:
       loop.exec();
     }
 
- private:
+
+private:
     QProcess *radioProcess = nullptr;
     QString setting_path;
 
     QString streamUrl;
     QString state_line;
-    QString used_fifo_file_path;
+
 
 
 };

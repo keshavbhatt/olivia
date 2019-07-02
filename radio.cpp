@@ -5,7 +5,9 @@
 #include <QJsonValue>
 #include <QDir>
 #include <QDateTime>
+#include <QApplication>
 #include "elidedlabel.h"
+//#include "equalizer.h"
 
 
 radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : QObject(parent)
@@ -39,7 +41,6 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     volume= volumeValue;
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
 
-    startRadioProcess(saveTracksAfterBuffer,"",false);
 
 }
 
@@ -51,6 +52,11 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
     radioProcess->setProcessChannelMode(QProcess::MergedChannels);
     connect(radioProcess,SIGNAL(readyRead()),this,SLOT(radioReadyRead()));
     connect(radioProcess,SIGNAL(finished(int)),this,SLOT(radioFinished(int)));
+    connect(radioProcess,&QProcess::stateChanged,[=](QProcess::ProcessState state){
+        if(state==QProcess::Running){
+            emit radioProcessReady();
+        }
+    });
 
     QString status_message_arg = "--term-status-msg='[olivia:][${=time-pos}][${=duration}][${=pause}][${=paused-for-cache}][${idle-active}][${cache-buffering-state}%][${=demuxer-cache-duration}][${=seekable}][${=audio-bitrate}][${seeking}]'"; //[${=eof-reached}]
 
@@ -88,29 +94,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
             }
         });
 
-        //check olivia's EOF state
-        QProcess *fifoEOF = new QProcess(this);
-        connect(fifoEOF, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-        fifoEOF->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"eof-reached\"]}' | socat - "+ used_fifo_file_path);
-        fifoEOF->waitForStarted();
-
-        connect(fifoEOF,&QProcess::readyRead,[=](){
-            QString out = fifoEOF->readAll();
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(out.toUtf8());
-            QJsonObject jsonObject = jsonResponse.object();
-            QJsonValue eofVal = jsonObject.value("data");
-                if(eofVal.isBool() && eofVal.toBool()==true && !eofVal.isUndefined()){
-                    radioState = "eof";
-                    emit radioStatus(radioState);
-                    radioState = "playing";
-                    radioPlaybackTimer->stop();
-                }
-        });
-
-
-
         if(radioProcess->state()==QProcess::Running){
-
 //            QString state_line = this->parent()->findChild<QTextBrowser *>("console")->toPlainText().trimmed();
 
             QString position,duration,paused,paused_for_cache,idle_active,cache_buffering_state,
@@ -172,10 +156,31 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
             emit radioStatus(radioState);
 
         }
-    });
 
-    if(!radioPlaybackTimer->isActive())
-       radioPlaybackTimer->start(500);
+        //check olivia's EOF state
+        QProcess *fifoEOF = new QProcess(this);
+        connect(fifoEOF, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
+
+
+        connect(fifoEOF,&QProcess::readyRead,[=](){
+            QString out = fifoEOF->readAll();
+            QJsonDocument jsonResponse = QJsonDocument::fromJson(out.toUtf8());
+            QJsonObject jsonObject = jsonResponse.object();
+            QJsonValue eofVal = jsonObject.value("data");
+                if(eofVal.isBool() && eofVal.toBool()==true && !eofVal.isUndefined()){
+                    radioState = "eof";
+                    emit radioStatus(radioState);
+                    radioPlaybackTimer->stop();
+                    qDebug()<<"radioTiimer"<<radioPlaybackTimer->isActive();
+                    //radioState = "playing";
+                }
+        });
+
+        fifoEOF->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"eof-reached\"]}' | socat - "+ used_fifo_file_path);
+        fifoEOF->waitForStarted();
+    });
+//    if(!radioPlaybackTimer->isActive())
+//       radioPlaybackTimer->start(500);
 }
 
 void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
@@ -211,6 +216,7 @@ void radio::loadMedia(QUrl url){
 }
 
 void radio::radioReadyRead(){
+
     if(!radioPlaybackTimer->isActive()){
         radioPlaybackTimer->start(500);
     }
@@ -354,4 +360,6 @@ void radio::stop(){
     fifo->waitForStarted();
     radioPlaybackTimer->stop();
 }
+
+
 
