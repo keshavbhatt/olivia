@@ -338,22 +338,4 @@ QScrollBar::sub-line:horizontal{
   subcontrol-origin:margin;
 }
 
-QSlider::handle:horizontal{
-  border-radius:4px;
-  border:1px solid rgba(25,25,25,255);
-  background-color:palette(alternate-base);
-  min-height:20px;
-  margin:0 -4px;
-}
-QSlider::handle:horizontal:hover{
-  background:palette(highlight);
-}
-QSlider::add-page:horizontal{
-  background:palette(base);
-}
-QSlider::sub-page:horizontal{
-  background:palette(highlight);
-}
-QSlider::sub-page:horizontal:disabled{
-  background:rgb(80,80,80);
-}
+
