@@ -25,6 +25,8 @@ equalizer::equalizer(QWidget *parent) :
 void equalizer::removeStyle(){
     ui->ig1->setStyleSheet("background:transparent;");
     ui->ig2->setStyleSheet("background:transparent;");
+    ui->ig3->setStyleSheet("background:transparent;");
+    ui->ig4->setStyleSheet("background:transparent;");
 }
 
 
