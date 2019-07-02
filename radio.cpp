@@ -167,20 +167,21 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
             QJsonDocument jsonResponse = QJsonDocument::fromJson(out.toUtf8());
             QJsonObject jsonObject = jsonResponse.object();
             QJsonValue eofVal = jsonObject.value("data");
+          //  qDebug()<<out<<eofVal<<"EOF VAL";
                 if(eofVal.isBool() && eofVal.toBool()==true && !eofVal.isUndefined()){
                     radioState = "eof";
                     emit radioStatus(radioState);
-                   // radioPlaybackTimer->stop();
+                    radioPlaybackTimer->stop();
                    // qDebug()<<"radioTiimer"<<radioPlaybackTimer->isActive();
-                    //radioState = "playing";
+                   // radioState = "playing";
                 }
         });
 
         fifoEOF->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"eof-reached\"]}' | socat - "+ used_fifo_file_path);
-        fifoEOF->waitForStarted();
+       // fifoEOF->waitForStarted();
     });
-//    if(!radioPlaybackTimer->isActive())
-//       radioPlaybackTimer->start(500);
+    if(!radioPlaybackTimer->isActive())
+       radioPlaybackTimer->start(500);
 }
 
 void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
