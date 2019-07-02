@@ -3,7 +3,6 @@
 
 settings::settings(QObject *parent) :QObject(parent)
 {
-
     settingsObj.setObjectName("settings");
     setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 
@@ -16,6 +15,10 @@ void settings::changeSaveAfterSetting(bool checked){
 
 void settings::changeShowSearchSuggestion(bool checked){
     settingsObj.setValue("showSearchSuggestion",checked);
+}
+
+void settings::changeEqualizerSetting(bool checked){
+    settingsObj.setValue("equalizer",checked);
 }
 
 void settings::changeDynamicTheme(bool checked){

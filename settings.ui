@@ -100,6 +100,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="equalizer">
+            <property name="text">
+             <string>Show Equalizer button in player controls</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

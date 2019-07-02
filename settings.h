@@ -14,7 +14,7 @@ class settings : public QObject
 {
     Q_OBJECT
 public:
-    explicit settings(QObject *parent = 0);
+    explicit settings(QObject *parent = nullptr);
     QSettings settingsObj;
     QString setting_path;
 signals:
@@ -30,6 +30,7 @@ public slots:
     void changeMiniModeTransperancy(int val);
     void changeSystemTitlebar(bool checked);
     void changeAppTransperancy(int val);
+    void changeEqualizerSetting(bool checked);
 };
 
 #endif // SETTINGS_H
