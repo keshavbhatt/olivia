@@ -416,16 +416,16 @@ void equalizer::loadSettings(){
     sliders_list = ui->groupBox->findChildren<QSlider*>();
     foreach(QSlider *slider , sliders_list){
         if(slider->objectName()!="balance"&&slider->objectName()!="tempo"){
-            slider->setValue(settingsObj->value(slider->objectName(),0).toInt());
-        }
+             slider->setValue(settingsObj->value(slider->objectName(),0).toInt());
+         }
     }
 
     //load super eq
     QList<QSlider*> sliders_list2;
     sliders_list2 = ui->groupBox_2->findChildren<QSlider*>();
     foreach(QSlider *slider , sliders_list2){
-            slider->setValue(settingsObj->value(slider->objectName(),0).toInt());
-    }
+             slider->setValue(settingsObj->value(slider->objectName(),0).toInt());
+     }
 
 
     ui->balance->setValue(settingsObj->value(ui->balance->objectName(),10).toInt());
@@ -434,6 +434,7 @@ void equalizer::loadSettings(){
 
     ui->groupBox->setEnabled(settingsObj->value("equalizer_enabled",false).toBool());
     ui->groupBox_2->setEnabled(settingsObj->value("equalizer_enabled",false).toBool());
+
     ui->eq_checkBox->setChecked(settingsObj->value("equalizer_enabled",false).toBool());
 }
 

@@ -253,7 +253,9 @@ private slots:
     bool isNumericStr(const QString str);
     void init_eq();
     void radioProcessReady();
+    void deleteProcess(int code);
 private:
+    QList<qint64> processIdList;
     QString core_local_date,core_remote_date;
     qreal zoom;
     qreal horizontalDpi;

@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
 #include <QSplitter>
 #include <QUrlQuery>
 #include <QPropertyAnimation>
@@ -213,12 +212,13 @@ void MainWindow::closeEvent(QCloseEvent *event){
     radio_manager->killRadioProcess();
     radio_manager->deleteLater();
 
-    QList<QProcess*> process_list;
-    process_list = this->findChildren<QProcess*>();
-    foreach(QProcess *process,process_list){
-        process->close();
-        process->deleteLater();
-    }
+//    QList<QProcess*> process_list;
+//    process_list = this->findChildren<QProcess*>();
+//    foreach(QProcess *process,process_list){
+//        process->terminate();
+//        process->waitForFinished();
+//        process->deleteLater();
+//    }
     QMainWindow::closeEvent(event);
 }
 
@@ -3036,17 +3036,39 @@ void MainWindow::init_eq(){
 }
 
 void MainWindow::set_eq(QString eq_args){
-     QProcess *fifo = new QProcess(radio_manager);
-     connect(fifo, SIGNAL(finished(int)), radio_manager, SLOT(deleteProcess(int)) );
-     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"af\",\""+eq_args+"\"]}' | socat - "+ radio_manager->used_fifo_file_path);
-     ui->eq->setToolTip("Equalizer (Enabled)");
+    if(!eq_args.isEmpty()){
+        qDebug()<<"called set_eq";
+        QProcess *fifo = new QProcess(this);
+        connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
+        fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"af\",\""+eq_args+"\"]}' | socat - "+ radio_manager->used_fifo_file_path);
+        processIdList.append(fifo->processId());
+        ui->eq->setToolTip("Equalizer (Enabled)");
+    }
 }
 
 void MainWindow::disable_eq(){
-    QProcess *fifo = new QProcess(radio_manager);
-    connect(fifo, SIGNAL(finished(int)), radio_manager, SLOT(deleteProcess(int)) );
+    qDebug()<<"called";
+    QProcess *fifo = new QProcess(this);
+    connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"af\",\"set\",\"""\"]}' | socat - "+ radio_manager->used_fifo_file_path);
+    processIdList.append(fifo->processId());
     ui->eq->setToolTip("Equalizer (Disabled)");
+}
+
+void MainWindow::deleteProcess(int code){
+       Q_UNUSED(code);
+    QProcess *process = qobject_cast<QProcess*>(sender());
+    if(code==0){
+        process->close();
+        process->deleteLater();
+    }else{
+        process->close();
+        process->deleteLater();
+        for(int i=0;i<processIdList.count();i++){
+            QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(processIdList.at(i)));
+            processIdList.removeAt(i);
+        }
+    }
 }
 
 void MainWindow::radioProcessReady(){

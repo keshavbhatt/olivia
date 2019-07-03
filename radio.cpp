@@ -165,8 +165,9 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
             QJsonDocument jsonResponse = QJsonDocument::fromJson(out.toUtf8());
             QJsonObject jsonObject = jsonResponse.object();
             QJsonValue eofVal = jsonObject.value("data");
-          //  qDebug()<<out<<eofVal<<"EOF VAL";
+            qWarning()<<out<<eofVal<<"EOF VAL";
                 if(eofVal.isBool() && eofVal.toBool()==true && !eofVal.isUndefined()){
+                    qWarning()<<"is EOF called";
                     radioState = "eof";
                     emit radioStatus(radioState);
                     radioPlaybackTimer->stop();
@@ -341,8 +342,15 @@ void radio::deleteProcess(int code){
 //   radio_process_list = this->findChildren<QProcess*>();
      Q_UNUSED(code);
      QProcess *process = qobject_cast<QProcess*>(sender());
-     process->close();
-     process->deleteLater();
+     if(process->state()==QProcess::Running){
+         process->terminate();
+         process->waitForFinished();
+         process->deleteLater();
+     }else{
+         process->close();
+         process->deleteLater();
+     }
+
 }
 
 void radio::killRadioProcess(){

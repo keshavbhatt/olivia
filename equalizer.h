@@ -20,7 +20,7 @@ class equalizer : public QWidget
 public:
     explicit equalizer(QWidget *parent = nullptr);
     ~equalizer();
-    QString eq_args;
+    QString eq_args,previous_eq_args;
 
 
 signals:
