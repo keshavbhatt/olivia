@@ -56,7 +56,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
         }
     });
 
-    QString status_message_arg = "--term-status-msg='[olivia:][${=time-pos}][${=duration}][${=pause}][${=paused-for-cache}][${idle-active}][${cache-buffering-state}%][${=demuxer-cache-duration}][${=seekable}][${=audio-bitrate}][${seeking}]'"; //[${=eof-reached}]
+    QString status_message_arg = "--term-status-msg='[olivia:][${=time-pos}][${=duration}][${=pause}][${=paused-for-cache}][${idle-active}][${cache-buffering-state}%][${=demuxer-cache-duration}][${=seekable}][${=audio-bitrate}][${seeking}][${demuxer-cache-state}]'"; //[${=eof-reached}]
 
     radioProcess->setObjectName("_radio_");
 
@@ -74,29 +74,10 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
 
     connect(radioPlaybackTimer, &QTimer::timeout, [=](){
 
-        //check olivia's idle state
-        QProcess *fifo = new QProcess(this);
-        connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-        fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"idle-active\"]}' | socat - "+ used_fifo_file_path);
-        fifo->waitForStarted();
-
-        connect(fifo,&QProcess::readyRead,[=](){
-            QString out = fifo->readAll();
-            if(out.contains("success")){
-                out = out.split(",").first().split(":").last();
-                if(out=="true"){
-                    radioState = "stopped";
-                    emit radioStatus(radioState);
-                    radioPlaybackTimer->stop();
-                }
-            }
-        });
-
-        if(radioProcess->state()==QProcess::Running){
-//            QString state_line = this->parent()->findChild<QTextBrowser *>("console")->toPlainText().trimmed();
-
+        if(radioProcess->state()==QProcess::Running && radioPlaybackTimer->isActive()){
+//          QString state_line = this->parent()->findChild<QTextBrowser *>("console")->toPlainText().trimmed();
             QString position,duration,paused,paused_for_cache,idle_active,cache_buffering_state,
-                    demuxer_cache_duration,seekable,audio_bitrate,seeking;
+                    demuxer_cache_duration,seekable,audio_bitrate,seeking,eof;
             QStringList items;
             items.append(state_line.split("]"));
             //replace [ from item value
@@ -106,7 +87,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
                 }
             }
             //assign items to vars
-            if(items.count()==12){
+            if(items.count()==14){
                 position                = items.at(1);
                 duration                = items.at(2);
                 paused                  = items.at(3);
@@ -118,6 +99,8 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
                 audio_bitrate           = items.at(9);
                 seeking                 = items.at(10);
             }
+            eof = QString(state_line.split("{").last()).split("\"eof\":").last().split(",").first();
+
 
             if(paused=="no"){
                 radioState = "playing";
@@ -153,39 +136,23 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
             emit radioDuration(playerDuration);
             emit radioStatus(radioState);
 
+
+
+            if(eof=="true"){
+                radioState = "eof";
+                emit radioStatus(radioState);
+                radioPlaybackTimer->stop();
+            }
         }
-
-        //check olivia's EOF state
-        QProcess *fifoEOF = new QProcess(this);
-        connect(fifoEOF, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
-
-
-        connect(fifoEOF,&QProcess::readyRead,[=](){
-            QString out = fifoEOF->readAll();
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(out.toUtf8());
-            QJsonObject jsonObject = jsonResponse.object();
-            QJsonValue eofVal = jsonObject.value("data");
-            qWarning()<<out<<eofVal<<"EOF VAL";
-                if(eofVal.isBool() && eofVal.toBool()==true && !eofVal.isUndefined()){
-                    qWarning()<<"is EOF called";
-                    radioState = "eof";
-                    emit radioStatus(radioState);
-                    radioPlaybackTimer->stop();
-                   // qDebug()<<"radioTiimer"<<radioPlaybackTimer->isActive();
-                   // radioState = "playing";
-                }
-        });
-
-        fifoEOF->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"eof-reached\"]}' | socat - "+ used_fifo_file_path);
-       // fifoEOF->waitForStarted();
     });
-    if(!radioPlaybackTimer->isActive())
-       radioPlaybackTimer->start(500);
+//    if(!radioPlaybackTimer->isActive())
+//     radioPlaybackTimer->start(500);
 }
 
 void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
 
     state_line.clear();
+    radioProcess->blockSignals(false);
 
     streamUrl = url.toString();
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
@@ -221,6 +188,7 @@ void radio::radioReadyRead(){
         radioPlaybackTimer->start(500);
     }
     QString output = radioProcess->readAll();
+   // qDebug()<<output;
     if(output.contains("written to stdout")){
         emit saveTrack(QString("webm"));
     }
@@ -362,11 +330,15 @@ void radio::killRadioProcess(){
 }
 
 void radio::stop(){
+    radioPlaybackTimer->stop();
+    //radioPlaybackTimer->blockSignals(true);
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"stop\"]}' | socat - "+ used_fifo_file_path);
-    fifo->waitForStarted();
-    radioPlaybackTimer->stop();
+    fifo->waitForFinished();
+    radioProcess->blockSignals(true);//we unblock signal when playradio is called
+    emit radioStatus("stopped");
+
 }
 
 
