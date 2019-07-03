@@ -219,6 +219,10 @@ void MainWindow::closeEvent(QCloseEvent *event){
 //        process->waitForFinished();
 //        process->deleteLater();
 //    }
+    for(int i=0;i<processIdList.count();i++){
+        QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(processIdList.at(i)));
+        processIdList.removeAt(i);
+    }
     QMainWindow::closeEvent(event);
 }
 
@@ -2977,42 +2981,12 @@ void MainWindow::on_eq_clicked()
     "QPushButton:hover{border: 1px solid #272727;background-color:#5A584F; color:silver ;}"
     "QPushButton:pressed {background-color: #45443F;color: silver;padding-bottom:1px;}";
 
-    QString checkBoxStyle = "QCheckBox::indicator{"
-                            "  width:18px;"
-                            "  height:18px;"
-                            "}"
-                            "QCheckBox::indicator:checked{"
-                            "  image:url(:/darkstyle/icon_checkbox_checked.png);"
-                            "}"
-                            "QCheckBox::indicator:checked:pressed{"
-                            "  image:url(:/darkstyle/icon_checkbox_checked_pressed.png);"
-                            "}"
-                            "QCheckBox::indicator:checked:disabled{"
-                            "  image:url(:/darkstyle/icon_checkbox_checked_disabled.png);"
-                            "}"
-                            "QCheckBox::indicator:unchecked{"
-                            "  image:url(:/darkstyle/icon_checkbox_unchecked.png);"
-                            "}"
-                            "QCheckBox::indicator:unchecked:pressed{"
-                            "  image:url(:/darkstyle/icon_checkbox_unchecked_pressed.png);"
-                            "}"
-                            "QCheckBox::indicator:unchecked:disabled{"
-                            "  image:url(:/darkstyle/icon_checkbox_unchecked_disabled.png);"
-                            "}"
-                            "QCheckBox::indicator:indeterminate{"
-                            "  image:url(:/darkstyle/icon_checkbox_indeterminate.png);"
-                            "}"
-                            "QCheckBox::indicator:indeterminate:pressed{"
-                            "  image:url(:/darkstyle/icon_checkbox_indeterminate_pressed.png);"
-                            "}"
-                            "QCheckBox::indicator:indeterminate:disabled{"
-                            "  image:url(:/darkstyle/icon_checkbox_indeterminate_disabled.png);"
-                            "}";
+
 
     eq->setStyleSheet("");
     eq->setStyleSheet("QWidget#equalizer{"+ui->search->styleSheet()+"}"
                                      +"QFrame{"+ui->search->styleSheet()+"}"
-                                     +btn_style+checkBoxStyle);
+                                     +btn_style);
     eq->removeStyle();
     eq->show();
 }
@@ -3059,15 +3033,7 @@ void MainWindow::deleteProcess(int code){
        Q_UNUSED(code);
     QProcess *process = qobject_cast<QProcess*>(sender());
     if(code==0){
-        process->close();
         process->deleteLater();
-    }else{
-        process->close();
-        process->deleteLater();
-        for(int i=0;i<processIdList.count();i++){
-            QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(processIdList.at(i)));
-            processIdList.removeAt(i);
-        }
     }
 }
 
