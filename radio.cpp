@@ -56,7 +56,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
         }
     });
 
-    QString status_message_arg = "--term-status-msg='[olivia:][${=time-pos}][${=duration}][${=pause}][${=paused-for-cache}][${idle-active}][${cache-buffering-state}%][${=demuxer-cache-duration}][${=seekable}][${=audio-bitrate}][${seeking}][${demuxer-cache-state}]'"; //[${=eof-reached}]
+    QString status_message_arg = "--term-status-msg='[olivia:][${=time-pos}][${=duration}][${=pause}][${=paused-for-cache}][${idle-active}][${cache-buffering-state}%][${=demuxer-cache-duration}][${=seekable}][${=audio-bitrate}][${seeking}][${=eof-reached}]'"; //[${=eof-reached}]
 
     radioProcess->setObjectName("_radio_");
 
@@ -86,8 +86,9 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
                     items.replace(i,QString(items.at(i)).remove("["));
                 }
             }
+            qDebug()<<items.count()<<items;
             //assign items to vars
-            if(items.count()==14){
+            if(items.count()==13){
                 position                = items.at(1);
                 duration                = items.at(2);
                 paused                  = items.at(3);
@@ -98,8 +99,11 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
                 seekable                = items.at(8);
                 audio_bitrate           = items.at(9);
                 seeking                 = items.at(10);
+                eof = items.at(11);
+
             }
-            eof = QString(state_line.split("{").last()).split("\"eof\":").last().split(",").first();
+
+           // eof = QString(state_line.split("{").last()).split("\"eof\":").last().split(",").first();
 
 
             if(paused=="no"){
@@ -138,7 +142,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
 
 
 
-            if(eof=="true"){
+            if(eof=="yes"){
                 radioState = "eof";
                 emit radioStatus(radioState);
                 radioPlaybackTimer->stop();
