@@ -2955,6 +2955,7 @@ void MainWindow::on_eq_clicked()
 
 //called on every radio restart while eq class is initialzed once
 void MainWindow::init_eq(){
+
     if(eq == nullptr){
         eq = new equalizer(this);
 
@@ -2965,6 +2966,8 @@ void MainWindow::init_eq(){
 
     connect(eq,SIGNAL(update_eq(QString)),this,SLOT(set_eq(QString)));
     connect(eq,SIGNAL(disable_eq()),this,SLOT(disable_eq()));
+
+    ui->eq->setIcon(eq->eq_enabled()?QIcon(":/icons/eq_button.png"):QIcon(":/icons/eq_button_disabled.png"));
 
     eq->setRange();
     eq->loadSettings();
@@ -2979,6 +2982,7 @@ void MainWindow::set_eq(QString eq_args){
         connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
         fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"af\",\""+eq_args+"\"]}' | socat - "+ radio_manager->used_fifo_file_path);
         processIdList.append(fifo->processId());
+        ui->eq->setIcon(QIcon(":/icons/eq_button.png"));
         ui->eq->setToolTip("Equalizer (Enabled)");
     }
 }
@@ -2989,6 +2993,7 @@ void MainWindow::disable_eq(){
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"af\",\"set\",\"""\"]}' | socat - "+ radio_manager->used_fifo_file_path);
     processIdList.append(fifo->processId());
+    ui->eq->setIcon(QIcon(":/icons/eq_button_disabled.png"));
     ui->eq->setToolTip("Equalizer (Disabled)");
 }
 

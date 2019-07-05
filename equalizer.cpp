@@ -19,6 +19,11 @@ equalizer::equalizer(QWidget *parent) :
         d.mkpath(setting_path);
     }
     settingsObj = new QSettings(setting_path+"/eq.conf",QSettings::NativeFormat,nullptr);
+
+}
+
+bool equalizer::eq_enabled(){
+    return settingsObj->value("equalizer_enabled",false).toBool();
 }
 
 //remove widget style
@@ -63,9 +68,6 @@ void equalizer::setRange(){
         connect(slider,SIGNAL(sliderReleased()),this,SLOT(updateEqVal()));
         slider->installEventFilter(this);
     }
-
-
-
 
     //set label width mEQ
     QList<QLabel*> labels_list;
@@ -238,7 +240,7 @@ void equalizer::updateEqVal(){
     sliders_list = ui->groupBox->findChildren<QSlider*>();
     bool mEqEnabled = false;
     foreach(QSlider *slider , sliders_list){
-        if(slider->objectName()!="tempo" && slider->objectName()!="balance"){
+        if(slider->objectName()!="tempo" && slider->objectName()!="balance" && slider->objectName()!="fake"){
             if(slider->value() != 0 ){
                 mEqEnabled = true;
                 break;

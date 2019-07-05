@@ -20,8 +20,7 @@ class equalizer : public QWidget
 public:
     explicit equalizer(QWidget *parent = nullptr);
     ~equalizer();
-    QString eq_args,previous_eq_args;
-
+    QString eq_args;
 
 signals:
 void disable_eq();
@@ -30,8 +29,8 @@ public slots:
     void removeStyle();
     void loadSettings();
     void setRange();
-
     void triggerEq();
+    bool eq_enabled();
 signals:
     void update_eq(QString);
 
@@ -39,6 +38,7 @@ protected slots:
     bool eventFilter(QObject *obj, QEvent *event);
 
     void closeEvent(QCloseEvent *event);
+
 private slots:
 
     void updateEqVal();
@@ -52,6 +52,7 @@ private slots:
     void on_fake_valueChanged(int value);
 
     void setBandLabel(QSlider *slider);
+
 private:
     Ui::equalizer *ui;
     QSettings *settingsObj = nullptr;
