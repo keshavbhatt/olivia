@@ -36,13 +36,11 @@ void equalizer::setRange(){
     //set up tempo slider
     ui->tempo->setRange(0,20);
     connect(ui->tempo,SIGNAL(sliderReleased()),this,SLOT(updateEqVal()));
-    connect(ui->tempo,SIGNAL(valueChanged(int)),this,SLOT(updateEqLabel(int)));
 
 
     //set up balance slider
     ui->balance->setRange(0,20);
     connect(ui->balance,SIGNAL(sliderReleased()),this,SLOT(updateEqVal()));
-    connect(ui->balance,SIGNAL(valueChanged(int)),this,SLOT(updateEqLabel(int)));
 
     //set range for masterEQ bands
     QList<QSlider*> sliders_list;
@@ -52,7 +50,6 @@ void equalizer::setRange(){
             slider->setTickPosition(QSlider::TicksRight);
             slider->setRange(-10,10);
             connect(slider,SIGNAL(sliderReleased()),this,SLOT(updateEqVal()));
-            connect(slider,SIGNAL(valueChanged(int)),this,SLOT(updateEqLabel(int)));
         }
         slider->installEventFilter(this);
     }
@@ -64,7 +61,6 @@ void equalizer::setRange(){
         slider->setTickPosition(QSlider::TicksRight);
         slider->setRange(0,20);
         connect(slider,SIGNAL(sliderReleased()),this,SLOT(updateEqVal()));
-        connect(slider,SIGNAL(valueChanged(int)),this,SLOT(updateEqLabel(int)));
         slider->installEventFilter(this);
     }
 
@@ -113,7 +109,6 @@ void equalizer::setRange(){
         if(!checked){
             ui->groupBox->setEnabled(false);
             ui->groupBox_2->setEnabled(false);
-            //call radio to disable the eqs
             emit disable_eq();
         }else{
            ui->groupBox->setEnabled(true);
@@ -133,87 +128,6 @@ bool equalizer::eventFilter(QObject *obj, QEvent *event)
     return false;
 }
 
-//update the value label for bands
-void equalizer::updateEqLabel(int val){
-
-     QSlider *slider = qobject_cast<QSlider*>(sender());     
-
-     if(slider->objectName().contains("m")){
-      QString bandLabelName = "ml"+slider->objectName().split("m").last();
-      if(ui->groupBox->findChild<QLabel*>(bandLabelName)!=nullptr){
-            ui->groupBox->findChild<QLabel*>(bandLabelName)->setText("<span style=\"font-size:10pt;\">"+QString::number(val)+"dB</span>");
-      }
-     }
-     else{
-      QString bandLabelName = "bl"+slider->objectName().split("b").last();
-      if(ui->groupBox_2->findChild<QLabel*>(bandLabelName)!=nullptr){
-            ui->groupBox_2->findChild<QLabel*>(bandLabelName)->setText("<span style=\"font-size:10pt;\">"+QString::number(val)+"dB</span>");
-      }
-     }
-
-     //tempo
-     if(slider->objectName()=="tempo" && slider->value()>0){
-         double constant = 10;
-         double d_val = double(static_cast<double>(ui->tempo->value())/constant);
-//         eq_args += "scaletempo=scale="+QString::number(d_val)+",";
-         if(slider->objectName()=="tempo"){
-             if(QString::number(d_val)=="1"){
-                 ui->ig2->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">Tempo(Normal)</span></p>");
-             }else{
-                 ui->ig2->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">Tempo("+QString::number(d_val)+")</span></p>");
-             }
-         }
-     }
-
-     //balance
-     if(slider->objectName()=="balance" && (ui->balance->value()>10 || ui->balance->value()<10)){
-         double constant = 10;
-         double constant2 = 100;
-         int val = ui->balance->value();
-         double c1v = 0.0,c2v = 0.0;
-         QString c2vStr,c1vStr;
-
-
-         if(val<10){
-              val = 10 - val;
-              c1v = double(static_cast<double>(val)/constant);
-              if(val==0){
-                  c1vStr = "1";
-              }else{
-                  c1vStr = QString::number(c1v);
-              }
-              double c2vCores = double(1.0) - c1v ;
-              if(val==0){
-                  c2vStr = "0";
-              }else{
-                  c2vStr = QString::number(c2vCores);
-              }
-         }else{
-              c2v = double(static_cast<double>(val)/constant2);
-              if(val==20){
-                  c2vStr = "1";
-              }else if(val!=0){
-                  c2vStr = "0."+QString::number(c2v).split(".1").last();
-              }
-              double c1vCores = double(0.9) - c2v ;
-              if(val == 20 ){
-                  c1vStr = "0";
-              }else{
-                  c1vStr = "0."+QString::number(c1vCores).split(".7").last();
-              }
-         }
-
-//         eq_args += "lavfi=[pan=stereo|c0="+c1vStr+"*c0|c1="+c2vStr+"*c1]"+",";
-         if(slider->objectName()=="balance"){
-             ui->balanceL->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">L("+c1vStr+")</span></p>");
-             ui->balanceR->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">R("+c2vStr+")</span></p>");
-         }
-     }else{
-         //center
-         ui->balanceL->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">L(1)</span></p>");
-         ui->balanceR->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">R(1)</span></p>");
-     }
-}
 
 void equalizer::closeEvent(QCloseEvent *event){
     QList<QSlider*> sliders_list;
@@ -226,27 +140,25 @@ void equalizer::closeEvent(QCloseEvent *event){
 
 //prepare the eq args to be sent to radio(player)
 void equalizer::updateEqVal(){
-    QSlider *slider = qobject_cast<QSlider*>(sender());
 
+    QSlider *slider = qobject_cast<QSlider*>(sender());
+    setBandLabel(slider);
     eq_args.clear();
 
     //tempo
-    if(slider->objectName()=="tempo" && slider->value()>0){
+    if(ui->tempo->value()>0){
         double constant = 10;
         double d_val = double(static_cast<double>(ui->tempo->value())/constant);
         eq_args += "scaletempo=scale="+QString::number(d_val)+",";
     }
 
     //balance
-    if(slider->objectName()=="balance" && (ui->balance->value()>10 || ui->balance->value()<10)){
+    if(ui->balance->value()>10 || ui->balance->value()<10){
         double constant = 10;
         double constant2 = 100;
         int val = ui->balance->value();
         double c1v = 0.0,c2v = 0.0;
-
         QString c2vStr,c1vStr;
-
-
         if(val<10){
              val = 10 - val;
              c1v = double(static_cast<double>(val)/constant);
@@ -275,21 +187,12 @@ void equalizer::updateEqVal(){
                  c1vStr = "0."+QString::number(c1vCores).split(".7").last();
              }
         }
-
         eq_args += "lavfi=[pan=stereo|c0="+c1vStr+"*c0|c1="+c2vStr+"*c1]"+",";
     }
 
-    //==========================================MEQ===============================================
-    //      {keys = {'2', 'w'}, filter = {'equalizer=f=64:width_type=o:w=3.3:g=', 0}}, -- 20-200
-    //      {keys = {'3', 'e'}, filter = {'equalizer=f=400:width_type=o:w=2.0:g=', 0}}, -- 200-800
-    //      {keys = {'4', 'r'}, filter = {'equalizer=f=1250:width_type=o:w=1.3:g=', 0}}, -- 800-2k
-    //      {keys = {'5', 't'}, filter = {'equalizer=f=2830:width_type=o:w=1.0:g=', 0}}, -- 2k-4k
-    //      {keys = {'6', 'y'}, filter = {'equalizer=f=5600:width_type=o:w=1.0:g=', 0}}, -- 4k-8k
-    //    --{keys = {'7', 'u'}, filter = {'equalizer=f=12500:width_type=o:w=1.3:g=', 0}} -- - 20k
-    //==========================================MEQ===============================================
 
     //prepare master EQ bands args
-    QString bandName = slider->objectName().split("b").last();
+    // QString bandName = slider->objectName().split("b").last();
     eq_args +="equalizer=f=64:width_type=o:w=3.3:g="+QString::number(ui->m1->value())+","+
               "equalizer=f=400:width_type=o:w=2.0:g="+QString::number(ui->m2->value())+","+
               "equalizer=f=1250:width_type=o:w=1.3:g="+QString::number(ui->m3->value())+","+
@@ -325,9 +228,9 @@ void equalizer::updateEqVal(){
 
     //check superEQ enabled ?
     if(eq_args.contains("superequalizer")){
-        ui->groupBox_2->setTitle("Super Equalizers (Enabled)");
+        ui->groupBox_2->setTitle("Super Audio Filters (Enabled)");
     }else{
-        ui->groupBox_2->setTitle("Super Equalizers (Disabled)");
+        ui->groupBox_2->setTitle("Super Audio Filters (Disabled)");
     }
 
     //check masterEQ enabled ?
@@ -335,9 +238,11 @@ void equalizer::updateEqVal(){
     sliders_list = ui->groupBox->findChildren<QSlider*>();
     bool mEqEnabled = false;
     foreach(QSlider *slider , sliders_list){
-        if(slider->value() != 0 && slider->objectName()!="tempo" && slider->objectName()!="balance"){
-            mEqEnabled = true;
-            break;
+        if(slider->objectName()!="tempo" && slider->objectName()!="balance"){
+            if(slider->value() != 0 ){
+                mEqEnabled = true;
+                break;
+            }
         }
     }
     if(mEqEnabled){
@@ -385,11 +290,16 @@ void equalizer::on_reset_master_clicked()
     foreach(QSlider *slider , sliders_list){
         if(slider->objectName()!="balance"&&slider->objectName()!="tempo"){
            slider->setValue(0);
+           setBandLabel(slider);
            settingsObj->setValue(slider->objectName(),slider->value());
         }
     }
     ui->tempo->setValue(10);
+    setBandLabel(ui->tempo);
+
     ui->balance->setValue(10);
+    setBandLabel(ui->balance);
+
     settingsObj->setValue(ui->tempo->objectName(),ui->tempo->value());
     settingsObj->setValue(ui->balance->objectName(),ui->balance->value());
     triggerEq();
@@ -404,6 +314,7 @@ void equalizer::on_reset_super_clicked()
     sliders_list = ui->groupBox_2->findChildren<QSlider*>();
     foreach(QSlider *slider , sliders_list){
            slider->setValue(0);
+           setBandLabel(slider);
            settingsObj->setValue(slider->objectName(),slider->value());
     }
     triggerEq();
@@ -416,8 +327,9 @@ void equalizer::loadSettings(){
     sliders_list = ui->groupBox->findChildren<QSlider*>();
     foreach(QSlider *slider , sliders_list){
         if(slider->objectName()!="balance"&&slider->objectName()!="tempo"){
-             slider->blockSignals(true);
+             slider->blockSignals(true);//block slider value changed cause it will cause eq_trigger
              slider->setValue(settingsObj->value(slider->objectName(),0).toInt());
+             setBandLabel(slider);
              slider->blockSignals(false);
          }
     }
@@ -426,16 +338,20 @@ void equalizer::loadSettings(){
     QList<QSlider*> sliders_list2;
     sliders_list2 = ui->groupBox_2->findChildren<QSlider*>();
     foreach(QSlider *slider , sliders_list2){
-             slider->blockSignals(true);
+             slider->blockSignals(true);//block slider value changed cause it will cause eq_trigger
              slider->setValue(settingsObj->value(slider->objectName(),0).toInt());
+             setBandLabel(slider);
              slider->blockSignals(false);
+
      }
 
     ui->balance->blockSignals(true);
     ui->tempo->blockSignals(true);
 
-    ui->balance->setValue(settingsObj->value(ui->balance->objectName(),10).toInt());
     ui->tempo->setValue(settingsObj->value(ui->tempo->objectName(),10).toInt());
+    setBandLabel(ui->tempo);
+    ui->balance->setValue(settingsObj->value(ui->balance->objectName(),10).toInt());
+    setBandLabel(ui->balance);
 
     ui->tempo->blockSignals(false);
     ui->balance->blockSignals(false);
@@ -444,6 +360,7 @@ void equalizer::loadSettings(){
 
     ui->groupBox->setEnabled(settingsObj->value("equalizer_enabled",false).toBool());
     ui->groupBox_2->setEnabled(settingsObj->value("equalizer_enabled",false).toBool());
+
     ui->eq_checkBox->blockSignals(true);
     ui->eq_checkBox->setChecked(settingsObj->value("equalizer_enabled",false).toBool());
     ui->eq_checkBox->blockSignals(false);
@@ -462,5 +379,79 @@ void equalizer::triggerEq(){
     if(settingsObj->value("equalizer_enabled",false).toBool()){
         int val = rand() % ((999 - 0) + 1) + 0;
         ui->fake->setValue(val);
+    }
+}
+
+void equalizer::setBandLabel(QSlider* slider){
+    int val = slider->value();
+
+    if(slider->objectName().contains("m") && !slider->objectName().contains("tempo")){
+     QString bandLabelName = "ml"+slider->objectName().split("m").last();
+     if(ui->groupBox->findChild<QLabel*>(bandLabelName)!=nullptr){
+           ui->groupBox->findChild<QLabel*>(bandLabelName)->setText("<span style=\"font-size:10pt;\">"+QString::number(val)+"dB</span>");
+     }
+    } else{
+     QString bandLabelName = "bl"+slider->objectName().split("b").last();
+     if(ui->groupBox_2->findChild<QLabel*>(bandLabelName)!=nullptr){
+           ui->groupBox_2->findChild<QLabel*>(bandLabelName)->setText("<span style=\"font-size:10pt;\">"+QString::number(val)+"dB</span>");
+     }
+    }
+
+    //tempo
+    if(slider->objectName()=="tempo" && slider->value()>0){
+        double constant = 10;
+        double d_val = double(static_cast<double>(ui->tempo->value())/constant);
+        if(QString::number(d_val)=="1"){
+            ui->ig2->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">Tempo(Normal)</span></p>");
+        }else{
+            ui->ig2->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">Tempo("+QString::number(d_val)+")</span></p>");
+        }
+    }
+
+    //balance
+    if(slider->objectName()=="balance"){
+        if(ui->balance->value()>10 || ui->balance->value()<10){
+            double constant = 10;
+            double constant2 = 100;
+            int val = ui->balance->value();
+            double c1v = 0.0,c2v = 0.0;
+            QString c2vStr,c1vStr;
+
+
+            if(val<10){
+                 val = 10 - val;
+                 c1v = double(static_cast<double>(val)/constant);
+                 if(val==0){
+                     c1vStr = "1";
+                 }else{
+                     c1vStr = QString::number(c1v);
+                 }
+                 double c2vCores = double(1.0) - c1v ;
+                 if(val==0){
+                     c2vStr = "0";
+                 }else{
+                     c2vStr = QString::number(c2vCores);
+                 }
+            }else{
+                 c2v = double(static_cast<double>(val)/constant2);
+                 if(val==20){
+                     c2vStr = "1";
+                 }else if(val!=0){
+                     c2vStr = "0."+QString::number(c2v).split(".1").last();
+                 }
+                 double c1vCores = double(0.9) - c2v ;
+                 if(val == 20 ){
+                     c1vStr = "0";
+                 }else{
+                     c1vStr = "0."+QString::number(c1vCores).split(".7").last();
+                 }
+            }
+            ui->balanceL->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">L("+c1vStr+")</span></p>");
+            ui->balanceR->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">R("+c2vStr+")</span></p>");
+        }else{
+            //center
+            ui->balanceL->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">L(1)</span></p>");
+            ui->balanceR->setText("<p align=\"center\" ><span style=\"font-size:10pt;\">R(1)</span></p>");
+        }
     }
 }

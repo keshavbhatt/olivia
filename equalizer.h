@@ -42,18 +42,16 @@ protected slots:
 private slots:
 
     void updateEqVal();
-    QString validBandVal(QSlider *band);
-    void updateEqLabel(int val);
 
+    QString validBandVal(QSlider *band);
 
     void on_reset_master_clicked();
 
-
     void on_reset_super_clicked();
-
 
     void on_fake_valueChanged(int value);
 
+    void setBandLabel(QSlider *slider);
 private:
     Ui::equalizer *ui;
     QSettings *settingsObj = nullptr;

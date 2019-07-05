@@ -656,7 +656,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>Super Equalizers (Disabled)</string>
+      <string>Super Audio Filters (Disabled)</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_28">
       <item>
