@@ -159,7 +159,6 @@ MainWindow::MainWindow(QWidget *parent) :
     qApp->installEventFilter(ui->previous);
 
 
-
     QString btn_style_2= "QPushButton{background-color:transparent ;border:0px;}"
                          "QPushButton:disabled { background-color: transparent; border-bottom:1px solid #727578;"
                          "padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px;color: #636363;}"
@@ -170,6 +169,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->maximize->setStyleSheet(btn_style_2);
     ui->fullScreen->setStyleSheet(btn_style_2);
 
+//    int c_h = ui->controls_widget->height();
+
+     QString btn_style_3 = "QPushButton{background-color:transparent ;border:0px;padding-top: 3px; padding-bottom: 3px;}"
+                           "QPushButton:disabled {padding-top: 3px; padding-bottom:3px;}"
+                           "QPushButton:pressed {padding-bottom:0px;border:0px;}"
+                           "QPushButton:hover {padding-bottom:1px;background-color:transparent;border:0px;}";
+
+     foreach (QPushButton *button, ui->controls_widget->findChildren<QPushButton*>()) {
+         button->setStyleSheet(btn_style_3);
+     }
     loadSettings();
 }
 

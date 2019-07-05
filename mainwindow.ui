@@ -1641,8 +1641,12 @@ QScrollBar:vertical {
              <height>0</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Equalizers</string>
+           </property>
            <property name="styleSheet">
-            <string notr="true">border:none;</string>
+            <string notr="true">border:none;
+background-color: transparent;</string>
            </property>
            <property name="text">
             <string/>
@@ -1693,11 +1697,17 @@ QScrollBar:vertical {
          </item>
          <item>
           <widget class="QPushButton" name="play_pause">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
              <height>0</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Play/Pause</string>
            </property>
            <property name="styleSheet">
             <string notr="true">border:none;</string>
@@ -1719,11 +1729,17 @@ QScrollBar:vertical {
          </item>
          <item>
           <widget class="QPushButton" name="stop">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
              <height>0</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Stop</string>
            </property>
            <property name="styleSheet">
             <string notr="true">border:none;</string>
