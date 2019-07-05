@@ -43,6 +43,8 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
 
 void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString, bool calledByCloseEvent){
     if(calledByCloseEvent){
+        radioPlaybackTimer->blockSignals(true);
+        radioProcess->blockSignals(true);
      return;
     }
     radioProcess = new QProcess(this);
@@ -60,10 +62,10 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
     radioProcess->setObjectName("_radio_");
 
     if(urlString.isEmpty()){
-            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --keep-open --keep-open-pause=no  --demuxer-max-back-bytes=10000000 --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+used_fifo_file_path +" --volume "+QString::number(volume)+" --idle");
+            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+" --keep-open --keep-open-pause=no  --demuxer-max-back-bytes=5000000 --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+used_fifo_file_path +" --volume "+QString::number(volume)+" --idle");
     }else{
         if(!saveTracksAfterBufferMode)
-            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+"  --keep-open --keep-open-pause=no --demuxer-max-back-bytes=10000000 --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+used_fifo_file_path +" --volume "+QString::number(volume)+" --idle");
+            radioProcess->start("bash",QStringList()<<"-c"<<"mpv "+status_message_arg+"  --keep-open --keep-open-pause=no --demuxer-max-back-bytes=5000000 --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+used_fifo_file_path +" --volume "+QString::number(volume)+" --idle");
         else
             radioProcess->start("bash",QStringList()<<"-c"<<"wget -O - '"+urlString+"' | tee "+setting_path+"/downloadedTemp/current.temp"+" | mpv "+status_message_arg+" --keep-open --keep-open-pause=no --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+used_fifo_file_path +" --volume "+QString::number(volume)+" --idle -");
     }
@@ -165,9 +167,6 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
                  emit radioStatus(radioState);
         }
     });
-
-    if(!radioPlaybackTimer->isActive())
-       radioPlaybackTimer->start(500);
 }
 
 void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
@@ -202,7 +201,7 @@ void radio::loadMedia(QUrl url){
 void radio::radioReadyRead(){
 
     if(!radioPlaybackTimer->isActive()){
-        radioPlaybackTimer->start(1000);
+        radioPlaybackTimer->start(700);
     }
     QString output = radioProcess->readAll();
     if(output.contains("written to stdout")){
@@ -298,7 +297,7 @@ void radio::resumeRadio()
     radioState = "playing";
     emit radioStatus(radioState);
 
-    radioPlaybackTimer->start(1000);
+    radioPlaybackTimer->start(700);
 }
 
 void radio::changeVolume(int val)
@@ -309,18 +308,7 @@ void radio::changeVolume(int val)
     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"volume\","+QString::number(volume)+"]}' | socat - "+ used_fifo_file_path);
 }
 
-//will use to quit radio process when it will take too much RAM
-void radio::quitRadio()
-{
-    if(radioProcess!=nullptr){
-        if(radioPlaybackTimer->isActive() || radioProcess->state()==QProcess::Running){
-            radioState="exit";
-            emit radioStatus(radioState);
-            radioPlaybackTimer->stop();
-            startRadioProcess(saveTracksAfterBuffer,"http://google.com",true);
-        }
-    }
-}
+
 
 void radio::deleteProcess(int code){
 //   QList<QProcess*> radio_process_list;
@@ -338,6 +326,20 @@ void radio::deleteProcess(int code){
 
 }
 
+//kill radio process and all its child called from close event of parent
+void radio::quitRadio()
+{
+    if(radioProcess!=nullptr){
+        if(radioPlaybackTimer->isActive() || radioProcess->state()==QProcess::Running){
+            radioState="exit";
+            emit radioStatus(radioState);
+            radioPlaybackTimer->stop();
+            startRadioProcess(saveTracksAfterBuffer,"http://google.com",true);
+        }
+    }
+}
+
+//kill radio process and all its child called from close event of parent
 void radio::killRadioProcess(){
     if(radioProcess->state()==QProcess::Running){
         QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(radioProcess->processId()));
@@ -353,6 +355,3 @@ void radio::stop(){
     fifo->waitForStarted();
     radioPlaybackTimer->stop();
 }
-
-
-

@@ -416,7 +416,9 @@ void equalizer::loadSettings(){
     sliders_list = ui->groupBox->findChildren<QSlider*>();
     foreach(QSlider *slider , sliders_list){
         if(slider->objectName()!="balance"&&slider->objectName()!="tempo"){
+             slider->blockSignals(true);
              slider->setValue(settingsObj->value(slider->objectName(),0).toInt());
+             slider->blockSignals(false);
          }
     }
 
@@ -424,18 +426,29 @@ void equalizer::loadSettings(){
     QList<QSlider*> sliders_list2;
     sliders_list2 = ui->groupBox_2->findChildren<QSlider*>();
     foreach(QSlider *slider , sliders_list2){
+             slider->blockSignals(true);
              slider->setValue(settingsObj->value(slider->objectName(),0).toInt());
+             slider->blockSignals(false);
      }
 
+    ui->balance->blockSignals(true);
+    ui->tempo->blockSignals(true);
 
     ui->balance->setValue(settingsObj->value(ui->balance->objectName(),10).toInt());
     ui->tempo->setValue(settingsObj->value(ui->tempo->objectName(),10).toInt());
 
+    ui->tempo->blockSignals(false);
+    ui->balance->blockSignals(false);
+
+
 
     ui->groupBox->setEnabled(settingsObj->value("equalizer_enabled",false).toBool());
     ui->groupBox_2->setEnabled(settingsObj->value("equalizer_enabled",false).toBool());
-
+    ui->eq_checkBox->blockSignals(true);
     ui->eq_checkBox->setChecked(settingsObj->value("equalizer_enabled",false).toBool());
+    ui->eq_checkBox->blockSignals(false);
+
+    qDebug()<<"loaded eq settings";
 }
 
 void equalizer::on_fake_valueChanged(int value)
@@ -445,6 +458,7 @@ void equalizer::on_fake_valueChanged(int value)
 }
 
 void equalizer::triggerEq(){
+    qDebug()<<"trigger eq called, eq enabled = "<<settingsObj->value("equalizer_enabled",false).toBool();
     if(settingsObj->value("equalizer_enabled",false).toBool()){
         int val = rand() % ((999 - 0) + 1) + 0;
         ui->fake->setValue(val);

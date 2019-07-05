@@ -78,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
     saveTracksAfterBuffer = settingsObj.value("saveAfterBuffer","true").toBool();
     ui->radioVolumeSlider->setValue(settingsObj.value("volume","100").toInt());
     radio_manager = new radio(this,ui->radioVolumeSlider->value(),saveTracksAfterBuffer);
+
     connect(radio_manager,SIGNAL(radioProcessReady()),this,SLOT(radioProcessReady()));
 
     connect(radio_manager,SIGNAL(radioStatus(QString)),this,SLOT(radioStatus(QString)));
@@ -91,6 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     radio_manager->startRadioProcess(saveTracksAfterBuffer,"",false);
+
 
 
     connect(ui->radioSeekSlider,&seekSlider::setPosition,[=](QPoint localPos){
@@ -3006,10 +3008,11 @@ void MainWindow::init_eq(){
 
     eq->setRange();
     eq->loadSettings();
-    eq->triggerEq();
+    QTimer::singleShot(500,eq,SLOT(triggerEq()));
 }
 
 void MainWindow::set_eq(QString eq_args){
+    qDebug()<<eq_args;
     if(!eq_args.isEmpty()){
         qDebug()<<"called set_eq";
         QProcess *fifo = new QProcess(this);
@@ -3038,11 +3041,14 @@ void MainWindow::deleteProcess(int code){
 }
 
 void MainWindow::radioProcessReady(){
+    qDebug()<<"mpv ready;";
     if(eq==nullptr){
         init_eq();
+    }else{
+        eq->setRange();
+        eq->loadSettings();
+        QTimer::singleShot(500,eq,SLOT(triggerEq()));
     }
-    eq->setRange();
-    eq->loadSettings();
-    eq->triggerEq();
 }
+
 //================================Equalizer=========================================================
