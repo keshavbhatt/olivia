@@ -93,5 +93,6 @@
         <file>icons/sidebar/refresh.png</file>
         <file>icons/sidebar/video.png</file>
         <file>icons/eq_button.png</file>
+        <file>icons/eq_button_disabled.png</file>
     </qresource>
 </RCC>
