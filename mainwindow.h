@@ -85,7 +85,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     Q_INVOKABLE void resultLoaded();
     Q_INVOKABLE void addToQueue(QString id, QString title, QString artist, QString album, QString base64, QString dominantColor, QString songId, QString albumId, QString artistId);
@@ -203,8 +203,7 @@ private slots:
 
 
 
-    void setWavefrom(QString urlStr);
-    void on_radioSeekSlider_valueChanged(int value);
+
     void setCountry(QString country);
     void setTrackItemNowPlaying();
     void on_ytdlStopAll_clicked();

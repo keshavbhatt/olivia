@@ -50,7 +50,6 @@ SOURCES += main.cpp\
     volumeslider.cpp \
     settings.cpp \
     paginator.cpp \
-    waveformseekslider.cpp \
     youtube.cpp \
     playerqueue.cpp \
     lyrics.cpp \
@@ -70,7 +69,6 @@ HEADERS  += mainwindow.h \
     volumeslider.h \
     settings.h \
     paginator.h \
-    waveformseekslider.h \
     youtube.h \
     playerqueue.h \
     lyrics.h \

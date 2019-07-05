@@ -149,31 +149,6 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-
-    connect(ui->waveform,&waveformseekslider::showToolTip,[=](QPoint localPos){
-        int pos = ui->radioSeekSlider->minimum() + ((ui->radioSeekSlider->maximum()-ui->radioSeekSlider->minimum()) * localPos.x()) / ui->radioSeekSlider->width();
-        int seconds = (pos) % 60;
-        int minutes = (pos/60) % 60;
-        int hours = (pos/3600) % 24;
-        QTime time(hours, minutes,seconds);
-        QToolTip::showText(ui->waveform->mapToGlobal(localPos), "Seek: "+time.toString());
-     });
-
-    connect(ui->waveform,&waveformseekslider::setPosition,[=](QPoint localPos){
-        ui->radioSeekSlider->blockSignals(true);
-        int pos = ui->radioSeekSlider->minimum() + ((ui->radioSeekSlider->maximum()-ui->radioSeekSlider->minimum()) * localPos.x()) / ui->radioSeekSlider->width();
-
-        QPropertyAnimation *a = new QPropertyAnimation(ui->radioSeekSlider,"value");
-        a->setDuration(150);
-        a->setStartValue(ui->radioSeekSlider->value());
-        a->setEndValue(pos);
-        a->setEasingCurve(QEasingCurve::InCurve);
-        a->start(QPropertyAnimation::DeleteWhenStopped);
-
-        radio_manager->radioSeek(pos);
-        ui->radioSeekSlider->blockSignals(false);
-    });
-
     browse();
 
     ui->top_widget->installEventFilter(this);
@@ -194,8 +169,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->minimize->setStyleSheet(btn_style_2);
     ui->maximize->setStyleSheet(btn_style_2);
     ui->fullScreen->setStyleSheet(btn_style_2);
-
-    ui->waveform->hide();
 
     loadSettings();
 }
@@ -955,11 +928,6 @@ void MainWindow::on_radioVolumeSlider_valueChanged(int value)
     }
 }
 
-void MainWindow::on_radioSeekSlider_valueChanged(int value){
-    double width =  static_cast<double>(value) / static_cast<double>(ui->radioSeekSlider->maximum()) ;
-    ui->waveform->value = static_cast<double>(width*100);
-    ui->waveform->repaint();
-}
 
 void MainWindow::on_radioSeekSlider_sliderMoved(int position)
 {
@@ -1915,14 +1883,6 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     }
 }
 //END PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
-
-
-void MainWindow::setWavefrom(QString urlStr){
-    ui->radioSeekSlider->hide();
-    ui->waveform->loadPixmap(urlStr);
-    ui->waveform->show();
-}
-
 
 //app menu to hide show sidebar
 void MainWindow::on_menu_clicked()

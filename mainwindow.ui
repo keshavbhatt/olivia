@@ -1861,31 +1861,6 @@ QSlider::sub-page:horizontal:disabled{
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="waveformseekslider" name="waveform">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>650</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>650</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::NoTextInteraction</set>
-             </property>
-            </widget>
-           </item>
           </layout>
          </item>
          <item>
@@ -1933,11 +1908,6 @@ border-radius:2px;</string>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
-  <customwidget>
-   <class>waveformseekslider</class>
-   <extends>QLabel</extends>
-   <header>waveformseekslider.h</header>
-  </customwidget>
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
