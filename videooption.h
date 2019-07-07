@@ -48,7 +48,7 @@ private:
     store *store_manager = nullptr;
     QProcess * ytdlProcess = nullptr;
     QList<QStringList> ytdlQueue ;
-    QString currentUrl;
+    QString currentUrl,currentTitle;
     QStringList resolution_List;
     QString audioCode,videoCode;
     QString videoUrl,audioUrl;

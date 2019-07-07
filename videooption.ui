@@ -217,6 +217,13 @@ border:none;</string>
           </layout>
          </item>
          <item>
+          <widget class="Line" name="line_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <property name="topMargin">
             <number>0</number>
@@ -257,8 +264,8 @@ QScrollBar:vertical {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>222</width>
-                <height>69</height>
+                <width>218</width>
+                <height>61</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -274,6 +281,13 @@ QScrollBar:vertical {
                </item>
               </layout>
              </widget>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
             </widget>
            </item>
            <item>
@@ -309,8 +323,8 @@ QScrollBar:vertical {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>221</width>
-                <height>69</height>
+                <width>217</width>
+                <height>61</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_7">

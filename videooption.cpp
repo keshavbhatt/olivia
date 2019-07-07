@@ -32,6 +32,7 @@ void VideoOption::setMeta(QString songId){
     audioUrl.clear();
     videoUrl.clear();
     currentUrl.clear();
+    currentTitle.clear();
 
     QStringList trackMetaList = store_manager->getTrack(songId);
     QString ytIds,title,artist,album,base64,dominantColor,albumId,artistId,url;
@@ -48,6 +49,7 @@ void VideoOption::setMeta(QString songId){
     QTextDocument text;
     text.setHtml(title);
     QString plainTitle = text.toPlainText();
+    currentTitle = plainTitle;
 
     QFont font("Ubuntu");
     font.setPixelSize(12);
@@ -250,7 +252,7 @@ void VideoOption::getUrlProcessFinished(int code){
 void VideoOption::mergeAndPlay(QString videoUrlStr,QString audioUrlStr){
     QProcess *player = new QProcess(this);
     connect(player,SIGNAL(finished(int)),this,SLOT(getUrlProcessFinished(int)));
-    player->start("mpv",QStringList()<<"--title=MPV for Olivia"<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr);
+    player->start("mpv",QStringList()<<"--title=MPV for Olivia - "+currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr);
     connect(player,SIGNAL(finished(int)),this,SLOT(playerFinished(int)));
     connect(player,SIGNAL(readyRead()),this,SLOT(playerReadyRead()));
 }
