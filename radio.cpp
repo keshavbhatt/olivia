@@ -27,7 +27,7 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     QStringList fifoFileInfoList = dir.entryList(QDir::System); //filter devices files
     qint64 currentTime =  QDateTime::currentMSecsSinceEpoch();
     foreach(QString fifoFileInfo, fifoFileInfoList) {
-        if(currentTime - fifoFileInfo.remove(".fifo").toLong() > 36000000){ //36000000
+        if(currentTime - fifoFileInfo.remove(".fifo").remove("_videoPlayer").toLong() > 36000000){ //36000000
             QFile::remove(fifoDir+"/"+fifoFileInfo+".fifo");
         }
     }

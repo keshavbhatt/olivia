@@ -13,7 +13,7 @@ VideoOption::VideoOption(QWidget *parent,store *store,QString fifopath):
     if(store_manager==nullptr){
         store_manager = store;
     }
-    used_fifo_file_path = fifopath;
+    used_fifo_file_path = fifopath.split(".fifo").first()+"_videoPlayer"+".fifo";
     playerTimer = new QTimer(nullptr);
 
     connect(playerTimer,&QTimer::timeout,[=](){
@@ -388,7 +388,7 @@ void VideoOption::mergeAndPlay(QString videoUrlStr,QString audioUrlStr){
     player->setObjectName("player");
     connect(player,SIGNAL(finished(int)),this,SLOT(getUrlProcessFinished(int)));
     player->start("mpv",QStringList()<<"-wid="+QString::number(this->winId())<<"--title=MPV for Olivia - "+
-                  currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr<<"--input-ipc-server="+used_fifo_file_path);
+                  currentTitle<<"--display-tags=Fuckery"<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr<<"--input-ipc-server="+used_fifo_file_path);
     ui->watch->setText("Opening Player...");
     connect(player,SIGNAL(finished(int)),this,SLOT(playerFinished(int)));
     connect(player,SIGNAL(readyRead()),this,SLOT(playerReadyRead()));

@@ -180,7 +180,8 @@ void MainWindow::init_videoOption(){
         videoOption = new VideoOption(nullptr,store_manager,radio_manager->used_fifo_file_path);
 
         videoOption->setWindowTitle(QApplication::applicationName()+" - Video Option");
-        videoOption->setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint | Qt::WindowFullscreenButtonHint);
+        videoOption->setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint
+                                    | Qt::WindowMaximizeButtonHint | Qt::WindowFullscreenButtonHint);
         videoOption->setWindowModality(Qt::WindowModal);
     }
 }
