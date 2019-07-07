@@ -80,8 +80,9 @@ parts:
           - libqt5sql5-sqlite
           - libqt5webkit5
           - libqt5x11extras5
+          - libqt5xml5
           - libdb5.3
-     install: |
+     override-build: |
             sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_SRC}/olivia.desktop
             cp -rf ${SNAPCRAFT_PART_SRC}/olivia.desktop ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/olivia.desktop
      after: [desktop-qt5]
