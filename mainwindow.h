@@ -203,6 +203,7 @@ private slots:
         return text.toPlainText();
     }
 
+
 private:
     bool animationRunning = false;
     bool isLoadingResults;

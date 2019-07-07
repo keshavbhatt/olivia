@@ -262,6 +262,10 @@ void MainWindow::init_settings(){
             util->deleteLater();
         }
     });
+    connect(settingsUi.donate,&QPushButton::clicked,[=](){
+        settingsWidget->close();
+        ui->webview->load(QUrl("https://paypal.me/keshavnrj/5"));
+    });
     connect(settingsUi.delete_tracks_cache,&QPushButton::clicked,[=](){
           QMessageBox msgBox;
           msgBox.setText("This will delete all downloaded songs!");
