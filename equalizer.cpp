@@ -366,8 +366,6 @@ void equalizer::loadSettings(){
     ui->eq_checkBox->blockSignals(true);
     ui->eq_checkBox->setChecked(settingsObj->value("equalizer_enabled",false).toBool());
     ui->eq_checkBox->blockSignals(false);
-
-    qDebug()<<"loaded eq settings";
 }
 
 void equalizer::on_fake_valueChanged(int value)
@@ -377,7 +375,6 @@ void equalizer::on_fake_valueChanged(int value)
 }
 
 void equalizer::triggerEq(){
-    qDebug()<<"trigger eq called, eq enabled = "<<settingsObj->value("equalizer_enabled",false).toBool();
     if(settingsObj->value("equalizer_enabled",false).toBool()){
         int val = rand() % ((999 - 0) + 1) + 0;
         ui->fake->setValue(val);
