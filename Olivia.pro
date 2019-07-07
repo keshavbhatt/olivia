@@ -47,6 +47,7 @@ SOURCES += main.cpp\
     radio.cpp \
     onlinesearchsuggestion.cpp \
     seekslider.cpp \
+    videooption.cpp \
     volumeslider.cpp \
     settings.cpp \
     paginator.cpp \
@@ -66,6 +67,7 @@ HEADERS  += mainwindow.h \
     radio.h \
     onlinesearchsuggestion.h \
     seekslider.h \
+    videooption.h \
     volumeslider.h \
     settings.h \
     paginator.h \
@@ -82,7 +84,8 @@ FORMS    += mainwindow.ui \
     settings.ui \
     minimode.ui \
     lyrics.ui \
-    lyricitem.ui
+    lyricitem.ui \
+    videooption.ui
 
 RESOURCES += \
     darkstyle.qrc \
