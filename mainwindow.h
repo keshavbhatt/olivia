@@ -1,77 +1,60 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QNetworkDiskCache>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QNetworkCookieJar>
-#include <QWebHistory>
-#include <QWebView>
-#include <QWebFrame>
-#include <QStandardPaths>
-#include <QSettings>
-
-
-
-
-#include "equalizer.h"
-#include <QStringListModel>
-#include <QStandardItemModel>
-#include <QFile>
-#include <QTimer>
-#include <QDir>
-#include <QProgressBar>
-#include <QMessageBox>
-#include <QDesktopWidget>
-#include <QFileDialog>
-
-#include <QWebFrame>
-#include <QSizePolicy>
-
+#include <QBuffer>
+#include <QClipboard>
+#include <QColorDialog>
+#include <QContextMenuEvent>
+#include <QDateTime>
 #include <QDesktopServices>
-#include <QStandardPaths>
-#include <QTextCodec>
+#include <QDesktopWidget>
+#include <QDir>
+#include <QFile>
+#include <QFileDialog>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
-#include <QMovie>
-
-#include <QWidget>
-#include <QNetworkDiskCache>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QNetworkCookieJar>
-#include <QWebHistory>
-#include <QWebView>
-#include <QWebFrame>
-#include <QContextMenuEvent>
-#include <QWebHitTestResult>
-#include <QMenu>
-#include <QWebElement>
-#include <QWebView>
-#include <QProcess>
-#include <QMouseEvent>
-#include <QClipboard>
 #include <QListWidgetItem>
-#include <QSettings>
-#include <QBuffer>
-#include <QDateTime>
-#include <QColorDialog>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMessageBox>
+#include <QMouseEvent>
+#include <QMovie>
+#include <QNetworkAccessManager>
+#include <QNetworkCookieJar>
+#include <QNetworkDiskCache>
+#include <QNetworkReply>
+#include <QProcess>
+#include <QProgressBar>
 #include <QPropertyAnimation>
+#include <QSettings>
+#include <QSizePolicy>
+#include <QStandardItemModel>
+#include <QStandardPaths>
+#include <QStringListModel>
+#include <QTextCodec>
+#include <QTimer>
+#include <QWebElement>
+#include <QWebFrame>
+#include <QWebHistory>
+#include <QWebHitTestResult>
+#include <QWebView>
+#include <QWidget>
 
-
-#include "ui_track.h"
-#include "store.h"
-#include "radio.h"
-#include "onlinesearchsuggestion.h"
-#include "settings.h"
-#include "paginator.h"
-#include "youtube.h"
+#include "equalizer.h"
 #include "lyrics.h"
+#include "onlinesearchsuggestion.h"
+#include "paginator.h"
+#include "radio.h"
+#include "settings.h"
+#include "store.h"
+#include "videooption.h"
+#include "youtube.h"
 
-#include "ui_settings.h"
+
 #include "ui_minimode.h"
+#include "ui_settings.h"
+#include "ui_track.h"
 
 
 
@@ -87,15 +70,15 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    Q_INVOKABLE void resultLoaded();
-    Q_INVOKABLE void addToQueue(QString id, QString title, QString artist, QString album, QString base64, QString dominantColor, QString songId, QString albumId, QString artistId);
     Q_INVOKABLE QString getTerm();
-    Q_INVOKABLE void showAjaxError();
-    Q_INVOKABLE void setThemeColor(QString); //sets themeColor in mainWindow
-    Q_INVOKABLE void playRadioFromWeb(QVariant streamDetails);
-    Q_INVOKABLE void setSearchTermAndOpenYoutube(QVariant term);
+    Q_INVOKABLE void addToQueue(QString id, QString title, QString artist, QString album, QString base64, QString dominantColor, QString songId, QString albumId, QString artistId);
     Q_INVOKABLE void clear_youtubeSearchTerm();
     Q_INVOKABLE void playLocalTrack(QVariant songId);
+    Q_INVOKABLE void playRadioFromWeb(QVariant streamDetails);
+    Q_INVOKABLE void resultLoaded();
+    Q_INVOKABLE void setSearchTermAndOpenYoutube(QVariant term);
+    Q_INVOKABLE void setThemeColor(QString); //sets themeColor in mainWindow
+    Q_INVOKABLE void showAjaxError();
 
     QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;
@@ -103,133 +86,114 @@ public:
 public slots:
     void set_eq(QString eq_args);
     void disable_eq();
+
 protected slots:
-    void resizeEvent(QResizeEvent *resizeEvent);
-    bool eventFilter(QObject *obj, QEvent *event);
     void closeEvent(QCloseEvent *event);
-
-
+    bool eventFilter(QObject *obj, QEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void resizeEvent(QResizeEvent *resizeEvent);
 
 private slots:
-    void init_app();
-    void init_webview();
-    void on_left_list_currentRowChanged(int currentRow);
-
+    bool checkEngine();
+    bool hasDeadTracks(QListWidget *queue);
+    bool hasUnCachedTracks(QListWidget *queue);
+    bool isNumericStr(const QString str);
+    bool trackIsBeingProcessed(QString songId);
+    QString getExpireTime(const QString urlStr);
+    QString menuStyle();
+    void add_colors_to_color_widget();
+    void assignNextTrack(QListWidget *list, int index);
+    void assignPreviousTrack(QListWidget *list, int index);
     void browse();
-    void recommendations();
-    void search(QString offset);
-    void webViewLoaded(bool loaded);
+    void browse_youtube();
+    void check_engine_updates();
+    void clear_queue();
+    void compare_versions(QString date, QString n_date);
+    void customColor();
+    void deleteProcess(int code);
+    void download_engine_clicked();
+    void dynamicThemeChanged(bool enabled);
+    void evoke_engine_check();
+    void fillOliviaMetaList(QListWidget *list);
+    void filterList(const QString &arg1, QListWidget *list);
+    void get_engine_version_info();
     void getAudioStream(QString ytIds, QString songId);
-    void on_search_returnPressed();
-//    void youtubeDlFinished(int code, QProcess::ExitStatus exitStatus);
-    void ytdlReadyRead();
-
-
-    //MEDIAPLAYER
-    void init_offline_storage();
-    void setPlayerPosition(qint64 position);
-
-    void on_radioVolumeSlider_valueChanged(int value);
-    void on_stop_clicked();
-//    void on_radioSeekSlider_sliderReleased();
-    void on_radioSeekSlider_sliderMoved(int position);
-    void on_play_pause_clicked();
-    void on_right_list_itemDoubleClicked(QListWidgetItem *item);
-    void on_menu_clicked();
-    void showTrackOption();
     void getNowPlayingTrackId();
+    void hideListItems(QListWidget *list);
+    void init_app();
+    void init_eq();
+    void init_lyrics();
+    void init_miniMode();
+    void init_offline_storage();
+    void init_radio();
+    void init_search_autoComplete();
+    void init_settings();
+    void init_webview();
+    void init_videoOption();
+    void installEventFilters();
+    void internet_radio();
+    void listItemDoubleClicked(QListWidget *list, QListWidgetItem *item);
     void loadPlayerQueue();
-    void keyPressEvent(QKeyEvent *event);
-    void show_top();
-    void show_saved_songs();
+    void loadSettings();
+    void on_close_clicked();
+    void on_eq_clicked();
+    void on_filter_olivia_textChanged(const QString &arg1);
+    void on_filter_youtube_textChanged(const QString &arg1);
+    void on_fullScreen_clicked();
+    void on_left_list_currentRowChanged(int currentRow);
+    void on_maximize_clicked();
+    void on_menu_clicked();
+    void on_minimize_clicked();
+    void on_miniMode_clicked();
+    void on_olivia_queue_options_clicked();
+    void on_play_pause_clicked();
+    void on_radioSeekSlider_sliderMoved(int position);
+    void on_radioVolumeSlider_valueChanged(int value);
+    void on_right_list_2_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+    void on_right_list_2_itemClicked(QListWidgetItem *item);
+    void on_right_list_2_itemDoubleClicked(QListWidgetItem *item);
+    void on_right_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+    void on_right_list_itemClicked(QListWidgetItem *item);
+    void on_right_list_itemDoubleClicked(QListWidgetItem *item);
+    void on_search_returnPressed();
+    void on_settings_clicked();
+    void on_stop_clicked();
+    void on_tabWidget_currentChanged(int index);
+    void on_youtube_queue_options_clicked();
+    void on_ytdlRefreshAll_clicked();
+    void on_ytdlStopAll_clicked();
+    void processYtdlQueue();
+    void queue_currentItemChanged(QListWidget *queue, QListWidgetItem *current, QListWidgetItem *previous);
+    void queueShowOption(QListWidget *queue);
+    void radio_demuxer_cache_duration_changed(double, double radio_playerPosition);
+    void radioDuration(int dur);
+    void radioPosition(int pos);
+    void radioProcessReady();
+    void radioStatus(QString);
+    void recommendations();
+    void reloadREquested(QString dataType, QString query);
+    void restart_required();
+    void saveTrack(QString format);
+    void search(QString offset);
+    void set_app_theme(QColor rgb);
+    void setCountry(QString country);
+    void setPlayerPosition(qint64 position);
+    void setTrackItemNowPlaying();
+    void setZoom(qreal);
     void show_local_saved_songs();
     void show_saved_albums();
     void show_saved_artists();
-    void internet_radio();
-    void radioStatus(QString);
-    //void quitApp();
-    void radioPosition(int pos);
-    void radioDuration(int dur);
-//    void radioEOF(QString value);
-    void radio_demuxer_cache_duration_changed(double, double radio_playerPosition);
-    void init_search_autoComplete();
-    void saveTrack(QString format);
-    void ytdlFinished(int code);
-    void processYtdlQueue();
-    void on_settings_clicked();
-
-    void init_settings();
-    void init_miniMode();
-    bool checkEngine();
-    void download_engine_clicked();
+    void show_saved_songs();
+    void show_top();
+    void showTrackOption();
     void slot_netwManagerFinished(QNetworkReply *reply);
-//    void down_progress(qint64 pos, qint64 tot);
-    void evoke_engine_check();
-    void browse_youtube();
-    void on_right_list_2_itemDoubleClicked(QListWidgetItem *item);
-    void on_filter_olivia_textChanged(const QString &arg1);
-
-    void hideListItems(QListWidget *list);
-    void fillOliviaMetaList(QListWidget *list);
-    void filterList(const QString &arg1, QListWidget *list);
-    void on_filter_youtube_textChanged(const QString &arg1);
-
-
-
+    void trackItemClicked(QListWidget *listWidget, QListWidgetItem *item);
+    void transparency_changed(int value); //from settings widget
+    void webViewLoaded(bool loaded);
+    void ytdlFinished(int code);
+    void ytdlReadyRead();
     void zoomin();
     void zoomout();
-    void setZoom(qreal);
-    void listItemDoubleClicked(QListWidget *list, QListWidgetItem *item);
-    void on_miniMode_clicked();
-
-    void add_colors_to_color_widget();
-    void set_app_theme(QColor rgb);
-    void customColor();
-    void on_tabWidget_currentChanged(int index);
-
-    void loadSettings();
-    void dynamicThemeChanged(bool enabled);
-
-
-    void on_close_clicked();
-    void on_fullScreen_clicked();
-    void on_minimize_clicked();
-    void on_maximize_clicked();
-    void reloadREquested(QString dataType, QString query);
-
-
-    void assignNextTrack(QListWidget *list, int index);
-    void assignPreviousTrack(QListWidget *list, int index);
-
-
-
-
-    void setCountry(QString country);
-    void setTrackItemNowPlaying();
-    void on_ytdlStopAll_clicked();
-
-    void on_ytdlRefreshAll_clicked();
-
-    void on_right_list_2_itemClicked(QListWidgetItem *item);
-
-    void on_right_list_itemClicked(QListWidgetItem *item);
-    void trackItemClicked(QListWidget *listWidget, QListWidgetItem *item);
-
-    void get_engine_version_info();
-    void compare_versions(QString date, QString n_date);
-    void check_engine_updates();
-    void init_lyrics();
-
-    QString menuStyle();
-
-    void on_olivia_queue_options_clicked();
-
-    void on_youtube_queue_options_clicked();
-
-    void queueShowOption(QListWidget *queue);
-    bool hasDeadTracks(QListWidget *queue);
-    bool hasUnCachedTracks(QListWidget *queue);
-    bool trackIsBeingProcessed(QString songId);
 
     //return pain text version of text which contains html symbolic notations
     QString htmlToPlainText(QString html){
@@ -237,89 +201,56 @@ private slots:
         text.setHtml(html.replace("\\\"","'"));
         return text.toPlainText();
     }
-    void queue_currentItemChanged(QListWidget *queue, QListWidgetItem *current, QListWidgetItem *previous);
 
-    void on_right_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-
-    void on_right_list_2_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-    void clear_queue();
-    void restart_required();
-    void transparency_changed(int value); //from settings widget
-
-    void on_eq_clicked();
-
-    QString getExpireTime(const QString urlStr);
-    bool isNumericStr(const QString str);
-    void init_eq();
-    void radioProcessReady();
-    void deleteProcess(int code);
 private:
-    QList<qint64> processIdList;
-    QString core_local_date,core_remote_date;
-    qreal zoom;
-    qreal horizontalDpi;
-    QPoint oldPos,oldPosMiniWidget;
-
-    Ui::MainWindow *ui;
-    Ui::track track_ui;
-    Ui::miniMode_form miniMode_ui;
-    QWidget *miniModeWidget;
-    Ui::settings settingsUi;
-    QWidget *settingsWidget;
-    settings *settUtils;
-    Youtube *youtube;
-    equalizer *eq = nullptr;
-
-   // QSettings * settings;
-    QString pageType;
-    int currentResultPage;
+    bool animationRunning = false;
     bool isLoadingResults;
-    QString offsetstr;
-
-
+    equalizer *eq = nullptr;
+    int currentResultPage;
+    int left_panel_width;
+    Lyrics *lyricsWidget;
+    onlineSearchSuggestion * _onlineSearchSuggestion_ = nullptr;
+    paginator *pagination_manager = nullptr;
+    QFile *core_file;
+    QList<qint64> processIdList;
+    QList<QString> OliviaMetaList; //for search purpose
+    QList<QStringList> ytdlQueue ;
+    QPoint oldPos,oldPosMiniWidget;
+    QProcess * ytdlProcess = nullptr;
+    qreal horizontalDpi;
+    qreal zoom;
+    QSettings settingsObj;
+    QString core_local_date,core_remote_date;
+    QString database;
     QString gotoAlbumId,gotoArtistId,recommendationSongId;//jumper vars
     QString nowPlayingSongId;
-
-    QString database;
-    store *store_manager = nullptr;
-    radio *radio_manager = nullptr;
-    paginator *pagination_manager = nullptr;
-    QString themeColor = "4,42,59,0.2";
-
-    QStringList searchSuggestionList;
-
-    onlineSearchSuggestion * _onlineSearchSuggestion_ = nullptr;
-
-    QList<QStringList> ytdlQueue ;
-
-    QProcess * ytdlProcess = nullptr;
-    QFile *core_file;
-
-    QList<QString> OliviaMetaList; //for search purpose
-
-    int left_panel_width;
-    bool animationRunning = false;
-
-    QSettings settingsObj;
-    QString setting_path;
-
-    QStringList color_list ;
-
-    Lyrics *lyricsWidget;
-
+    QString offsetstr;
+    QString pageType;
     QString previous_eqArg;
-
+    QString setting_path;
+    QString themeColor = "4,42,59,0.2";
+    QStringList color_list ;
+    QStringList searchSuggestionList;
+    QWidget *miniModeWidget;
+    QWidget *settingsWidget;
+    radio *radio_manager = nullptr;
+    settings *settUtils;
+    store *store_manager = nullptr;
+    Ui::MainWindow *ui;
+    Ui::miniMode_form miniMode_ui;
+    Ui::settings settingsUi;
+    Ui::track track_ui;
+    Youtube *youtube;
+    VideoOption *videoOption = nullptr;
 };
 
 class SelectColorButton : public QPushButton
 {
     Q_OBJECT
 signals:
-
     void setCustomColor(QColor);
 
 public:
-
     void setColor( const QColor& color );
     const QColor& getColor();
 
@@ -329,8 +260,6 @@ public slots:
 
 private:
     QColor color;
-
-
 };
 
 #endif // MAINWINDOW_H

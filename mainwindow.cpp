@@ -30,20 +30,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
+    ui->debug_widget->hide();
+    //sets search icon in label
+    ui->label_5->resize(ui->label_5->width(),ui->search->height());
+    ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
     qApp->setQuitOnLastWindowClosed(true);
-//    connect(qApp,SIGNAL(aboutToQuit()),this,SLOT(close()));
 
-    init_app(); // #1
-    init_webview();// #2
-    init_offline_storage();//  #3
-
+    init_app();
+    init_webview();
+    init_offline_storage();
     init_settings();
     init_miniMode();
     init_lyrics();
-
-//    checkEngine();
+    init_videoOption();
 
     QTimer::singleShot(1000, [this]() {
         if(!checkEngine()){
@@ -54,33 +54,33 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-
-    //sets search icon in label
-    ui->label_5->resize(ui->label_5->width(),ui->search->height());
-    ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-
     database = "hjkfdsll";
-
-    store_manager = new store(this,database);// #6
+    store_manager = new store(this,database);
 
     pagination_manager = new paginator(this);
     connect(pagination_manager,SIGNAL(reloadRequested(QString,QString)),this,SLOT(reloadREquested(QString,QString)));
 
-    ui->debug_widget->hide();
-
-    loadPlayerQueue();// #7 loads previous playing track queue
+    loadPlayerQueue();
     init_search_autoComplete();
+    init_radio();
+    browse();
+    installEventFilters();
+    loadSettings();
+}
 
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::init_radio(){
     ui->radioVolumeSlider->setMinimum(0);
     ui->radioVolumeSlider->setMaximum(130);
-
     ui->radioVolumeSlider->setValue(100);
     saveTracksAfterBuffer = settingsObj.value("saveAfterBuffer","true").toBool();
     ui->radioVolumeSlider->setValue(settingsObj.value("volume","100").toInt());
     radio_manager = new radio(this,ui->radioVolumeSlider->value(),saveTracksAfterBuffer);
-
     connect(radio_manager,SIGNAL(radioProcessReady()),this,SLOT(radioProcessReady()));
-
     connect(radio_manager,SIGNAL(radioStatus(QString)),this,SLOT(radioStatus(QString)));
     connect(radio_manager,SIGNAL(radioPosition(int)),this,SLOT(radioPosition(int)));
     connect(radio_manager,SIGNAL(radioDuration(int)),this,SLOT(radioDuration(int)));
@@ -90,11 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->cover->clear();
         ui->cover->setPixmap(pix.scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     });
-
     radio_manager->startRadioProcess(saveTracksAfterBuffer,"",false);
-
-
-
     connect(ui->radioSeekSlider,&seekSlider::setPosition,[=](QPoint localPos){
         ui->radioSeekSlider->blockSignals(true);
         int pos = ui->radioSeekSlider->minimum() + ((ui->radioSeekSlider->maximum()-ui->radioSeekSlider->minimum()) * localPos.x()) / ui->radioSeekSlider->width();
@@ -109,7 +105,6 @@ MainWindow::MainWindow(QWidget *parent) :
         radio_manager->radioSeek(pos);
         ui->radioSeekSlider->blockSignals(false);
     });
-
     connect(ui->radioSeekSlider,&seekSlider::showToolTip,[=](QPoint localPos){
         int pos = ui->radioSeekSlider->minimum() + ((ui->radioSeekSlider->maximum()-ui->radioSeekSlider->minimum()) * localPos.x()) / ui->radioSeekSlider->width();
         int seconds = (pos) % 60;
@@ -118,7 +113,6 @@ MainWindow::MainWindow(QWidget *parent) :
         QTime time(hours, minutes,seconds);
         QToolTip::showText(ui->radioSeekSlider->mapToGlobal(localPos), "Seek: "+time.toString());
      });
-
     connect(ui->radioVolumeSlider,&volumeSlider::setPosition,[=](QPoint localPos){
         int pos = ui->radioVolumeSlider->minimum() + ((ui->radioVolumeSlider->maximum()-ui->radioVolumeSlider->minimum()) * localPos.x()) / ui->radioVolumeSlider->width();
         QPropertyAnimation *a = new QPropertyAnimation(ui->radioVolumeSlider,"value");
@@ -128,7 +122,6 @@ MainWindow::MainWindow(QWidget *parent) :
         a->setEasingCurve(QEasingCurve::InCurve);
         a->start(QPropertyAnimation::DeleteWhenStopped);
     });
-
     connect(ui->radioVolumeSlider,&volumeSlider::showToolTip,[=](QPoint localPos){
         if(localPos.x()!=0){
             int pos = ui->radioVolumeSlider->minimum() + ((ui->radioVolumeSlider->maximum()-ui->radioVolumeSlider->minimum()) * localPos.x()) / ui->radioVolumeSlider->width();
@@ -148,40 +141,16 @@ MainWindow::MainWindow(QWidget *parent) :
             }
         }
     });
+}
 
-    browse();
-
+void MainWindow::installEventFilters(){
     ui->top_widget->installEventFilter(this);
     ui->windowControls->installEventFilter(this);
     ui->label_6->installEventFilter(this);
     ui->nowPlayingGrip->installEventFilter(this);
     qApp->installEventFilter(ui->next);
     qApp->installEventFilter(ui->previous);
-
-
-    QString btn_style_2= "QPushButton{background-color:transparent ;border:0px;}"
-                         "QPushButton:disabled { background-color: transparent; border-bottom:1px solid #727578;"
-                         "padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px;color: #636363;}"
-                         "QPushButton:pressed {padding-bottom:0px;background-color:transparent;border:0px;}"
-                         "QPushButton:hover {border:none;padding-bottom:1px;background-color:transparent;border:0px;}";
-    ui->close->setStyleSheet(btn_style_2);
-    ui->minimize->setStyleSheet(btn_style_2);
-    ui->maximize->setStyleSheet(btn_style_2);
-    ui->fullScreen->setStyleSheet(btn_style_2);
-
-//    int c_h = ui->controls_widget->height();
-
-     QString btn_style_3 = "QPushButton{background-color:transparent ;border:0px;padding-top: 3px; padding-bottom: 3px;}"
-                           "QPushButton:disabled {padding-top: 3px; padding-bottom:3px;}"
-                           "QPushButton:pressed {padding-bottom:0px;border:0px;}"
-                           "QPushButton:hover {padding-bottom:1px;background-color:transparent;border:0px;}";
-
-     foreach (QPushButton *button, ui->controls_widget->findChildren<QPushButton*>()) {
-         button->setStyleSheet(btn_style_3);
-     }
-    loadSettings();
 }
-
 
 void MainWindow::closeEvent(QCloseEvent *event){
     settingsObj.setValue("geometry",saveGeometry());
@@ -196,13 +165,6 @@ void MainWindow::closeEvent(QCloseEvent *event){
     radio_manager->killRadioProcess();
     radio_manager->deleteLater();
 
-//    QList<QProcess*> process_list;
-//    process_list = this->findChildren<QProcess*>();
-//    foreach(QProcess *process,process_list){
-//        process->terminate();
-//        process->waitForFinished();
-//        process->deleteLater();
-//    }
     for(int i=0;i<processIdList.count();i++){
         QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(processIdList.at(i)));
         processIdList.removeAt(i);
@@ -210,9 +172,15 @@ void MainWindow::closeEvent(QCloseEvent *event){
     QMainWindow::closeEvent(event);
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
+
+void MainWindow::init_videoOption(){
+    if(videoOption == nullptr){
+        videoOption = new VideoOption(this,store_manager);
+
+        videoOption->setWindowTitle(QApplication::applicationName()+" - Video Option");
+        videoOption->setWindowFlags(Qt::Dialog);
+        videoOption->setWindowModality(Qt::NonModal);
+    }
 }
 
 void MainWindow::init_settings(){
@@ -610,6 +578,24 @@ void MainWindow::init_app(){
     ui->artist_horizontalLayout->addWidget(artist);
     ui->album_horizontalLayout->addWidget(album);
 
+    QString btn_style_2= "QPushButton{background-color:transparent ;border:0px;}"
+                         "QPushButton:disabled { background-color: transparent; border-bottom:1px solid #727578;"
+                         "padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px;color: #636363;}"
+                         "QPushButton:pressed {padding-bottom:0px;background-color:transparent;border:0px;}"
+                         "QPushButton:hover {border:none;padding-bottom:1px;background-color:transparent;border:0px;}";
+
+    foreach (QPushButton *button, ui->windowControls->findChildren<QPushButton*>()) {
+        button->setStyleSheet(btn_style_2);
+    }
+
+     QString btn_style_3 = "QPushButton{background-color:transparent ;border:0px;padding-top: 3px; padding-bottom: 3px;}"
+                           "QPushButton:disabled {padding-top: 3px; padding-bottom:3px;}"
+                           "QPushButton:pressed {padding-bottom:0px;border:0px;}"
+                           "QPushButton:hover {padding-bottom:1px;background-color:transparent;border:0px;}";
+
+     foreach (QPushButton *button, ui->controls_widget->findChildren<QPushButton*>()) {
+         button->setStyleSheet(btn_style_3);
+     }
 }
 
 //used to set county settings in youtube right now
@@ -642,6 +628,7 @@ void MainWindow::init_webview(){
       QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, false);
       ui->webview->setContextMenuPolicy(Qt::NoContextMenu);
     #endif
+
     ui->webview->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     ui->webview->settings()->enablePersistentStorage(setting_path);
 
@@ -653,7 +640,6 @@ void MainWindow::init_webview(){
     diskCache->setCacheDirectory(setting_path);
     ui->webview->page()->networkAccessManager()->setCache(diskCache);
     ui->webview->page()->networkAccessManager()->setCookieJar(new CookieJar(cookieJarPath, ui->webview->page()->networkAccessManager()));
-
 
     horizontalDpi = QApplication::desktop()->screen()->logicalDpiX();
 
@@ -696,18 +682,18 @@ void MainWindow::init_offline_storage(){
 
 void MainWindow::loadPlayerQueue(){ //  #7
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    foreach (QStringList trackList, store_manager->getPlayerQueue()) {
+    foreach (QStringList trackMetaList, store_manager->getPlayerQueue()) {
         QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
-        songId = trackList.at(0);
-        title = trackList.at(1);
-        albumId = trackList.at(2);
-        album = trackList.at(3);
-        artistId = trackList.at(4);
-        artist = trackList.at(5);
-        base64 = trackList.at(6);
-        url = trackList.at(7);
-        id = trackList.at(8);
-        dominantColor = trackList.at(9);
+        songId = trackMetaList.at(0);
+        title = trackMetaList.at(1);
+        albumId = trackMetaList.at(2);
+        album = trackMetaList.at(3);
+        artistId = trackMetaList.at(4);
+        artist = trackMetaList.at(5);
+        base64 = trackMetaList.at(6);
+        url = trackMetaList.at(7);
+        id = trackMetaList.at(8);
+        dominantColor = trackMetaList.at(9);
 
         QTextDocument text;
         text.setHtml(title);
@@ -719,7 +705,6 @@ void MainWindow::loadPlayerQueue(){ //  #7
 
         QFont font("Ubuntu");
         font.setPixelSize(12);
-        setFont(font);
 
         ElidedLabel *titleLabel = new ElidedLabel(plainTitle,nullptr);
         titleLabel->setFont(font);
@@ -946,23 +931,11 @@ void MainWindow::on_radioSeekSlider_sliderMoved(int position)
     ui->radioSeekSlider->blockSignals(false);
 }
 
-
 void MainWindow::on_stop_clicked()
 {
-    //radio stop
     radio_manager->stop();
 }
 
-
-//NETWORK
-//void MainWindow::quitApp(){
-//    settingsObj.setValue("geometry",saveGeometry());
-//    settingsObj.setValue("windowState", saveState());
-//    radio_manager->quitRadio();
-//  //  radio_manager->killRadioProcess();
-//    radio_manager->deleteProcess(0);
-//    radio_manager->deleteLater();
-//}
 
 void MainWindow::webViewLoaded(bool loaded){
 
@@ -1190,31 +1163,21 @@ void MainWindow::addToQueue(QString id,QString title,QString artist,QString albu
 }
 
 void MainWindow::showTrackOption(){
+
     QPushButton* senderButton = qobject_cast<QPushButton*>(sender());
+
     QString songId = senderButton->objectName().remove("optionButton").trimmed();
-
-    //check if track is from spotify
-
-//    bool notSpotify;
-//     songId.toInt(&notSpotify, 16);
-//     songId.toInt(&notSpotify, 10);
-    //qDebug()<<"isString"<<hex<<"isString"<<dec<<notSpotify;
+    QString albumId = store_manager->getAlbumId(songId);
+    QString artistId = store_manager->getArtistId(songId);
 
     QAction *showRecommendation = new QAction("Show Recommendations",nullptr);
     QAction *watchVideo = new QAction("Watch Video",nullptr);
     QAction *showLyrics = new QAction("Show Lyrics",nullptr);
     QAction *gotoArtist= new QAction("Go to Artist",nullptr);
-    QAction *gotoAlbum = new QAction("Go to Album",nullptr);
-    QAction *sepe = new QAction("",nullptr);
-    sepe->setSeparator(true);
-    QAction *sepe2 = new QAction("",nullptr);
-    sepe2->setSeparator(true);
+    QAction *gotoAlbum = new QAction("Go to Album",nullptr);   
     QAction *removeSong = new QAction("Remove from queue",nullptr);
     QAction *deleteSongCache = new QAction("Delete song cache",nullptr);
     deleteSongCache->setEnabled(store_manager->isDownloaded(songId));
-    //QAction *deleteSong = new QAction("Remove from collection && queue",0);
-
-    //deleteSong->setEnabled(store_manager->isInCollection(songId));
 
     //setIcons
     showRecommendation->setIcon(QIcon(":/icons/sidebar/activity.png"));
@@ -1225,8 +1188,6 @@ void MainWindow::showTrackOption(){
     removeSong->setIcon(QIcon(":/icons/sidebar/remove.png"));
     deleteSongCache->setIcon(QIcon(":/icons/sidebar/delete.png"));
 
-    QString albumId = store_manager->getAlbumId(songId);
-    QString artistId = store_manager->getArtistId(songId);
 
     connect(showLyrics,&QAction::triggered,[=](){
         QString songTitle, artistTitle,lyrics_search_string;
@@ -1250,7 +1211,23 @@ void MainWindow::showTrackOption(){
     });
 
     connect(watchVideo,&QAction::triggered,[=](){
+        if(videoOption==nullptr){
+            init_videoOption();
+        }else{
+            QString btn_style ="QPushButton{color: silver; background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 3px; padding-right: 3px; border-radius: 2px; outline: none;}"
+            "QPushButton:disabled { background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; /*border-radius: 2px;*/ color: #636363;}"
+            "QPushButton:hover{border: 1px solid #272727;background-color:#5A584F; color:silver ;}"
+            "QPushButton:pressed {background-color: #45443F;color: silver;padding-bottom:1px;}";
 
+            videoOption->setStyleSheet("");
+            videoOption->setStyleSheet("QWidget#VideoOption{"+ui->search->styleSheet()+"}"
+                                             +"QFrame{"+ui->search->styleSheet()+"}"
+                                             +btn_style);
+            videoOption->setMeta(songId);
+            videoOption->removeStyle();
+            videoOption->adjustSize();
+            videoOption->show();
+        }
     });
 
     connect(gotoAlbum,&QAction::triggered,[=](){
@@ -1264,7 +1241,6 @@ void MainWindow::showTrackOption(){
         pageType = "goto_artist";
         gotoArtistId = artistId;
     });
-
 
     connect(deleteSongCache,&QAction::triggered,[=](){
         QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
@@ -1297,19 +1273,6 @@ void MainWindow::showTrackOption(){
         }
     });
 
-//    connect(deleteSong,&QAction::triggered,[=](){
-//        qDebug()<<"deleted Song from collection :"<<songId;
-//        store_manager->removeFromCollection(songId);
-//        for (int i= 0;i<ui->right_list->count();i++) {
-//           QString songIdFromWidget = ((QLineEdit*) ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-//            if(songId==songIdFromWidget){
-//                ui->right_list->takeItem(i);
-//                store_manager->removeFromQueue(songId);
-//                break;
-//            }
-//        }
-//    });
-
     connect(removeSong,&QAction::triggered,[=](){
         for (int i= 0;i<ui->right_list->count();i++) {
            QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
@@ -1332,17 +1295,21 @@ void MainWindow::showTrackOption(){
     QMenu menu;
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
         menu.addAction(showLyrics);
+        menu.addAction(watchVideo);
         if(!isNumericStr(songId)) //spotify song ids are not numeric
+        {
             menu.addAction(showRecommendation);
+        }
         menu.addAction(gotoAlbum);
         menu.addAction(gotoArtist);
     }else{
+        menu.addSeparator();
         menu.addAction(showLyrics);
+        menu.addAction(watchVideo);
     }
-    menu.addAction(sepe);
+    menu.addSeparator();
     menu.addAction(removeSong);
-    //menu.addAction(deleteSong);
-    menu.addAction(sepe2);
+    menu.addSeparator();
     menu.addAction(deleteSongCache);
     menu.setStyleSheet(menuStyle());
     menu.exec(QCursor::pos());
@@ -1779,16 +1746,6 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
                 ui->next->setEnabled(false);
             }
         }
-
-//        if(list->itemWidget(list->item(list->currentRow()+1))!=nullptr &&
-//                !list->itemWidget(list->item(list->currentRow()+1))->isEnabled()){
-//            ui->next->setEnabled(false);
-//        }
-//        if(list->currentRow()==assigned+1){
-//            ui->next->setEnabled(false);
-//        }
-
-
     }
 
     getNowPlayingTrackId();
@@ -2923,7 +2880,6 @@ bool MainWindow::trackIsBeingProcessed(QString songId){
     foreach (QProcess *process, ytDlProcessList) {
         if(process->objectName().trimmed()==songId){
             isProcessing = true;
-           // qDebug()<<process->objectName().trimmed()<<songId;
         }
         if(isProcessing)break;
     }
@@ -2951,8 +2907,6 @@ void MainWindow::on_eq_clicked()
     "QPushButton:disabled { background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; /*border-radius: 2px;*/ color: #636363;}"
     "QPushButton:hover{border: 1px solid #272727;background-color:#5A584F; color:silver ;}"
     "QPushButton:pressed {background-color: #45443F;color: silver;padding-bottom:1px;}";
-
-
 
     eq->setStyleSheet("");
     eq->setStyleSheet("QWidget#equalizer{"+ui->search->styleSheet()+"}"
@@ -2984,9 +2938,7 @@ void MainWindow::init_eq(){
 }
 
 void MainWindow::set_eq(QString eq_args){
-    qDebug()<<eq_args;
     if(!eq_args.isEmpty()){
-        qDebug()<<"called set_eq";
         QProcess *fifo = new QProcess(this);
         connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
         fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"af\",\""+eq_args+"\"]}' | socat - "+ radio_manager->used_fifo_file_path);
@@ -2997,7 +2949,6 @@ void MainWindow::set_eq(QString eq_args){
 }
 
 void MainWindow::disable_eq(){
-    qDebug()<<"called";
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"af\",\"set\",\"""\"]}' | socat - "+ radio_manager->used_fifo_file_path);
@@ -3007,7 +2958,6 @@ void MainWindow::disable_eq(){
 }
 
 void MainWindow::deleteProcess(int code){
-       Q_UNUSED(code);
     QProcess *process = qobject_cast<QProcess*>(sender());
     if(code==0){
         process->deleteLater();
@@ -3015,7 +2965,6 @@ void MainWindow::deleteProcess(int code){
 }
 
 void MainWindow::radioProcessReady(){
-    qDebug()<<"mpv ready;";
     if(eq==nullptr){
         init_eq();
     }else{
