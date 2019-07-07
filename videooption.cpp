@@ -257,12 +257,13 @@ void VideoOption::mergeAndPlay(QString videoUrlStr,QString audioUrlStr){
 
 void VideoOption::playerFinished(int code){
     Q_UNUSED(code);
+    ui->watch->setText("Watch");
     ui->watch->setEnabled(true);
 }
 
 void VideoOption::playerReadyRead(){
     ui->watch->setEnabled(false);
-    ui->watch->setText("PLaying...");
+    ui->watch->setText("Playing...");
 }
 
 
