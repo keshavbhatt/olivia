@@ -168,12 +168,19 @@ void VideoOption::removeStyle(){
 }
 
 void VideoOption::closeEvent(QCloseEvent *event){
-
-    if(ytdlProcess != nullptr){
-        ytdlProcess->close();
-        ytdlProcess = nullptr;
+    QProcess *player = this->findChild<QProcess*>("player");
+    if(player && player->state()==QProcess::Running){
+        player->terminate();
+        player->deleteLater();
+        event->ignore();
+    }else {
+        if(ytdlProcess != nullptr){
+            ytdlProcess->close();
+            ytdlProcess = nullptr;
+        }
+        event->accept();
     }
-    QWidget::closeEvent(event);
+//QWidget::closeEvent(event);
 }
 
 
@@ -335,8 +342,9 @@ void VideoOption::getUrlProcessFinished(int code){
 
 void VideoOption::mergeAndPlay(QString videoUrlStr,QString audioUrlStr){
     QProcess *player = new QProcess(this);
+    player->setObjectName("player");
     connect(player,SIGNAL(finished(int)),this,SLOT(getUrlProcessFinished(int)));
-    player->start("mpv",QStringList()<<"--title=MPV for Olivia - "+currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr);
+    player->start("mpv",QStringList()<<"-wid="+QString::number(this->winId())<<"--title=MPV for Olivia - "+currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr);
     ui->watch->setText("Opening Player...");
     connect(player,SIGNAL(finished(int)),this,SLOT(playerFinished(int)));
     connect(player,SIGNAL(readyRead()),this,SLOT(playerReadyRead()));
@@ -346,11 +354,13 @@ void VideoOption::playerFinished(int code){
     Q_UNUSED(code);
     ui->watch->setText("Watch");
     ui->watch->setEnabled(true);
+    this->setWindowTitle(QApplication::applicationName()+" - Video Option");
 }
 
 void VideoOption::playerReadyRead(){
     ui->watch->setEnabled(false);
     ui->watch->setText("Playing...");
+    this->setWindowTitle("MPV for Olivia - "+currentTitle);
 }
 
 
