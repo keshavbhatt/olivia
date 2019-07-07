@@ -94,5 +94,6 @@
         <file>icons/sidebar/video.png</file>
         <file>icons/eq_button.png</file>
         <file>icons/eq_button_disabled.png</file>
+        <file>icons/others/donate.png</file>
     </qresource>
 </RCC>
