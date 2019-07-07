@@ -12,7 +12,7 @@
 radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : QObject(parent)
 {
     this->setObjectName("radio-manager");
-    setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    setting_path =  QStandardPaths::writableLocation(QStandardPaths::TempLocation);
 
     QString fifoDir= setting_path+"/fifos";
     QDir dir(fifoDir);
