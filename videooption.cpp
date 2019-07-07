@@ -17,7 +17,7 @@ VideoOption::VideoOption(QWidget *parent,store *store,QString fifopath):
     playerTimer = new QTimer(nullptr);
 
     connect(playerTimer,&QTimer::timeout,[=](){
-        QProcess *fifo = new QProcess(this);
+        QProcess *fifo = new QProcess(nullptr);
         connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
         connect(fifo,&QProcess::readyRead,[=](){
             QString out = fifo->readAll();
@@ -30,18 +30,19 @@ VideoOption::VideoOption(QWidget *parent,store *store,QString fifopath):
                 }else{
                     if(this->windowState()==Qt::WindowFullScreen){
                         this->setWindowState(Qt::WindowNoState);
+                        this->setCursor(Qt::ArrowCursor);
                      }
                 }
             }
         });
         fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"fullscreen\"]}' | socat - "+ used_fifo_file_path);
-        fifo->waitForStarted();
+        //fifo->waitForStarted();
     });
 }
 
 void VideoOption::toggleFullscreen()
 {
-    QProcess *fifo = new QProcess(this);
+    QProcess *fifo = new QProcess(nullptr);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
    // fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"volume\","+QString::number(volume)+"]}' | socat - "+ used_fifo_file_path);
 }
@@ -213,7 +214,7 @@ void VideoOption::removeStyle(){
 
 void VideoOption::closeEvent(QCloseEvent *event){
     QProcess *player = this->findChild<QProcess*>("player");
-    if(player && player->state()==QProcess::Running){
+    if(player != nullptr && player->state()==QProcess::Running){
         player->terminate();
         player->deleteLater();
         event->ignore();
@@ -388,7 +389,7 @@ void VideoOption::mergeAndPlay(QString videoUrlStr,QString audioUrlStr){
     player->setObjectName("player");
     connect(player,SIGNAL(finished(int)),this,SLOT(getUrlProcessFinished(int)));
     player->start("mpv",QStringList()<<"-wid="+QString::number(this->winId())<<"--title=MPV for Olivia - "+
-                  currentTitle<<"--display-tags=Fuckery"<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr<<"--input-ipc-server="+used_fifo_file_path);
+                  currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr<<"--input-ipc-server="+used_fifo_file_path);
     ui->watch->setText("Opening Player...");
     connect(player,SIGNAL(finished(int)),this,SLOT(playerFinished(int)));
     connect(player,SIGNAL(readyRead()),this,SLOT(playerReadyRead()));
@@ -413,6 +414,7 @@ void VideoOption::playerReadyRead(){
         playerTimer->start(500);
     }
 }
+
 
 
 

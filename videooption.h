@@ -11,6 +11,7 @@
 #include <QScrollBar>
 #include <QKeyEvent>
 #include <QTimer>
+#include <QEvent>
 
 #include "store.h"
 
@@ -37,7 +38,6 @@ public slots:
 
 protected slots:
     void closeEvent(QCloseEvent *event);
-
 private slots:
 
     void getVideoStream(QString ytIds, QString songId);
