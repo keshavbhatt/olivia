@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>317</height>
+    <height>406</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -191,8 +191,14 @@ border:none;</string>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <widget class="QGroupBox" name="quality_box">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>200</height>
+         </size>
+        </property>
         <property name="title">
-         <string>Select quality</string>
+         <string>Stream quality</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
@@ -201,16 +207,22 @@ border:none;</string>
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label">
+            <widget class="QLabel" name="ignore1">
              <property name="text">
-              <string>Select audio quality</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Select audio quality&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::RichText</enum>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_2">
+            <widget class="QLabel" name="ignore2">
              <property name="text">
-              <string>Select video Quality</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Select video quality&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::RichText</enum>
              </property>
             </widget>
            </item>
@@ -243,7 +255,6 @@ QScrollBar:vertical {
 	   background-color: transparent;
 	   border:none;
        width: 10px;
-       margin: 15px 0 22px 0;
    }
    QScrollBar::handle:vertical {
        background: grey;
@@ -265,7 +276,7 @@ QScrollBar:vertical {
                 <x>0</x>
                 <y>0</y>
                 <width>218</width>
-                <height>61</height>
+                <height>149</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -302,8 +313,7 @@ QScrollBar:vertical {
 	   background-color: transparent;
 	   border:none;
        width: 10px;
-       margin: 15px 0 22px 0;
-   }
+    }
    QScrollBar::handle:vertical {
        background: grey;
        min-height: 20px;
@@ -324,7 +334,7 @@ QScrollBar:vertical {
                 <x>0</x>
                 <y>0</y>
                 <width>217</width>
-                <height>61</height>
+                <height>149</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_7">

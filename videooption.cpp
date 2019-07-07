@@ -4,6 +4,7 @@
 #include "manifest_resolver.h"
 
 #include <QRadioButton>
+#include <QScrollBar>
 
 VideoOption::VideoOption(QWidget *parent,store *store) :
     QWidget(parent),
@@ -22,17 +23,7 @@ VideoOption::~VideoOption()
 
 void VideoOption::setMeta(QString songId){
 
-    foreach(QRadioButton *rBtn,ui->quality_box->findChildren<QRadioButton*>()){
-        rBtn->deleteLater();
-    }
-    ui->watch->setEnabled(false);
-    audioCode.clear();
-    videoCode.clear();
-    resolution_List.clear();
-    audioUrl.clear();
-    videoUrl.clear();
-    currentUrl.clear();
-    currentTitle.clear();
+    resetVars();
 
     QStringList trackMetaList = store_manager->getTrack(songId);
     QString ytIds,title,artist,album,base64,dominantColor,albumId,artistId,url;
@@ -63,6 +54,11 @@ void VideoOption::setMeta(QString songId){
     ui->album->setFont(font);
     ui->album->setText(album);
 
+    if(album=="undefined"){
+        ui->cover->setMaximumHeight(ui->track_widget->height());
+        ui->cover->setMaximumWidth(static_cast<int>(ui->track_widget->height()*1.50));
+    }
+
     base64 = base64.split("base64,").last();
     QByteArray ba = base64.toUtf8();
     QPixmap image;
@@ -78,11 +74,97 @@ void VideoOption::setMeta(QString songId){
 
 }
 
+void VideoOption::resetVars(){
+    foreach(QRadioButton *rBtn,ui->quality_box->findChildren<QRadioButton*>()){
+        rBtn->deleteLater();
+    }
+    ui->watch->setEnabled(false);
+    audioCode.clear();
+    videoCode.clear();
+    resolution_List.clear();
+    audioUrl.clear();
+    videoUrl.clear();
+    currentUrl.clear();
+    currentTitle.clear();
+    ui->cover->setMaximumSize(100,100);
+}
+
+void VideoOption::setMetaFromWeb(QVariant data){
+    resetVars();
+    QStringList trackMetaList = data.toString().split("<==>");
+    QString ytIds,title,artist,album,coverUrl,songId;
+
+    if(trackMetaList.count()>4){
+        songId = trackMetaList.at(0);
+        title = trackMetaList.at(1);
+        album = trackMetaList.at(2);
+        artist = trackMetaList.at(3);
+        coverUrl = trackMetaList.at(4);
+        ytIds = trackMetaList.at(5);
+    }else{
+        //TODO show error
+    }
+
+    QTextDocument text;
+    text.setHtml(title);
+    QString plainTitle = text.toPlainText();
+    currentTitle = plainTitle;
+
+    QFont font("Ubuntu");
+    font.setPixelSize(12);
+
+    ui->titlle->setFont(font);
+    ui->titlle->setText(plainTitle);
+
+    ui->artist->setFont(font);
+    ui->artist->setText(artist);
+
+    ui->album->setFont(font);
+    ui->album->setText(album);
+
+    if(album=="undefined"){
+        ui->cover->setMaximumHeight(ui->track_widget->height());
+        ui->cover->setMaximumWidth(static_cast<int>(ui->track_widget->height()*1.50));
+    }
+
+    LoadAvatar(coverUrl);
+
+    ui->progressBar->hide();
+    ui->option_frame->hide();
+
+    getVideoStream(ytIds,songId);
+}
+
+void VideoOption::LoadAvatar(const QUrl &avatarUrl)
+{
+   QNetworkAccessManager manager;
+   QEventLoop loop;
+   QNetworkReply *reply = manager.get(QNetworkRequest(avatarUrl));
+   QObject::connect(reply, &QNetworkReply::finished, &loop, [&reply, this,&loop](){
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        QByteArray jpegData = reply->readAll();
+        QPixmap pixmap;
+        pixmap.loadFromData(jpegData);
+        if (!pixmap.isNull())
+        {
+                ui->cover->setPixmap(pixmap);
+        }
+    }else{
+       // cover load error
+       //TODO load default cover
+    }
+    loop.quit();
+  });
+  loop.exec();
+}
 
 void VideoOption::removeStyle(){
     foreach(ElidedLabel *label, this->findChildren<ElidedLabel *>()){
         label->setStyleSheet("background-color:transparent");
     }
+    ui->ignore1->setStyleSheet("background-color:transparent");
+    ui->ignore2->setStyleSheet("background-color:transparent");
 }
 
 void VideoOption::closeEvent(QCloseEvent *event){
@@ -180,6 +262,8 @@ void VideoOption::ytdlFinished(int code){
                  }
             }
         }
+        ui->scrollArea->verticalScrollBar()->setValue(0);
+        ui->scrollArea_2->verticalScrollBar()->setValue(0);
         ui->option_frame->show();
     }
 
@@ -253,6 +337,7 @@ void VideoOption::mergeAndPlay(QString videoUrlStr,QString audioUrlStr){
     QProcess *player = new QProcess(this);
     connect(player,SIGNAL(finished(int)),this,SLOT(getUrlProcessFinished(int)));
     player->start("mpv",QStringList()<<"--title=MPV for Olivia - "+currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr);
+    ui->watch->setText("Opening Player...");
     connect(player,SIGNAL(finished(int)),this,SLOT(playerFinished(int)));
     connect(player,SIGNAL(readyRead()),this,SLOT(playerReadyRead()));
 }

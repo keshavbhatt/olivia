@@ -22,12 +22,14 @@ public:
     explicit VideoOption(QWidget *parent = nullptr,store *store = nullptr);
     ~VideoOption();
 
+
 signals:
     bool checkEngine();
 
 public slots:
-    void setMeta(QString ids);
     void removeStyle();
+    void setMeta(QString ids);
+    void setMetaFromWeb(QVariant data);
 
 protected slots:
     void closeEvent(QCloseEvent *event);
@@ -43,6 +45,8 @@ private slots:
     void mergeAndPlay(QString videoUrlStr, QString audioUrlStr);
     void playerReadyRead();
     void playerFinished(int code);
+    void resetVars();
+    void LoadAvatar(const QUrl &avatarUrl);
 private:
     Ui::VideoOption *ui;
     store *store_manager = nullptr;

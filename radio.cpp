@@ -14,6 +14,8 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     this->setObjectName("radio-manager");
     setting_path =  QStandardPaths::writableLocation(QStandardPaths::TempLocation);
 
+   // qDebug()<<QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+
     QString fifoDir= setting_path+"/fifos";
     QDir dir(fifoDir);
     if (!dir.exists())
@@ -201,7 +203,7 @@ void radio::loadMedia(QUrl url){
 void radio::radioReadyRead(){
 
     if(!radioPlaybackTimer->isActive()){
-        radioPlaybackTimer->start(700);
+        radioPlaybackTimer->start(1000);
     }
     QString output = radioProcess->readAll();
     if(output.contains("written to stdout")){
@@ -297,7 +299,7 @@ void radio::resumeRadio()
     radioState = "playing";
     emit radioStatus(radioState);
 
-    radioPlaybackTimer->start(700);
+    radioPlaybackTimer->start(1000);
 }
 
 void radio::changeVolume(int val)

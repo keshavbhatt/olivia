@@ -79,6 +79,7 @@ public:
     Q_INVOKABLE void setSearchTermAndOpenYoutube(QVariant term);
     Q_INVOKABLE void setThemeColor(QString); //sets themeColor in mainWindow
     Q_INVOKABLE void showAjaxError();
+    Q_INVOKABLE void web_watch_video(QVariant data);
 
     QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;

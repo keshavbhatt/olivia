@@ -1315,6 +1315,23 @@ void MainWindow::showTrackOption(){
     menu.exec(QCursor::pos());
 }
 
+void MainWindow::web_watch_video(QVariant data){
+    QString btn_style ="QPushButton{color: silver; background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 3px; padding-right: 3px; border-radius: 2px; outline: none;}"
+    "QPushButton:disabled { background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; /*border-radius: 2px;*/ color: #636363;}"
+    "QPushButton:hover{border: 1px solid #272727;background-color:#5A584F; color:silver ;}"
+    "QPushButton:pressed {background-color: #45443F;color: silver;padding-bottom:1px;}";
+
+    videoOption->setStyleSheet("");
+    videoOption->setStyleSheet("QWidget#VideoOption{"+ui->search->styleSheet()+"}"
+                                     +"QFrame{"+ui->search->styleSheet()+"}"
+                                     +btn_style);
+
+    videoOption->setMetaFromWeb(data);
+    videoOption->removeStyle();
+    videoOption->adjustSize();
+    videoOption->show();
+}
+
 
 void MainWindow::getAudioStream(QString ytIds,QString songId){
 

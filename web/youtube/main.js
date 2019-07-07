@@ -349,13 +349,15 @@ function track_option(track_id){
     artistId= arr[6];
     millis = arr[7];
 
-
     //onclick=\''+$('#'+track_id).parent().attr("onclick")+'\'
     //https://www.youtube.com/watch?v=eqBkiu4M0Os
     var target = $( this ),
             options = '<hr><ul style="padding-bottom:5px" data-inset="true">'+
                         '<li>'+
                             '<a href="#" id="'+songId+'_addToQueue" >Add to queue</a>'+
+                        '</li>'+
+                        '<li>'+
+                            '<a href="#" id="'+songId+'_watchVideo" >Watch Video</a>'+
                         '</li>'+
                         '<li>'+
                             '<a href="#" onclick="open_channel(\''+channelHref.trim()+'\', \''+songId+'\')" >Open Channel</a>'+
@@ -383,6 +385,12 @@ function track_option(track_id){
 
         $("#"+songId+"_addToQueue").on("click",function(){
                 $( this ).parent().parent().parent().parent().parent().find("#"+songId).click();
+                $( '#popup-'+songId ).remove();
+                $('body').css('overflow','auto');
+        });
+
+        $("#"+songId+"_watchVideo").on("click",function(){
+                mainwindow.web_watch_video(songId+"<==>"+title+"<==>"+album+"<==>"+artist+"<==>"+coverUrl+"<==>"+songId+"<br>");
                 $( '#popup-'+songId ).remove();
                 $('body').css('overflow','auto');
         });
