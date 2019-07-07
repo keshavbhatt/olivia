@@ -7,6 +7,10 @@
 #include <QStandardPaths>
 #include <QTextCodec>
 #include <QDebug>
+#include <QRadioButton>
+#include <QScrollBar>
+#include <QKeyEvent>
+#include <QTimer>
 
 #include "store.h"
 
@@ -19,7 +23,7 @@ class VideoOption : public QWidget
     Q_OBJECT
 
 public:
-    explicit VideoOption(QWidget *parent = nullptr,store *store = nullptr);
+    explicit VideoOption(QWidget *parent = nullptr,store *store = nullptr,QString fifo = "");
     ~VideoOption();
 
 
@@ -47,6 +51,8 @@ private slots:
     void playerFinished(int code);
     void resetVars();
     void LoadAvatar(const QUrl &avatarUrl);
+    void toggleFullscreen();
+    void deleteProcess(int code);
 private:
     Ui::VideoOption *ui;
     store *store_manager = nullptr;
@@ -56,6 +62,8 @@ private:
     QStringList resolution_List;
     QString audioCode,videoCode;
     QString videoUrl,audioUrl;
+    QString used_fifo_file_path;
+    QTimer *playerTimer = nullptr;
 
 
 

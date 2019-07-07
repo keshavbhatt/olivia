@@ -250,8 +250,6 @@ void radio::radioReadyRead(){
     }
 }
 
-
-
 void radio::radioFinished(int code){
     if(code == 0){
         radioState = "exit";
@@ -325,7 +323,6 @@ void radio::deleteProcess(int code){
          process->close();
          process->deleteLater();
      }
-
 }
 
 //kill radio process and all its child called from close event of parent

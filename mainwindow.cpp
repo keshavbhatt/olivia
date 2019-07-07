@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_settings();
     init_miniMode();
     init_lyrics();
-    init_videoOption();
+
 
     QTimer::singleShot(1000, [this]() {
         if(!checkEngine()){
@@ -63,6 +63,8 @@ MainWindow::MainWindow(QWidget *parent) :
     loadPlayerQueue();
     init_search_autoComplete();
     init_radio();
+    init_videoOption();
+
     browse();
     installEventFilters();
     loadSettings();
@@ -175,11 +177,11 @@ void MainWindow::closeEvent(QCloseEvent *event){
 
 void MainWindow::init_videoOption(){
     if(videoOption == nullptr){
-        videoOption = new VideoOption(this,store_manager);
+        videoOption = new VideoOption(nullptr,store_manager,radio_manager->used_fifo_file_path);
 
         videoOption->setWindowTitle(QApplication::applicationName()+" - Video Option");
-        videoOption->setWindowFlags(Qt::Dialog);
-        videoOption->setWindowModality(Qt::NonModal);
+        videoOption->setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint | Qt::WindowFullscreenButtonHint);
+        videoOption->setWindowModality(Qt::WindowModal);
     }
 }
 

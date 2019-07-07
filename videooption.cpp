@@ -3,10 +3,9 @@
 #include "elidedlabel.h"
 #include "manifest_resolver.h"
 
-#include <QRadioButton>
-#include <QScrollBar>
 
-VideoOption::VideoOption(QWidget *parent,store *store) :
+
+VideoOption::VideoOption(QWidget *parent,store *store,QString fifopath):
     QWidget(parent),
     ui(new Ui::VideoOption)
 {
@@ -14,6 +13,51 @@ VideoOption::VideoOption(QWidget *parent,store *store) :
     if(store_manager==nullptr){
         store_manager = store;
     }
+    used_fifo_file_path = fifopath;
+    playerTimer = new QTimer(nullptr);
+
+    connect(playerTimer,&QTimer::timeout,[=](){
+        QProcess *fifo = new QProcess(this);
+        connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
+        connect(fifo,&QProcess::readyRead,[=](){
+            QString out = fifo->readAll();
+            if(out.contains("success")){
+                out = out.split(",").first().split(":").last();
+                if(out=="true"){
+                    if(this->windowState()!=Qt::WindowFullScreen){
+                        this->setWindowState(Qt::WindowFullScreen);
+                    }
+                }else{
+                    if(this->windowState()==Qt::WindowFullScreen){
+                        this->setWindowState(Qt::WindowNoState);
+                     }
+                }
+            }
+        });
+        fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"fullscreen\"]}' | socat - "+ used_fifo_file_path);
+        fifo->waitForStarted();
+    });
+}
+
+void VideoOption::toggleFullscreen()
+{
+    QProcess *fifo = new QProcess(this);
+    connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
+   // fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"volume\","+QString::number(volume)+"]}' | socat - "+ used_fifo_file_path);
+}
+
+
+void VideoOption::deleteProcess(int code){
+     Q_UNUSED(code);
+     QProcess *process = qobject_cast<QProcess*>(sender());
+     if(process->state()==QProcess::Running){
+         process->terminate();
+         process->waitForFinished();
+         process->deleteLater();
+     }else{
+         process->close();
+         process->deleteLater();
+     }
 }
 
 VideoOption::~VideoOption()
@@ -180,9 +224,7 @@ void VideoOption::closeEvent(QCloseEvent *event){
         }
         event->accept();
     }
-//QWidget::closeEvent(event);
 }
-
 
 void VideoOption::getVideoStream(QString ytIds,QString songId){
 
@@ -290,6 +332,7 @@ void VideoOption::ytdlFinished(int code){
     senderProcess->close();
     if(senderProcess != nullptr)
     senderProcess->deleteLater();
+    this->setWindowState(Qt::WindowNoState);
 }
 
 void VideoOption::update_audio_video_code(bool checked){
@@ -344,7 +387,8 @@ void VideoOption::mergeAndPlay(QString videoUrlStr,QString audioUrlStr){
     QProcess *player = new QProcess(this);
     player->setObjectName("player");
     connect(player,SIGNAL(finished(int)),this,SLOT(getUrlProcessFinished(int)));
-    player->start("mpv",QStringList()<<"-wid="+QString::number(this->winId())<<"--title=MPV for Olivia - "+currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr);
+    player->start("mpv",QStringList()<<"-wid="+QString::number(this->winId())<<"--title=MPV for Olivia - "+
+                  currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr<<"--input-ipc-server="+used_fifo_file_path);
     ui->watch->setText("Opening Player...");
     connect(player,SIGNAL(finished(int)),this,SLOT(playerFinished(int)));
     connect(player,SIGNAL(readyRead()),this,SLOT(playerReadyRead()));
@@ -355,13 +399,21 @@ void VideoOption::playerFinished(int code){
     ui->watch->setText("Watch");
     ui->watch->setEnabled(true);
     this->setWindowTitle(QApplication::applicationName()+" - Video Option");
+    if(this->windowState()==Qt::WindowFullScreen){
+        this->setWindowState(Qt::WindowNoState);
+    }
+    playerTimer->stop();
 }
 
 void VideoOption::playerReadyRead(){
     ui->watch->setEnabled(false);
     ui->watch->setText("Playing...");
     this->setWindowTitle("MPV for Olivia - "+currentTitle);
+    if(!playerTimer->isActive()){
+        playerTimer->start(500);
+    }
 }
+
 
 
 
