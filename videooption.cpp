@@ -115,17 +115,17 @@ void VideoOption::processYtdlQueue(){
 
         ytdlQueue.removeAt(0);
         if(ytdlProcess == nullptr){
-                ytdlProcess = new QProcess(this);
-                ytdlProcess->setObjectName(songId);
+            ytdlProcess = new QProcess(this);
+            ytdlProcess->setObjectName(songId);
 
-                QString url = "https://www.youtube.com/watch?v="+ytIds.split("<br>").first();
-                currentUrl = url;
+            QString url = "https://www.youtube.com/watch?v="+ytIds.split("<br>").first();
+            currentUrl = url;
 
-                QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-                ytdlProcess->start("python",QStringList()<<addin_path+"/core"<<"-F"<<url);
-                ui->progressBar->show();
-                ytdlProcess->waitForStarted();
-                connect(ytdlProcess,SIGNAL(finished(int)),this,SLOT(ytdlFinished(int)));
+            QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+            ytdlProcess->start("python",QStringList()<<addin_path+"/core"<<"-F"<<url);
+            ui->progressBar->show();
+            ytdlProcess->waitForStarted();
+            connect(ytdlProcess,SIGNAL(finished(int)),this,SLOT(ytdlFinished(int)));
         }
     }
 
@@ -151,31 +151,31 @@ void VideoOption::ytdlFinished(int code){
         }
 
         foreach(QString format,formats){
-            if( format.contains("audio only") && !format.isEmpty()){
-                     QString code,codec,resolution,size;
-                     code = format.split(" ").first();
-                     codec = format.split(code+" ").last().trimmed().split(" ").first();
-                     resolution = format.split(codec+" ").at(1).trimmed().split(" ").first();
-                     size = format.split(",").last().trimmed().split(" ").first();
-                     QRadioButton *button = new QRadioButton(resolution+"-"+size, this);
-                     button->setObjectName("audio-"+code);
-                     connect(button,SIGNAL(clicked(bool)),this,SLOT(update_audio_video_code(bool)));
-                     ui->quality_box_layout_audio->addWidget(button);
+            if(format.contains("audio only") && !format.isEmpty()){
+                 QString code,codec,resolution,size;
+                 code = format.split(" ").first();
+                 codec = format.split(code+" ").last().trimmed().split(" ").first();
+                 resolution = format.split(codec+" ").at(1).trimmed().split(" ").first();
+                 size = format.split(",").last().trimmed().split(" ").first();
+                 QRadioButton *button = new QRadioButton(resolution+"("+size+")", this);
+                 button->setObjectName("audio-"+code);
+                 connect(button,SIGNAL(clicked(bool)),this,SLOT(update_audio_video_code(bool)));
+                 ui->quality_box_layout_audio->addWidget(button);
             }
 
-            if( format.contains("video only") && !format.isEmpty()){
-                     QString code,codec,resolution,size;
-                     code = format.split(" ").first();
-                     codec = format.split(code+" ").last().trimmed().split(" ").first();
-                     resolution = format.split(codec+" ").at(1).trimmed().split(" ").first();
-                     size = format.split(",").last().trimmed().split(" ").first();
-                     if(!resolution_List.contains(resolution)){
-                         QRadioButton *button = new QRadioButton(resolution+"-"+size, this);
-                         button->setObjectName("video-"+code);
-                         connect(button,SIGNAL(clicked(bool)),this,SLOT(update_audio_video_code(bool)));
-                         ui->quality_box_layout_video->addWidget(button);
-                         resolution_List.append(resolution);
-                     }
+            if(format.contains("video only") && !format.isEmpty()){
+                 QString code,codec,resolution,size;
+                 code = format.split(" ").first();
+                 codec = format.split(code+" ").last().trimmed().split(" ").first();
+                 resolution = format.split(codec+" ").at(1).trimmed().split(" ").first();
+                 size = format.split(",").last().trimmed().split(" ").first();
+                 if(!resolution_List.contains(resolution)){
+                     QRadioButton *button = new QRadioButton(resolution+"("+size+")", this);
+                     button->setObjectName("video-"+code);
+                     connect(button,SIGNAL(clicked(bool)),this,SLOT(update_audio_video_code(bool)));
+                     ui->quality_box_layout_video->addWidget(button);
+                     resolution_List.append(resolution);
+                 }
             }
         }
         ui->option_frame->show();
@@ -198,8 +198,6 @@ void VideoOption::ytdlFinished(int code){
     if(senderProcess != nullptr)
     senderProcess->deleteLater();
 }
-
-
 
 void VideoOption::update_audio_video_code(bool checked){
     QRadioButton *button = qobject_cast<QRadioButton*>(sender());
@@ -228,6 +226,8 @@ void VideoOption::getUrlForFormatsAndPLay(QString audioFormat,QString videoForma
     connect(audioP,SIGNAL(finished(int)),this,SLOT(getUrlProcessFinished(int)));
     audioP->start("python",QStringList()<<addin_path+"/core"<<"-f"<<videoFormat+"+"+audioFormat<<"--get-url"<<currentUrl);
     ui->progressBar->show();
+    ui->watch->setText("Merging formats...");
+    ui->watch->setEnabled(false);
     audioP->waitForStarted();
 }
 
