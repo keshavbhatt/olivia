@@ -95,5 +95,7 @@
         <file>icons/eq_button.png</file>
         <file>icons/eq_button_disabled.png</file>
         <file>icons/others/donate.png</file>
+        <file>icons/shuffle_button.png</file>
+        <file>icons/shuffle_button_disabled.png</file>
     </qresource>
 </RCC>
