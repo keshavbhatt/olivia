@@ -22,17 +22,22 @@ Run Olivia with the following command:
 
 **Features**
 * Allows search music online
+* Smart Music recommendation, can get you songs related to ant particular song 
 * Allows organize music 
 * Allows download song while streaming
-* Allows search youtube and add result to library
-* Plays audio only of youtube streams (saves data bandwidth)
+* Allows search YouTube and add result to library, sort results and other YouTube features
+* Plays audio only of YouTube streams (saves data bandwidth)
 * Support themes , Dynamic theme based on album art
 * Search suggestions
 * Player mini mode included , minimal player widget with always on capability and allows set transparency.
 * Internet radio, allows play more than 25k online radio stations, list them sort them according to language and country
 * Top music chart, allows list top 100 songs country wise
-* More features like cloud synchronisation of music using an online account coming soon
-
+* Top albums chart, allows list top 100 albums county wise
+* Beautiful Client side Decoration
+* Lyrics of playing songs and seperate lyrics search
+* Powerful audio equalizers and audio filters.
+* Watch video of any song you want in your preferred audio and video quality
+* More features like cloud synchronization of music using an online account coming soon
 
 ﻿**Consider Donating if you want this music player grow further**
 
