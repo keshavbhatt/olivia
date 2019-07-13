@@ -150,8 +150,8 @@ void MainWindow::installEventFilters(){
     ui->windowControls->installEventFilter(this);
     ui->label_6->installEventFilter(this);
     ui->nowPlayingGrip->installEventFilter(this);
-    qApp->installEventFilter(ui->next);
-    qApp->installEventFilter(ui->previous);
+    ui->next->installEventFilter(this);
+    ui->previous->installEventFilter(this);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event){
@@ -351,6 +351,7 @@ void MainWindow::dynamicThemeChanged(bool enabled){
 
 void MainWindow::loadSettings(){
 
+    ui->shuffle->setChecked(settingsObj.value("shuffle").toBool());
     settingsUi.saveAfterBuffer->setChecked(settingsObj.value("saveAfterBuffer","true").toBool());
     settingsUi.showSearchSuggestion->setChecked(settingsObj.value("showSearchSuggestion","true").toBool());
     settingsUi.miniModeStayOnTop->setChecked(settingsObj.value("miniModeStayOnTop","false").toBool());
@@ -603,6 +604,12 @@ void MainWindow::init_app(){
      foreach (QPushButton *button, ui->controls_widget->findChildren<QPushButton*>()) {
          button->setStyleSheet(btn_style_3);
      }
+     ui->state->hide();
+     connect(ui->state,&QLineEdit::textChanged,[=](){
+         utils* util = new utils(this);
+         ui->visible_state->setText(util->toCamelCase(ui->state->text()));
+         util->deleteLater();
+     });
 }
 
 //used to set county settings in youtube right now
@@ -1776,8 +1783,6 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
     ui->nowplaying_widget->setImage(*cover->pixmap());
 
-    if(!ui->state->isVisible())
-        ui->state->show();
     ui->state->setText("loading");
 
     ElidedLabel *title2 = this->findChild<ElidedLabel *>("nowP_title");
@@ -2578,11 +2583,57 @@ void MainWindow::reloadREquested(QString dataType,QString query){
     }else{
         ui->webview->page()->mainFrame()->evaluateJavaScript(dataType+"(\""+query+"\")");
     }
+}
 
+//currently used by suffle track fucntion only
+void MainWindow::getEnabledTracks(QListWidget *currentListWidget){
+
+    if(settingsObj.value("shuffle").toBool()){
+        shuffledPlayerQueue.clear();
+        for(int i=0;i<currentListWidget->count();i++){
+            if(currentListWidget->itemWidget(currentListWidget->item(i))->isEnabled()){
+                QString songId = currentListWidget->itemWidget(currentListWidget->item(i))->findChild<QLineEdit *>("songId")->text().trimmed();
+                shuffledPlayerQueue.append(songId);
+            }
+        }
+    }
 }
 
 void MainWindow::assignNextTrack(QListWidget *list ,int index){
-    QString songId = list->itemWidget(list->item(index))->findChild<QLineEdit *>("songId")->text().trimmed();
+
+    //shuffled track assignment
+    if(settingsObj.value("shuffle").toBool()){
+        getEnabledTracks(list);
+        if(!shuffledPlayerQueue.isEmpty()){
+            QString shuffledSongId;
+            int shuffledIndex = qrand() % ((shuffledPlayerQueue.count() + 1) - 1) + 0;
+
+            shuffledSongId = shuffledPlayerQueue.at(shuffledIndex);
+
+            if(!shuffledSongId.isEmpty()){
+                ui->next->setToolTip(htmlToPlainText(store_manager->getTrack(shuffledSongId).at(1)));
+            }else{
+                ui->next->setToolTip("");
+            }
+            ui->next->disconnect();
+            connect(ui->next,&QPushButton::clicked,[=](){
+                list->setCurrentRow(shuffledIndex);
+                listItemDoubleClicked(list,list->item(shuffledIndex));
+                list->scrollToItem(list->item(shuffledIndex));
+            });
+            return;
+        }
+    }
+
+    //normal next track algo
+    QString songId;
+
+    if(settingsObj.value("shuffle",false).toBool()){
+
+    }else{
+         songId = list->itemWidget(list->item(index))->findChild<QLineEdit *>("songId")->text().trimmed();
+    }
+
     if(!songId.isEmpty()){
         ui->next->setToolTip(htmlToPlainText(store_manager->getTrack(songId).at(1)));
     }else{
@@ -2599,6 +2650,31 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
 
 void MainWindow::assignPreviousTrack(QListWidget *list ,int index)
 {
+    //shuffled track assignment
+    if(settingsObj.value("shuffle").toBool()){
+        getEnabledTracks(list);
+        if(!shuffledPlayerQueue.isEmpty()){
+            QString shuffledSongId;
+            int shuffledIndex = qrand() % ((shuffledPlayerQueue.count() + 1) - 1) + 0;
+
+            shuffledSongId = shuffledPlayerQueue.at(shuffledIndex);
+
+            if(!shuffledSongId.isEmpty()){
+                ui->previous->setToolTip(htmlToPlainText(store_manager->getTrack(shuffledSongId).at(1)));
+            }else{
+                ui->previous->setToolTip("");
+            }
+            ui->previous->disconnect();
+            connect(ui->previous,&QPushButton::clicked,[=](){
+                list->setCurrentRow(shuffledIndex);
+                listItemDoubleClicked(list,list->item(shuffledIndex));
+                list->scrollToItem(list->item(shuffledIndex));
+            });
+            return;
+        }
+    }
+
+    //normal previous track algo
     QString songId = list->itemWidget(list->item(index))->findChild<QLineEdit *>("songId")->text().trimmed();
     if(!songId.isEmpty()){
         ui->previous->setToolTip(htmlToPlainText(store_manager->getTrack(songId).at(1)));
@@ -2997,5 +3073,20 @@ void MainWindow::radioProcessReady(){
         QTimer::singleShot(500,eq,SLOT(triggerEq()));
     }
 }
-
 //================================Equalizer=========================================================
+
+
+//================================Shuffle===========================================================
+void MainWindow::on_shuffle_toggled(bool checked)
+{
+    settingsObj.setValue("shuffle",checked);
+    if(checked){
+        ui->shuffle->setIcon(QIcon(":/icons/shuffle_button.png"));
+        ui->shuffle->setToolTip("Shuffle enabled");
+    }else{
+        ui->shuffle->setIcon(QIcon(":/icons/shuffle_button_disabled.png"));
+        ui->shuffle->setToolTip("Shuffle disabled");
+    }
+}
+//================================Shuffle===========================================================
+

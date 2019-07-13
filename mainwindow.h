@@ -204,6 +204,8 @@ private slots:
     }
 
 
+    void on_shuffle_toggled(bool checked);
+
 private:
     bool animationRunning = false;
     bool isLoadingResults;
@@ -244,6 +246,8 @@ private:
     Ui::track track_ui;
     Youtube *youtube;
     VideoOption *videoOption = nullptr;
+    QStringList shuffledPlayerQueue;
+    void getEnabledTracks(QListWidget*);
 };
 
 class SelectColorButton : public QPushButton
