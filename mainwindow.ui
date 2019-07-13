@@ -793,6 +793,9 @@ background-color: rgba(42,130,218,169);</string>
                </item>
                <item>
                 <widget class="QWidget" name="nowPlayingGrip" native="true">
+                 <property name="mouseTracking">
+                  <bool>true</bool>
+                 </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_12">
                   <property name="leftMargin">
                    <number>0</number>
@@ -842,11 +845,14 @@ background-color: rgba(42,130,218,169);</string>
                       <pointsize>14</pointsize>
                      </font>
                     </property>
+                    <property name="mouseTracking">
+                     <bool>true</bool>
+                    </property>
                     <property name="styleSheet">
                      <string notr="true">background-color: transparent;</string>
                     </property>
                     <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;NOW PLAYING&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;.    .   .  . . .  .   .    .&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -857,7 +863,7 @@ background-color: rgba(42,130,218,169);</string>
                    <widget class="QLineEdit" name="state">
                     <property name="maximumSize">
                      <size>
-                      <width>5</width>
+                      <width>0</width>
                       <height>16777215</height>
                      </size>
                     </property>

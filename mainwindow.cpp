@@ -150,6 +150,7 @@ void MainWindow::installEventFilters(){
     ui->windowControls->installEventFilter(this);
     ui->label_6->installEventFilter(this);
     ui->nowPlayingGrip->installEventFilter(this);
+    ui->visible_state->installEventFilter(this);
     ui->next->installEventFilter(this);
     ui->previous->installEventFilter(this);
 }
@@ -607,7 +608,8 @@ void MainWindow::init_app(){
      ui->state->hide();
      connect(ui->state,&QLineEdit::textChanged,[=](){
          utils* util = new utils(this);
-         ui->visible_state->setText(util->toCamelCase(ui->state->text()));
+         ui->visible_state->setTextFormat(Qt::RichText);
+         ui->visible_state->setText("<p align=\"center\" ><span style=\"font-size:11pt;\">"+util->toCamelCase(ui->state->text())+"</span></p>");
          util->deleteLater();
      });
 }
@@ -3082,10 +3084,10 @@ void MainWindow::on_shuffle_toggled(bool checked)
     settingsObj.setValue("shuffle",checked);
     if(checked){
         ui->shuffle->setIcon(QIcon(":/icons/shuffle_button.png"));
-        ui->shuffle->setToolTip("Shuffle enabled");
+        ui->shuffle->setToolTip("Shuffle (Enabled)");
     }else{
         ui->shuffle->setIcon(QIcon(":/icons/shuffle_button_disabled.png"));
-        ui->shuffle->setToolTip("Shuffle disabled");
+        ui->shuffle->setToolTip("Shuffle (Disabled)");
     }
 }
 //================================Shuffle===========================================================
