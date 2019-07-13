@@ -836,7 +836,7 @@ background-color: rgba(42,130,218,169);</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="state">
+                   <widget class="QLabel" name="visible_state">
                     <property name="font">
                      <font>
                       <pointsize>14</pointsize>
@@ -850,6 +850,16 @@ background-color: rgba(42,130,218,169);</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="state">
+                    <property name="maximumSize">
+                     <size>
+                      <width>5</width>
+                      <height>16777215</height>
+                     </size>
                     </property>
                    </widget>
                   </item>
@@ -1641,7 +1651,7 @@ QScrollBar:vertical {
             </size>
            </property>
            <property name="toolTip">
-            <string>Equalizers</string>
+            <string/>
            </property>
            <property name="styleSheet">
             <string notr="true">border:none;
@@ -1659,6 +1669,39 @@ background-color: transparent;</string>
              <width>22</width>
              <height>22</height>
             </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="shuffle">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string/>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border:none;
+background-color: transparent;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/shuffle_button.png</normaloff>:/icons/shuffle_button.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>22</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
