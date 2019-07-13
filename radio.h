@@ -82,7 +82,7 @@ private slots:
 
 private:
     QProcess *radioProcess = nullptr;
-    QString setting_path;
+    QString tmp_path,setting_path;
 
     QString streamUrl;
     QString state_line;
