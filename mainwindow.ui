@@ -839,14 +839,33 @@ background-color: rgba(42,130,218,169);</string>
                    </widget>
                   </item>
                   <item>
+                   <spacer name="horizontalSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
                    <widget class="QLabel" name="visible_state">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="font">
                      <font>
                       <pointsize>14</pointsize>
                      </font>
                     </property>
                     <property name="mouseTracking">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">background-color: transparent;</string>
@@ -857,7 +876,23 @@ background-color: rgba(42,130,218,169);</string>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
                     </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::NoTextInteraction</set>
+                    </property>
                    </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_4">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                   <item>
                    <widget class="QLineEdit" name="state">

@@ -150,7 +150,6 @@ void MainWindow::installEventFilters(){
     ui->windowControls->installEventFilter(this);
     ui->label_6->installEventFilter(this);
     ui->nowPlayingGrip->installEventFilter(this);
-    ui->visible_state->installEventFilter(this);
     ui->next->installEventFilter(this);
     ui->previous->installEventFilter(this);
 }
