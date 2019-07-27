@@ -667,7 +667,7 @@ QString store::web_print_fav_radio_channels(){
         country = trackList.at(4);
         base64 = trackList.at(5);
 
-        recordObject.insert("songId",id);
+        recordObject.insert("channelId",id);
         recordObject.insert("title",title);
         recordObject.insert("lang",lang.remove("'"));
         recordObject.insert("country",country.remove("'"));
