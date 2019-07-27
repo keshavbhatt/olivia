@@ -24,11 +24,8 @@
     background-color: transparent !important;
 }
 
-#radio_page {
-    background: transparent !important;
-}
 
-#stations_page {
+#stations_page, #favourite_page, #radio_page {
     background: transparent !important;
 }
 
@@ -36,6 +33,7 @@
 body {
     background: transparent !important;
 }
+
 .ui-bar-b{
     background-color: rgba(29, 29, 29, 0.6);
 }
@@ -56,22 +54,9 @@ html .ui-bar-b .ui-btn.ui-btn-active{
     border-color: transparent !important;
 }
 
-/*loader overlay*/
-.ui-loader-background {
-    width:100%;
-    height:100%;
-    top:0;
-    margin: 0;
-    background: rgba(0, 0, 0, 0.3);
-    display:none;
-    position: fixed;
-    z-index:100;
-}
 
 
-.ui-loading .ui-loader-background {
-    display:block;
-}
+
 
 .ui-listview>li {
     background-color: transparent !important;
@@ -85,8 +70,20 @@ html .ui-bar-b .ui-btn.ui-btn-active{
 background: transparent !important;
 }
 
-.ui-listview>li.ui-li-has-alt>.ui-btn+.ui-btn{
-    border-color:rgba(24, 24, 24, 0.18);
+/*loader overlay*/
+.ui-loader-background {
+    width:100%;
+    height:100%;
+    top:0;
+    margin: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display:none;
+    position: fixed;
+    z-index:100;
+}
+
+.ui-loading .ui-loader-background {
+    display:block;
 }
 
 .ui-tabs{

@@ -144,8 +144,7 @@ var base64; //returns base64 versio of album art to c++
 
 var html_data; //global html_data for youtube search
 var stations_loaded = false;
-var track_loaded = false;
-var artist_loaded = false;
+var favourite_loaded = false;
 
 
 $(document).ready(function($) {
@@ -302,6 +301,113 @@ function station_search(query){
 
 
 
+// open popup on channel_option is clicked
+//playStation("112504=,=http://stream-uk1.radioparadise.com/aac-64=,=Radio Paradise=,=United States of America=,=english")
+function channel_option(channel_id){
+    var streamDetail = $('#'+channel_id).parent().attr("onclick").split("playStation(\"")[1].split(");")[0];
+    var arr = streamDetail.split("=,=")
+    var channelHref = arr[1];
+    title = arr[2];
+    album = arr[3]; //country
+    artist = arr[4]; //lang
+    coverUrl = "qrc:/web/radio/station_cover.jpg";
+    songId = channel_id;
 
+    //onclick=\''+$('#'+channel_id).parent().attr("onclick")+'\'
+    //https://www.youtube.com/watch?v=eqBkiu4M0Os
+    var target = $( this ),
+            options = '<hr><ul style="padding-bottom:5px" data-inset="true">'+
+                        '<li>'+
+                            '<a href="#" id="'+songId+'_playChannel" >Play Channel</a>'+
+                        '</li>'+
+                        '<li>'+
+                            '<a href="#" id="'+songId+'_addFavourite" >Add to Favourite</a>'+
+                        '</li>'+
+                      '</ul>',
+                link = "<span >id: "+ songId+"</span>",
+                closebtn = '<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>',
+                header = '<div style="margin: -12px -12px 0px -12px;" data-role="header"><h2>Options</h2></div>',
+                img = '<img style="padding: 20px 0px 10px 0px;" src="'+coverUrl+'" alt="' + title + '" class="photo">',
+                details = $('#'+channel_id).parent().find("p")[0].outerHTML,
+                popup = '<div style="text-align:center;padding:12px 12px; max-width:400px" data-transition="slideup" data-overlay-theme="b" data-dismissible="true" data-position-to="window" data-role="popup" id="popup-' + songId + '" data-short="' + songId +'"  data-corners="false" data-tolerance="15"></div>';
+            $( link ).appendTo($( details ));
+            // Create the popup.
+            $( header )
+                .appendTo( $( popup )
+                .appendTo( $.mobile.activePage )
+                .popup() )
+                .toolbar()
+                .before( closebtn )
+                .after( img + details + options);
+                $( "#popup-" + songId ).find('p').attr('style',"");
+                $( "#popup-" + songId ).find("ul").listview();
+                $( "#popup-" + songId ).popup( "open" ).trigger("create");
+                $('body').css('overflow','hidden');
+
+
+        $("#"+songId+"_playChannel").on("click",function(){
+                playStation(streamDetail);
+                $( '#popup-'+songId ).remove();
+                $('body').css('overflow','auto');
+        });
+
+        $("#"+songId+"_addFavourite").on("click",function(){
+                mainwindow.saveRadioChannelToFavourite(arr);
+                $( '#popup-'+songId ).remove();
+                $('body').css('overflow','auto');
+                favourite_loaded = false;
+        });
+
+        $( document ).on( "popupbeforeposition", $('#popup-'+songId ), function() {
+            $( '#popup-'+songId).find("ul").listview();
+            $('body').css('overflow','hidden');
+        });
+
+        // Remove the popup after it has been closed
+        $( document ).on( "popupafterclose", $('#popup-'+songId), function() {
+            $( '#popup-'+songId ).remove();
+            $('body').css('overflow','auto');
+        });
+}
+
+
+function open_radio_page(){
+    $.mobile.changePage($('#radio_page'));
+}
+
+function open_favourite_page(){
+    $.mobile.changePage($('#favourite_page'));
+    if(!favourite_loaded){
+        load_favourite();
+    }
+}
+
+function load_favourite(){
+    $("#fav_stations_result").empty();
+    showLoading();
+    var json = JSON.parse(store.web_print_fav_radio_channels()); // Data is returned in json format
+    var $html = "";
+    $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" favourite radio stations");
+    for(var i= 0; i < json.length;i++){
+        var streamDetail = json[i].songId+"=,="+json[i].url+"=,="+json[i].title+"=,="+json[i].country+"=,="+json[i].lang;
+         $html = $html+
+            "<li onclick='playStation(\""+streamDetail+"\")' data-filtertext='"+json[i].title+" "+json[i].country+" "+json[i].lang+"' ><a>"+
+            "<img id='"+json[i].songId+"' style='max-width:144px;max-height:142px;height:142px'  src='"+json[i].base64+"' \>"+
+                    "<p style='line-height: 36px;'>"+
+                        "Title: "+json[i].title+
+                        "<br>"+
+                        "Country: "+json[i].country+
+                        "<br>"+
+                        "Language: "+json[i].lang+
+                    "</p>"+
+               " </a>"+
+            "</li>";
+    }
+    $.mobile.loading("hide");
+    $("#fav_stations_result").append($html).listview("refresh");
+    $('#favourite_page .ui-content').trigger('create');
+    $('#favourite_page .ui-content').fadeIn('slow');
+    favourite_loaded = true;
+}
 
 

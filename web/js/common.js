@@ -57,16 +57,17 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
         var songIdStr = "#"+songId;
 
         var maxWidth,width;
-        if($(songIdStr).css("max-width")!== "undefined"){
+        if($(songIdStr).css("max-width") !== "undefined"){
             maxWidth = $(songIdStr).css("max-width");
             if($(songIdStr).width()!=="undefined" || $(songIdStr)){
                      width = $(songIdStr).width().toString();
             }
         }else{
-            maxWidth = "100";
+            maxWidth = "100px";
+            width = "100";
         }
         //adds nowPlaying pages
-        $(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth.toString()+'px');// removed width:'+width.toString()+'px;
+        $(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth);// removed width:'+width.toString()+'px;
         $(songIdStr).each(function( index ) {
           $( this ).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
         });

@@ -27,7 +27,6 @@
               <ul>
                 <li><a onclick="open_radio_page()" id="radio" >INTERNET RADIO</a></li>
                 <li><a onclick="open_favourite_page()" id="favourite" >FAVOURITE</a></li>
-                <li><a onclick="open_recent_page()" id="recent" >RECENTLY PLAYED</a></li>
               </ul>
             </div>
          </div> <!--tabs-->
@@ -99,17 +98,30 @@
     <!--    station page-->
     <div id="stations_page" data-role="page" data-theme="b" data-title="STATIONS">
         <div role="main" class="ui-content">
-        <!-- search language -->
-        <form class="ui-filterable">
-             <input id="station-list-filter-input" data-type="search" placeholder="Filter listed stations by name,tags,country,state,languages etc...">
-        </form>
-        <ul class="list" id="stations_result"  data-input="#station-list-filter-input" data-filter="true" data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
-            <!--load data here-->
-        </ul>
-        <div data-role="footer" data-position="fixed" data-tap-toggle="false">
-            <a style="display: block;background-color: rgba(36, 142, 179, 0.5)" onclick="$.mobile.changePage($('#radio_page'));" class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all">Back to Search</a>
-        </div><!-- /footer -->
+            <!-- search language -->
+            <form class="ui-filterable">
+                 <input id="station-list-filter-input" data-type="search" placeholder="Filter listed stations by name,tags,country,state,languages etc...">
+            </form>
+            <ul class="list" id="stations_result"  data-input="#station-list-filter-input" data-filter="true" data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
+                <!--load data here-->
+            </ul>
+            <div data-role="footer" data-position="fixed" data-tap-toggle="false">
+                <a style="display: block;background-color: rgba(36, 142, 179, 0.5)" onclick="$.mobile.changePage($('#radio_page'));" class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all">Back to Search</a>
+            </div><!-- /footer -->
+        </div>
     </div>
+
+    <!--   favourite station page-->
+    <div id="favourite_page" data-role="page" data-theme="b" data-title="FAVOURITE">
+        <div role="main" class="ui-content">
+            <!-- search channels -->
+            <form class="ui-filterable">
+                 <input id="fav-station-list-filter-input" data-type="search" placeholder="Filter your favourite stations by name,tags,country,state,languages etc...">
+            </form>
+            <ul class="list" id="fav_stations_result"  data-input="#fav-station-list-filter-input" data-filter="true" data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
+                <!--load data here-->
+            </ul>
+        </div>
     </div>
 </body>
 </html>
