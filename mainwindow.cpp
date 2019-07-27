@@ -352,6 +352,8 @@ void MainWindow::dynamicThemeChanged(bool enabled){
 void MainWindow::loadSettings(){
 
     ui->shuffle->setChecked(settingsObj.value("shuffle").toBool());
+    ui->shuffle->setIcon(QIcon(settingsObj.value("shuffle").toBool()?":/icons/shuffle_button.png":":/icons/shuffle_button_disabled.png"));
+
     settingsUi.saveAfterBuffer->setChecked(settingsObj.value("saveAfterBuffer","true").toBool());
     settingsUi.showSearchSuggestion->setChecked(settingsObj.value("showSearchSuggestion","true").toBool());
     settingsUi.miniModeStayOnTop->setChecked(settingsObj.value("miniModeStayOnTop","false").toBool());
@@ -3093,6 +3095,8 @@ void MainWindow::on_shuffle_toggled(bool checked)
         ui->shuffle->setToolTip("Shuffle (Disabled)");
     }
 }
+
+
 //================================Shuffle===========================================================
 
 
