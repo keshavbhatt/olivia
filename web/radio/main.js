@@ -395,18 +395,20 @@ function load_favourite(){
     var $html = "";
     $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" favourite radio stations");
     for(var i= 0; i < json.length;i++){
-        var streamDetail = json[i].songId+"=,="+json[i].url+"=,="+json[i].title+"=,="+json[i].country+"=,="+json[i].lang;
+        var streamDetail = json[i].channelId+"=,="+json[i].url+"=,="+json[i].title+"=,="+json[i].country+"=,="+json[i].lang;
          $html = $html+
-            "<li onclick='playStation(\""+streamDetail+"\")' data-filtertext='"+json[i].title+" "+json[i].country+" "+json[i].lang+"' ><a>"+
-            "<img id='"+json[i].songId+"' style='max-width:144px;max-height:142px;height:142px'  src='"+json[i].base64+"' \>"+
-                    "<p style='line-height: 36px;'>"+
-                        "Title: "+json[i].title+
-                        "<br>"+
-                        "Country: "+json[i].country+
-                        "<br>"+
-                        "Language: "+json[i].lang+
-                    "</p>"+
-               " </a>"+
+            "<li  data-filtertext='"+json[i].title+" "+json[i].country+" "+json[i].lang+"' >"+
+                "<a onclick='playStation(\""+streamDetail+"\")'>"+
+                "<img id='"+json[i].channelId+"' style='max-width:144px;max-height:142px;height:142px'  src='"+json[i].base64+"' \>"+
+                        "<p style='line-height: 36px;'>"+
+                            "Title: "+json[i].title+
+                            "<br>"+
+                            "Country: "+json[i].country+
+                            "<br>"+
+                            "Language: "+json[i].lang+
+                        "</p>"+
+                 "</a>"+
+                 "<a href='#' onclick=\"channel_option(\'"+json[i].channelId+"\')\">More Options</a>"+
             "</li>";
     }
     $.mobile.loading("hide");

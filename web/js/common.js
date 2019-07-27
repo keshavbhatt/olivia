@@ -51,7 +51,7 @@ function changeBg(rgba){ // sets bg color var in mainwindow and changes bg color
 }
 
 function setNowPlaying(songId){ //nowPlaying styles are in main.css
-    if(songId.length>0 && songId!=="0000000" && $("#"+songId).length > 0){
+    if(songId.length>0 && songId!=="0000000" && $.mobile.activePage.find("#"+songId).length > 0){
         //removes all now playing
         $(".nowPlaying").remove();
         $.mobile.activePage.remove(".nowPlaying");
@@ -59,18 +59,18 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
         var songIdStr = "#"+songId;
 
         var maxWidth,width;
-        if($(songIdStr).css("max-width") !== "undefined"){
-            maxWidth = $(songIdStr).css("max-width");
-            if($(songIdStr).width()!=="undefined" || $(songIdStr)){
-                     width = $(songIdStr).width().toString();
+        if($.mobile.activePage.find(songIdStr).css("max-width") !== "undefined"){
+            maxWidth = $.mobile.activePage.find(songIdStr).css("max-width");
+            if($.mobile.activePage.find(songIdStr).width()!=="undefined" || $.mobile.activePage.find(songIdStr)){
+                     width = $.mobile.activePage.find(songIdStr).width().toString();
             }
         }else{
             maxWidth = "100px";
             width = "100";
         }
         //adds nowPlaying pages
-        $(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth);// removed width:'+width.toString()+'px;
-        $(songIdStr).each(function( index ) {
+        $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth);// removed width:'+width.toString()+'px;
+        $.mobile.activePage.find(songIdStr).each(function( index ) {
           $( this ).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
         });
 
