@@ -2843,9 +2843,9 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
         menu.setStyleSheet(menuStyle());
         menu.exec(QCursor::pos());
     }else{
-        QString songId = listWidget->itemWidget(item)->findChild<QLineEdit*>("songId")->text().trimmed();
-        QPushButton* optionButton = listWidget->itemWidget(item)->findChild<QPushButton*>(songId+"optionButton");
-        optionButton->click();
+//        QString songId = listWidget->itemWidget(item)->findChild<QLineEdit*>("songId")->text().trimmed();
+//        QPushButton* optionButton = listWidget->itemWidget(item)->findChild<QPushButton*>(songId+"optionButton");
+//        optionButton->click();
     }
 }
 //=========================================END Track item click handler==========================================
