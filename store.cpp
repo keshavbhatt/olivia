@@ -662,15 +662,15 @@ QString store::web_print_fav_radio_channels(){
         QString id,url,title,lang,country,base64;
         id = trackList.at(0);
         url = trackList.at(1);
-        title = trackList.at(2);
+        title = QString(trackList.at(2)).remove("'");
         lang = trackList.at(3);
         country = trackList.at(4);
         base64 = trackList.at(5);
 
         recordObject.insert("songId",id);
         recordObject.insert("title",title);
-        recordObject.insert("lang",lang);
-        recordObject.insert("country",country);
+        recordObject.insert("lang",lang.remove("'"));
+        recordObject.insert("country",country.remove("'"));
         recordObject.insert("base64",base64);
         recordObject.insert("url",url);
         recordsArray.push_back(recordObject);

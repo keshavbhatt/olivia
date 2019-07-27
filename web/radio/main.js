@@ -325,11 +325,11 @@ function channel_option(channel_id){
                         '</li>'+
                       '</ul>',
                 link = "<span >id: "+ songId+"</span>",
-                closebtn = '<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>',
+                closebtn = '<a href="#" data-role="button" data-rel="back" id="'+songId+'_closePopup" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>',
                 header = '<div style="margin: -12px -12px 0px -12px;" data-role="header"><h2>Options</h2></div>',
                 img = '<img style="padding: 20px 0px 10px 0px;" src="'+coverUrl+'" alt="' + title + '" class="photo">',
                 details = $('#'+channel_id).parent().find("p")[0].outerHTML,
-                popup = '<div style="text-align:center;padding:12px 12px; max-width:400px" data-transition="slideup" data-overlay-theme="b" data-dismissible="true" data-position-to="window" data-role="popup" id="popup-' + songId + '" data-short="' + songId +'"  data-corners="false" data-tolerance="15"></div>';
+                popup = '<div style="text-align:center;padding:12px 12px; max-width:400px" data-transition="slideup" data-overlay-theme="b" data-dismissible="true" data-position-to="window" data-role="popup" id="popup-' + songId + '"  data-corners="false" data-tolerance="15"></div>';
             $( link ).appendTo($( details ));
             // Create the popup.
             $( header )
@@ -358,14 +358,19 @@ function channel_option(channel_id){
                 favourite_loaded = false;
         });
 
+//        $("#"+songId+"_closePopup").on("click",function(){
+//            $("#popup-"+songId).popup("close");
+//            $('body').css('overflow','auto');
+//        });
+
         $( document ).on( "popupbeforeposition", $('#popup-'+songId ), function() {
-            $( '#popup-'+songId).find("ul").listview();
+            $('#popup-'+songId).find("ul").listview();
             $('body').css('overflow','hidden');
         });
 
         // Remove the popup after it has been closed
         $( document ).on( "popupafterclose", $('#popup-'+songId), function() {
-            $( '#popup-'+songId ).remove();
+            $('#popup-'+songId ).remove();
             $('body').css('overflow','auto');
         });
 }
