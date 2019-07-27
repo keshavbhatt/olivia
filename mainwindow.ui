@@ -661,7 +661,7 @@ QScrollBar:vertical {
                    <normaloff>:/icons/sidebar/add_playlist.png</normaloff>:/icons/sidebar/add_playlist.png</iconset>
                  </property>
                  <property name="flags">
-                  <set>ItemIsEnabled</set>
+                  <set>NoItemFlags</set>
                  </property>
                 </item>
                 <item>
@@ -672,6 +672,9 @@ QScrollBar:vertical {
                   <iconset resource="icons.qrc">
                    <normaloff>:/icons/sidebar/starred.png</normaloff>:/icons/sidebar/starred.png</iconset>
                  </property>
+                 <property name="flags">
+                  <set>NoItemFlags</set>
+                 </property>
                 </item>
                 <item>
                  <property name="text">
@@ -680,6 +683,9 @@ QScrollBar:vertical {
                  <property name="icon">
                   <iconset resource="icons.qrc">
                    <normaloff>:/icons/sidebar/recent.png</normaloff>:/icons/sidebar/recent.png</iconset>
+                 </property>
+                 <property name="flags">
+                  <set>NoItemFlags</set>
                  </property>
                 </item>
                 <item>
