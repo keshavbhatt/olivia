@@ -315,13 +315,19 @@ function channel_option(channel_id){
 
     //onclick=\''+$('#'+channel_id).parent().attr("onclick")+'\'
     //https://www.youtube.com/watch?v=eqBkiu4M0Os
+    var channelSpecificOption;
+    if($.mobile.activePage.attr("id") === "favourite_page"){
+        channelSpecificOption = '<a href="#" id="'+songId+'_removeFavourite" >Remove from Favourite</a>';
+    }else{
+        channelSpecificOption = '<a href="#" id="'+songId+'_addFavourite" >Add to Favourite</a>';
+    }
     var target = $( this ),
-            options = '<hr><ul style="padding-bottom:5px" data-inset="true">'+
+                options = '<hr><ul style="padding-bottom:5px" data-inset="true">'+
                         '<li>'+
                             '<a href="#" id="'+songId+'_playChannel" >Play Channel</a>'+
                         '</li>'+
                         '<li>'+
-                            '<a href="#" id="'+songId+'_addFavourite" >Add to Favourite</a>'+
+                            channelSpecificOption+
                         '</li>'+
                       '</ul>',
                 link = "<span >id: "+ songId+"</span>",
@@ -347,15 +353,25 @@ function channel_option(channel_id){
 
         $("#"+songId+"_playChannel").on("click",function(){
                 playStation(streamDetail);
-                $( '#popup-'+songId ).popup("close");
+                $('#popup-'+songId ).popup("close");
                 $('body').css('overflow','auto');
         });
 
         $("#"+songId+"_addFavourite").on("click",function(){
                 mainwindow.saveRadioChannelToFavourite(arr);
-                $( '#popup-'+songId ).popup("close");
+                $('#popup-'+songId ).popup("close");
                 $('body').css('overflow','auto');
                 favourite_loaded = false; //trigger refresh
+        });
+
+        $("#"+songId+"_removeFavourite").on("click",function(){
+                store.removeRadioChannelFromFavourite(songId);
+                $('#popup-'+songId ).popup("close");
+                $('body').css('overflow','auto');
+                favourite_loaded = false; //trigger refresh
+                $('#favourite_page .ui-content').fadeOut();
+                load_favourite();
+                $('#favourite_page .ui-content').fadeIn();
         });
 
         $("#"+songId+"_closePopup").on("click",function(){
@@ -393,7 +409,6 @@ function load_favourite(){
     showLoading();
     var json = JSON.parse(store.web_print_fav_radio_channels()); // Data is returned in json format
     var $html = "";
-    $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" favourite radio stations");
     for(var i= 0; i < json.length;i++){
         var streamDetail = json[i].channelId+"=,="+json[i].url+"=,="+json[i].title+"=,="+json[i].country+"=,="+json[i].lang;
          $html = $html+
@@ -411,6 +426,7 @@ function load_favourite(){
                  "<a href='#' onclick=\"channel_option(\'"+json[i].channelId+"\')\">More Options</a>"+
             "</li>";
     }
+    $.mobile.activePage.find("#inner_header").html(json.length+" favourite radio stations");
     $.mobile.loading("hide");
     $("#fav_stations_result").append($html).listview("refresh");
     $('#favourite_page .ui-content').trigger('create');
