@@ -400,7 +400,7 @@ function load_favourite(){
             "<li  data-filtertext='"+json[i].title+" "+json[i].country+" "+json[i].lang+"' >"+
                 "<a onclick='playStation(\""+streamDetail+"\")'>"+
                 "<img id='"+json[i].channelId+"' style='max-width:144px;max-height:142px;height:142px'  src='"+json[i].base64+"' \>"+
-                        "<p style='line-height: 36px;'>"+
+                        "<p style='line-height: 35px;'>"+
                             "Title: "+json[i].title+
                             "<br>"+
                             "Country: "+json[i].country+
