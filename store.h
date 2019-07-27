@@ -17,6 +17,7 @@ public:
     Q_INVOKABLE QString web_print_saved_albums();
     Q_INVOKABLE QString web_print_saved_artists();
     Q_INVOKABLE QString web_print_album_tracks(QVariant albumId);
+    Q_INVOKABLE void removeRadioChannelFromFavourite(QVariant channelId);
 
 private:
     QSqlDatabase db;

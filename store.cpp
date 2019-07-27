@@ -231,6 +231,12 @@ void store::setRadioChannelToFavourite(QStringList meta){
                "VALUES('"+meta.at(0)+"','"+meta.at(1)+"','"+title+"','"+lang.remove(")").remove("(")+"','"+country+"')");
 }
 
+//remove
+void store::removeRadioChannelFromFavourite(QVariant channelId){
+    QSqlQuery query;
+    query.exec("DELETE FROM radio_favourite WHERE channelId= '"+channelId.toString().trimmed()+"';");
+}
+
 //updates download info of a track of any other info in tracks table
 void store::update_track(QString entity,QString trackId,QString value){
     QSqlQuery query;
