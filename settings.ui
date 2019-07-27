@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>446</width>
-    <height>554</height>
+    <height>557</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -650,8 +650,8 @@ QPushButton:disabled { background-color: transparent;
           <string/>
          </property>
          <property name="icon">
-          <iconset>
-           <normaloff>../../../../../tmp/donate.png</normaloff>../../../../../tmp/donate.png</iconset>
+          <iconset resource="icons.qrc">
+           <normaloff>:/icons/others/donate.png</normaloff>:/icons/others/donate.png</iconset>
          </property>
          <property name="iconSize">
           <size>
