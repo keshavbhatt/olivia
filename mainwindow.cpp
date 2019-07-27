@@ -1880,8 +1880,8 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
         QString rgba = r+","+g+","+b+","+"0.2";
         ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+rgba+"')");
-        ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
     }
+    ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
 }
 //END PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
 
