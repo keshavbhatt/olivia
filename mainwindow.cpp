@@ -717,6 +717,7 @@ void MainWindow::loadPlayerQueue(){ //  #7
         QString plainTitle = text.toPlainText();
 
         QWidget *track_widget = new QWidget(ui->right_list);
+        track_widget->setToolTip(title);
         track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
 
