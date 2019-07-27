@@ -108,8 +108,14 @@ void VideoOption::setMeta(QString songId){
     QByteArray ba = base64.toUtf8();
     QPixmap image;
     image.loadFromData(QByteArray::fromBase64(ba));
-    if(!image.isNull()){
+    if(!image.isNull() && album=="undefined"){
         ui->cover->setPixmap(image);
+        ui->cover->setMaximumSize(178,100);
+        ui->cover->resize(178,100);
+    }else{
+        ui->cover->setPixmap(image);
+        ui->cover->setMaximumSize(100,100);
+        ui->cover->resize(100,100);
     }
 
     ui->progressBar->hide();
