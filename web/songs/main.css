@@ -119,7 +119,7 @@ padding:0px;
     margin-right: auto;
     opacity: 0.8;
     z-index: 1;
-    background: url("qrc:///icons/p_play.png") no-repeat center;
+    background: url("qrc:///icons/p_now_playing.png") no-repeat center;
     background-size: 35%;
     background-color: rgba(26, 152, 199, 0.47);
 }
