@@ -355,7 +355,7 @@ function channel_option(channel_id){
                 mainwindow.saveRadioChannelToFavourite(arr);
                 $( '#popup-'+songId ).popup("close");
                 $('body').css('overflow','auto');
-                favourite_loaded = false;
+                favourite_loaded = false; //trigger refresh
         });
 
         $("#"+songId+"_closePopup").on("click",function(){

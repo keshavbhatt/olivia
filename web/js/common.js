@@ -78,6 +78,9 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
         //for album [adds nowPlaying active page]
         $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px;max-width:'+width+'px; width:'+width+'px;');
         $.mobile.activePage.find(songIdStr).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
+    }else{
+        $(".nowPlaying").remove();
+        $.mobile.activePage.remove(".nowPlaying");
     }
 }
 
