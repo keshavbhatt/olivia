@@ -1061,6 +1061,7 @@ void MainWindow::addToQueue(QString id,QString title,QString artist,QString albu
         return;
     }else{
         QWidget *track_widget = new QWidget(ui->right_list);
+        track_widget->setToolTip(title);
         track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
 
