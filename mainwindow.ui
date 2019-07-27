@@ -865,7 +865,7 @@ background-color: rgba(42,130,218,169);</string>
                      </font>
                     </property>
                     <property name="mouseTracking">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">background-color: transparent;</string>
@@ -1985,6 +1985,13 @@ QSlider::sub-page:horizontal:disabled{
          <property name="styleSheet">
           <string notr="true">border:1px solid #424242 ;
 border-radius:2px;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="hideDebug">
+         <property name="text">
+          <string>Hide Debug</string>
          </property>
         </widget>
        </item>

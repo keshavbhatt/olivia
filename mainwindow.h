@@ -75,6 +75,7 @@ public:
     Q_INVOKABLE void clear_youtubeSearchTerm();
     Q_INVOKABLE void playLocalTrack(QVariant songId);
     Q_INVOKABLE void playRadioFromWeb(QVariant streamDetails);
+    Q_INVOKABLE void saveRadioChannelToFavourite(QVariant channelInfo);
     Q_INVOKABLE void resultLoaded();
     Q_INVOKABLE void setSearchTermAndOpenYoutube(QVariant term);
     Q_INVOKABLE void setThemeColor(QString); //sets themeColor in mainWindow
@@ -205,6 +206,8 @@ private slots:
 
 
     void on_shuffle_toggled(bool checked);
+
+    void on_hideDebug_clicked();
 
 private:
     bool animationRunning = false;

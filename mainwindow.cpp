@@ -983,6 +983,7 @@ void MainWindow::webViewLoaded(bool loaded){
     }
     if(pageType=="radio"){
         qDebug()<<"radio";
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("loadTopStations('most-played');");
     }
 
@@ -2121,11 +2122,16 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
     }
 }
 
+void MainWindow::saveRadioChannelToFavourite(QVariant channelInfo){
+    store_manager->setRadioChannelToFavourite(channelInfo.toStringList());
+}
+
 void MainWindow::playRadioFromWeb(QVariant streamDetails){
     ui->console->clear();
     QString url,title,country,language,base64,stationId;
     QStringList list = streamDetails.toString().split("=,=");
     stationId = list.at(0);
+    qDebug()<<stationId;
     url = list.at(1);
     title = list.at(2);
     country = list.at(3);
@@ -2142,8 +2148,6 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
     }else{
         ui->cover->setPixmap(QPixmap(":/web/radio/station_cover.jpg"));
     }
-
-
 
     this->findChild<ElidedLabel *>("nowP_title")->setText(htmlToPlainText(title));
 
@@ -3091,3 +3095,8 @@ void MainWindow::on_shuffle_toggled(bool checked)
 }
 //================================Shuffle===========================================================
 
+
+void MainWindow::on_hideDebug_clicked()
+{
+    ui->debug_widget->hide();
+}
