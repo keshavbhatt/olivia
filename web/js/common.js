@@ -4,6 +4,7 @@ $(document).bind("mobileinit", function(){
       $.mobile.defaultPageTransition = 'slidefade';
       $.mobile.defaultDialogTransition = 'pop';
       $.mobile.useFastClick = true;
+      $.mobile.pageLoadErrorMessage("Please check your netconnection");
 });
 
 //add String.include protype for copatibility with older webkit versions
@@ -32,7 +33,8 @@ function hideLoading(){
     mainwindow.showAjaxError();
 }
 
-$( document ).ajaxError(function() {
+$( document ).ajaxError(function( event, request, settings) {
+    console.log(event,request,settings.url);
     hideLoading();
 });
 
