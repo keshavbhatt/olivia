@@ -13,12 +13,14 @@ public:
     explicit store(QObject *parent = 0,QString dbName="default");
     Q_INVOKABLE QString web_print_saved_tracks();
     Q_INVOKABLE QString web_print_local_saved_tracks();
+    Q_INVOKABLE QString web_print_fav_radio_channels();
     Q_INVOKABLE QString web_print_saved_albums();
     Q_INVOKABLE QString web_print_saved_artists();
     Q_INVOKABLE QString web_print_album_tracks(QVariant albumId);
 
 private:
     QSqlDatabase db;
+    int storeVersion;
 
 public slots:
 
@@ -51,13 +53,18 @@ public slots:
 
 
     void delete_track_cache(const QString download_path);
- private slots:
+    void setRadioChannelToFavourite(QStringList meta);
+    QStringList getRadioStation(QString trackId);
+private slots:
+
     void initStore(QString dbName);
     void createTable(QString dbName);
     void openDb(QString dbName, QString type);
     void closeDb(QString dbName);
     void saveArts(QString albumId, QString artId);
+    void createTableVersion(QString dbName, int version);
 
+    QList<QStringList> getAllFavStations();
     QList<QStringList> getAllTracks();
     QList<QStringList> getAllAlbums();
     QStringList getAlbumDetails(QString albumId);

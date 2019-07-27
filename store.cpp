@@ -23,9 +23,11 @@
 
 
 
+
 // init store class and creates defined directories
 store::store(QObject *parent, QString dbName) : QObject(parent)
 {
+    storeVersion = 2;  // 2 is the initial version of database
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/storeDatabase/";
     QDir d(setting_path+dbName);
     if(!d.exists()){
@@ -51,9 +53,9 @@ void store::initStore(QString dbName){ //takes dbname only dont include paths
         //open db if it was created and is valid
         if(!db_path.isEmpty()){
              if(db.isOpen()) {
-                 qDebug()<<"Store open for queries"<<setting_path+"/storeDatabase/"+dbName+".db";
+                 qWarning()<<"Store open for queries"<<setting_path+"/storeDatabase/"+dbName+".db";
              }else if(!db.isOpen()){
-                 qDebug()<<"Store not Open , opening...";
+                 qWarning()<<"Store not Open , opening...";
                  openDb(dbName,"old");
              }
         }
@@ -64,13 +66,35 @@ void store::openDb(QString dbName,QString type){
     QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/storeDatabase/"+dbName+"/";
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(path+dbName+".db");
+
+    //get local storeversion
+    int localStoreVersion = 1;
+    QFile *store_version_file =  new QFile(path+"store_version" );
+    if (!store_version_file->open(QIODevice::ReadOnly | QIODevice::Text)){
+        qWarning()<<"Could not open a store_version_file to read.";
+    }else{
+        localStoreVersion  = store_version_file->readAll().trimmed().toInt();
+    }
+    store_version_file->close();
+
     if(db.open()){
         if(type=="new"){
             createTable(dbName);
+        }else if(localStoreVersion < storeVersion){
+                for (int i=localStoreVersion;i<storeVersion;i++) {
+                    createTableVersion(dbName,storeVersion);
+                }
+                initStore(dbName);
         }else{
-            qDebug()<<"Store open for queries"<<path+dbName+".db";
+            qWarning()<<"Store open for queries"<<path+dbName+".db";
         }
     }
+    if(!store_version_file->open(QIODevice::ReadWrite | QIODevice::Truncate)){
+        qWarning()<<"Could not open a store_version_file to write.";
+    }
+    store_version_file->write(QString::number(storeVersion).toUtf8());
+    store_version_file->close();
+    store_version_file->deleteLater();
 }
 
 // creates table in given DB name OR makes default structure of DB
@@ -84,7 +108,7 @@ void store::createTable(QString dbName){
               "(trackId varchar(500) PRIMARY KEY, "
               "albumId varchar(300), "
               "artistId varchar(300),"
-              "title varchar(300),"
+              "title varchar(500),"
               "downloaded int(1))");
     QSqlQuery queue;
     bool queue_created = queue.exec("create table queue "
@@ -95,13 +119,13 @@ void store::createTable(QString dbName){
     QSqlQuery artist;
     bool artist_created = artist.exec("create table artist "
               "(artistId varchar(500) PRIMARY KEY,"
-              "artistName varchar(300))"
+              "artistName varchar(500))"
                );
 
     QSqlQuery album;
     bool album_created = album.exec("create table album "
               "(albumId varchar(300) PRIMARY KEY,"
-              "albumName varchar(300))"
+              "albumName varchar(500))"
                );
 
     QSqlQuery color;
@@ -124,7 +148,7 @@ void store::createTable(QString dbName){
 
     QSqlQuery streamUrl;
     bool streamUrl_created = streamUrl.exec("create table stream_url "
-              "(trackId varchar(500) PRIMARY KEY,"
+              "(trackId varchar(300) PRIMARY KEY,"
               "url varchar(500),"
               "timeOfExpiry varchar(70))"
                );
@@ -134,6 +158,28 @@ void store::createTable(QString dbName){
         initStore(dbName);
     }
 }
+
+//create or update store db according to requested version
+void store::createTableVersion(QString dbName,int version){
+    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/storeDatabase/"+dbName+"/";
+    switch (version) {
+        // case 1 is default database, case 0 is nothing(updates started with case 2)
+        case 2:{
+            QSqlQuery radio;
+            qWarning()<<"Update store with new update- "<<version<<" done.";
+            radio.exec("create table radio_favourite "
+                      "(channelId varchar(300) PRIMARY KEY,"
+                      "url varchar(900),"
+                      "title varchar(500),"
+                      "lang varchar(500),"
+                      "country varchar(800))"
+                      );
+        }
+            break;
+        //create cases here to update database table according to store version
+    }
+}
+
 
 //closes the DB
 void store::closeDb(QString dbName){
@@ -172,6 +218,17 @@ void store::setTrack(QStringList meta){
     QSqlQuery query;
     query.exec("INSERT INTO tracks('trackId','albumId','artistId','title') "
                "VALUES('"+meta.at(0)+"','"+albumId.trimmed().remove("\"").replace("'","''").remove(QChar('\\')).remove("/")+"','"+meta.at(2)+"','"+title.remove("\"").replace("'","''")+"')");
+}
+
+//saves radio channel to favourite in db with all columns in radio_favourite table in DB
+void store::setRadioChannelToFavourite(QStringList meta){
+    //("87600", "http://stream-uk1.radioparadise.com/aac-320", "Radio Paradise (320k)", "United States of America", "English\")")
+    QString title = QString(meta.at(2)).remove("\"").replace("'","''").trimmed();
+    QString country = QString(meta.at(3)).remove("\"").replace("'","''").trimmed();
+    QString lang = QString(meta.at(4)).remove("\"").replace("'","''").trimmed();
+    QSqlQuery query;
+    query.exec("INSERT INTO radio_favourite('channelId','url','title','lang','country') "
+               "VALUES('"+meta.at(0)+"','"+meta.at(1)+"','"+title+"','"+lang.remove(")").remove("(")+"','"+country+"')");
 }
 
 //updates download info of a track of any other info in tracks table
@@ -259,6 +316,18 @@ QList<QStringList> store::getPlayerQueue(){
     return trackList;
 }
 
+QList<QStringList> store::getAllFavStations(){
+    QSqlQuery query;
+    QList<QStringList> stationsList ;
+    query.exec("SELECT channelId FROM radio_favourite");
+    if(query.record().count()>0){
+        while(query.next()){
+             stationsList.append(getRadioStation(query.value("channelId").toString()));
+        }
+    }
+    return stationsList;
+}
+
 QList<QStringList> store::getAllTracks(){
     QSqlQuery query;
     QList<QStringList> trackList ;
@@ -341,6 +410,22 @@ QStringList store::getTrack(QString trackId){
     }
     return QStringList()<<trackId<<title<<albumId<<getAlbum(albumId)<<artistId<<getArtist(artistId)<<getThumbnail(albumId)<<getOfflineUrl(trackId)<<getYoutubeIds(trackId)<<getDominantColor(albumId);
 }
+QStringList store::getRadioStation(QString trackId){
+    QSqlQuery query;
+    query.exec("SELECT * FROM radio_favourite WHERE channelId = '"+trackId+"'");
+    QString url,title,lang,country;
+    if(query.record().count()>0){
+        while(query.next()){
+            url = query.value("url").toString();
+            title= query.value("title").toString();
+            lang= query.value("lang").toString();
+            country= query.value("country").toString();
+        }
+    }
+    return QStringList()<<trackId<<url<<title<<lang<<country<<"qrc:/web/radio/station.jpg";
+}
+
+
 
 QString store::getAlbum(QString albumId){
     QSqlQuery query;
@@ -567,6 +652,32 @@ QString store::web_print_saved_tracks(){
     return json.toJson();
 }
 
+// returns json array string of local downloaded tracks
+QString store::web_print_fav_radio_channels(){
+    qDebug()<<"LOAD FAVOURITE RADIO CHANNELS";
+    QJsonDocument json;
+    QJsonArray recordsArray;
+    foreach (QStringList trackList, getAllFavStations()) {
+        QJsonObject recordObject;
+        QString id,url,title,lang,country,base64;
+        id = trackList.at(0);
+        url = trackList.at(1);
+        title = trackList.at(2);
+        lang = trackList.at(3);
+        country = trackList.at(4);
+        base64 = trackList.at(5);
+
+        recordObject.insert("songId",id);
+        recordObject.insert("title",title);
+        recordObject.insert("lang",lang);
+        recordObject.insert("country",country);
+        recordObject.insert("base64",base64);
+        recordObject.insert("url",url);
+        recordsArray.push_back(recordObject);
+    }
+    json.setArray(recordsArray);
+    return json.toJson();
+}
 
 // returns json array string of local downloaded tracks
 QString store::web_print_local_saved_tracks(){
@@ -602,31 +713,6 @@ QString store::web_print_local_saved_tracks(){
     json.setArray(recordsArray);
     return json.toJson();
 }
-// returns json array string of local albums
-
-//qDebug()<<"LOAD LOCAL SAVED ALBUMS";
-//QJsonDocument json;
-//QJsonArray recordsArray;
-//foreach (QStringList albumList, getAllAlbums()) {
-//    QJsonObject recordObject;
-
-//    QString albumId,albumName,artistName,base64,dominantColor,artistId,tracksCount;
-//    albumId = albumList.at(0);
-//    albumName = albumList.at(1);
-//    base64 = albumList.at(2);
-//    dominantColor = albumList.at(3);
-//    artistName = albumList.at(4);
-//    artistId = albumList.at(5);
-//    tracksCount = albumList.at(6);
-
-//    recordObject.insert("albumId",albumId);
-//    recordObject.insert("albumName",albumName);
-//    recordObject.insert("base64",base64);
-//    recordObject.insert("dominantColor",dominantColor);
-//    recordObject.insert("artistName",artistName);
-//    recordObject.insert("artistId",artistId);
-//    recordObject.insert("tracksCount",tracksCount);
-//    recordsArray.push_back(recordObject);
 
 QString store::web_print_saved_albums(){
     qDebug()<<"LOAD LOCAL SAVED ALBUMS";
