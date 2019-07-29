@@ -13,6 +13,8 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
+#include "settings.h"
+
 
 class radio : public QObject
 {
@@ -86,6 +88,7 @@ private:
 
     QString streamUrl;
     QString state_line;
+    settings *settUtils;
 
 
 

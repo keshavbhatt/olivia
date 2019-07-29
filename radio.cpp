@@ -7,11 +7,14 @@
 #include <QDateTime>
 #include <QApplication>
 #include "elidedlabel.h"
+#include "nowplaying.h"
 
 
 radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : QObject(parent)
 {
     this->setObjectName("radio-manager");
+    settUtils = new settings(this);
+
     tmp_path =  QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 
@@ -61,7 +64,14 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
         }
     });
 
-    QString status_message_arg = "--term-status-msg='[olivia:][${=time-pos}][${=duration}][${=pause}][${=paused-for-cache}][${idle-active}][${cache-buffering-state}%][${=demuxer-cache-duration}][${=seekable}][${=audio-bitrate}][${seeking}]'"; //[${=eof-reached}]
+    QString vis_arg;
+    if(settUtils->settingsObj.value("visualizer").toBool()){
+        vis_arg = "  --no-input-default-bindings --no-osc --no-config -wid="+QString::number(this->parent()->findChild<nowPlaying*>("nowplaying_widget")->findChild<QLabel*>("visualizer")->winId())+ " --script=/tmp/vis.lua";
+    }else{
+        vis_arg = "";
+    }
+
+    QString status_message_arg =  vis_arg + " --term-status-msg='[olivia:][${=time-pos}][${=duration}][${=pause}][${=paused-for-cache}][${idle-active}][${cache-buffering-state}%][${=demuxer-cache-duration}][${=seekable}][${=audio-bitrate}][${seeking}]'"; //[${=eof-reached}]
 
     radioProcess->setObjectName("_radio_");
 

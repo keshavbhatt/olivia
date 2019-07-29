@@ -21,6 +21,10 @@ void settings::changeEqualizerSetting(bool checked){
     settingsObj.setValue("equalizer",checked);
 }
 
+void settings::changeVisualizerSetting(bool checked){
+    settingsObj.setValue("visualizer",checked);
+}
+
 void settings::changeDynamicTheme(bool checked){
     settingsObj.setValue("dynamicTheme",checked);
      emit dynamicTheme(checked);

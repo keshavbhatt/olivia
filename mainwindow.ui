@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1154</width>
-    <height>476</height>
+    <height>478</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -951,8 +951,56 @@ background-color: rgba(42,130,218,169);</string>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_8">
                  <property name="topMargin">
-                  <number>15</number>
+                  <number>7</number>
                  </property>
+                 <item>
+                  <widget class="QWidget" name="vis_widget" native="true">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>100</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QWidget #vis_widget{
+background-color: qlineargradient(spread:reflect, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(0, 0, 0, 22), stop:0.0403361 rgba(0, 0, 0, 141), stop:0.0890756 rgba(0, 0, 0, 206), stop:0.156303 rgba(0, 0, 0, 221), stop:0.51145 rgba(0, 0, 0, 227), stop:0.842017 rgba(0, 0, 0, 218), stop:0.90084 rgba(0, 0, 0, 206), stop:0.951261 rgba(0, 0, 0, 141), stop:1 rgba(0, 0, 0, 22));
+}</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_14">
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>10</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>10</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="visualizer">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>80</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
                  <item>
                   <widget class="QLabel" name="cover">
                    <property name="styleSheet">
@@ -986,27 +1034,7 @@ background-color: transparent;
                   <property name="leftMargin">
                    <number>7</number>
                   </property>
-                  <item row="1" column="1">
-                   <layout class="QHBoxLayout" name="title_horizontalLayout">
-                    <property name="topMargin">
-                     <number>0</number>
-                    </property>
-                   </layout>
-                  </item>
-                  <item row="0" column="1">
-                   <spacer name="verticalSpacer_2">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>20</width>
-                      <height>2</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="6" column="1">
+                  <item row="8" column="1">
                    <spacer name="verticalSpacer">
                     <property name="orientation">
                      <enum>Qt::Vertical</enum>
@@ -1019,14 +1047,34 @@ background-color: transparent;
                     </property>
                    </spacer>
                   </item>
-                  <item row="2" column="1">
+                  <item row="3" column="1">
+                   <layout class="QHBoxLayout" name="title_horizontalLayout">
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                   </layout>
+                  </item>
+                  <item row="1" column="1">
+                   <spacer name="verticalSpacer_2">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>2</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="4" column="1">
                    <layout class="QHBoxLayout" name="artist_horizontalLayout">
                     <property name="topMargin">
                      <number>0</number>
                     </property>
                    </layout>
                   </item>
-                  <item row="3" column="1">
+                  <item row="5" column="1">
                    <layout class="QHBoxLayout" name="album_horizontalLayout">
                     <property name="topMargin">
                      <number>0</number>

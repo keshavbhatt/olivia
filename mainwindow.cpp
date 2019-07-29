@@ -214,6 +214,15 @@ void MainWindow::init_settings(){
        ui->eq->setVisible(checked);
     });
 
+    connect(settingsUi.visualizer,&QCheckBox::toggled,[=](bool checked){
+       settUtils->changeVisualizerSetting(checked);
+       ui->vis_widget->setVisible(checked);
+       if(!nowPlayingSongId.isEmpty()){
+           playSongById(QVariant(nowPlayingSongId));
+       }
+       ui->cover->setVisible(!checked);
+    });
+
     connect(settingsUi.systemTitlebar,&QCheckBox::toggled,[=](bool checked){
         if(checked){
             hide();
@@ -320,6 +329,10 @@ void MainWindow::init_settings(){
 
     //show hide eq
     ui->eq->setVisible(settingsObj.value("equalizer").toBool());
+
+    //show hide vis
+    ui->cover->setVisible(!settingsObj.value("visualizer").toBool());
+    ui->vis_widget->setVisible(settingsObj.value("visualizer").toBool());
 }
 
 void MainWindow::restart_required(){
@@ -358,6 +371,8 @@ void MainWindow::loadSettings(){
     settingsUi.showSearchSuggestion->setChecked(settingsObj.value("showSearchSuggestion","true").toBool());
     settingsUi.miniModeStayOnTop->setChecked(settingsObj.value("miniModeStayOnTop","false").toBool());
     settingsUi.equalizer->setChecked(settingsObj.value("equalizer","false").toBool());
+    settingsUi.visualizer->setChecked(settingsObj.value("visualizer","false").toBool());
+
 
     settingsUi.dynamicTheme->setChecked(settingsObj.value("dynamicTheme","false").toBool());
 
@@ -2068,6 +2083,11 @@ void MainWindow::radio_demuxer_cache_duration_changed(double seconds_available,d
         double width =  static_cast<double>(totalSeconds) / static_cast<double>(ui->radioSeekSlider->maximum()) ;
         ui->radioSeekSlider->subControlWidth = static_cast<double>(width*100);
     }
+}
+
+//wrapper function to playLocalTrack function which finds song in queue and play it if found or add and play it if not found
+void MainWindow::playSongById(QVariant songIdVar){
+    playLocalTrack(songIdVar);
 }
 
 //this method plays tracks from webpage

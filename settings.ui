@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>446</width>
+    <width>461</width>
     <height>557</height>
    </rect>
   </property>
@@ -104,6 +104,13 @@
            <widget class="QCheckBox" name="equalizer">
             <property name="text">
              <string>Show Equalizer button in player controls</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="visualizer">
+            <property name="text">
+             <string>Audio Visualizer (backend will restart)</string>
             </property>
            </widget>
           </item>

@@ -31,6 +31,7 @@ public slots:
     void changeSystemTitlebar(bool checked);
     void changeAppTransperancy(int val);
     void changeEqualizerSetting(bool checked);
+    void changeVisualizerSetting(bool checked);
 };
 
 #endif // SETTINGS_H
