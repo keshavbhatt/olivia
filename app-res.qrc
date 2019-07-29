@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>app_resources/vis.lua</file>
+    </qresource>
+</RCC>

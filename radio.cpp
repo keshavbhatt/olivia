@@ -18,6 +18,8 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     tmp_path =  QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 
+    QFile file("://app_resources/vis.lua");
+    file.copy(setting_path+"/vis.lua");
 
    // qDebug()<<QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 
@@ -66,7 +68,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
 
     QString vis_arg;
     if(settUtils->settingsObj.value("visualizer").toBool()){
-        vis_arg = "  --no-input-default-bindings --no-osc --no-config -wid="+QString::number(this->parent()->findChild<nowPlaying*>("nowplaying_widget")->findChild<QLabel*>("visualizer")->winId())+ " --script=/tmp/vis.lua";
+        vis_arg = "  --no-input-default-bindings --no-osc --no-config -wid="+QString::number(this->parent()->findChild<nowPlaying*>("nowplaying_widget")->findChild<QLabel*>("visualizer")->winId())+ " --script="+setting_path+"/vis.lua";
     }else{
         vis_arg = "";
     }

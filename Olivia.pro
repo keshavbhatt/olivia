@@ -88,6 +88,7 @@ FORMS    += mainwindow.ui \
     videooption.ui
 
 RESOURCES += \
+    app-res.qrc \
     darkstyle.qrc \
     icons.qrc \
     web.qrc
