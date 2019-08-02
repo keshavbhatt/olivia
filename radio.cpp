@@ -23,7 +23,7 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
 
    // qDebug()<<QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 
-    QString fifoDir= tmp_path+"/fifos";
+    QString fifoDir= tmp_path+"/olivia_sockets";
     QDir dir(fifoDir);
     if (!dir.exists())
     dir.mkpath(fifoDir);

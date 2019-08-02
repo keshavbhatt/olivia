@@ -1,10 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QBuffer>
+
 #include <QClipboard>
 #include <QColorDialog>
-#include <QContextMenuEvent>
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDesktopWidget>
@@ -29,15 +28,12 @@
 #include <QPropertyAnimation>
 #include <QSettings>
 #include <QSizePolicy>
-#include <QStandardItemModel>
 #include <QStandardPaths>
-#include <QStringListModel>
 #include <QTextCodec>
 #include <QTimer>
 #include <QWebElement>
 #include <QWebFrame>
 #include <QWebHistory>
-#include <QWebHitTestResult>
 #include <QWebView>
 #include <QWidget>
 
@@ -51,13 +47,9 @@
 #include "videooption.h"
 #include "youtube.h"
 
-
 #include "ui_minimode.h"
 #include "ui_settings.h"
 #include "ui_track.h"
-
-
-
 
 namespace Ui {
 class MainWindow;

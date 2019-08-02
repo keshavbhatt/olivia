@@ -996,6 +996,9 @@ background-color: qlineargradient(spread:reflect, x1:1, y1:1, x2:1, y2:0, stop:0
                       <property name="text">
                        <string/>
                       </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
                      </widget>
                     </item>
                    </layout>

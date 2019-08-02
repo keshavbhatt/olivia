@@ -6,11 +6,9 @@
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
 #include <QGraphicsDropShadowEffect>
-#include <QMovie>
-#include <QCompleter>
 #include <QAction>
 #include <QToolTip>
-#include <QAbstractItemView>
+
 
 #include "cookiejar.h"
 #include "elidedlabel.h"

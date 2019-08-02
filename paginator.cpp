@@ -3,7 +3,6 @@
 #include <QWebView>
 #include <QWebFrame>
 #include <QWebPage>
-#include <QFlag>
 
 paginator::paginator(QObject *parent) : QObject(parent)
 {
