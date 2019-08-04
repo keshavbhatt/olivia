@@ -55,14 +55,15 @@ parts:
             - python
             - wget
             - coreutils
-   ppa:
-     plugin: nil
-     override-pull: |
-       apt --yes install software-properties-common apt-utils
-       add-apt-repository -yu ppa:mc3man/mpv-tests
+#   ppa:
+#     plugin: nil
+#     override-pull: |
+#       apt --yes install software-properties-common apt-utils
+#       add-apt-repository -yu ppa:mc3man/mpv-tests
    mpv:
      plugin: nil
-     after: [ppa,qt]
+#     after: [ppa,qt]
+     after: [qt]
      stage-packages:
            - mpv
    qt:
