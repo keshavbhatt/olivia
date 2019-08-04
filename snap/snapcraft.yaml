@@ -58,7 +58,7 @@ parts:
    ppa:
      plugin: nil
      override-pull: |
-       apt --yes install software-properties-common apt-utils
+       apt --yes install software-properties-common apt-utils ca-certificates
        add-apt-repository -yu ppa:mc3man/mpv-tests
    mpv:
      plugin: nil
