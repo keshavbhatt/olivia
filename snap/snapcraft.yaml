@@ -58,8 +58,10 @@ parts:
    ppa:
      plugin: nil
      override-pull: |
-       apt --yes install software-properties-common apt-utils ca-certificates
-       add-apt-repository -yu ppa:mc3man/mpv-tests
+       deb http://ppa.launchpad.net/mc3man/mpv-tests/ubuntu xenial main 
+       deb-src http://ppa.launchpad.net/mc3man/mpv-tests/ubuntu xenial main 
+       apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8E51A6D660CD88D67D65221D90BD7EACED8E640A
+       apt update
    mpv:
      plugin: nil
      after: [ppa,qt]
