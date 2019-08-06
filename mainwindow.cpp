@@ -2606,8 +2606,12 @@ void MainWindow::reloadREquested(QString dataType,QString query){
         arg2 = query.split("<==>").last();
         ui->webview->page()->mainFrame()->evaluateJavaScript(dataType+"(\""+arg1+"\",\""+arg2+"\")");
     }else{
+        if(dataType == "track_search"){
+            ui->webview->page()->mainFrame()->evaluateJavaScript("$('#tracks_result').html('')");
+        }
         ui->webview->page()->mainFrame()->evaluateJavaScript(dataType+"(\""+query+"\")");
     }
+
 }
 
 //currently used by suffle track fucntion only

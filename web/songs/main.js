@@ -91,6 +91,7 @@ function open_saved_tracks(){
     var $html = "";
     $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" songs in library");
     for(var i= 0; i < json.length;i++){
+        var albumType = (json[i].album === "undefined") ? "Youtube":"";
         $html = $html+
             "<li onclick='mainwindow.playLocalTrack(\""+json[i].songId+"\")' data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"'  data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"' ><a>"+
             "<img id='"+json[i].songId+"' style='max-width:100px;max-height:144px;width=100px;height=100px;'  src='data:image/png;base64,"+json[i].base64+"' \>"+
@@ -101,7 +102,8 @@ function open_saved_tracks(){
                         "<br>"+
                         "Artist: "+json[i].artist+
                     "</p>"+
-               " </a>"+
+                 "<p class='ui-li-aside'>"+albumType+"</p>" +
+               "</a>"+
             "</li>";
     }
     $.mobile.loading("hide");

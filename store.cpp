@@ -642,17 +642,19 @@ QString store::web_print_saved_tracks(){
         base64 = trackList.at(6);
         url = trackList.at(7);
         id = trackList.at(8);
-        dominantColor = trackList.at(9);
-        recordObject.insert("songId",songId);
-        recordObject.insert("title",title);
-        recordObject.insert("albumId",albumId);
-        recordObject.insert("album",album);
-        recordObject.insert("artistId",artistId);
-        recordObject.insert("artist",artist);
-        recordObject.insert("base64",base64);
-        recordObject.insert("url",url);
-        recordObject.insert("id",id);
-        recordsArray.push_back(recordObject);
+        if(!songId.trimmed().isEmpty()){
+            dominantColor = trackList.at(9);
+            recordObject.insert("songId",songId);
+            recordObject.insert("title",title);
+            recordObject.insert("albumId",albumId);
+            recordObject.insert("album",album);
+            recordObject.insert("artistId",artistId);
+            recordObject.insert("artist",artist);
+            recordObject.insert("base64",base64);
+            recordObject.insert("url",url);
+            recordObject.insert("id",id);
+            recordsArray.push_back(recordObject);
+        }
     }
     json.setArray(recordsArray);
     return json.toJson();
@@ -703,7 +705,7 @@ QString store::web_print_local_saved_tracks(){
         url = trackList.at(7);
         id = trackList.at(8);
         dominantColor = trackList.at(9);
-        if(isDownloaded(songId)){
+        if(!songId.trimmed().isEmpty() && isDownloaded(songId)){
             recordObject.insert("songId",songId);
             recordObject.insert("title",title);
             recordObject.insert("albumId",albumId);
@@ -738,13 +740,13 @@ QString store::web_print_saved_albums(){
         artistId = albumList.at(5);
         tracksCount = albumList.at(6);
 
-        if(albumId.contains("undefined")){
+        if(albumId.contains("undefined") && !albumId.trimmed().isEmpty()){
             albumName="untitled";
             untitledAlbumsRecordObjectCount = untitledAlbumsRecordObjectCount+1 ;
             //qDebug()<<albumName;
         }
 
-        if(!albumId.contains("undefined")){
+        if(!albumId.contains("undefined") && !albumId.trimmed().isEmpty()){
             recordObject.insert("albumId",albumId);
             recordObject.insert("albumName",albumName);
             recordObject.insert("base64",base64);
@@ -755,6 +757,7 @@ QString store::web_print_saved_albums(){
             recordsArray.push_back(recordObject);
         }
     }
+
     if(untitledAlbumsRecordObjectCount>0){
         recordObject.insert("albumId","untitled");
         recordObject.insert("albumName","Youtube");
@@ -782,11 +785,12 @@ QString store::web_print_saved_artists(){
         artistId = artistList.at(0);
         artistName = artistList.at(1);
         tracksCount = artistList.at(2);
-
-        recordObject.insert("artistId",artistId);
-        recordObject.insert("artistName",artistName);
-        recordObject.insert("tracksCount",tracksCount);
-        recordsArray.push_back(recordObject);
+        if(!artistId.trimmed().isEmpty()){
+            recordObject.insert("artistId",artistId);
+            recordObject.insert("artistName",artistName);
+            recordObject.insert("tracksCount",tracksCount);
+            recordsArray.push_back(recordObject);
+        }
     }
     json.setArray(recordsArray);
     return json.toJson();

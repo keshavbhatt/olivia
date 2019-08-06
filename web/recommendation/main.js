@@ -415,7 +415,6 @@ function album_view(id){
         var html = paginator.load("album_view","album_view",id);
 
         $.mobile.loading("hide");
-
         $("#album_view_page .ui-content").html(html);
         $('#album_view_page .ui-content').trigger('create');
         $('#album_view_page .ui-content').fadeIn('slow');
