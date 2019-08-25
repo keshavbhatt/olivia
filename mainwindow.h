@@ -222,7 +222,7 @@ private:
     QSettings settingsObj;
     QString core_local_date,core_remote_date;
     QString database;
-    QString gotoAlbumId,gotoArtistId,recommendationSongId;//jumper vars
+    QString gotoAlbumId,gotoArtistId,recommendationSongId,youtubeVideoId;//jumper vars
     QString nowPlayingSongId;
     QString offsetstr;
     QString pageType;

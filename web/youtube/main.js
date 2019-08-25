@@ -57,7 +57,7 @@ var artist_loaded = false;
 $(document).ready(function($) {
 
     $(function () {
-        $("[data-role=popup]").popup().enhanceWithin();
+        $('[data-role=popup]').popup().enhanceWithin();
     });
 
     $(function() {
@@ -406,9 +406,11 @@ function track_option(track_id){
         });
 
         $("#"+songId+"_watchVideo").on("click",function(){
+                showLoading();
                 mainwindow.web_watch_video(songId+"<==>"+title+"<==>"+album+"<==>"+artist+"<==>"+coverUrl+"<==>"+songId+"<br>");
                 $( '#popup-'+songId ).remove();
                 $('body').css('overflow','auto');
+                $.mobile.loading("hide");
         });
 
         $( document ).on( "popupbeforeposition", $('#popup-'+songId ), function() {
@@ -422,6 +424,22 @@ function track_option(track_id){
             $('body').css('overflow','auto');
         });
 }
+
+function get_channel(video_id){
+    $('.ui-content').fadeOut('slow');
+    showLoading();
+    $.ajax({
+        type: "GET",
+        url: baseUrl+"youtube_get_channel.php",
+        data: {
+            "video_id" : video_id
+        },
+        success: function(html) {
+            open_channel(html,video_id);
+         }
+        });
+}
+
 
 function open_channel(channelHref,songId){
     $("#popup-"+songId).remove();

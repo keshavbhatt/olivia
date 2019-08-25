@@ -1013,6 +1013,12 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->evaluateJavaScript("artist_view('"+gotoArtistId+"')");
     }
 
+    if(pageType=="goto_youtube_channel"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("get_channel('"+youtubeVideoId+"')");
+    }
+
     if( loaded && pageType == "recommendation"){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
 
@@ -1206,6 +1212,7 @@ void MainWindow::showTrackOption(){
     QAction *showRecommendation = new QAction("Show Recommendations",nullptr);
     QAction *watchVideo = new QAction("Watch Video",nullptr);
     QAction *showLyrics = new QAction("Show Lyrics",nullptr);
+    QAction *openChannel = new QAction("Open Channel",nullptr);
     QAction *gotoArtist= new QAction("Go to Artist",nullptr);
     QAction *gotoAlbum = new QAction("Go to Album",nullptr);   
     QAction *removeSong = new QAction("Remove from queue",nullptr);
@@ -1218,6 +1225,7 @@ void MainWindow::showTrackOption(){
     gotoArtist->setIcon(QIcon(":/icons/sidebar/artist.png"));
     gotoAlbum->setIcon(QIcon(":/icons/sidebar/album.png"));
     showLyrics->setIcon(QIcon(":/icons/sidebar/playlist.png"));
+    openChannel->setIcon(QIcon(":/icons/sidebar/artist.png"));
     removeSong->setIcon(QIcon(":/icons/sidebar/remove.png"));
     deleteSongCache->setIcon(QIcon(":/icons/sidebar/delete.png"));
 
@@ -1261,6 +1269,12 @@ void MainWindow::showTrackOption(){
             videoOption->adjustSize();
             videoOption->show();
         }
+    });
+
+    connect(openChannel,&QAction::triggered,[=](){
+        ui->webview->load(QUrl("qrc:///web/youtube/youtube.html"));
+        pageType = "goto_youtube_channel";
+        youtubeVideoId = songId;
     });
 
     connect(gotoAlbum,&QAction::triggered,[=](){
@@ -1338,6 +1352,7 @@ void MainWindow::showTrackOption(){
     }else{
         menu.addSeparator();
         menu.addAction(showLyrics);
+        menu.addAction(openChannel);
         menu.addAction(watchVideo);
     }
     menu.addSeparator();

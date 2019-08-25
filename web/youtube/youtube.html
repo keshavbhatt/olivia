@@ -26,7 +26,7 @@
     <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false'>
          <h1>Youtube Search</h1>
          <a id="home" onclick="$('#result_div').empty();load_history();$('#history_div').fadeIn();$('#trending_div').show();" class="ui-btn-left ui-btn ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext">Home</a>
-         <a id="settings" href="#settingsDialog" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn-right ui-btn ui-shadow ui-corner-all ui-icon-gear ui-btn-icon-notext">Settings</a>
+         <a id="settings" onclick="$('#settingsDialog').popup('open')" href="#" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn-right ui-btn ui-shadow ui-corner-all ui-icon-gear ui-btn-icon-notext">Settings</a>
     </div>
 
     <div id="manul_youtube_page" data-role="page" data-theme="b" data-title="YOUTUBE SEARCH">
@@ -61,12 +61,12 @@
     </div>
 
 <!--settings dialog below-->
-    <div data-role="popup" id="settingsDialog" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">
+    <div data-history="false" data-tolerance="15" data-position-to="window"  data-role="popup" id="settingsDialog" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">
         <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
         <div class="ui-bar ui-bar-b" >
             <h4>Youtube Settings - Olivia</h4>
         </div>
-        <div role="main" class="ui-content"> 
+        <div  class="ui-content" style="display:block !important;">
             <p>Selected Country :</p>
                 <span id="currentCountry"></span>
             <hr style="margin: 12px 0px;">
