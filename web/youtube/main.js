@@ -378,6 +378,9 @@ function track_option(track_id){
                         '<li>'+
                             '<a href="#" onclick="open_channel(\''+channelHref.trim()+'\', \''+songId+'\')" >Open Channel</a>'+
                         '</li>'+
+                        '<li>'+
+                            '<a href="#" onclick="show_related(\''+songId+'\',\''+title.replace("'"," ")+'\')" >Show Related Videos</a>'+
+                        '</li>'+
                       '</ul>',
                 link = "<span >id: "+ songId+"</span>",
                 closebtn = '<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>',
@@ -422,6 +425,31 @@ function track_option(track_id){
         $( document ).on( "popupafterclose", $('#popup-'+songId), function() {
             $( '#popup-'+songId ).remove();
             $('body').css('overflow','auto');
+        });
+}
+
+function show_related(video_id,v_title){
+    $("#popup-"+songId).remove();
+    $('body').css('overflow','auto');
+    $("#manul_youtube_page_suggestions").empty();
+    showLoading();
+    $('.ui-content').fadeOut('slow');
+    $.ajax({
+        type: "GET",
+        url: baseUrl+"youtube_related_videos.php",
+        data: {
+            "video_id" : video_id,
+            "v_title"  : v_title
+        },
+        success: function(html) {
+            $.mobile.loading("hide");
+            $("#result_div").html(html);
+            $('#manul_youtube_page .ui-content').trigger("create");
+            $('#manul_youtube_page .ui-content').fadeIn('slow');
+            $('#manul_youtube_page_suggestions').html("");
+            $("#trending_div").hide();
+            $("#history_div").hide();
+         }
         });
 }
 
