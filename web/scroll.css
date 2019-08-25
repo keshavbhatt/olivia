@@ -62,3 +62,12 @@ body{
     background-position: 0,0;
     background-attachment: fixed !important;
 }
+
+
+.my-watch-video-button{
+    right: 3.8em;
+    top: 50%;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}

@@ -335,6 +335,22 @@ function getCountry(){
     }, "jsonp");
 }
 
+function watch_video(track_id){
+
+    var searchterm = $('#'+track_id).parent().attr("onclick").split("gettrackinfo(\"")[1].split(");")[0];
+    var arr = searchterm.split("!=-=!")
+    title = arr[0];
+    artist = arr[1];
+    album = arr[2];
+    coverUrl = arr[3];
+    songId = arr[4];
+    albumId = arr[5];
+    artistId= arr[6];
+    millis = arr[7];
+    showLoading();
+    mainwindow.web_watch_video(songId+"<==>"+title+"<==>"+album+"<==>"+artist+"<==>"+coverUrl+"<==>"+songId+"<br>");
+    $.mobile.loading("hide");
+}
 
 function track_option(track_id){
     var channelHref = $('#'+track_id).parent().attr("data-channelhref");
