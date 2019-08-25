@@ -440,7 +440,6 @@ function get_channel(video_id){
         });
 }
 
-
 function open_channel(channelHref,songId){
     $("#popup-"+songId).remove();
     $('body').css('overflow','auto');

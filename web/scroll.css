@@ -63,11 +63,16 @@ body{
     background-attachment: fixed !important;
 }
 
-
+/*used in youtube pages*/
 .my-watch-video-button{
     right: 3.8em;
     top: 50%;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
+}
+
+/*used in youtube pages*/
+#navButton, .ui-controlgroup-controls {
+    width: 100% !important;
 }
