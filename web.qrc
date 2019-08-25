@@ -45,5 +45,6 @@
         <file>web/recommendation/main.css</file>
         <file>web/recommendation/main.js</file>
         <file>web/recommendation/recommendation.html</file>
+        <file>web/youtube/channel.jpg</file>
     </qresource>
 </RCC>
