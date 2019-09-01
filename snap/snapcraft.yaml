@@ -56,7 +56,6 @@ parts:
             - python
             - wget
             - coreutils
-            - ffmpeg
    ppa:
      plugin: nil
      override-pull: |
@@ -69,6 +68,7 @@ parts:
      after: [ppa,qt]
      stage-packages:
            - mpv
+           - ffmpeg
    qt:
      plugin: qmake
      qt-version: qt5
