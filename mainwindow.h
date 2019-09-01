@@ -46,10 +46,13 @@
 #include "store.h"
 #include "videooption.h"
 #include "youtube.h"
+#include "download_widget.h"
+
 
 #include "ui_minimode.h"
 #include "ui_settings.h"
 #include "ui_track.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -202,7 +205,10 @@ private slots:
 
     void on_hideDebug_clicked();
 
+    void videoOptionDownloadRequested(QStringList metaData, QStringList formats);
+    void init_downloadWidget();
 private:
+    Widget *downloadWidget;
     bool animationRunning = false;
     bool isLoadingResults;
     equalizer *eq = nullptr;

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1154</width>
-    <height>478</height>
+    <width>958</width>
+    <height>636</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1250,7 +1250,7 @@ background-color: transparent;</string>
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>2</number>
                  </property>
                  <property name="elideMode">
                   <enum>Qt::ElideNone</enum>
@@ -1615,6 +1615,11 @@ QScrollBar:vertical {
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
                      <property name="title">
                       <string>Stream Info Process Operations</string>
                      </property>
@@ -1627,8 +1632,13 @@ QScrollBar:vertical {
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>10</pointsize>
+                         </font>
+                        </property>
                         <property name="text">
-                         <string>idle</string>
+                         <string>no task</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignCenter</set>
@@ -1636,51 +1646,58 @@ QScrollBar:vertical {
                        </widget>
                       </item>
                       <item>
-                       <widget class="QPushButton" name="ytdlStopAll">
-                        <property name="enabled">
-                         <bool>false</bool>
+                       <layout class="QHBoxLayout" name="horizontalLayout_14">
+                        <property name="topMargin">
+                         <number>0</number>
                         </property>
-                        <property name="toolTip">
-                         <string>Stop processing current queue of dead tracks</string>
-                        </property>
-                        <property name="text">
-                         <string>Stop all</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="icons.qrc">
-                          <normaloff>:/icons/others/stop.png</normaloff>:/icons/others/stop.png</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="ytdlRefreshAll">
-                        <property name="toolTip">
-                         <string>Refresh all dead tracks</string>
-                        </property>
-                        <property name="text">
-                         <string>Refresh all tracks</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="icons.qrc">
-                          <normaloff>:/icons/others/reset2.png</normaloff>:/icons/others/reset2.png</iconset>
-                        </property>
-                       </widget>
+                        <item>
+                         <widget class="QPushButton" name="ytdlStopAll">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <pointsize>10</pointsize>
+                           </font>
+                          </property>
+                          <property name="toolTip">
+                           <string>Stop processing current queue of dead tracks</string>
+                          </property>
+                          <property name="text">
+                           <string>Stop all</string>
+                          </property>
+                          <property name="icon">
+                           <iconset resource="icons.qrc">
+                            <normaloff>:/icons/others/stop.png</normaloff>:/icons/others/stop.png</iconset>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QPushButton" name="ytdlRefreshAll">
+                          <property name="font">
+                           <font>
+                            <pointsize>10</pointsize>
+                           </font>
+                          </property>
+                          <property name="toolTip">
+                           <string>Refresh all dead tracks</string>
+                          </property>
+                          <property name="text">
+                           <string>Refresh all tracks</string>
+                          </property>
+                          <property name="icon">
+                           <iconset resource="icons.qrc">
+                            <normaloff>:/icons/others/reset2.png</normaloff>:/icons/others/reset2.png</iconset>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
                       </item>
                      </layout>
                     </widget>
                    </item>
                    <item>
-                    <spacer name="verticalSpacer_3">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                    </spacer>
+                    <layout class="QVBoxLayout" name="downloadWidgetVLayout"/>
                    </item>
                   </layout>
                  </widget>

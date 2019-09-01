@@ -42,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
     init_miniMode();
     init_lyrics();
 
+    init_downloadWidget();
+
 
     QTimer::singleShot(1000, [this]() {
         if(!checkEngine()){
@@ -181,6 +183,8 @@ void MainWindow::init_videoOption(){
         videoOption->setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint
                                     | Qt::WindowMaximizeButtonHint | Qt::WindowFullscreenButtonHint);
         videoOption->setWindowModality(Qt::WindowModal);
+
+        connect(videoOption,SIGNAL(downloadRequested(QStringList,QStringList)),this,SLOT(videoOptionDownloadRequested(QStringList,QStringList)));
     }
 }
 
@@ -694,6 +698,12 @@ void MainWindow::init_offline_storage(){
     if(!downloaded.exists()){
         if(downloaded.mkdir(downloaded.path())){
             qDebug()<<"created downloadedTracks dir";
+        }
+    }
+    QDir downloadedVideo(setting_path+"/downloadedVideos");
+    if(!downloadedVideo.exists()){
+        if(downloadedVideo.mkdir(downloadedVideo.path())){
+            qDebug()<<"created downloadedVideos dir";
         }
     }
     QDir downloadedTemp(setting_path+"/downloadedTemp");
@@ -1426,7 +1436,7 @@ void MainWindow::processYtdlQueue(){
                 connect(ytdlProcess,SIGNAL(finished(int)),this,SLOT(ytdlFinished(int)));
         }
     }else{
-        ui->ytdlQueueLabel->setText("idle");
+        ui->ytdlQueueLabel->setText("no task");
     }
 
     //update stream info buttons
@@ -1445,7 +1455,7 @@ void MainWindow::ytdlFinished(int code){
         ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
         processYtdlQueue();
     }else{
-        ui->ytdlQueueLabel->setText("idle");
+        ui->ytdlQueueLabel->setText("no task");
     }
     //update stream info buttons
     if(ytdlProcess==nullptr){
@@ -3144,4 +3154,28 @@ void MainWindow::on_shuffle_toggled(bool checked)
 void MainWindow::on_hideDebug_clicked()
 {
     ui->debug_widget->hide();
+}
+
+void MainWindow::init_downloadWidget(){
+    downloadWidget = new Widget(0);
+    downloadWidget->setWindowFlags(Qt::Widget);
+    downloadWidget->downloadLocation =setting_path+"/downloadedVideos";
+    ui->downloadWidgetVLayout->addWidget(downloadWidget);
+    connect(qApp,SIGNAL(aboutToQuit()),downloadWidget,SLOT(on_pauseAll_clicked()));
+}
+
+void MainWindow::videoOptionDownloadRequested(QStringList trackMetaData,QStringList formats){ //videoformat<<audioformat
+    ui->tabWidget->setCurrentIndex(2);
+    QString ytIds,title,artist,album,coverUrl,songId;
+    songId = trackMetaData.at(0);
+    title = trackMetaData.at(1);
+    album = trackMetaData.at(2);
+    artist = trackMetaData.at(3);
+    coverUrl = trackMetaData.at(4);
+    ytIds = trackMetaData.at(5);
+
+    downloadWidget->trackId = songId;
+    downloadWidget->trackTitle = title;
+    QString url_str = "https://www.youtube.com/watch?v="+ytIds.split("<br>").first();
+    downloadWidget->startWget(url_str,downloadWidget->downloadLocation,formats);
 }
