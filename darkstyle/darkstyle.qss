@@ -338,4 +338,15 @@ QScrollBar::sub-line:horizontal{
   subcontrol-origin:margin;
 }
 
+QProgressBar:horizontal {
+    border: 1px solid #3A3939;
+    text-align: center;
+    padding: 1px;
+    background: #201F1F;
+
+}
+QProgressBar::chunk:horizontal {
+background-color: qlineargradient(spread:reflect, x1:1, y1:1, x2:1, y2:1, stop:0 rgba(181,184 ,183 ,0.5), stop:1 rgba(58, 57, 57, 255));
+ }
+
 
