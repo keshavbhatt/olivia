@@ -5,6 +5,7 @@
 
 
 
+
 VideoOption::VideoOption(QWidget *parent,store *store,QString fifopath):
     QWidget(parent),
     ui(new Ui::VideoOption)
@@ -36,14 +37,13 @@ VideoOption::VideoOption(QWidget *parent,store *store,QString fifopath):
             }
         });
         fifo->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"fullscreen\"]}' | socat - "+ used_fifo_file_path);
-        //fifo->waitForStarted();
     });
 }
 
 void VideoOption::toggleFullscreen()
 {
-    QProcess *fifo = new QProcess(nullptr);
-    connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
+   // QProcess *fifo = new QProcess(nullptr);
+   // connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
    // fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"volume\","+QString::number(volume)+"]}' | socat - "+ used_fifo_file_path);
 }
 
@@ -81,6 +81,9 @@ void VideoOption::setMeta(QString songId){
     url = trackMetaList.at(7);
     ytIds = trackMetaList.at(8);
     dominantColor = trackMetaList.at(9);
+
+    currentTrackMeta.clear();
+    currentTrackMeta<<songId<<title<<album<<artist<<base64<<ytIds;
 
     QTextDocument text;
     text.setHtml(title);
@@ -130,6 +133,8 @@ void VideoOption::resetVars(){
         rBtn->deleteLater();
     }
     ui->watch->setEnabled(false);
+    ui->download->setEnabled(false);
+
     audioCode.clear();
     videoCode.clear();
     resolution_List.clear();
@@ -141,8 +146,10 @@ void VideoOption::resetVars(){
 }
 
 void VideoOption::setMetaFromWeb(QVariant data){
+
     resetVars();
     QStringList trackMetaList = data.toString().split("<==>");
+    currentTrackMeta = trackMetaList;
     QString ytIds,title,artist,album,coverUrl,songId;
 
     if(trackMetaList.count()>4){
@@ -189,6 +196,10 @@ void VideoOption::setMetaFromWeb(QVariant data){
 void VideoOption::LoadAvatar(const QUrl &avatarUrl)
 {
    QNetworkAccessManager manager;
+   QNetworkDiskCache* diskCache = new QNetworkDiskCache(0);
+   QString cache_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+   diskCache->setCacheDirectory(cache_path);
+   manager.setCache(diskCache);
    QEventLoop loop;
    QNetworkReply *reply = manager.get(QNetworkRequest(avatarUrl));
    QObject::connect(reply, &QNetworkReply::finished, &loop, [&reply, this,&loop](){
@@ -356,9 +367,19 @@ void VideoOption::update_audio_video_code(bool checked){
         connect(ui->watch,&QPushButton::clicked,[=](){
             getUrlForFormatsAndPLay(audioCode,videoCode);
         });
+
+        ui->download->disconnect();
+        connect(ui->download,&QPushButton::clicked,[=](){
+            getUrlForFormatsAndDownload(audioCode,videoCode);
+        });
+
         ui->watch->setEnabled(true);
+        ui->download->setEnabled(true);
+
     }else{
         ui->watch->setEnabled(false);
+        ui->download->setEnabled(false);
+
     }
 }
 
@@ -366,12 +387,26 @@ void VideoOption::update_audio_video_code(bool checked){
 void VideoOption::getUrlForFormatsAndPLay(QString audioFormat,QString videoFormat){
     QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QProcess *audioP = new QProcess(this);
+
+    task = "play";
     connect(audioP,SIGNAL(finished(int)),this,SLOT(getUrlProcessFinished(int)));
+
+
     audioP->start("python",QStringList()<<addin_path+"/core"<<"-f"<<videoFormat+"+"+audioFormat<<"--get-url"<<currentUrl);
     ui->progressBar->show();
     ui->watch->setText("Merging formats...");
     ui->watch->setEnabled(false);
+    ui->download->setEnabled(false);
+
     audioP->waitForStarted();
+}
+
+void VideoOption::getUrlForFormatsAndDownload(QString audioFormat,QString videoFormat){
+    ui->progressBar->show();
+    task ="download";
+    addToDownload(videoFormat,audioFormat);
+    ui->download->setEnabled(false);
+    ui->progressBar->hide();
 }
 
 void VideoOption::getUrlProcessFinished(int code){
@@ -381,12 +416,32 @@ void VideoOption::getUrlProcessFinished(int code){
         if(output.contains("http")){
             videoUrl = output.split("\n").first();
             audioUrl = output.split("\n").last();
-            mergeAndPlay(videoUrl,audioUrl);
+            if(task=="play")
+                mergeAndPlay(videoUrl,audioUrl);
+            else
+                addToDownload(videoUrl,audioUrl);//not being used
         }
         ui->progressBar->hide();
-
     }else{
-     //TODO show error to user
+        QMessageBox msgBox;
+        msgBox.setText("ERROR: an error occured while performing this task");
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setInformativeText("Error code: "+QString::number(code));
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+        msgBox.exec();
+    }
+}
+
+void VideoOption::addToDownload(QString videoFormat, QString audioFormat){
+
+    QStringList downloadFormats;
+    downloadFormats<<videoFormat<<audioFormat;
+
+    if(currentTrackMeta.count()>4){
+        emit downloadRequested(currentTrackMeta,downloadFormats);
+    }else{
+        //TODO show error
     }
 }
 
@@ -405,6 +460,8 @@ void VideoOption::playerFinished(int code){
     Q_UNUSED(code);
     ui->watch->setText("Watch");
     ui->watch->setEnabled(true);
+    ui->download->setEnabled(true);
+
     this->setWindowTitle(QApplication::applicationName()+" - Video Option");
     if(this->windowState()==Qt::WindowFullScreen){
         this->setWindowState(Qt::WindowNoState);
@@ -414,14 +471,13 @@ void VideoOption::playerFinished(int code){
 
 void VideoOption::playerReadyRead(){
     ui->watch->setEnabled(false);
+    ui->download->setEnabled(false);
+
     ui->watch->setText("Playing...");
     this->setWindowTitle("MPV for Olivia - "+currentTitle);
     if(!playerTimer->isActive()){
         playerTimer->start(500);
     }
 }
-
-
-
 
 

@@ -30,6 +30,7 @@ public:
 
 signals:
     bool checkEngine();
+    void downloadRequested(const QStringList currentTrackMeta,const QStringList downloadFormats);
 
 public slots:
     void removeStyle();
@@ -53,6 +54,9 @@ private slots:
     void LoadAvatar(const QUrl &avatarUrl);
     void toggleFullscreen();
     void deleteProcess(int code);
+
+    void getUrlForFormatsAndDownload(QString audioFormat, QString videoFormat);
+    void addToDownload(QString videoFormat, QString audioFormat);
 private:
     Ui::VideoOption *ui;
     store *store_manager = nullptr;
@@ -64,6 +68,8 @@ private:
     QString videoUrl,audioUrl;
     QString used_fifo_file_path;
     QTimer *playerTimer = nullptr;
+    QString task = "";
+    QStringList currentTrackMeta;
 
 
 

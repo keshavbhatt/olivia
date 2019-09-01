@@ -106,7 +106,7 @@ border:none;</string>
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap resource="icons.qrc">:/icons/sidebar/album.png</pixmap>
+              <pixmap>:/icons/sidebar/album.png</pixmap>
              </property>
              <property name="scaledContents">
               <bool>true</bool>
@@ -366,6 +366,13 @@ QScrollBar:vertical {
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="download">
+          <property name="text">
+           <string>Download</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -380,8 +387,6 @@ QScrollBar:vertical {
    <header>elidedlabel.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
