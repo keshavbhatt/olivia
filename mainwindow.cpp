@@ -1029,6 +1029,17 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->evaluateJavaScript("get_channel('"+youtubeVideoId+"')");
     }
 
+    if(pageType=="goto_youtube_recommendation"){
+        if(!youtubeVideoId.isEmpty()){
+            ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
+            ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
+            QString trackTitle = store_manager->getTrack(youtubeVideoId).at(1).remove("'").remove("\"");
+            ui->webview->page()->mainFrame()->evaluateJavaScript("show_related('"+youtubeVideoId+"','"+trackTitle+"')");
+        }
+        youtubeVideoId.clear();
+    }
+
+
     if( loaded && pageType == "recommendation"){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
 
@@ -1223,6 +1234,7 @@ void MainWindow::showTrackOption(){
     QAction *watchVideo = new QAction("Watch Video",nullptr);
     QAction *showLyrics = new QAction("Show Lyrics",nullptr);
     QAction *openChannel = new QAction("Open Channel",nullptr);
+    QAction *youtubeShowRecommendation= new QAction("Show Recommendations",nullptr);
     QAction *gotoArtist= new QAction("Go to Artist",nullptr);
     QAction *gotoAlbum = new QAction("Go to Album",nullptr);   
     QAction *removeSong = new QAction("Remove from queue",nullptr);
@@ -1230,6 +1242,7 @@ void MainWindow::showTrackOption(){
     deleteSongCache->setEnabled(store_manager->isDownloaded(songId));
 
     //setIcons
+    youtubeShowRecommendation->setIcon(QIcon(":/icons/sidebar/activity.png"));
     showRecommendation->setIcon(QIcon(":/icons/sidebar/activity.png"));
     watchVideo->setIcon(QIcon(":/icons/sidebar/video.png"));
     gotoArtist->setIcon(QIcon(":/icons/sidebar/artist.png"));
@@ -1259,6 +1272,12 @@ void MainWindow::showTrackOption(){
         ui->webview->load(QUrl("qrc:///web/recommendation/recommendation.html"));
         pageType = "recommendation";
         recommendationSongId = songId;
+    });
+
+    connect(youtubeShowRecommendation,&QAction::triggered,[=](){
+        ui->webview->load(QUrl("qrc:///web/youtube/youtube.html"));
+        pageType = "goto_youtube_recommendation";
+        youtubeVideoId = songId;
     });
 
     connect(watchVideo,&QAction::triggered,[=](){
@@ -1364,6 +1383,7 @@ void MainWindow::showTrackOption(){
         menu.addAction(showLyrics);
         menu.addAction(openChannel);
         menu.addAction(watchVideo);
+        menu.addAction(youtubeShowRecommendation);
     }
     menu.addSeparator();
     menu.addAction(removeSong);
@@ -3175,7 +3195,14 @@ void MainWindow::videoOptionDownloadRequested(QStringList trackMetaData,QStringL
     ytIds = trackMetaData.at(5);
 
     downloadWidget->trackId = songId;
-    downloadWidget->trackTitle = title;
+
+    //remove html notations from title
+    QTextDocument text;
+    text.setHtml(title);
+    QString plainTitle = text.toPlainText();
+    downloadWidget->trackTitle = plainTitle;
+    text.deleteLater();
+
     QString url_str = "https://www.youtube.com/watch?v="+ytIds.split("<br>").first();
     downloadWidget->startWget(url_str,downloadWidget->downloadLocation,formats);
 }

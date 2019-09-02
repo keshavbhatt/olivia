@@ -379,7 +379,7 @@ function track_option(track_id){
                             '<a href="#" onclick="open_channel(\''+channelHref.trim()+'\', \''+songId+'\')" >Open Channel</a>'+
                         '</li>'+
                         '<li>'+
-                            '<a href="#" onclick="show_related(\''+songId+'\',\''+title.replace("'"," ")+'\')" >Show Related Videos</a>'+
+                            '<a href="#" onclick="show_related(\''+songId+'\',\''+title.replace("'"," ")+'\')" >Show Recommended Videos</a>'+
                         '</li>'+
                       '</ul>',
                 link = "<span >id: "+ songId+"</span>",
