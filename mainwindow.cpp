@@ -1033,7 +1033,7 @@ void MainWindow::webViewLoaded(bool loaded){
         if(!youtubeVideoId.isEmpty()){
             ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
             ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
-            QString trackTitle = store_manager->getTrack(youtubeVideoId).at(1).remove("'").remove("\"");
+            QString trackTitle = QString(store_manager->getTrack(youtubeVideoId).at(1)).remove("'").remove("\"");
             ui->webview->page()->mainFrame()->evaluateJavaScript("show_related('"+youtubeVideoId+"','"+trackTitle+"')");
         }
         youtubeVideoId.clear();
