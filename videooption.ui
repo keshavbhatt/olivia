@@ -106,7 +106,7 @@ border:none;</string>
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap>:/icons/sidebar/album.png</pixmap>
+              <pixmap resource="icons.qrc">:/icons/sidebar/album.png</pixmap>
              </property>
              <property name="scaledContents">
               <bool>true</bool>
@@ -361,15 +361,26 @@ QScrollBar:vertical {
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QPushButton" name="watch">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
           <property name="text">
-           <string>Watch</string>
+           <string> Watch</string>
+          </property>
+          <property name="icon">
+           <iconset resource="icons.qrc">
+            <normaloff>:/icons/others/eye.png</normaloff>:/icons/others/eye.png</iconset>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="download">
           <property name="text">
-           <string>Download</string>
+           <string> Download</string>
+          </property>
+          <property name="icon">
+           <iconset resource="icons.qrc">
+            <normaloff>:/icons/others/donwload2.png</normaloff>:/icons/others/donwload2.png</iconset>
           </property>
          </widget>
         </item>
@@ -387,6 +398,8 @@ QScrollBar:vertical {
    <header>elidedlabel.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
