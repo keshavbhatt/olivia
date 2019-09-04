@@ -99,5 +99,6 @@
         <file>icons/shuffle_button_disabled.png</file>
         <file>icons/p_now_playing.png</file>
         <file>icons/download_widget/empty.png</file>
+        <file>icons/sidebar/spotify.png</file>
     </qresource>
 </RCC>

@@ -1014,33 +1014,39 @@ void MainWindow::webViewLoaded(bool loaded){
     }
 
     if(pageType=="goto_album"){
+        leftListChangeCurrentRow(7);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
         ui->webview->page()->mainFrame()->evaluateJavaScript("album_view('"+gotoAlbumId+"')");
     }
 
     if(pageType=="goto_artist"){
+        leftListChangeCurrentRow(8);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
         ui->webview->page()->mainFrame()->evaluateJavaScript("artist_view('"+gotoArtistId+"')");
     }
 
     if(pageType=="goto_youtube_channel"){
+        leftListChangeCurrentRow(14);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
         ui->webview->page()->mainFrame()->evaluateJavaScript("get_channel('"+youtubeVideoId+"')");
     }
 
     if(pageType=="goto_youtube_recommendation"){
+        leftListChangeCurrentRow(14);
         if(!youtubeVideoId.isEmpty()){
+
             ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
             ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
             QString trackTitle = QString(store_manager->getTrack(youtubeVideoId).at(1)).remove("'").remove("\"");
+            youtubeVideoId = store_manager->getYoutubeIds(youtubeVideoId).split("<br>").first().trimmed();
             ui->webview->page()->mainFrame()->evaluateJavaScript("show_related('"+youtubeVideoId+"','"+trackTitle+"')");
         }
         youtubeVideoId.clear();
     }
 
-
     if( loaded && pageType == "recommendation"){
+        leftListChangeCurrentRow(2);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
 
         //if the function is called from track action menu
@@ -1230,11 +1236,11 @@ void MainWindow::showTrackOption(){
     QString albumId = store_manager->getAlbumId(songId);
     QString artistId = store_manager->getArtistId(songId);
 
-    QAction *showRecommendation = new QAction("Show Recommendations",nullptr);
+    QAction *showRecommendation = new QAction("Spotify Recommendations",nullptr);
     QAction *watchVideo = new QAction("Watch Video",nullptr);
     QAction *showLyrics = new QAction("Show Lyrics",nullptr);
     QAction *openChannel = new QAction("Open Channel",nullptr);
-    QAction *youtubeShowRecommendation= new QAction("Show Recommendations",nullptr);
+    QAction *youtubeShowRecommendation= new QAction("Youtube Recommendations",nullptr);
     QAction *gotoArtist= new QAction("Go to Artist",nullptr);
     QAction *gotoAlbum = new QAction("Go to Album",nullptr);   
     QAction *removeSong = new QAction("Remove from queue",nullptr);
@@ -1242,8 +1248,8 @@ void MainWindow::showTrackOption(){
     deleteSongCache->setEnabled(store_manager->isDownloaded(songId));
 
     //setIcons
-    youtubeShowRecommendation->setIcon(QIcon(":/icons/sidebar/activity.png"));
-    showRecommendation->setIcon(QIcon(":/icons/sidebar/activity.png"));
+    youtubeShowRecommendation->setIcon(QIcon(":/icons/sidebar/youtube.png"));
+    showRecommendation->setIcon(QIcon(":/icons/sidebar/spotify.png"));
     watchVideo->setIcon(QIcon(":/icons/sidebar/video.png"));
     gotoArtist->setIcon(QIcon(":/icons/sidebar/artist.png"));
     gotoAlbum->setIcon(QIcon(":/icons/sidebar/album.png"));
@@ -1376,6 +1382,8 @@ void MainWindow::showTrackOption(){
         {
             menu.addAction(showRecommendation);
         }
+        //added youtube recommendation fallback for itunes tracks ids
+        menu.addAction(youtubeShowRecommendation);
         menu.addAction(gotoAlbum);
         menu.addAction(gotoArtist);
     }else{
@@ -3205,4 +3213,10 @@ void MainWindow::videoOptionDownloadRequested(QStringList trackMetaData,QStringL
 
     QString url_str = "https://www.youtube.com/watch?v="+ytIds.split("<br>").first();
     downloadWidget->startWget(url_str,downloadWidget->downloadLocation,formats);
+}
+
+void MainWindow::leftListChangeCurrentRow(int row){
+    ui->left_list->blockSignals(true);
+     ui->left_list->setCurrentRow(row);
+    ui->left_list->blockSignals(false);
 }

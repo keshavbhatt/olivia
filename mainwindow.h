@@ -207,6 +207,7 @@ private slots:
 
     void videoOptionDownloadRequested(QStringList metaData, QStringList formats);
     void init_downloadWidget();
+    void leftListChangeCurrentRow(int row);
 private:
     Widget *downloadWidget;
     bool animationRunning = false;
