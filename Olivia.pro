@@ -96,6 +96,24 @@ RESOURCES += \
     darkstyle.qrc \
     icons.qrc \
     web.qrc
+
+
+!win32:!macx {
+    QT += dbus
+
+    SOURCES +=  plugins/mpris/mprisplayeradapter.cpp \
+                plugins/mpris/mprisadapter.cpp \
+                plugins/mpris/mprisplugin.cpp
+
+    HEADERS +=  plugins/mpris/mprisplayeradapter.h \
+                plugins/mpris/mprisadapter.h \
+                plugins/mpris/mprisplugin.h
+
+    OTHER_FILES += \
+        plugins/org.mpris.MediaPlayer2.xml \
+        plugins/org.mpris.MediaPlayer2.Player.xml \
+        plugins/org.freedesktop.DBus.Properties.xml
+}
     
 # Deployment
 isEmpty(PREFIX){

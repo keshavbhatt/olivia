@@ -47,6 +47,7 @@
 #include "videooption.h"
 #include "youtube.h"
 #include "download_widget.h"
+#include "plugins/mpris/mprisplugin.h"
 
 
 #include "ui_minimode.h"
@@ -208,6 +209,10 @@ private slots:
     void videoOptionDownloadRequested(QStringList metaData, QStringList formats);
     void init_downloadWidget();
     void leftListChangeCurrentRow(int row);
+    void getEnabledTracks(QListWidget*);
+
+    void init_mpris();
+
 private:
     Widget *downloadWidget;
     bool animationRunning = false;
@@ -250,7 +255,8 @@ private:
     Youtube *youtube;
     VideoOption *videoOption = nullptr;
     QStringList shuffledPlayerQueue;
-    void getEnabledTracks(QListWidget*);
+    MprisPlugin *dp = nullptr;
+
 };
 
 class SelectColorButton : public QPushButton

@@ -22,6 +22,7 @@
 #include "lyrics.h"
 #include "manifest_resolver.h"
 #include "utils.h"
+#include "plugins/mpris/mprisplugin.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -143,6 +144,35 @@ void MainWindow::init_radio(){
             }
         }
     });
+
+    init_mpris();
+}
+
+void MainWindow::init_mpris(){
+    if(dp==nullptr){
+        dp = new MprisPlugin(this);
+        connect(dp,SIGNAL(Next()),ui->next,SLOT(click()));
+        connect(dp,SIGNAL(PlayPause()),ui->play_pause,SLOT(click()));
+        connect(dp,SIGNAL(Play()),ui->play_pause,SLOT(click()));
+        connect(dp,SIGNAL(Pause()),ui->play_pause,SLOT(click()));
+        connect(dp,SIGNAL(Stop()),ui->stop,SLOT(click()));
+        connect(dp,&MprisPlugin::Raise,[=](){
+            this->show();
+        });
+
+        connect(ui->state,&QLineEdit::textChanged,[=](const QString state){
+            QString statusStr;
+            if(state=="playing"){
+                statusStr = "Playing";
+            }else if (state=="paused") {
+                statusStr = "Paused";
+            }else {
+                statusStr = "Stopped";
+            }
+            dp->playerStatus = statusStr;
+            emit dp->PlaybackStatusChanged(statusStr);
+        });
+    }
 }
 
 void MainWindow::installEventFilters(){
@@ -1806,6 +1836,8 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
     QLabel *cover = list->itemWidget(item)->findChild<QLabel *>("cover");
     ui->cover->setPixmap(QPixmap(*cover->pixmap()).scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+    QPixmap(*cover->pixmap()).save(QString(setting_path+"/albumArts/"+"currentArt.png"),0);
+
 
    //hide playing labels in current list
     QList<QLabel*> playing_label_list_;
@@ -1881,11 +1913,25 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     }
     if(store_manager->isDownloaded(songId)){
         radio_manager->playRadio(false,QUrl(url));
-        //setWavefrom(url);
     }else{
         saveTracksAfterBuffer =  settingsObj.value("saveAfterBuffer","true").toBool();
         radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url));
-        // setWavefrom(url);
+    }
+
+    //update metadata of MPRIS interface
+    if(dp!=nullptr){
+        QVariantMap song;
+        song.insert("mpris:length", 500000);
+        song.insert("xesam:album", albumStr);
+        song.insert("mpris:artUrl", setting_path+"/albumArts/"+"currentArt.png");
+        song.insert("xesam:title", titleStr);
+        song.insert("xesam:artist", artistStr);
+        song.insert("mpris:trackid", songId);
+        QVariantList artistlist;
+        artistlist.append(QVariant(artistStr));
+        song.insert("xesam:albumArtist", artistlist);
+        song.insert("xesam:url", url);
+        emit dp->currentSongChanged(song);
     }
 
     //TODO this is making app slow when the list of tracks if huge
@@ -2115,6 +2161,11 @@ void MainWindow::radioPosition(int pos){
    QTime time(hours, minutes,seconds);
    ui->position->setText(time.toString());
    ui->radioSeekSlider->setValue(pos);
+
+   //update mpris position
+   if(dp!=nullptr){
+       dp->playerPosition = pos;
+   }
 }
 
 
