@@ -33,6 +33,7 @@ apps:
         - gsettings
         - process-control
         - desktop-legacy
+        - dbus
 
 plugs:
   gtk-3-themes:
