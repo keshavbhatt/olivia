@@ -73,17 +73,17 @@ $(document).ready(function($) {
 
 
 //  core functions -------------
-function open_local_saved_tracks(){
+function open_local_saved_videos(){
     $("#saved_tracks_result").empty();
     showLoading();
     $.mobile.changePage($('#tracks_page'));
-    var json = JSON.parse(store.web_print_local_saved_tracks()); //songs Data is returned in json format
+    var json = JSON.parse(store.web_print_local_saved_videos()); //songs Data is returned in json format
     var $html = "";
-    $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" downloaded songs");
+    $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" downloaded videos");
     for(var i= 0; i < json.length;i++){
         var albumType = (json[i].album === "undefined") ? "Youtube":"";
          $html = $html+
-            "<li onclick='mainwindow.playLocalTrack(\""+json[i].songId+"\")' data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"' ><a>"+
+            "<li onclick='mainwindow.playVideo(\""+json[i].songId+"\")' data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"' ><a>"+
             "<img id='"+json[i].songId+"' style='max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \>"+
                     "<p>"+
                         ""+json[i].title+
