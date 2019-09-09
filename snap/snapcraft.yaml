@@ -41,6 +41,7 @@ apps:
         - desktop-legacy
     slots:
         - mpris
+        - dbus-olivia
 
 plugs:
   gtk-3-themes:
