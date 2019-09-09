@@ -1,4 +1,4 @@
-name: olivia-test
+name: olivia
 version: '1.0'
 summary: Elegant Cloud Music Player for Linux Desktop
 description: |
@@ -11,9 +11,8 @@ architectures:
   - build-on: amd64
     run-on: amd64
 slots: 
-  dbus-olivia:
-    interface: dbus
-    bus: session
+  mpris:
+    interface: mpris
     name: olivia
 
 apps:
@@ -41,7 +40,6 @@ apps:
         - desktop-legacy
     slots:
         - mpris
-        - dbus-olivia
 
 plugs:
   gtk-3-themes:
@@ -95,6 +93,7 @@ parts:
           - libqt5x11extras5
           - libqt5xml5
           - libdb5.3
+          - libglu1-mesa
      override-build: |
             snapcraftctl build
             sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_SRC}/olivia.desktop
