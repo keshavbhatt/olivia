@@ -13,6 +13,7 @@ public:
     explicit store(QObject *parent = 0,QString dbName="default");
     Q_INVOKABLE QString web_print_saved_tracks();
     Q_INVOKABLE QString web_print_local_saved_tracks();
+    Q_INVOKABLE QString web_print_local_saved_videos();
     Q_INVOKABLE QString web_print_fav_radio_channels();
     Q_INVOKABLE QString web_print_saved_albums();
     Q_INVOKABLE QString web_print_saved_artists();
@@ -72,6 +73,7 @@ private slots:
     QList<QStringList> getAllArtists();
     QStringList getArtistDetails(QString artistId);
     QList<QStringList> getAlbumTrackList(QString albumId);
+    QList<QStringList> getAllVideos();
 };
 
 #endif // STORE_H

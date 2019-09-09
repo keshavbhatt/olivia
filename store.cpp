@@ -346,6 +346,23 @@ QList<QStringList> store::getAllTracks(){
     return trackList;
 }
 
+QList<QStringList> store::getAllVideos(){
+    QList<QStringList> trackList ;
+    QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QDir dir(setting_path+"/downloadedVideos/");
+    QStringList filter;
+    filter<< +"*.webm"<<"*.mp4"<<"*.mpeg"<<"*.mkv"<<"*.avi"<<"*.flv"<<"*.ogv"<<"*.ogg";
+    QFileInfoList files = dir.entryInfoList(filter);
+   // qDebug()<<dir.entryList(filter);
+
+    foreach (QFileInfo fileInfo, files) {
+//        qDebug()<<fileInfo.baseName();
+        trackList.append(getTrack(fileInfo.baseName()));
+    }
+   // qDebug()<<trackList;
+    return trackList;
+}
+
 QList<QStringList> store::getAllAlbums(){
     QSqlQuery query;
     QList<QStringList> albumList ;
@@ -706,6 +723,41 @@ QString store::web_print_local_saved_tracks(){
         id = trackList.at(8);
         dominantColor = trackList.at(9);
         if(!songId.trimmed().isEmpty() && isDownloaded(songId)){
+            recordObject.insert("songId",songId);
+            recordObject.insert("title",title);
+            recordObject.insert("albumId",albumId);
+            recordObject.insert("album",album);
+            recordObject.insert("artistId",artistId);
+            recordObject.insert("artist",artist);
+            recordObject.insert("base64",base64);
+            recordObject.insert("url",url);
+            recordObject.insert("id",id);
+            recordsArray.push_back(recordObject);
+        }
+    }
+    json.setArray(recordsArray);
+    return json.toJson();
+}
+
+// returns json array string of local downloaded videos
+QString store::web_print_local_saved_videos(){
+    qDebug()<<"LOAD LOCAL SAVED VIDEOS";
+    QJsonDocument json;
+    QJsonArray recordsArray;
+    foreach (QStringList trackList, getAllVideos()) {
+        QJsonObject recordObject;
+        QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
+        songId = trackList.at(0);
+        title = trackList.at(1);
+        albumId = trackList.at(2);
+        album = trackList.at(3);
+        artistId = trackList.at(4);
+        artist = trackList.at(5);
+        base64 = trackList.at(6);
+        url = trackList.at(7);
+        id = trackList.at(8);
+        dominantColor = trackList.at(9);
+        if(!songId.trimmed().isEmpty()){
             recordObject.insert("songId",songId);
             recordObject.insert("title",title);
             recordObject.insert("albumId",albumId);
