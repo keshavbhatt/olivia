@@ -1,12 +1,13 @@
 #include "download_widget.h"
 #include "ui_download_widget.h"
 #include <QDebug>
-#include <QSettings>
+//#include <QSettings>
 #include <QStandardPaths>
 #include <QDateTime>
 #include <QRegExp>
 #include <QDir>
 #include "elidedlabel.h"
+#include "settings.h"
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -845,6 +846,9 @@ void Widget::on_downloadList_itemDoubleClicked(QListWidgetItem *item)
      QString videoId = argLabel->text().split(" https://").first().split("/").last();
     // qDebug()<<argLabel->text();
 
+     settings *sett = new settings(this);
+     int volume = sett->settingsObj.value("volume",100).toInt();
+
      QDir dir(setting_path+"/downloadedVideos/");
      QStringList filter;
      filter<< videoId+"*";
@@ -854,10 +858,11 @@ void Widget::on_downloadList_itemDoubleClicked(QListWidgetItem *item)
              QProcess *player = new QProcess(this);
              player->setObjectName("player");
              player->start("mpv",QStringList()<<"--title=MPV for Olivia - "+
-                           titleLabel->text().toUtf8()<<"--no-ytdl"<<files.at(0).filePath());
+                           titleLabel->text().toUtf8()<<"--no-ytdl"<<files.at(0).filePath()
+                           <<"--volume"<<QString::number(volume));
          }
      }else{
          qDebug()<<"Unable to locate downloaded file" <<videoId;
      }
-
+    sett->deleteLater();
 }

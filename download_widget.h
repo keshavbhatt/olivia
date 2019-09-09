@@ -65,7 +65,7 @@ private:
 
     QString setting_path;
 
-    QSettings settings;
+ //   QSettings settings;
 
 
 
