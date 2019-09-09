@@ -37,7 +37,7 @@ apps:
         - gsettings
         - process-control
         - desktop-legacy
-        slots:
+    slots:
         - olivia-mpris
 
 plugs:
