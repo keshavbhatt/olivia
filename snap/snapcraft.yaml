@@ -10,6 +10,11 @@ icon: snap/gui/icon.png
 architectures:
   - build-on: amd64
     run-on: amd64
+slots: 
+  dbus-olivia:
+    interface: dbus
+    bus: session
+    name: olivia
 
 apps:
   olivia:
