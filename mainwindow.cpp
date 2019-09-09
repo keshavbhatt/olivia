@@ -1029,6 +1029,10 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript(" open_local_saved_tracks();");
     }
+    if(pageType=="local_saved_videos"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("open_local_saved_videos();");
+    }
     if(pageType=="saved_albums"){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("open_saved_albums();");
@@ -1056,14 +1060,14 @@ void MainWindow::webViewLoaded(bool loaded){
     }
 
     if(pageType=="goto_youtube_channel"){
-        leftListChangeCurrentRow(14);
+        leftListChangeCurrentRow(15);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
         ui->webview->page()->mainFrame()->evaluateJavaScript("get_channel('"+youtubeVideoId+"')");
     }
 
     if(pageType=="goto_youtube_recommendation"){
-        leftListChangeCurrentRow(14);
+        leftListChangeCurrentRow(15);
         if(!youtubeVideoId.isEmpty()){
 
             ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
@@ -1114,7 +1118,7 @@ void MainWindow::webViewLoaded(bool loaded){
 
 void MainWindow::setSearchTermAndOpenYoutube(QVariant term){
     youtubeSearchTerm = term.toString();
-    ui->left_list->setCurrentRow(14); //set youtube page
+    ui->left_list->setCurrentRow(15); //set youtube page
 }
 
 void MainWindow::resultLoaded(){
@@ -1688,10 +1692,13 @@ void MainWindow::on_left_list_currentRowChanged(int currentRow)
     case 9:
          show_local_saved_songs();
         break;
-    case 14:
-         browse_youtube();
+    case 10:
+         show_local_saved_videos();
         break;
     case 15:
+         browse_youtube();
+        break;
+    case 16:
          internet_radio();
         break;
     case 17:
@@ -1764,6 +1771,11 @@ void MainWindow::show_saved_songs(){
 void MainWindow::show_local_saved_songs(){
     pageType = "local_saved_songs";
     ui->webview->load(QUrl("qrc:///web/local_songs/local_songs.html"));
+}
+
+void MainWindow::show_local_saved_videos(){
+    pageType = "local_saved_videos";
+    ui->webview->load(QUrl("qrc:///web/local_videos/local_videos.html"));
 }
 
 void MainWindow::show_saved_albums(){
@@ -3225,8 +3237,6 @@ void MainWindow::on_shuffle_toggled(bool checked)
         ui->shuffle->setToolTip("Shuffle (Disabled)");
     }
 }
-
-
 //================================Shuffle===========================================================
 
 
@@ -3270,4 +3280,22 @@ void MainWindow::leftListChangeCurrentRow(int row){
     ui->left_list->blockSignals(true);
      ui->left_list->setCurrentRow(row);
     ui->left_list->blockSignals(false);
+}
+
+void MainWindow::playVideo(QString trackId){
+    QDir dir(setting_path+"/downloadedVideos/");
+    QStringList filter;
+    filter<< trackId+"*";
+    QFileInfoList files = dir.entryInfoList(filter);
+    //store *store_manager  = this->findChild<store*>("store_manager");
+    if(store_manager!=nullptr){
+        QString titleLabel =store_manager->getTrack(trackId).at(1);
+        QProcess *player = new QProcess(this);
+        player->setObjectName("player");
+        player->start("mpv",QStringList()<<"--title=MPV for Olivia - "+
+                      titleLabel<<"--no-ytdl"<<files.at(0).filePath()<<"--volume"<<QString::number(radio_manager->volume)
+                      );
+    }else{
+        qDebug()<<"StoreManager not found";
+    }
 }

@@ -6,6 +6,10 @@ description: |
 grade: stable
 confinement: strict
 icon: snap/gui/icon.png
+slots:
+  olivia-mpris:
+    interface: mpris
+    name: olivia
 
 architectures:
   - build-on: amd64
@@ -33,6 +37,8 @@ apps:
         - gsettings
         - process-control
         - desktop-legacy
+        slots:
+        - olivia-mpris
 
 plugs:
   gtk-3-themes:

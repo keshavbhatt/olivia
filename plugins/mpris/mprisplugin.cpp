@@ -68,7 +68,7 @@ QString MprisPlugin::DesktopEntry() const {
     return "olivia";
 }
 QString MprisPlugin::Identity() const {
-    return "Olivia";
+    return "olivia";
 }
 
 QVariantMap MprisPlugin::Metadata() const {

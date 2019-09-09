@@ -78,6 +78,7 @@ public:
     Q_INVOKABLE void setThemeColor(QString); //sets themeColor in mainWindow
     Q_INVOKABLE void showAjaxError();
     Q_INVOKABLE void web_watch_video(QVariant data);
+    Q_INVOKABLE void playVideo(QString trackId);
 
     QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;
@@ -213,6 +214,7 @@ private slots:
 
     void init_mpris();
 
+    void show_local_saved_videos();
 private:
     Widget *downloadWidget;
     bool animationRunning = false;

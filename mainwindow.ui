@@ -645,11 +645,20 @@ QScrollBar:vertical {
                 </item>
                 <item>
                  <property name="text">
-                  <string>Local Music</string>
+                  <string>Saved Music</string>
                  </property>
                  <property name="icon">
                   <iconset resource="icons.qrc">
                    <normaloff>:/icons/sidebar/local.png</normaloff>:/icons/sidebar/local.png</iconset>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Saved Videos</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="icons.qrc">
+                   <normaloff>:/icons/sidebar/video.png</normaloff>:/icons/sidebar/video.png</iconset>
                  </property>
                 </item>
                 <item>
