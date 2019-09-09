@@ -46,10 +46,10 @@ Widget::Widget(QWidget *parent) :
 
 
     //prepare database dir and file
-    QDir dir(returnPath("database"));
+    QDir dir(returnPath("videoDownloadHistory"));
     dbFile.setFileName(dir.path()+"/database.db");
     //prepare history dir
-    QDir(returnPath("history"));
+    QDir(returnPath("videoDownloadHistory"));
     read_history();
 }
 
@@ -167,7 +167,7 @@ void Widget::save_download_item(int currentRow){
 
 
         //prepare database
-        QDir dir(returnPath("history"));
+        QDir dir(returnPath("videoDownloadHistory"));
         QFile item_history(dir.path()+"/"+uuidLabel->text());
         if (item_history.open(QFile::ReadWrite|QIODevice::Truncate)){
             QTextStream out(&item_history);
@@ -209,7 +209,7 @@ void Widget::read_history(){
 void Widget::add_history_items_to_ui(QStringList dbItems){
     for(int i = 0; i <dbItems.count();i++){
         //prepare database
-        QDir dir(returnPath("history"));
+        QDir dir(returnPath("videoDownloadHistory"));
         QString fileName = dbItems.at(i).split(" >> ").first();
         QStringList info;
         QFile item_history(dir.path()+"/"+fileName);
@@ -277,7 +277,7 @@ QString Widget::make_database_file(QUrl url){
      randomString_final = randomString_final.trimmed().simplified().remove(" ");
       if(!check_if_url_already_exist(url.toString())){
           //prepare database
-          QDir dir(returnPath("history"));
+          QDir dir(returnPath("videoDownloadHistory"));
           QFile item_history(dir.path()+"/"+randomString_final);
           if (item_history.open(QFile::ReadWrite|QIODevice::Truncate)){
               item_history.write("");
@@ -326,7 +326,7 @@ bool Widget::check_if_url_already_exist(QString urlstr){
 void Widget::remove_download_item(QString uuid){
 //    qDebug()<<"remove"<<uuid;
     //prepare database
-    QDir dir(returnPath("history"));
+    QDir dir(returnPath("videoDownloadHistory"));
     //remove history item
     QFile item_history(dir.path()+"/"+uuid);
     item_history.remove();
@@ -841,16 +841,23 @@ void Widget::on_downloadList_itemDoubleClicked(QListWidgetItem *item)
      ElidedLabel  *statusLabel     = itemObject->findChild<ElidedLabel *>("status");
      ElidedLabel  *argLabel        = itemObject->findChild<ElidedLabel *>("args");
      ElidedLabel  *titleLabel      = itemObject->findChild<ElidedLabel *>("title");
-     QString trackId = argLabel->text().split(" >>").first().split("=").last();
+   //  QString trackId = argLabel->text().split(" >>").first().split("=").last();
+     QString videoId = argLabel->text().split(" https://").first().split("/").last();
+    // qDebug()<<argLabel->text();
 
      QDir dir(setting_path+"/downloadedVideos/");
      QStringList filter;
-     filter<< trackId+"*";
+     filter<< videoId+"*";
      QFileInfoList files = dir.entryInfoList(filter);
-     if(statusLabel->text().contains("finished",Qt::CaseInsensitive)){
-         QProcess *player = new QProcess(this);
-         player->setObjectName("player");
-         player->start("mpv",QStringList()<<"--title=MPV for Olivia - "+
-                       titleLabel->text().toUtf8()<<"--no-ytdl"<<files.at(0).filePath());
+     if(files.count()>0){
+         if(statusLabel->text().contains("finished",Qt::CaseInsensitive)){
+             QProcess *player = new QProcess(this);
+             player->setObjectName("player");
+             player->start("mpv",QStringList()<<"--title=MPV for Olivia - "+
+                           titleLabel->text().toUtf8()<<"--no-ytdl"<<files.at(0).filePath());
+         }
+     }else{
+         qDebug()<<"Unable to locate downloaded file" <<videoId;
      }
+
 }
