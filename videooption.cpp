@@ -2,6 +2,7 @@
 #include "ui_videooption.h"
 #include "elidedlabel.h"
 #include "manifest_resolver.h"
+#include "settings.h"
 
 
 
@@ -210,7 +211,7 @@ void VideoOption::LoadAvatar(const QUrl &avatarUrl)
         pixmap.loadFromData(jpegData);
         if (!pixmap.isNull())
         {
-                ui->cover->setPixmap(pixmap);
+           ui->cover->setPixmap(pixmap);
         }
     }else{
        // cover load error
@@ -249,7 +250,6 @@ void VideoOption::getVideoStream(QString ytIds,QString songId){
     //TODO
 //    if(!checkEngine())
 //        return;
-
     ytdlQueue.append(QStringList()<<ytIds<<songId);
 
     if(ytdlProcess==nullptr && ytdlQueue.count()>0){
@@ -446,11 +446,15 @@ void VideoOption::addToDownload(QString videoFormat, QString audioFormat){
 }
 
 void VideoOption::mergeAndPlay(QString videoUrlStr,QString audioUrlStr){
+    settings *sett = new settings(this);
+    int volume = sett->settingsObj.value("volume",100).toInt();
     QProcess *player = new QProcess(this);
     player->setObjectName("player");
     connect(player,SIGNAL(finished(int)),this,SLOT(getUrlProcessFinished(int)));
     player->start("mpv",QStringList()<<"-wid="+QString::number(this->winId())<<"--title=MPV for Olivia - "+
-                  currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr<<"--input-ipc-server="+used_fifo_file_path);
+                  currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr<<"--input-ipc-server="+used_fifo_file_path
+                  <<"--volume"<<QString::number(volume));
+    sett->deleteLater();
     ui->watch->setText("Opening Player...");
     connect(player,SIGNAL(finished(int)),this,SLOT(playerFinished(int)));
     connect(player,SIGNAL(readyRead()),this,SLOT(playerReadyRead()));
