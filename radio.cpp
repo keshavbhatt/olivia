@@ -10,6 +10,7 @@
 #include "nowplaying.h"
 
 
+
 radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : QObject(parent)
 {
     this->setObjectName("radio-manager");
@@ -368,3 +369,5 @@ void radio::stop(){
     fifo->waitForStarted();
     radioPlaybackTimer->stop();
 }
+
+
