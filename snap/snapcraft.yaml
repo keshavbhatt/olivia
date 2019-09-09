@@ -12,7 +12,6 @@ architectures:
     run-on: amd64
 slots: 
   mpris:
-    interface: mpris
     name: olivia
 
 apps:
