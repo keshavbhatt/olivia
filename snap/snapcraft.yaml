@@ -20,7 +20,6 @@ apps:
     environment:
        QT_STYLE_OVERRIDE: "gtk"
        DISABLE_WAYLAND: 1
-       TMPDIR: $XDG_RUNTIME_DIR
     desktop: usr/share/applications/olivia.desktop
     plugs:
         - home
