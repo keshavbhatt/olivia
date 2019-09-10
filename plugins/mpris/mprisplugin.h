@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QDBusMessage>
 #include <memory>
+#include "radio.h"
+#include <QDBusObjectPath>
 
 class MprisPlugin : public QObject
 {
@@ -21,8 +23,8 @@ public:
     bool CanPause() const;
     Q_PROPERTY(bool CanSeek READ CanSeek)
     bool CanSeek() const;
-    Q_PROPERTY(qlonglong Position READ Position)
-    qlonglong Position() const;
+//    Q_PROPERTY(qlonglong Position READ Position)
+//    qlonglong Position() const;
 
     Q_PROPERTY(QVariantMap Metadata READ Metadata)
     QVariantMap Metadata() const;
@@ -39,9 +41,17 @@ public:
     Q_PROPERTY(QString Identity READ Identity)
     QString Identity() const;
 
+    Q_PROPERTY(double Volume READ volume WRITE setVolume)
+
+    double volume() const;
+    void setVolume(double value);
+
     qlonglong playerPosition;
     QString playerStatus;
     QVariantMap currentSongMeta;
+
+    Q_PROPERTY(qlonglong Position READ position)
+    qlonglong position() const;
 
 
 signals:
@@ -58,7 +68,11 @@ signals:
 
 public slots:
    void Quit();
+   void SetPosition(const QDBusObjectPath &TrackId, qlonglong Position);
+   void Seek(qlonglong Offset);
 
+private:
+   radio *radio_manager = nullptr;
 };
 
 #endif // MPRISPLUGIN_H

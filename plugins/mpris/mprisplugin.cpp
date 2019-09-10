@@ -19,6 +19,8 @@ static bool DBUS_NOTIFY_PROPERTIES_CHANGED(QString iface, QVariantMap changed, Q
 MprisPlugin::MprisPlugin(QObject *parent) :
     QObject(parent)
 {
+
+    radio_manager = parent->findChild<radio*>("radio_manager");
     QDBusConnection con = QDBusConnection::sessionBus();
     con.registerService(PLAYER_SERVICE_NAME);
     new MprisAdapter(this);
@@ -54,9 +56,9 @@ bool MprisPlugin::CanPause() const {
 bool MprisPlugin::CanSeek() const {
     return true;
 }
-qlonglong MprisPlugin::Position() const {
-    return this->playerPosition;
-}
+//qlonglong MprisPlugin::Position() const {
+//    return this->playerPosition;
+//}
 
 bool MprisPlugin::CanQuit() const {
     return true;
@@ -86,3 +88,30 @@ void MprisPlugin::Quit() {
     qApp->quit();
 }
 
+
+double MprisPlugin::volume() const {
+    // dummy method - can't get the volume
+    return 0.5;
+}
+
+void MprisPlugin::setVolume(double value) {
+    qDebug()<<value;
+   radio_manager->changeVolume(value * 100);
+}
+
+
+qlonglong MprisPlugin::position() const {
+//    const PTrack& track = player->getTrack();
+//    return track.isStream ? 0 : track.currSec * 1000000;
+    return this->playerPosition;
+}
+
+void MprisPlugin::SetPosition(
+        const QDBusObjectPath &TrackId, qlonglong Position) {
+   // if(trackID != TrackId) return;
+    radio_manager->radioSeek(static_cast<int>(Position / 1000000));
+}
+
+void MprisPlugin::Seek(qlonglong Offset) {
+   radio_manager->radioSeek(static_cast<int>(Offset / 1000000));
+}

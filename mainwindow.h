@@ -257,7 +257,9 @@ private:
     Youtube *youtube;
     VideoOption *videoOption = nullptr;
     QStringList shuffledPlayerQueue;
+
     MprisPlugin *dp = nullptr;
+    QVariantMap mpris_song_meta;
 
 };
 

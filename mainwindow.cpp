@@ -1932,18 +1932,17 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
     //update metadata of MPRIS interface
     if(dp!=nullptr){
-        QVariantMap song;
-        song.insert("mpris:length", 500000);
-        song.insert("xesam:album", albumStr);
-        song.insert("mpris:artUrl", setting_path+"/albumArts/"+"currentArt.png");
-        song.insert("xesam:title", titleStr);
-        song.insert("xesam:artist", artistStr);
-        song.insert("mpris:trackid", songId);
+        mpris_song_meta.insert("mpris:length", 500000);
+        mpris_song_meta.insert("xesam:album", albumStr);
+        mpris_song_meta.insert("mpris:artUrl", setting_path+"/albumArts/"+"currentArt.png");
+        mpris_song_meta.insert("xesam:title", titleStr);
+        mpris_song_meta.insert("xesam:artist", artistStr);
+        mpris_song_meta.insert("mpris:trackid", songId);
         QVariantList artistlist;
         artistlist.append(QVariant(artistStr));
-        song.insert("xesam:albumArtist", artistlist);
-        song.insert("xesam:url", url);
-        emit dp->currentSongChanged(song);
+        mpris_song_meta.insert("xesam:albumArtist", artistlist);
+        mpris_song_meta.insert("xesam:url", url);
+        emit dp->currentSongChanged(mpris_song_meta);
     }
 
     //TODO this is making app slow when the list of tracks if huge
@@ -2176,7 +2175,7 @@ void MainWindow::radioPosition(int pos){
 
    //update mpris position
    if(dp!=nullptr){
-       dp->playerPosition = pos;
+       dp->playerPosition = static_cast<qlonglong>(pos * 1000000);
    }
 }
 
@@ -2188,6 +2187,13 @@ void MainWindow::radioDuration(int dur){
     QTime time(hours, minutes,seconds);
     ui->duration->setText(time.toString());
     ui->radioSeekSlider->setMaximum(dur);
+    qlonglong duration = static_cast<qlonglong>(dur * 1000000);
+
+    if(dp!=nullptr && duration != mpris_song_meta.value("mpris:length")){
+        mpris_song_meta.remove("mpris:length");
+        mpris_song_meta.insert("mpris:length", duration);
+        emit dp->currentSongChanged(mpris_song_meta);
+    }
 }
 
 void MainWindow::radio_demuxer_cache_duration_changed(double seconds_available,double radio_playerPosition){
