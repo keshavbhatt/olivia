@@ -9,7 +9,6 @@
 #include <QAction>
 #include <QToolTip>
 
-
 #include "cookiejar.h"
 #include "elidedlabel.h"
 #include "store.h"

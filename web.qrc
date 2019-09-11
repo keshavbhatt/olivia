@@ -49,5 +49,6 @@
         <file>web/local_videos/local_videos.html</file>
         <file>web/local_videos/main.css</file>
         <file>web/local_videos/main.js</file>
+        <file>web/youtube/channel.png</file>
     </qresource>
 </RCC>
