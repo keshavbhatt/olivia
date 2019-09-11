@@ -373,7 +373,7 @@ function track_option(track_id){
                             '<a href="#" id="'+songId+'_addToQueue" >Add to queue</a>'+
                         '</li>'+
                         '<li>'+
-                            '<a href="#" id="'+songId+'_watchVideo" >Watch Video</a>'+
+                            '<a href="#" id="'+songId+'_watchVideo" onclick="watch_video(\''+songId+'\');$(\'#popup-'+songId +'\').remove();">Watch Video</a>'+
                         '</li>'+
                         '<li>'+
                             '<a href="#" onclick="open_channel(\''+channelHref.trim()+'\', \''+songId+'\')" >Open Channel</a>'+
@@ -408,13 +408,13 @@ function track_option(track_id){
                 $('body').css('overflow','auto');
         });
 
-        $("#"+songId+"_watchVideo").on("click",function(){
-                showLoading();
-                mainwindow.web_watch_video(songId+"<==>"+title+"<==>"+album+"<==>"+artist+"<==>"+coverUrl+"<==>"+songId+"<br>");
-                $( '#popup-'+songId ).remove();
-                $('body').css('overflow','auto');
-                $.mobile.loading("hide");
-        });
+//        $("#"+songId+"_watchVideo").on("click",function(){
+//                showLoading();
+//                mainwindow.web_watch_video(songId+"<==>"+title+"<==>"+album+"<==>"+artist+"<==>"+coverUrl+"<==>"+songId+"<br>");
+//                $( '#popup-'+songId ).remove();
+//                $('body').css('overflow','auto');
+//                $.mobile.loading("hide");
+//        });
 
         $( document ).on( "popupbeforeposition", $('#popup-'+songId ), function() {
             $( '#popup-'+songId).find("ul").listview();
