@@ -1,26 +1,45 @@
-name: olivia
-version: '1.0'
-summary: Elegant Cloud Music Player for Linux Desktop
+name: ktube-media-downloader-test
+version: '5'
+summary: Download / Play Media from various websites
 description: |
-  Olivia is a online/offline cloud based music player like iTunes, Spotify etc,Olivia allows you to search any music online stream it, you can set player to cache your streams while playback. Olivia lets you create and manage your music library.
+  Official Website :-  https://keshavbhatt.github.io/Ktube-media-downloader/index.html
+  Ktube media downloader is very powerful tool to download media files from various sites,
+  Ktube provide a unique interface which allow you manage your favourite live streems, videos and music from youtube.com
+  You can download, play , save videos to your favourite list. Other features are -
+  *play youtube
+  *download youtube videos
+  *download media in different formats, resolutions and qualities
+  *download media from other websites
+  *Play live streams from youtube
+  *save your favourite live streams to your channels list 
+  *search youtube
+  *filter your search
+  *multilingual
+  *Show speed , eta , size , progress , time added etc in download item and also saves it
+  *have inbuild youtube player (No Flash , support HTML5 video playback)
+  *download videos with one click 
+  *Multiple downloads
+  *full history support 
+  *very fast no glitches
+  Application allows users to download two links daily for free, to get full access to the application you
+  have to upgrade the application to pro.
 grade: stable
 confinement: strict
 icon: snap/gui/icon.png
+base: core18
 
 architectures:
   - build-on: amd64
     run-on: amd64
-slots: 
-  mpris:
-    name: olivia
 
 apps:
-  olivia:
-    command: desktop-launch olivia
+  ktube-media-downloader:
+    command: desktop-launch ktube-media-downloader
     environment:
        QT_STYLE_OVERRIDE: "gtk"
        DISABLE_WAYLAND: 1
-    desktop: usr/share/applications/olivia.desktop
+       QT_QPA_PLATFORMTHEME: gtk3 
+    desktop: usr/share/applications/ktube-media-downloader.desktop
     plugs:
         - home
         - unity7
@@ -36,73 +55,55 @@ apps:
         - gsettings
         - process-control
         - desktop-legacy
-    slots:
-        - mpris
+        - wayland
+        - mount-observe
 
 plugs:
+  gsettings:
   gtk-3-themes:
     interface: content
-    target: $SNAP/usr/share/themes
+    target: $SNAP/data-dir/themes
     default-provider: gtk-common-themes
   icon-themes:
     interface: content
-    target: $SNAP/usr/share/icons
+    target: $SNAP/data-dir/icons
     default-provider: gtk-common-themes
   sound-themes:
     interface: content
-    target: $SNAP/usr/share/sounds
+    target: $SNAP/data-dir/sounds
     default-provider: gtk-common-themes
+  qt551:
+    interface: content
+    target: $SNAP/qt551
+    default-provider: qt551
 
 parts:
-   deps:
-     plugin: nil
-     stage-packages:
-            - socat
-            - python
-            - wget
-            - coreutils
-   ppa:
-     plugin: nil
-     override-pull: |
-       apt install wget
-       echo "deb http://ppa.launchpad.net/mc3man/mpv-tests/ubuntu xenial main" >>  /etc/apt/sources.list
-       wget -qO - http://ktechpit.com/USS/Olivia/snapcraft/mpv.key | apt-key add -
-       apt update
-   mpv:
-     plugin: nil
-     after: [ppa,qt]
-     stage-packages:
-           - mpv
-           - ffmpeg
-   qt:
+   application:
+     source-type: git
+     source: https://github.com/keshavbhatt/kt.git
+#     source: .
      plugin: qmake
      qt-version: qt5
-     source-type: git
-     source: https://github.com/keshavbhatt/olivia.git
-     build-packages:
-            - build-essential
-            - qtbase5-dev
-            - libqt5webkit5-dev
-     stage:
-          - -usr/share/pkgconfig
-     stage-packages:
-          - libqt5sql5-sqlite
-          - libqt5webkit5
-          - libqt5x11extras5
-          - libqt5xml5
-          - libdb5.3
-          - libglu1-mesa
      override-build: |
-            snapcraftctl build
-            sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_SRC}/olivia.desktop
-            cp -rf ${SNAPCRAFT_PART_SRC}/olivia.desktop ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/olivia.desktop
+          snapcraftctl build
+          sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_SRC}/ktube-media-downloader.desktop
+          cp -rf ${SNAPCRAFT_PART_SRC}/ktube-media-downloader.desktop ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/ktube-media-downloader.desktop
      after: [desktop-qt5]
 
+   snap-launcher:
+     plugin: dump
+     source: snap_launcher/
+   desktop-qt5:
+     plugin: nil
+     build-packages:
+       - build-essential
+       - qtbase5-dev
+       - dpkg-dev
+       - libqt5webkit5-dev
    cleanup:
-       after: 
-            - qt
-       plugin: nil
-       override-prime: |
-          # Remove unneeded stage files to save space
-          cd usr/share
-          rm -rf apport bash-completion bug doc doc-base icons lintian man pam-configs pkgconfig themes upstart zsh
+     after: [application]
+     plugin: nil
+     override-prime: |
+         # Remove unneeded stage files to save space
+         cd usr/share
+         rm -rf apport bash-completion bug doc doc-base icons lintian man pam-configs pkgconfig themes upstart zsh
