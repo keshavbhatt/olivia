@@ -1,28 +1,8 @@
-name: ktube-media-downloader-test
-version: '5'
-summary: Download / Play Media from various websites
+name: olivia
+version: '1.0'
+summary: Elegant Cloud Music Player for Linux Desktop
 description: |
-  Official Website :-  https://keshavbhatt.github.io/Ktube-media-downloader/index.html
-  Ktube media downloader is very powerful tool to download media files from various sites,
-  Ktube provide a unique interface which allow you manage your favourite live streems, videos and music from youtube.com
-  You can download, play , save videos to your favourite list. Other features are -
-  *play youtube
-  *download youtube videos
-  *download media in different formats, resolutions and qualities
-  *download media from other websites
-  *Play live streams from youtube
-  *save your favourite live streams to your channels list 
-  *search youtube
-  *filter your search
-  *multilingual
-  *Show speed , eta , size , progress , time added etc in download item and also saves it
-  *have inbuild youtube player (No Flash , support HTML5 video playback)
-  *download videos with one click 
-  *Multiple downloads
-  *full history support 
-  *very fast no glitches
-  Application allows users to download two links daily for free, to get full access to the application you
-  have to upgrade the application to pro.
+  Olivia is a online/offline cloud based music player like iTunes, Spotify etc,Olivia allows you to search any music online stream it, you can set player to cache your streams while playback. Olivia lets you create and manage your music library.
 grade: stable
 confinement: strict
 icon: snap/gui/icon.png
@@ -31,15 +11,17 @@ base: core18
 architectures:
   - build-on: amd64
     run-on: amd64
+slots: 
+  mpris:
+    name: olivia
 
 apps:
-  ktube-media-downloader:
-    command: desktop-launch ktube-media-downloader
+  olivia:
+    command: desktop-launch olivia
     environment:
        QT_STYLE_OVERRIDE: "gtk"
        DISABLE_WAYLAND: 1
-       QT_QPA_PLATFORMTHEME: gtk3 
-    desktop: usr/share/applications/ktube-media-downloader.desktop
+    desktop: usr/share/applications/olivia.desktop
     plugs:
         - home
         - unity7
@@ -55,8 +37,9 @@ apps:
         - gsettings
         - process-control
         - desktop-legacy
-        - wayland
         - mount-observe
+    slots:
+        - mpris
 
 plugs:
   gsettings:
@@ -80,14 +63,13 @@ plugs:
 parts:
    application:
      source-type: git
-     source: https://github.com/keshavbhatt/kt.git
-#     source: .
+     source: https://github.com/keshavbhatt/olivia.git
      plugin: qmake
      qt-version: qt5
      override-build: |
-          snapcraftctl build
-          sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_SRC}/ktube-media-downloader.desktop
-          cp -rf ${SNAPCRAFT_PART_SRC}/ktube-media-downloader.desktop ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/ktube-media-downloader.desktop
+            snapcraftctl build
+            sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_SRC}/olivia.desktop
+            cp -rf ${SNAPCRAFT_PART_SRC}/olivia.desktop ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/olivia.desktop
      after: [desktop-qt5]
 
    snap-launcher:
@@ -101,9 +83,9 @@ parts:
        - dpkg-dev
        - libqt5webkit5-dev
    cleanup:
-     after: [application]
-     plugin: nil
-     override-prime: |
-         # Remove unneeded stage files to save space
-         cd usr/share
-         rm -rf apport bash-completion bug doc doc-base icons lintian man pam-configs pkgconfig themes upstart zsh
+       after: [application]
+       plugin: nil
+       override-prime: |
+          # Remove unneeded stage files to save space
+          cd usr/share
+          rm -rf apport bash-completion bug doc doc-base icons lintian man pam-configs pkgconfig themes upstart zsh
