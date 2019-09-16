@@ -27,7 +27,8 @@
 
         <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false' style="padding-top:0px !important;">
              <form id="songsfilter-input-form" data-theme="b" style="height:55px;">
-                 <table style='width:100%'><tr>
+                 <table style='width:100%'>
+                 <tr>
                      <td id="searchinput">
                          <input id="songsfilter-input" placeholder="Filter songs..." type='search'/>
                      </td>
@@ -36,6 +37,7 @@
                      </td>
                  </tr></table>
              </form>
+             <a id="a-home" onclick="open_local_saved_tracks()" class="ui-btn-left ui-btn  ui-corner-all ui-btn-icon-left ui-icon-home">Home</a>
              <h1 class="header-title"></h1>
              <a id="a-search"  class="ui-btn-right ui-btn  ui-corner-all ui-btn-icon-left ui-icon-search">Search</a>
         </div><!-- /header -->

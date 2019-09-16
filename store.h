@@ -19,10 +19,13 @@ public:
     Q_INVOKABLE QString web_print_saved_artists();
     Q_INVOKABLE QString web_print_album_tracks(QVariant albumId);
     Q_INVOKABLE void removeRadioChannelFromFavourite(QVariant channelId);
+    Q_INVOKABLE QString open_local_saved_tracks_PageNumber(int pageNumber);
 
 private:
     QSqlDatabase db;
     int storeVersion;
+
+    int currentPageNumber,totalTracks,limit,totalPages;
 
 public slots:
 
@@ -74,6 +77,9 @@ private slots:
     QStringList getArtistDetails(QString artistId);
     QList<QStringList> getAlbumTrackList(QString albumId);
     QList<QStringList> getAllVideos();
+
+    int getTrackCount(QString fromTable, QString fromRow);
+    QList<QStringList> get_local_saved_tracks(int offset);
 };
 
 #endif // STORE_H

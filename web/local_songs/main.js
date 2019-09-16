@@ -74,37 +74,31 @@ $(document).ready(function($) {
 
 //  core functions -------------
 function open_local_saved_tracks(){
-    $("#saved_tracks_result").empty();
     showLoading();
     $.mobile.changePage($('#tracks_page'));
-    var json = JSON.parse(store.web_print_local_saved_tracks()); //songs Data is returned in json format
-    var $html = "";
-    $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" downloaded songs");
-    for(var i= 0; i < json.length;i++){
-        var albumType = (json[i].album === "undefined") ? "Youtube":"";
-         $html = $html+
-            "<li onclick='mainwindow.playLocalTrack(\""+json[i].songId+"\")' data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"' ><a>"+
-            "<img id='"+json[i].songId+"' style='max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \>"+
-                    "<p>"+
-                        ""+json[i].title+
-                        "<br>"+
-                        "Album: "+json[i].album+
-                        "<br>"+
-                        "Artist: "+json[i].artist+
-                    "</p>"+
-                  "<p class='ui-li-aside'>"+albumType+"</p>" +
-               " </a>"+
-            "</li>";
-    }
-    $.mobile.loading("hide");
-    $("#saved_tracks_result").append($html).listview("refresh");
+    $('.ui-content').hide();
+    var html = store.web_print_local_saved_tracks();
+    $('#tracks_page .ui-content').html(html);
     $('#tracks_page .ui-content').trigger('create');
     $('#tracks_page .ui-content').fadeIn('slow');
+    $.mobile.loading("hide");
+}
+
+function openPagenumber(pagenumber){
+    showLoading();
+    $.mobile.changePage($('#tracks_page'));
+    $('.ui-content').hide();
+    var html = store.open_local_saved_tracks_PageNumber(pagenumber);
+    $('#tracks_page .ui-content').html(html);
+    $('#tracks_page .ui-content').trigger('create');
+    $('#tracks_page .ui-content').fadeIn('slow');
+    $.mobile.loading("hide");
 }
 
 $(document).on("pagecreate", "#tracks_page", function(){
     $('#a-search, #closeSearch').on('vclick', function (event) {
         $('#songsfilter-input-form').toggleClass('moved');
+        $("#songsfilter-input").focus();
     });
 });
 
