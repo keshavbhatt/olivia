@@ -798,8 +798,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">
-background-color: rgba(42,130,218,169);</string>
+                  <string notr="true">background-color: #808080;</string>
                  </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -1259,7 +1258,7 @@ background-color: transparent;</string>
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <property name="elideMode">
                   <enum>Qt::ElideNone</enum>
@@ -2126,14 +2125,14 @@ border-radius:2px;</string>
    <header>volumeslider.h</header>
   </customwidget>
   <customwidget>
-   <class>playerQueue</class>
-   <extends>QListWidget</extends>
-   <header>playerqueue.h</header>
-  </customwidget>
-  <customwidget>
    <class>controlButton</class>
    <extends>QPushButton</extends>
    <header>controlbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>playerQueue</class>
+   <extends>QListWidget</extends>
+   <header>playerqueue.h</header>
   </customwidget>
  </customwidgets>
  <resources>
