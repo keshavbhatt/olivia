@@ -80,8 +80,7 @@
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">
-background-color: rgba(42,130,218,169);</string>
+      <string notr="true">background-color: #808080;</string>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -195,8 +194,7 @@ QScrollBar:vertical {
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">
-background-color: rgba(42,130,218,169);</string>
+      <string notr="true">background-color: #808080;</string>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
