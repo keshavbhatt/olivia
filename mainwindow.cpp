@@ -1136,7 +1136,25 @@ void MainWindow::addToQueue(QString id,QString title,QString artist,QString albu
 
     if(store_manager->isInQueue(songId)){
         ui->console->append("Song - "+songId+" Already in queue");
-        //TODO provide user hint that track already in list
+        QWidget *listWidgetItem = ui->right_list_2->findChild<QWidget*>("track-widget-"+songId);
+        if(listWidgetItem!=nullptr){
+            QListWidget * listWidget =  ui->right_list_2;
+            for (int i = 0; i < listWidget->count(); ++i) {
+                if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
+                    listWidget->setCurrentItem(listWidget->item(i));
+                    break;
+                }
+            }
+        }else{
+            QWidget *listWidgetItem = ui->right_list->findChild<QWidget*>("track-widget-"+songId);
+            QListWidget * listWidget =  ui->right_list;
+            for (int i = 0; i < listWidget->count(); ++i) {
+                if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
+                    listWidget->setCurrentItem(listWidget->item(i));
+                    break;
+                }
+            }
+        }
         return;
     }else{
         QWidget *track_widget = new QWidget(ui->right_list);
