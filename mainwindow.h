@@ -79,6 +79,7 @@ public:
     Q_INVOKABLE void showAjaxError();
     Q_INVOKABLE void web_watch_video(QVariant data);
     Q_INVOKABLE void playVideo(QString trackId);
+    Q_INVOKABLE void browse_youtube();
 
     QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;
@@ -105,7 +106,6 @@ private slots:
     void assignNextTrack(QListWidget *list, int index);
     void assignPreviousTrack(QListWidget *list, int index);
     void browse();
-    void browse_youtube();
     void check_engine_updates();
     void clear_queue();
     void compare_versions(QString date, QString n_date);
