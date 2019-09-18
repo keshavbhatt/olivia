@@ -472,11 +472,11 @@ function get_channel(video_id){
 }
 
 function open_channel(channelHref,songId){
+    //$("#manul_youtube_page_suggestions").empty();
     $("#popup-"+songId).remove();
     $('body').css('overflow','auto');
-    $("#manul_youtube_page_suggestions").empty();
     showLoading();
-    $('.ui-content').fadeOut('slow');
+   //$('.ui-content').fadeOut('slow');
     $.ajax({
         type: "GET",
         url: baseUrl+"manual_youtube_search.php",
@@ -484,6 +484,7 @@ function open_channel(channelHref,songId){
             nav : channelHref
         },
         success: function(html) {
+            $.mobile.changePage($('#manul_youtube_page'));
             $.mobile.loading("hide");
             $("#result_div").html(html);
             $('#manul_youtube_page .ui-content').trigger("create");
