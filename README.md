@@ -42,7 +42,7 @@ by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktech
 
 **Olivia utilises power of the following tools and technologies :**
 - Qt GUI Framework 5.5.1 
-- Bash, wget, socat, cat and other utilities that comes with "coreutils" package
+- Bash, wget, socat, tee and other utilities that comes with "coreutils" package
 - MPV Player
 - Youtube-dl
 - C++11
