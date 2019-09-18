@@ -214,6 +214,9 @@ function showStations(query,queryType){
 
 function loadTopStations(type){
     if(paginator.isOffline("radio","loadTopStations",type)){
+
+        $(".ui-loader-most-played").hide();
+
         if(type==="most-played"){
              var html_ = paginator.load("radio","loadTopStations",type);
              $("#most-played").html(html_).listview("refresh");
@@ -227,6 +230,7 @@ function loadTopStations(type){
              $("#most-played-tab-anchor").attr("style","");
         }
     }else{
+        $(".ui-loader-most-played").show();
     //topStations
         $.ajax({
            url: baseUrl+"list/top-stations.php",
@@ -235,6 +239,7 @@ function loadTopStations(type){
                     "type":type
                    },
            success: function(html) {
+               $(".ui-loader-most-played").hide();
                if(type==="most-played"){
                     paginator.save("radio","loadTopStations",type,html);
                     $("#most-played").html(html).listview("refresh");
@@ -247,6 +252,9 @@ function loadTopStations(type){
                     $("#most-voted-tab-anchor").attr("style","background-color: rgba(26, 152, 199, 0.67) !important;border-color:transparent !important;");
                     $("#most-played-tab-anchor").attr("style","");
                }
+           },
+           error: function(){
+               $(".ui-loader-most-played i").text("An error occured, Unable to connect to host.");
            }
        });
     }

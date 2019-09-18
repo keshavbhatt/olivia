@@ -55,6 +55,7 @@
 
             <div id="trending_div">
                 <h5 style="margin: 2px 0px 5px 5px;" id="history_valid">Trending Music :</h5>
+                <div class="ui-bar ui-bar-b ui-loader-trending" style="margin-top: 25px;text-align: center;margin-left:6px !important;"><i>Loding content please wait...</i></div>
                 <div id="trending">
                     <!--load data here-->
                 </div>
@@ -100,7 +101,7 @@
             </ul>
             <hr style="margin-top: 30px;">
             <p>Clear recent searches :</p>
-            <a data-mini="true" onclick="paginator.clearRecentSearches();" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-icon-delete ui-btn-icon-left" data-transition="flow">Clear</a>
+            <a data-mini="true" onclick="paginator.clearRecentSearches();mainwindow.browse_youtube()" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-icon-delete ui-btn-icon-left" data-transition="flow">Clear</a>
         </div>
     </div>
     

@@ -423,13 +423,13 @@ void VideoOption::getUrlProcessFinished(int code){
         }
         ui->progressBar->hide();
     }else{
-        QMessageBox msgBox;
-        msgBox.setText("ERROR: an error occured while performing this task");
-        msgBox.setIcon(QMessageBox::Information);
-        msgBox.setInformativeText("Error code: "+QString::number(code));
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.setDefaultButton(QMessageBox::Ok);
-        msgBox.exec();
+//        QMessageBox msgBox;
+//        msgBox.setText("ERROR: an error occured while performing this task");
+//        msgBox.setIcon(QMessageBox::Information);
+//        msgBox.setInformativeText("Error code: "+QString::number(code));
+//        msgBox.setStandardButtons(QMessageBox::Ok);
+//        msgBox.setDefaultButton(QMessageBox::Ok);
+//        msgBox.exec();
     }
 }
 

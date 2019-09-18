@@ -291,6 +291,7 @@ function load_history(){
 }
 
 function youtube_trending(country){
+    $("#trending_div .ui-loader-trending").show();
     $("#trending").fadeOut("slow");
     $.ajax({
        url: baseUrl+"youtube_trending.php",
@@ -299,11 +300,14 @@ function youtube_trending(country){
                    "country":country
               },
        success: function(html) {
+           $("#trending_div .ui-loader-trending").hide();
            $.mobile.loading("hide");
-
            $("#trending").html("");
            $("#trending").html(html);
            $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
+       },
+       error: function(){
+           $("#trending_div .ui-loader-trending i").text("An error occured, Unable to connect to host.");
        }
    });
 }
