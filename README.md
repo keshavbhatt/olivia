@@ -2,7 +2,7 @@
 
 # Olivia - Elegant music player for LINUX 
 
-being developed in BANKUBAD LABS by [@keshavbhatt](https://github.com/keshavbhatt)
+by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktechpit.com) and [others](https://github.com/keshavbhatt/olivia/graphs/contributors)
 
 [![Snap Status](https://build.snapcraft.io/badge/keshavbhatt/olivia.svg)](https://build.snapcraft.io/user/keshavbhatt/olivia) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Percentage of issues still open") 
 
@@ -39,6 +39,18 @@ being developed in BANKUBAD LABS by [@keshavbhatt](https://github.com/keshavbhat
 ﻿**Consider Donating if you want this music player grow further**
 
 [**PayPal Me**](https://paypal.me/keshavnrj/10)
+
+**Olivia utilises power of the following tools and technologies :**
+- Qt GUI Framework 5.5.1 
+- Bash, wget, socat, cat and other utilities that comes with "coreutils" package
+- MPV Player
+- Youtube-dl
+- C++11
+- Python
+- Lua
+- PHP, HTML, CSS, JS, JSON 
+- snapcraft.io/build for continuous build and delivery through snapcraft.io/store for all major Linux distributions supporting [snapd](https://snapcraft.io/docs/installing-snapd)
+- "Arch User Repository" for distribution of app to Arch Linux users.  
 
 ﻿**Build requirement**
 
