@@ -1130,8 +1130,11 @@ QString MainWindow::getTerm(){
     return  term.replace(" ","+");
 }
 
-void MainWindow::addToQueue(QString id,QString title,QString artist,QString album,QString base64,QString dominantColor,QString songId,QString albumId,QString artistId){
+void MainWindow::addToQueue(QString id,QString title,
+                            QString artist,QString album,QString base64,
+                            QString dominantColor,QString songId,QString albumId,QString artistId){
 
+    id = id.remove("<br>");
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 
     if(store_manager->isInQueue(songId)){
@@ -1234,6 +1237,10 @@ void MainWindow::addToQueue(QString id,QString title,QString artist,QString albu
                 track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }else{
               getAudioStream(id,songId);
+              //reverse the process queue, so that recently added song can get first chance to process
+              if(ytdlQueue.count()>1){
+                  ytdlQueue.insert(1,  ytdlQueue.takeAt(ytdlQueue.count()-1));
+              }
             }
             ui->tabWidget->setCurrentWidget(ui->tab_2);
             ui->right_list_2->scrollToBottom();
@@ -1263,6 +1270,10 @@ void MainWindow::addToQueue(QString id,QString title,QString artist,QString albu
                 track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }else{
               getAudioStream(id,songId);
+              //reverse the process queue, so that recently added song can get first chance to process
+              if(ytdlQueue.count()>1){
+                  ytdlQueue.insert(1,  ytdlQueue.takeAt(ytdlQueue.count()-1));
+              }
             }
             ui->tabWidget->setCurrentWidget(ui->tab);
             ui->right_list->scrollToBottom();
