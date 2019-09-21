@@ -412,7 +412,7 @@ function track_option(track_id){
                 .toolbar()
                 .before( closebtn )
                 .after( img + details + options);
-                $( "#popup-" + songId ).find('p').attr('style',"");
+                $( "#popup-" + songId ).find('p').attr('style',"word-wrap: break-word;");
                 $( "#popup-" + songId ).find("ul").listview();
                 $( "#popup-" + songId ).popup( "open" ).trigger("create");
                 $('body').css('overflow','hidden');
