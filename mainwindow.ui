@@ -1225,7 +1225,8 @@ color: rgb(180, 180, 180);</string>
                    </property>
                    <property name="styleSheet">
                     <string notr="true">border:none;
-background-color: transparent;</string>
+background-color: transparent;
+</string>
                    </property>
                    <property name="text">
                     <string/>
@@ -1239,6 +1240,28 @@ background-color: transparent;</string>
                      <width>22</width>
                      <height>22</height>
                     </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_2">
+                   <property name="minimumSize">
+                    <size>
+                     <width>1</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>1</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">background-color: #808080;</string>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
                    </property>
                   </widget>
                  </item>
@@ -1258,7 +1281,8 @@ background-color: transparent;</string>
                    </property>
                    <property name="styleSheet">
                     <string notr="true">border:none;
-background-color: transparent;</string>
+background-color: transparent;
+padding-left: 10px;</string>
                    </property>
                    <property name="text">
                     <string/>
