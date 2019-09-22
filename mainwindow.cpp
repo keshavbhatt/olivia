@@ -825,13 +825,13 @@ void MainWindow::loadPlayerQueue(){ //  #7
 
             QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
 
+            //set size for track widget
+            track_ui.cover->setMaximumSize(149,90);
+            track_ui.cover->setMinimumSize(149,79);
+            track_ui.widget->adjustSize();
             item->setSizeHint(track_widget->minimumSizeHint());
 
             ui->right_list_2->setItemWidget(item, track_widget);
-
-            track_ui.cover->setMaximumHeight(track_widget->height());
-            track_ui.cover->setMaximumWidth(static_cast<int>(track_widget->height()*1.15));
-
             ui->right_list_2->itemWidget(item)->setGraphicsEffect(eff);
 
             // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
@@ -1219,7 +1219,13 @@ void MainWindow::addToQueue(QString id,QString title,
             QListWidgetItem* item;
             item = new QListWidgetItem(ui->right_list_2);
             QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
+
+            //set size for track widget
+            track_ui.cover->setMaximumSize(149,90);
+            track_ui.cover->setMinimumSize(149,79);
+            track_ui.widget->adjustSize();
             item->setSizeHint(track_widget->minimumSizeHint());
+
             ui->right_list_2->setItemWidget(item, track_widget);
             ui->right_list_2->itemWidget(item)->setGraphicsEffect(eff);
             ui->right_list_2->itemWidget(item)->setEnabled(false); //enable when finds a url
