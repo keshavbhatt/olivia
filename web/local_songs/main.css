@@ -87,14 +87,14 @@ html .ui-bar-b .ui-btn.ui-btn-active{
     background: transparent !important;
 }
 
-.ui-listview>li>a.ui-btn::hover{
-/*    border:1px solid rgba(24, 24, 24, 0.18);*/
+/*.ui-listview>li>a.ui-btn::hover{
+    border:1px solid rgba(24, 24, 24, 0.18);
     background: transparent !important;
-}
+}*/
 
-.ui-listview>li.ui-li-has-alt>.ui-btn+.ui-btn{
+/*.ui-listview>li.ui-li-has-alt>.ui-btn+.ui-btn{
     border-color:rgba(24, 24, 24, 0.18);
-}
+}*/
 
 .ui-tabs{
 padding:0px;

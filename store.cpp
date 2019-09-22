@@ -957,11 +957,12 @@ QString store::open_local_saved_tracks_PageNumber(int pageNumber){
             url = trackList.at(7);
             id = trackList.at(8);
             dominantColor = trackList.at(9);
+            QString divider = "!=-=!";
 
             QString albumType = (album == "undefined") ? "Youtube":"";
 
-            li += "<li onclick='mainwindow.playLocalTrack(\""+songId+"\")' data-filtertext='"+title+" "+album+" "+artist+"' ><a>"+
-            "<img id='"+songId+"' style='max-width:101px;max-height:101px;width=101px;height=101px;'  src='data:image/png;base64,"+base64+"'\\>"+
+            li += "<li data-filtertext='"+title+" "+album+" "+artist+"' >"+
+            "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'><img id='"+songId+"' style='max-width:101px;max-height:101px;width=101px;height=101px;'  src='data:image/png;base64,"+base64+"'\\>"+
                     "<p>"+
                         ""+ title+
                         "<br>"+
@@ -971,10 +972,11 @@ QString store::open_local_saved_tracks_PageNumber(int pageNumber){
                     "</p>"+
                    "<p class='ui-li-aside'>"+albumType+"</p>" +
                " </a>"+
+                   "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
             "</li>";
         }
         html =  head+
-                "<ul style='margin-bottom: 60px;' data-input='#songsfilter-input' class='list' id='saved_tracks_result' data-filter='true'  data-role='listview' data-split-icon='gear' data-split-theme='b' data-inset='true'>"
+                "<ul style='margin-bottom: 60px;' data-input='#songsfilter-input' class='list' id='saved_tracks_result' data-filter='true'  data-role='listview' data-split-icon='bars' data-split-theme='b' data-inset='true'>"
                 +li
                 +"</ul>"
                 +script+footer;
