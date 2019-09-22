@@ -100,5 +100,6 @@
         <file>icons/p_now_playing.png</file>
         <file>icons/download_widget/empty.png</file>
         <file>icons/sidebar/spotify.png</file>
+        <file>icons/others/jump_goto.png</file>
     </qresource>
 </RCC>
