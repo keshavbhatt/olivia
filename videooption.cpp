@@ -68,9 +68,7 @@ VideoOption::~VideoOption()
 }
 
 void VideoOption::setMeta(QString songId){
-
     resetVars();
-
     QStringList trackMetaList = store_manager->getTrack(songId);
     QString ytIds,title,artist,album,base64,dominantColor,albumId,artistId,url;
     title = trackMetaList.at(1);
@@ -127,6 +125,14 @@ void VideoOption::setMeta(QString songId){
 
     getVideoStream(ytIds,songId);
 
+    //save track to store
+    store_manager->saveAlbumArt(albumId,base64);
+    store_manager->saveArtist(artistId,artist);
+    store_manager->saveAlbum(albumId,album);
+    store_manager->saveDominantColor(albumId,dominantColor);
+    store_manager->saveytIds(songId,ytIds);
+    store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
+
 }
 
 void VideoOption::resetVars(){
@@ -151,15 +157,22 @@ void VideoOption::setMetaFromWeb(QVariant data){
     resetVars();
     QStringList trackMetaList = data.toString().split("<==>");
     currentTrackMeta = trackMetaList;
-    QString ytIds,title,artist,album,coverUrl,songId;
+    QString ytIds,title,artist,album,coverUrl,songId,base64,dominantColor,artistId,albumId;
 
-    if(trackMetaList.count()>4){
+
+
+    if(trackMetaList.count()>9){
         songId = trackMetaList.at(0);
         title = trackMetaList.at(1);
         album = trackMetaList.at(2);
         artist = trackMetaList.at(3);
         coverUrl = trackMetaList.at(4);
         ytIds = trackMetaList.at(5);
+        base64 = trackMetaList.at(6);
+        dominantColor= trackMetaList.at(7);
+        artistId= trackMetaList.at(8);
+        albumId= trackMetaList.at(9);
+
     }else{
         //TODO show error
     }
@@ -192,6 +205,16 @@ void VideoOption::setMetaFromWeb(QVariant data){
     ui->option_frame->hide();
 
     getVideoStream(ytIds,songId);
+
+  // qDebug()<<ytIds<<title<<artist<<album<<coverUrl<<songId<<dominantColor<<artistId<<albumId<<base64;
+    //save track to store
+    store_manager->saveAlbumArt(albumId,base64);
+    store_manager->saveArtist(artistId,artist);
+    store_manager->saveAlbum(albumId,album);
+    store_manager->saveDominantColor(albumId,dominantColor);
+    store_manager->saveytIds(songId,ytIds);
+    store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
+
 }
 
 void VideoOption::LoadAvatar(const QUrl &avatarUrl)
@@ -334,8 +357,10 @@ void VideoOption::ytdlFinished(int code){
         ui->option_frame->show();
     }
 
-    ytdlProcess->close();
-    ytdlProcess = nullptr;
+    if(ytdlProcess!= nullptr){
+        ytdlProcess->close();
+        ytdlProcess = nullptr;
+    }
 
     if(ytdlQueue.count()>0){
         processYtdlQueue();
