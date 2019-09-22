@@ -1145,6 +1145,7 @@ void MainWindow::addToQueue(QString id,QString title,
             for (int i = 0; i < listWidget->count(); ++i) {
                 if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
                     listWidget->setCurrentItem(listWidget->item(i));
+                    ui->right_list_2->scrollToItem(ui->right_list_2->item(i));
                     break;
                 }
             }
@@ -1154,6 +1155,7 @@ void MainWindow::addToQueue(QString id,QString title,
             for (int i = 0; i < listWidget->count(); ++i) {
                 if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
                     listWidget->setCurrentItem(listWidget->item(i));
+                    ui->right_list->scrollToItem(ui->right_list->item(i));
                     break;
                 }
             }
@@ -1387,53 +1389,11 @@ void MainWindow::showTrackOption(){
     });
 
     connect(deleteSongCache,&QAction::triggered,[=](){
-        QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-        QFile cache(setting_path+"/downloadedTracks/"+songId);
-        cache.remove();
-        store_manager->update_track("downloaded",songId,"0");
-        for (int i= 0;i<ui->right_list->count();i++) {
-           QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-            if(songId==songIdFromWidget){
-                ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
-                ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
-                if(store_manager->getExpiry(songId)){
-                    ui->right_list->itemWidget(ui->right_list->item(i))->setEnabled(false);
-                    getAudioStream(store_manager->getYoutubeIds(songId),songId);
-                }
-                break;
-            }
-        }
-        for (int i= 0;i<ui->right_list_2->count();i++) {
-           QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-            if(songId==songIdFromWidget){
-                ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
-                ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
-                if(store_manager->getExpiry(songId)){
-                    ui->right_list_2->itemWidget(ui->right_list_2->item(i))->setEnabled(false);
-                    getAudioStream(store_manager->getYoutubeIds(songId),songId);
-                }
-                break;
-            }
-        }
+        delete_song_cache(songId);
     });
 
     connect(removeSong,&QAction::triggered,[=](){
-        for (int i= 0;i<ui->right_list->count();i++) {
-           QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-            if(songId==songIdFromWidget){
-                ui->right_list->takeItem(i);
-                store_manager->removeFromQueue(songId);
-                break;
-            }
-        }
-        for (int i= 0;i<ui->right_list_2->count();i++) {
-           QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-            if(songId==songIdFromWidget){
-                ui->right_list_2->takeItem(i);
-                store_manager->removeFromQueue(songId);
-                break;
-            }
-        }
+        remove_song(songId);
     });
 
     QMenu menu;
@@ -1461,6 +1421,58 @@ void MainWindow::showTrackOption(){
     menu.addAction(deleteSongCache);
     menu.setStyleSheet(menuStyle());
     menu.exec(QCursor::pos());
+}
+
+void MainWindow::remove_song(QVariant track_id){
+    QString songId = track_id.toString().remove("<br>").trimmed();
+    for (int i= 0;i<ui->right_list->count();i++) {
+       QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+        if(songId==songIdFromWidget){
+            ui->right_list->takeItem(i);
+            store_manager->removeFromQueue(songId);
+            break;
+        }
+    }
+    for (int i= 0;i<ui->right_list_2->count();i++) {
+       QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+        if(songId==songIdFromWidget){
+            ui->right_list_2->takeItem(i);
+            store_manager->removeFromQueue(songId);
+            break;
+        }
+    }
+}
+
+void MainWindow::delete_song_cache(QVariant track_id){
+    QString songId = track_id.toString().remove("<br>").trimmed();
+    QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QFile cache(setting_path+"/downloadedTracks/"+songId);
+    cache.remove();
+    store_manager->update_track("downloaded",songId,"0");
+    for (int i= 0;i<ui->right_list->count();i++) {
+       QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+        if(songId==songIdFromWidget){
+            ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
+            ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
+            if(store_manager->getExpiry(songId)){
+                ui->right_list->itemWidget(ui->right_list->item(i))->setEnabled(false);
+                getAudioStream(store_manager->getYoutubeIds(songId),songId);
+            }
+            break;
+        }
+    }
+    for (int i= 0;i<ui->right_list_2->count();i++) {
+       QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+        if(songId==songIdFromWidget){
+            ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
+            ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
+            if(store_manager->getExpiry(songId)){
+                ui->right_list_2->itemWidget(ui->right_list_2->item(i))->setEnabled(false);
+                getAudioStream(store_manager->getYoutubeIds(songId),songId);
+            }
+            break;
+        }
+    }
 }
 
 void MainWindow::web_watch_video(QVariant data){
@@ -3331,5 +3343,42 @@ void MainWindow::playVideo(QString trackId){
                       );
     }else{
         qDebug()<<"StoreManager not found";
+    }
+}
+
+//jump to queue of nowPlaying track scroll to it and select it
+void MainWindow::on_jump_to_nowplaying_clicked()
+{
+    //identify the player queue name
+    QString listName;
+    QListWidget *listWidget;
+    QWidget *listWidgetItem = ui->right_list->findChild<QWidget*>("track-widget-"+nowPlayingSongId);
+    listWidget = ui->right_list;
+    listName = "olivia";
+    if(listWidgetItem==nullptr){
+        listWidgetItem= ui->right_list_2->findChild<QWidget*>("track-widget-"+nowPlayingSongId);
+        listWidget = ui->right_list_2;
+        listName = "youtube";
+    }
+    //check if listWidgetItem found in one of list
+    if(listWidgetItem==nullptr){
+        qDebug()<<"CANNOT JUMP, TRACK NOT FOUND IN LIST";
+        listName="";
+        return;
+    }else{
+        // select current track
+        if(listName=="olivia")
+             ui->tabWidget->setCurrentWidget(ui->tab);
+        if(listName=="youtube")
+             ui->tabWidget->setCurrentWidget(ui->tab_2);
+
+        //switch tab where track is found
+        for (int i= 0;i<listWidget->count();i++) {
+            QString songIdFromWidget = static_cast<QLineEdit*>(listWidget->itemWidget(listWidget->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+             if(songIdFromWidget.contains(nowPlayingSongId)){
+                listWidget->scrollToItem(listWidget->item(i));
+                listWidget->setCurrentRow(i);
+             }
+        }
     }
 }

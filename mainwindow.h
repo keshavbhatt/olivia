@@ -80,6 +80,8 @@ public:
     Q_INVOKABLE void web_watch_video(QVariant data);
     Q_INVOKABLE void playVideo(QString trackId);
     Q_INVOKABLE void browse_youtube();
+    Q_INVOKABLE void delete_song_cache(QVariant track_id);
+    Q_INVOKABLE void remove_song(QVariant track_id);
 
     QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;
@@ -215,6 +217,8 @@ private slots:
     void init_mpris();
 
     void show_local_saved_videos();
+    void on_jump_to_nowplaying_clicked();
+
 private:
     Widget *downloadWidget;
     bool animationRunning = false;
