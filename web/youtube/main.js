@@ -130,9 +130,7 @@ function toDataUrl(url, callback) {
 
 
 function gettrackinfo(searchterm){
-
     var videoId;
-
     var arr = searchterm.split("!=-=!")
     title = arr[0];
     artist = arr[1];
