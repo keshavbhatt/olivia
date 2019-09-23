@@ -69,6 +69,7 @@ HEADERS  += mainwindow.h \
     radio.h \
     onlinesearchsuggestion.h \
     seekslider.h \
+    stringchangewatcher.h \
     videooption.h \
     volumeslider.h \
     settings.h \
