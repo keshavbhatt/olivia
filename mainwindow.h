@@ -48,6 +48,7 @@
 #include "youtube.h"
 #include "download_widget.h"
 #include "plugins/mpris/mprisplugin.h"
+#include "stringchangewatcher.h"
 
 
 #include "ui_minimode.h"
@@ -241,7 +242,7 @@ private:
     QString core_local_date,core_remote_date;
     QString database;
     QString gotoAlbumId,gotoArtistId,recommendationSongId,youtubeVideoId;//jumper vars
-    QString nowPlayingSongId;
+//    QString nowPlayingSongId;
     QString offsetstr;
     QString pageType;
     QString previous_eqArg;
@@ -264,6 +265,7 @@ private:
 
     MprisPlugin *dp = nullptr;
     QVariantMap mpris_song_meta;
+    stringChangeWatcher* nowPlayingSongIdWatcher;
 
 };
 

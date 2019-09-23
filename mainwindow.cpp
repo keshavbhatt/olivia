@@ -248,8 +248,8 @@ void MainWindow::init_settings(){
     connect(settingsUi.visualizer,&QCheckBox::toggled,[=](bool checked){
        settUtils->changeVisualizerSetting(checked);
        ui->vis_widget->setVisible(checked);
-       if(!nowPlayingSongId.isEmpty()){
-           playSongById(QVariant(nowPlayingSongId));
+       if(!nowPlayingSongIdWatcher->getValue().isEmpty() && nowPlayingSongIdWatcher->getValue()!="0000000"){
+           playSongById(QVariant(nowPlayingSongIdWatcher->getValue()));
        }
        ui->cover->setVisible(!checked);
     });
@@ -379,7 +379,7 @@ void MainWindow::restart_required(){
 
 void MainWindow::dynamicThemeChanged(bool enabled){
     if(enabled){
-        QString color = store_manager->getDominantColor(store_manager->getAlbumId(nowPlayingSongId));
+        QString color = store_manager->getDominantColor(store_manager->getAlbumId(nowPlayingSongIdWatcher->getValue()));
         int r,g,b;
         if(color.split(",").count()>2){
             r = color.split(",").at(0).toInt();
@@ -658,6 +658,13 @@ void MainWindow::init_app(){
          ui->visible_state->setTextFormat(Qt::RichText);
          ui->visible_state->setText("<p align=\"center\" ><span style=\"font-size:11pt;\">"+util->toCamelCase(ui->state->text())+"</span></p>");
          util->deleteLater();
+     });
+
+     //init nowPlayingSongId change watcher
+     nowPlayingSongIdWatcher = new stringChangeWatcher(this);
+     connect(nowPlayingSongIdWatcher,&stringChangeWatcher::valueChanged,[=](){
+         ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+nowPlayingSongIdWatcher->getValue()+"')");
+        //qDebug()<<nowPlayingSongIdWatcher->getValue();
      });
 }
 
@@ -1013,9 +1020,9 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"),  this);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("paginator"), pagination_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+themeColor+"')");
-        if(!nowPlayingSongId.isEmpty() && pageType!="browse"){
-            ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongId+"'");
-            ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+nowPlayingSongId+"')");
+        if(!nowPlayingSongIdWatcher->getValue().isEmpty()){
+            ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongIdWatcher->getValue()+"'");
+            ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+nowPlayingSongIdWatcher->getValue()+"')");
         }
         QWebSettings::globalSettings()->clearMemoryCaches();
         ui->webview->history()->clear();
@@ -1610,13 +1617,13 @@ void MainWindow::ytdlReadyRead(){
                             row = i;
                             if( row+1 <= listWidget->count()){
                              if(row != 0){
-                                if(listWidget->itemWidget(listWidget->item(row-1))->objectName().contains(nowPlayingSongId)){
+                                if(listWidget->itemWidget(listWidget->item(row-1))->objectName().contains(nowPlayingSongIdWatcher->getValue())){
                                     assignNextTrack(listWidget,row);
                                     ui->next->setEnabled(true);
                                 }
                              }
                              if(row+1 != listWidget->count()){
-                                if(listWidget->itemWidget(listWidget->item(row+1))->objectName().contains(nowPlayingSongId)){
+                                if(listWidget->itemWidget(listWidget->item(row+1))->objectName().contains(nowPlayingSongIdWatcher->getValue())){
                                     assignPreviousTrack(listWidget,row);
                                     ui->previous->setEnabled(true);
                                 }
@@ -2050,7 +2057,6 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         QString rgba = r+","+g+","+b+","+"0.2";
         ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+rgba+"')");
     }
-    ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
 }
 //END PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2131,14 +2137,14 @@ void MainWindow::getNowPlayingTrackId(){
          if(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
             //get songId of visible track
             QLineEdit *songId = ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId");
-            nowPlayingSongId = static_cast<QLineEdit*>(songId)->text();
+            nowPlayingSongIdWatcher->setValue(static_cast<QLineEdit*>(songId)->text());
         }
     }
     for(int i = 0 ; i< ui->right_list_2->count();i++){
          if(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
             //get songId of visible track
             QLineEdit *songId = ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId");
-            nowPlayingSongId = static_cast<QLineEdit*>(songId)->text();
+            nowPlayingSongIdWatcher->setValue(static_cast<QLineEdit*>(songId)->text());
         }
     }
 }
@@ -2177,7 +2183,7 @@ void MainWindow::radioStatus(QString radioState){
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
 
         //remove nowplaying from central widget
-        ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('0000000')");
+        nowPlayingSongIdWatcher->setValue("0000000"); //null
         setTrackItemNowPlaying();
 
         // play next track
@@ -2187,14 +2193,14 @@ void MainWindow::radioStatus(QString radioState){
 
     }
     else if(radioState=="stopped"){
-        ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('0000000')");
+        nowPlayingSongIdWatcher->setValue("0000000");
         ui->stop->setEnabled(false);
         ui->play_pause->setEnabled(false);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
         setTrackItemNowPlaying();
     }
     if(radioState=="failed"){
-        ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('0000000')");
+        nowPlayingSongIdWatcher->setValue("0000000");
         if(!ui->debug_widget->isVisible())
             ui->debug_widget->show();
     }
@@ -2268,7 +2274,7 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
     album = tracskList[3];
     artist = tracskList[5];
     base64 = tracskList[6];
-    nowPlayingSongId = songId;
+    nowPlayingSongIdWatcher->setValue(songId.remove("<br>"));
     QString setting_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     url = "file://"+setting_path+"/downloadedTracks/"+songId;
 
@@ -2346,8 +2352,7 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
     //always false as we don't want record radio for now
     saveTracksAfterBuffer=false;
     radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url.trimmed()));
-    ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+stationId+"')");
-
+    nowPlayingSongIdWatcher->setValue(stationId);
     //clear playing icon from player queue
     setTrackItemNowPlaying();
 }
@@ -2360,24 +2365,24 @@ void MainWindow::saveTrack(QString format){
     QString downloadTemp_Path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/downloadedTemp/";
     QFile file(downloadTemp_Path+"current.temp"); //+"."+format
 
-    if(file.copy(download_Path+nowPlayingSongId)){
+    if(file.copy(download_Path+nowPlayingSongIdWatcher->getValue())){
         file.close();
-    //    qDebug()<<"saved"<<nowPlayingSongId<<"as"<<format<<"in"<<file.fileName();
-        store_manager->update_track("downloaded",nowPlayingSongId,"1");
+    //    qDebug()<<"saved"<<nowPlayingSongIdWatcher->getValue()<<"as"<<format<<"in"<<file.fileName();
+        store_manager->update_track("downloaded",nowPlayingSongIdWatcher->getValue(),"1");
     }
       //show offline icon in track ui and change url to offline one
       for(int i = 0 ; i< ui->right_list->count();i++){
-           if(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongId){
+           if(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongIdWatcher->getValue()){
               QLabel *offline = ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("offline");
               static_cast<QLabel*>(offline)->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-              ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongId);
+              ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongIdWatcher->getValue());
           }
       }
       for(int i = 0 ; i< ui->right_list_2->count();i++){
-           if(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongId){
+           if(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongIdWatcher->getValue()){
               QLabel *offline = ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("offline");
               static_cast<QLabel*>(offline)->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-              ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongId);
+              ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongIdWatcher->getValue());
           }
       }
 }
@@ -3362,11 +3367,11 @@ void MainWindow::on_jump_to_nowplaying_clicked()
     //identify the player queue name
     QString listName;
     QListWidget *listWidget;
-    QWidget *listWidgetItem = ui->right_list->findChild<QWidget*>("track-widget-"+nowPlayingSongId);
+    QWidget *listWidgetItem = ui->right_list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
     listWidget = ui->right_list;
     listName = "olivia";
     if(listWidgetItem==nullptr){
-        listWidgetItem= ui->right_list_2->findChild<QWidget*>("track-widget-"+nowPlayingSongId);
+        listWidgetItem= ui->right_list_2->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
         listWidget = ui->right_list_2;
         listName = "youtube";
     }
@@ -3385,7 +3390,7 @@ void MainWindow::on_jump_to_nowplaying_clicked()
         //switch tab where track is found
         for (int i= 0;i<listWidget->count();i++) {
             QString songIdFromWidget = static_cast<QLineEdit*>(listWidget->itemWidget(listWidget->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-             if(songIdFromWidget.contains(nowPlayingSongId)){
+             if(songIdFromWidget.contains(nowPlayingSongIdWatcher->getValue())){
                 listWidget->scrollToItem(listWidget->item(i));
                 listWidget->setCurrentRow(i);
              }
