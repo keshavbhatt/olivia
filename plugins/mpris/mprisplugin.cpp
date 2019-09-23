@@ -109,6 +109,7 @@ qlonglong MprisPlugin::position() const {
 void MprisPlugin::SetPosition(
         const QDBusObjectPath &TrackId, qlonglong Position) {
    // if(trackID != TrackId) return;
+    Q_UNUSED(TrackId);
     radio_manager->radioSeek(static_cast<int>(Position / 1000000));
 }
 
