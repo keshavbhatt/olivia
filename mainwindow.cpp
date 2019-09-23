@@ -3113,13 +3113,17 @@ void MainWindow::queueShowOption(QListWidget *queue){
 
         });
         connect(clearUnCached,&QAction::triggered,[=](){
-            for (int i=0; i<queue->count();i++) {
-                QString songIdFromWidget = static_cast<QLineEdit*>(queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-                if(!store_manager->isDownloaded(songIdFromWidget) /*&& !trackIsBeingProcessed(songIdFromWidget)*/){
-                    store_manager->removeFromQueue(songIdFromWidget);
-                    queue->removeItemWidget(queue->item(i));
-                    if(queue->item(i) != nullptr){
-                        delete queue->item(i);
+            while (hasUnCachedTracks(queue)) {
+                for (int i=0; i<queue->count();i++) {
+                    QString songIdFromWidget = static_cast<QLineEdit*>(queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+                    songIdFromWidget.remove("<br>").trimmed();
+                    if(!store_manager->isDownloaded(songIdFromWidget) /*&& !trackIsBeingProcessed(songIdFromWidget)*/){
+                        store_manager->removeFromQueue(songIdFromWidget);
+                        //queue->removeItemWidget(queue->item(i));
+                       QListWidgetItem *item=  queue->takeItem(i);
+                        if(item != nullptr){
+                            delete item;
+                        }
                     }
                 }
             }

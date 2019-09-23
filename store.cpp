@@ -572,13 +572,11 @@ bool store::isDownloaded(QString trackId){
     QSqlQuery query;
     query.exec("SELECT downloaded FROM tracks WHERE trackId = '"+trackId+"'");
     bool downloaded = false;
-    if(query.record().count()>0){
-        while(query.next()){
-            if(query.value("downloaded").toString().trimmed()=="1"){
-                downloaded = true;
-            }else{
-                downloaded =  false;
-            }
+    while(query.next()){
+        if(query.value("downloaded").toString().trimmed()=="1"){
+            downloaded = true;
+        }else{
+            downloaded =  false;
         }
     }
     return downloaded;
