@@ -75,11 +75,15 @@ $(document).ready(function($) {
            if ($(this).data('oldVal') !== $(this).val()) {
             $(this).data('oldVal', $(this).val());
                //init the store class
-               var html = store.search_print_local_saved_tracks($(this).data("oldVal"));
-               $('#tracks_page .ui-content').html(html);
-               $('#tracks_page .ui-content').trigger('create');
-               $('#tracks_page .ui-content').fadeIn('slow');
-               $.mobile.loading("hide");
+               if($(this).data("oldVal") === ""){
+                   $("#a-home").click();
+               }else{
+                   var html = store.search_print_local_saved_tracks($(this).data("oldVal"));
+                   $('#tracks_page .ui-content').html(html);
+                   $('#tracks_page .ui-content').trigger('create');
+                   $('#tracks_page .ui-content').fadeIn('slow');
+                   $.mobile.loading("hide");
+               }
           }
         });
       });

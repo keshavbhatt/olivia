@@ -966,7 +966,7 @@ QString store::open_local_saved_tracks_PageNumber(int pageNumber){
                     "<p>"+
                         ""+ title+
                         "<br>"+
-                        "Album: "+album+
+                        "Album: "+QString(album=="undefined"?"Youtube":album)+
                         "<br>"+
                         "Artist: "+artist+
                     "</p>"+
@@ -1048,7 +1048,7 @@ QList<QStringList> store::get_search_local_saved_tracks(int offset,QString query
 QString store::open_search_local_saved_tracks(int pageNumber,QVariant queryStr){
     currentPageNumber = pageNumber;
     QString Next,Previous,pagination,script,head,footer;
-    head = "<p style='margin-top: -5px;'>showing page "+QString::number(currentPageNumber+1)+" of "+QString::number(totalPages)+" pages.</p>";
+    head = "<p style='margin-top: -5px;text-align:centre;'>Showing results on page "+QString::number(currentPageNumber+1)+" of "+QString::number(totalPages)+" pages for your searched query : "+queryStr.toString()+"</p>";
     script = "<script>$(\".ui-page-active [data-role='header'] h1\").html(\""+QString::number(totalTracks)+" downloaded songs\");</script>";
 
     Next = "<a class='ui-btn ui-mini ui-icon-arrow-r ui-btn-icon-right ui-shadow ui-corner-all'"+
@@ -1101,7 +1101,7 @@ QString store::open_search_local_saved_tracks(int pageNumber,QVariant queryStr){
                     "<p>"+
                         ""+ title+
                         "<br>"+
-                        "Album: "+album+
+                        "Album: "+QString(album=="undefined"?"Youtube":album)+
                         "<br>"+
                         "Artist: "+artist+
                     "</p>"+
