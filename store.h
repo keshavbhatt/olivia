@@ -21,6 +21,10 @@ public:
     Q_INVOKABLE void removeRadioChannelFromFavourite(QVariant channelId);
     Q_INVOKABLE QString open_local_saved_tracks_PageNumber(int pageNumber);
 
+    Q_INVOKABLE QString search_print_local_saved_tracks(QVariant queryVar);
+    Q_INVOKABLE QString open_search_local_saved_tracks(int pageNumber, QVariant queryStr);
+
+
 private:
     QSqlDatabase db;
     int storeVersion;
@@ -80,6 +84,9 @@ private slots:
 
     int getTrackCount(QString fromTable, QString fromRow);
     QList<QStringList> get_local_saved_tracks(int offset);
+
+    int getSearchResultTrackCount(QString queryStr);
+    QList<QStringList> get_search_local_saved_tracks(int offset, QString queryStr);
 };
 
 #endif // STORE_H

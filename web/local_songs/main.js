@@ -68,13 +68,38 @@ $(document).ready(function($) {
            $.mobile.defaultHomeScroll = 0;
     });
 
-//    $("#coverImage").load(function(){
-//          dominantColor = colorThief.getColor(document.querySelector("#coverImage"));
-//    });
+    //prepare and bind the search input form to store
+    $('#songsfilter-input').each(function() {
+        $(this).data('oldVal', $(this));
+        $(this).bind("propertychange change keyup input cut paste", function(event){
+           if ($(this).data('oldVal') !== $(this).val()) {
+            $(this).data('oldVal', $(this).val());
+               //init the store class
+               var html = store.search_print_local_saved_tracks($(this).data("oldVal"));
+               $('#tracks_page .ui-content').html(html);
+               $('#tracks_page .ui-content').trigger('create');
+               $('#tracks_page .ui-content').fadeIn('slow');
+               $.mobile.loading("hide");
+          }
+        });
+      });
 });
 
 
 //  core functions -------------
+
+//opens page number of search query from store defined inside html coming store class
+function openSearchPagenumber(pagenumber,queryStr){
+    showLoading();
+    $.mobile.changePage($('#tracks_page'));
+    $('.ui-content').hide();
+    var html = store.open_search_local_saved_tracks(pagenumber,queryStr);
+    $('#tracks_page .ui-content').html(html);
+    $('#tracks_page .ui-content').trigger('create');
+    $('#tracks_page .ui-content').fadeIn('slow');
+    $.mobile.loading("hide");
+}
+
 function open_local_saved_tracks(){
     showLoading();
     $.mobile.changePage($('#tracks_page'));
@@ -86,6 +111,7 @@ function open_local_saved_tracks(){
     $.mobile.loading("hide");
 }
 
+//opens page number of saved local tracks from store defined inside html coming store class
 function openPagenumber(pagenumber){
     showLoading();
     $.mobile.changePage($('#tracks_page'));
@@ -103,6 +129,8 @@ $(document).on("pagecreate", "#tracks_page", function(){
         $("#songsfilter-input").focus();
     });
 });
+
+
 
 function toDataUrl(url, callback) {
     var xhr = new XMLHttpRequest();
@@ -186,7 +214,7 @@ function track_option(track_id){
                             '<a href="#" id="'+songId+'_addToQueue" >Add to queue</a>'+
                         '</li>'+
                         '<li>'+
-                            '<a href="#" onclick="delete_song(\''+songId+'\')" >Delete this song</a>'+
+                            '<a href="#" onclick="delete_song(\''+songId+'\')" >Delete song cache</a>'+
                         '</li>'+
                       '</ul>',
                 link = "<span >id: "+ songId+"</span>",
