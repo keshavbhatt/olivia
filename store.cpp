@@ -959,8 +959,6 @@ QString store::open_local_saved_tracks_PageNumber(int pageNumber){
             dominantColor = trackList.at(9);
             QString divider = "!=-=!";
 
-            QString albumType = (album == "undefined") ? "Youtube":"";
-
             li += "<li data-filtertext='"+title+" "+album+" "+artist+"' >"+
             "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'><img id='"+songId+"' style='max-width:101px;max-height:101px;width=101px;height=101px;'  src='data:image/png;base64,"+base64+"'\\>"+
                     "<p>"+
@@ -970,12 +968,10 @@ QString store::open_local_saved_tracks_PageNumber(int pageNumber){
                         "<br>"+
                         "Artist: "+artist+
                     "</p>"+
-                   "<p class='ui-li-aside'>"+albumType+"</p>" +
                " </a>"+
                    "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
             "</li>";
         }
-        //data-input='#songsfilter-input' data-filter='true'
         html =  head+
                 "<ul style='margin-bottom: 60px;'  class='list' id='saved_tracks_result'   data-role='listview' data-split-icon='bars' data-split-theme='b' data-inset='true'>"
                 +li
@@ -1094,8 +1090,6 @@ QString store::open_search_local_saved_tracks(int pageNumber,QVariant queryStr){
             dominantColor = trackList.at(9);
             QString divider = "!=-=!";
 
-            QString albumType = (album == "undefined") ? "Youtube":"";
-
             li += "<li data-filtertext='"+title+" "+album+" "+artist+"' >"+
             "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'><img id='"+songId+"' style='max-width:101px;max-height:101px;width=101px;height=101px;'  src='data:image/png;base64,"+base64+"'\\>"+
                     "<p>"+
@@ -1105,12 +1099,10 @@ QString store::open_search_local_saved_tracks(int pageNumber,QVariant queryStr){
                         "<br>"+
                         "Artist: "+artist+
                     "</p>"+
-                   "<p class='ui-li-aside'>"+albumType+"</p>" +
                " </a>"+
                    "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
             "</li>";
         }
-        //data-input='#songsfilter-input' data-filter='true'
         html =  head+
                 "<ul style='margin-bottom: 60px;'  class='list' id='saved_tracks_result'   data-role='listview' data-split-icon='bars' data-split-theme='b' data-inset='true'>"
                 +li
