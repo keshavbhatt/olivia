@@ -27,8 +27,6 @@
 
 #stations_page, #favourite_page, #radio_page {
     background: transparent !important;
-    min-height:100%  !important;
-    height: 100% !important;
 }
 
 
