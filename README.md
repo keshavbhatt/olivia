@@ -38,7 +38,9 @@ by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktech
 
 ﻿**Consider Donating if you want this music player grow further**
 
-[**PayPal Me**](https://paypal.me/keshavnrj/10)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/keshavnrj/5)
+
+[![Buy Me A Coffee](https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png)](https://www.buymeacoffee.com/keshavnrj)
 
 **Olivia utilises power of the following tools and technologies :**
 - Qt GUI Framework 5.5.1 
