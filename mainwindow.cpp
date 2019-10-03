@@ -1080,6 +1080,8 @@ void MainWindow::webViewLoaded(bool loaded){
             ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
             QString trackTitle = QString(store_manager->getTrack(youtubeVideoId).at(1)).remove("'").remove("\"");
             youtubeVideoId = store_manager->getYoutubeIds(youtubeVideoId).split("<br>").first().trimmed();
+
+            qDebug()<<youtubeVideoId<<"ytid";
             ui->webview->page()->mainFrame()->evaluateJavaScript("show_related('"+youtubeVideoId+"','"+trackTitle+"')");
         }
         youtubeVideoId.clear();
@@ -1145,7 +1147,7 @@ void MainWindow::addToQueue(QString id,QString title,
                             QString artist,QString album,QString base64,
                             QString dominantColor,QString songId,QString albumId,QString artistId){
 
-    id = id.remove("<br>");
+//    id is youtube ids not songID;
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 
     if(store_manager->isInQueue(songId)){
@@ -1314,6 +1316,7 @@ void MainWindow::showTrackOption(){
     QPushButton* senderButton = qobject_cast<QPushButton*>(sender());
 
     QString songId = senderButton->objectName().remove("optionButton").trimmed();
+    qDebug()<<songId;
     QString albumId = store_manager->getAlbumId(songId);
     QString artistId = store_manager->getArtistId(songId);
 
