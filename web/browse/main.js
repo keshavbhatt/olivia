@@ -206,7 +206,7 @@ function gettrackinfo(searchterm){
                             "millis": millis
                            },
                         success: function(html) {
-                            html_data =html;
+                            html_data = html;
                             mainwindow.addToQueue(html_data,title,artist,album,base64,dominantColor,songId,albumId,artistId);
                             $.mobile.loading("hide");
                         }
