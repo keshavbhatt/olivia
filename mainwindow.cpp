@@ -1097,6 +1097,10 @@ void MainWindow::webViewLoaded(bool loaded){
         recommendationSongId.clear();
      }
 
+    if(loaded && pageType == "browse"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
+    }
+
     if( loaded && pageType == "youtube" && !youtubeSearchTerm.isEmpty()){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->evaluateJavaScript("$('.ui-content').fadeOut('fast');$('#manual_search').val('"+youtubeSearchTerm+"');manual_youtube_search('"+youtubeSearchTerm+"');");
@@ -1314,7 +1318,7 @@ void MainWindow::showTrackOption(){
     QString artistId = store_manager->getArtistId(songId);
 
     QAction *showRecommendation = new QAction("Spotify Recommendations",nullptr);
-    QAction *watchVideo = new QAction("Watch Video",nullptr);
+    QAction *watchVideo = new QAction("Video Options",nullptr);
     QAction *showLyrics = new QAction("Show Lyrics",nullptr);
     QAction *openChannel = new QAction("Open Channel",nullptr);
     QAction *youtubeShowRecommendation= new QAction("Youtube Recommendations",nullptr);
