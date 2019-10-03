@@ -22,8 +22,6 @@
 #include <QJsonObject>
 
 
-
-
 // init store class and creates defined directories
 store::store(QObject *parent, QString dbName) : QObject(parent)
 {
@@ -1066,7 +1064,7 @@ QString store::open_search_local_saved_tracks(int pageNumber,QVariant queryStr){
         pagination += Next;
 
     if(!pagination.trimmed().isEmpty()){
-        footer = "<div style='background-color: rgba(29, 29, 29, 0.64);' data-role='footer'data-position='fixed' data-tap-toggle='false'>"+
+        footer = "<div style='background-color: rgba(29, 29, 29, 0.64);' data-role='footer' data-position='fixed' data-tap-toggle='false'>"+
                     pagination+
                  "</div>";
     }
