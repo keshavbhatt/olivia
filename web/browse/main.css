@@ -5,9 +5,14 @@
 
 #container .grid li { float: left; width: 20%; height: 50px; border-right: 1px dotted #CCC; border-bottom: 1px dotted #CCC; padding: 20px; }
 
-.ui-listview>li p {
+#album_view_page .ui-listview>li p {
     margin-left: 4.5em;
     line-height: 1.8em;
+}
+
+#new_releases_page .ui-listview>li p{
+    margin-left: 3.6em;
+    line-height: 2em;
 }
 
 .ui-listview .ui-li-has-thumb>.ui-btn>img:first-child{
@@ -30,6 +35,10 @@
 }
 
 #new_releases_page {
+    background: transparent !important;
+}
+
+#album_view_page{
     background: transparent !important;
 }
 
