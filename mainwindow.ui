@@ -1315,7 +1315,7 @@ padding-left: 10px;</string>
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <property name="elideMode">
                   <enum>Qt::ElideNone</enum>
@@ -1766,6 +1766,131 @@ QScrollBar:vertical {
                    </item>
                   </layout>
                  </widget>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="recommWidget" native="true">
+                 <property name="styleSheet">
+                  <string notr="true">QWidget#recommWidget{
+border:none;
+}</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_15">
+                  <property name="spacing">
+                   <number>6</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>4</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>2</number>
+                  </property>
+                  <item>
+                   <widget class="Line" name="line_3">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">background-color: #808080;</string>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="playerQueue" name="recommListWidget">
+                    <property name="minimumSize">
+                     <size>
+                      <width>200</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">QListWidget{
+	background-color: transparent;
+	border:none;
+}
+
+QScrollBar:vertical {
+	   background-color: transparent;
+	   border:none;
+       width: 10px;
+       margin: 22px 0 22px 0;
+   }
+   QScrollBar::handle:vertical {
+       background: grey;
+       min-height: 20px;
+   }</string>
+                    </property>
+                    <property name="verticalScrollBarPolicy">
+                     <enum>Qt::ScrollBarAsNeeded</enum>
+                    </property>
+                    <property name="horizontalScrollBarPolicy">
+                     <enum>Qt::ScrollBarAlwaysOff</enum>
+                    </property>
+                    <property name="autoScroll">
+                     <bool>false</bool>
+                    </property>
+                    <property name="autoScrollMargin">
+                     <number>5</number>
+                    </property>
+                    <property name="verticalScrollMode">
+                     <enum>QAbstractItemView::ScrollPerPixel</enum>
+                    </property>
+                    <property name="horizontalScrollMode">
+                     <enum>QAbstractItemView::ScrollPerPixel</enum>
+                    </property>
+                    <property name="movement">
+                     <enum>QListView::Free</enum>
+                    </property>
+                    <property name="spacing">
+                     <number>3</number>
+                    </property>
+                    <property name="uniformItemSizes">
+                     <bool>true</bool>
+                    </property>
+                    <property name="selectionRectVisible">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="showSimilarList">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <italic>true</italic>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>Similar Tracks</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="icons.qrc">
+                   <normaloff>:/icons/sidebar/showRecommend.png</normaloff>:/icons/sidebar/showRecommend.png</iconset>
+                 </property>
                 </widget>
                </item>
               </layout>

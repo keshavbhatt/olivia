@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //sets search icon in label
     ui->label_5->resize(ui->label_5->width(),ui->search->height());
     ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+    ui->recommWidget->hide();
 
     qApp->setQuitOnLastWindowClosed(true);
 
@@ -41,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_settings();
     init_miniMode();
     init_lyrics();
+    init_similar_tracks();
 
     init_downloadWidget();
 
@@ -73,6 +75,15 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::init_similar_tracks(){
+    if(similarTracks==nullptr){
+        similarTracks = new SimilarTracks(this);
+        connect(similarTracks, &SimilarTracks::addToSimilarTracksList,[=](QStringList list){
+            addToSimilarTracksQueue(list);
+        });
+    }
 }
 
 void MainWindow::init_radio(){
@@ -527,6 +538,12 @@ void MainWindow::set_app_theme(QColor rgb){
     ui->right_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
     ui->right_list_2->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
 
+    ui->recommWidget->setStyleSheet("QWidget#recommWidget{"+widgetStyle+";border:none;}");
+    ui->recommListWidget->setStyleSheet("QListWidget{"+widgetStyle+";border:none;}"+scrollbarStyle);
+
+    ui->showSimilarList->setStyleSheet("QPushButton#showSimilarList{"+widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;}");
+
+
     miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
 
     ui->search->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
@@ -542,6 +559,7 @@ void MainWindow::set_app_theme(QColor rgb){
    "QPushButton:hover{border: 1px solid #272727;background-color:#5A584F; color:silver ;}"
    "QPushButton:pressed {background-color: #45443F;color: silver;padding-bottom:1px;}";
 
+    ui->showSimilarList->setStyleSheet(widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;");
     ui->ytdlRefreshAll->setStyleSheet(btn_style);
     ui->ytdlStopAll->setStyleSheet(btn_style);
 
@@ -1143,6 +1161,101 @@ QString MainWindow::getTerm(){
     return  term.replace(" ","+");
 }
 
+void MainWindow::addToSimilarTracksQueue(const QStringList arr){
+    QString ytIds,title,artist,album,coverUrl,songId,albumId,artistId;
+    ytIds= arr.at(0);
+    title= arr.at(1);
+    artist= arr.at(2);
+    album= arr.at(3);
+    coverUrl= arr.at(4);
+    songId= arr.at(5);
+    albumId= arr.at(6);
+    artistId = arr.at(7);
+
+    QWidget *track_widget = new QWidget(ui->recommListWidget);
+    track_widget->setToolTip(title);
+    track_widget->setObjectName("track-widget-"+songId);
+    track_ui.setupUi(track_widget);
+
+    QFont font("Ubuntu");
+    font.setPixelSize(12);
+    setFont(font);
+
+    //to convert html sequence to plaintext
+    QTextDocument text;
+    text.setHtml(htmlToPlainText(title));
+    QString plainTitle = text.toPlainText();
+
+    ElidedLabel *titleLabel = new ElidedLabel(plainTitle,nullptr);
+    titleLabel->setFont(font);
+    titleLabel->setObjectName("title_elided");
+    track_ui.verticalLayout_2->addWidget(titleLabel);
+
+    ElidedLabel *artistLabel = new ElidedLabel(htmlToPlainText(artist),nullptr);
+    artistLabel->setObjectName("artist_elided");
+    artistLabel->setFont(font);
+    track_ui.verticalLayout_2->addWidget(artistLabel);
+
+    ElidedLabel *albumLabel = new ElidedLabel(htmlToPlainText(album),nullptr);
+    albumLabel->setObjectName("album_elided");
+    albumLabel->setFont(font);
+    track_ui.verticalLayout_2->addWidget(albumLabel);
+
+    track_ui.id->setText(ytIds);
+  //  track_ui.dominant_color->setText(dominantColor);
+    track_ui.songId->setText(songId);
+    track_ui.playing->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+
+    track_ui.songId->hide();
+    track_ui.dominant_color->hide();
+    track_ui.id->hide();
+    track_ui.url->hide();
+    track_ui.option->setObjectName(songId+"optionButton");
+    //TODO connect track_option button
+//    connect(track_ui.option,SIGNAL(clicked(bool)),this,SLOT(showRecommendedTrackOption()));
+
+    LoadCover( QUrl(coverUrl),*track_ui.cover);
+    if(albumId.contains("undefined-")){
+        track_ui.cover->setMaximumHeight(track_widget->height());
+        track_ui.cover->setMaximumWidth(static_cast<int>(track_widget->height()*1.15));
+        QListWidgetItem* item;
+        item = new QListWidgetItem(ui->recommListWidget);
+        QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
+
+        //set size for track widget
+        track_ui.cover->setMaximumSize(149,90);
+        track_ui.cover->setMinimumSize(149,79);
+        track_ui.widget->adjustSize();
+        item->setSizeHint(track_widget->minimumSizeHint());
+
+        ui->recommListWidget->setItemWidget(item, track_widget);
+        ui->recommListWidget->itemWidget(item)->setGraphicsEffect(eff);
+        ui->recommListWidget->itemWidget(item)->setEnabled(false); //enable when finds a url
+
+        QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
+        a->setDuration(500);
+        a->setStartValue(0);
+        a->setEndValue(1);
+        a->setEasingCurve(QEasingCurve::InCirc);
+        a->start(QPropertyAnimation::DeleteWhenStopped);
+        ui->recommListWidget->addItem(item);
+
+        ui->recommListWidget->setCurrentRow(ui->recommListWidget->count()-1);
+        if(store_manager->isDownloaded(songId)){
+            ui->recommListWidget->itemWidget(item)->setEnabled(true);
+            track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
+            track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        }else{
+          getAudioStream(ytIds,songId);
+          //reverse the process queue, so that recently added song can get first chance to process
+          if(ytdlQueue.count()>1){
+              ytdlQueue.insert(1,  ytdlQueue.takeAt(ytdlQueue.count()-1));
+          }
+        }
+       // ui->recommListWidget->scrollToBottom();
+    }
+}
+
 void MainWindow::addToQueue(QString id,QString title,
                             QString artist,QString album,QString base64,
                             QString dominantColor,QString songId,QString albumId,QString artistId){
@@ -1602,11 +1715,20 @@ void MainWindow::ytdlReadyRead(){
             QWidget *listWidgetItem = ui->right_list->findChild<QWidget*>("track-widget-"+songId);
             listName = "olivia";
             listWidget = ui->right_list;
+
             if(listWidgetItem==nullptr){
                 listWidgetItem= ui->right_list_2->findChild<QWidget*>("track-widget-"+songId);
                 listName = "youtube";
                 listWidget = ui->right_list_2;
             }
+
+            if(listWidgetItem==nullptr){
+                listWidgetItem= ui->recommListWidget->findChild<QWidget*>("track-widget-"+songId);
+                listName = "recommended";
+                listWidget = ui->recommListWidget;
+            }
+
+
             //check if listWidgetItem found in one of list
             if(listWidgetItem==nullptr){
                 qDebug()<<"TRACK NOT FOUND IN LIST";
@@ -1865,6 +1987,35 @@ void MainWindow::on_right_list_itemDoubleClicked(QListWidgetItem *item)
         playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         playing->setToolTip("");
     }
+
+    QList<QLabel*> playing_label_list_other2;
+    playing_label_list_other2 = ui->recommListWidget->findChildren<QLabel*>("playing");
+    foreach (QLabel *playing, playing_label_list_other2) {
+        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        playing->setToolTip("");
+    }
+
+}
+
+void MainWindow::on_recommListWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+    listItemDoubleClicked(ui->recommListWidget,item);
+
+    //hide playing labels in other list
+    QList<QLabel*> playing_label_list_other;
+    playing_label_list_other = ui->right_list->findChildren<QLabel*>("playing");
+    foreach (QLabel *playing, playing_label_list_other) {
+        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        playing->setToolTip("");
+    }
+
+
+    QList<QLabel*> playing_label_list_other_2;
+    playing_label_list_other_2 = ui->right_list_2->findChildren<QLabel*>("playing");
+    foreach (QLabel *playing, playing_label_list_other_2) {
+        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        playing->setToolTip("");
+    }
 }
 
 void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
@@ -1875,6 +2026,13 @@ void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
     QList<QLabel*> playing_label_list_other;
     playing_label_list_other = ui->right_list->findChildren<QLabel*>("playing");
     foreach (QLabel *playing, playing_label_list_other) {
+        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        playing->setToolTip("");
+    }
+
+    QList<QLabel*> playing_label_list_other2;
+    playing_label_list_other2 = ui->recommListWidget->findChildren<QLabel*>("playing");
+    foreach (QLabel *playing, playing_label_list_other2) {
         playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         playing->setToolTip("");
     }
@@ -1942,6 +2100,7 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
     if(list->currentRow()==list->count()-1){
         ui->next->setEnabled(false);
+        startGetRecommendedTrackForAutoPlayTimer(songId);
     }else{
         //assign next track in list if next item in list is valid
         for(int i=list->currentRow()+1;i<list->count();i++){
@@ -1949,7 +2108,7 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
                 ui->next->setEnabled(true);
                 assignNextTrack(list,i);
                 break;
-            }else {
+            }else{
                 ui->next->setEnabled(false);
             }
         }
@@ -2046,6 +2205,11 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
         ui->right_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
         ui->right_list_2->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
+
+        ui->recommWidget->setStyleSheet("QWidget#recommWidget{"+widgetStyle+";border:none;}");
+        ui->recommListWidget->setStyleSheet("QListWidget{"+widgetStyle+";border:none;}"+scrollbarStyle);
+
+        ui->showSimilarList->setStyleSheet("QPushButton#showSimilarList{"+widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;}");
 
         miniModeWidget->setStyleSheet (ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
 
@@ -2154,6 +2318,13 @@ void MainWindow::getNowPlayingTrackId(){
             nowPlayingSongIdWatcher->setValue(static_cast<QLineEdit*>(songId)->text());
         }
     }
+    for(int i = 0 ; i< ui->recommListWidget->count();i++){
+         if(ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
+            //get songId of visible track
+            QLineEdit *songId = ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->findChild<QLineEdit*>("songId");
+            nowPlayingSongIdWatcher->setValue(static_cast<QLineEdit*>(songId)->text());
+        }
+    }
 }
 
 void MainWindow::resizeEvent(QResizeEvent *resizeEvent){
@@ -2196,8 +2367,24 @@ void MainWindow::radioStatus(QString radioState){
         // play next track
         if(ui->next->isEnabled()){
             ui->next->click();
+        }else{
+            if(!settingsObj.value("shuffle").toBool()){
+                qDebug()<<"List ended play related songs";
+                //assign next track in list if next item in list is valid
+                for(int i=0;i<ui->recommListWidget->count();i++){
+                    if(ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->isEnabled()){
+                        ui->next->setEnabled(true);
+                        assignNextTrack(ui->recommListWidget,i);
+                        break;
+                    }else {
+                        ui->next->setEnabled(false);
+                    }
+                }
+                if(ui->next->isEnabled()){
+                    ui->next->click();
+                }
+            }
         }
-
     }
     else if(radioState=="stopped"){
         nowPlayingSongIdWatcher->setValue("0000000");
@@ -2215,12 +2402,17 @@ void MainWindow::radioStatus(QString radioState){
 }
 
 
+
+
 void MainWindow::setTrackItemNowPlaying(){ //removes playing icon from lists
     for (int i= 0;i<ui->right_list->count();i++) {
       ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
     }
     for (int i= 0;i<ui->right_list_2->count();i++) {
       ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
+    }
+    for (int i= 0;i<ui->recommListWidget->count();i++) {
+      ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
     }
 }
 
@@ -2836,7 +3028,6 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
 
     //normal next track algo
     QString songId;
-
     if(settingsObj.value("shuffle",false).toBool()){
 
     }else{
@@ -2844,7 +3035,18 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
     }
 
     if(!songId.isEmpty()){
-        ui->next->setToolTip(htmlToPlainText(store_manager->getTrack(songId).at(1)));
+        QString tooltip = store_manager->getTrack(songId).at(1);
+        if(!tooltip.isEmpty()){
+            ui->next->setToolTip(htmlToPlainText(tooltip));
+        }else{
+            //dig title of track
+            ElidedLabel *title = list->itemWidget(list->item(index))->findChild<ElidedLabel *>("title_elided");
+            QString titleStr = static_cast<ElidedLabel*>(title)->text();
+            if(!titleStr.isEmpty())
+                ui->next->setToolTip(titleStr);
+            else
+                ui->next->setToolTip("");
+        }
     }else{
         ui->next->setToolTip("");
     }
@@ -2853,9 +3055,56 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
         list->setCurrentRow(index);
         listItemDoubleClicked(list,list->item(index));
         list->scrollToItem(list->item(index));
+     //   startGetRecommendedTrackForAutoPlayTimer(songId);
     });
 }
 
+void MainWindow::startGetRecommendedTrackForAutoPlayTimer(QString songId){
+    QTimer *timer = new QTimer(this);
+    timer->setInterval(5000);
+    timer->setSingleShot(true);
+    connect(timer, &QTimer::timeout, [=]() {
+      getRecommendedTracksForAutoPlay(songId);
+      timer->deleteLater();
+    });
+    timer->start();
+}
+
+void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
+    QString videoId = store_manager->getYoutubeIds(songId).split("<br>").first().trimmed();
+    if(videoId.trimmed().isEmpty()){
+        QWidget *listWidgetItem = ui->recommListWidget->findChild<QWidget*>("track-widget-"+songId);
+        QString id = listWidgetItem->findChild<QLineEdit*>("id")->text();
+        videoId = id.split("<br>").first();
+        qDebug()<<"recommended songs based on "<<videoId;
+    }
+    if(!ui->next->isEnabled() && !settingsObj.value("shuffle").toBool()){
+        qDebug()<<"Prepare related songs list";
+        //keep now playing song and remove others
+        while(similarTracksListHasTrackToBeRemoved()){
+            for (int i=0; i<ui->recommListWidget->count();i++) {
+                if(ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
+                    QListWidgetItem *item =  ui->recommListWidget->takeItem(i);
+                     if(item != nullptr){
+                         delete item;
+                     }
+                }
+            }
+        }
+        similarTracks->addSimilarTracks(videoId);
+    }
+}
+
+bool MainWindow::similarTracksListHasTrackToBeRemoved(){
+    bool has = false;
+     for (int i=0; i<ui->recommListWidget->count();i++) {
+         if(ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
+             has = true;
+         }
+         if(has)break;
+     }
+     return has;
+}
 
 void MainWindow::assignPreviousTrack(QListWidget *list ,int index)
 {
@@ -2886,7 +3135,18 @@ void MainWindow::assignPreviousTrack(QListWidget *list ,int index)
     //normal previous track algo
     QString songId = list->itemWidget(list->item(index))->findChild<QLineEdit *>("songId")->text().trimmed();
     if(!songId.isEmpty()){
-        ui->previous->setToolTip(htmlToPlainText(store_manager->getTrack(songId).at(1)));
+        QString tooltip = store_manager->getTrack(songId).at(1);
+        if(!tooltip.isEmpty()){
+            ui->previous->setToolTip(htmlToPlainText(tooltip));
+        }else{
+            //dig title of track
+            ElidedLabel *title = list->itemWidget(list->item(index))->findChild<ElidedLabel *>("title_elided");
+            QString titleStr = static_cast<ElidedLabel*>(title)->text();
+            if(!titleStr.isEmpty())
+                ui->previous->setToolTip(titleStr);
+            else
+                ui->previous->setToolTip("");
+        }
     }else{
         ui->previous->setToolTip("");
     }
@@ -3403,4 +3663,11 @@ void MainWindow::on_jump_to_nowplaying_clicked()
              }
         }
     }
+}
+
+void MainWindow::on_showSimilarList_clicked()
+{
+    ui->recommWidget->isVisible() ? ui->recommWidget->hide():ui->recommWidget->show();
+    ui->recommWidget->isVisible() ? ui->showSimilarList->setIcon(QIcon(":/icons/sidebar/hideRecommend.png")):
+                                        ui->showSimilarList->setIcon(QIcon(":/icons/sidebar/showRecommend.png"));
 }
