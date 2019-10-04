@@ -1769,6 +1769,26 @@ QScrollBar:vertical {
                 </widget>
                </item>
                <item>
+                <widget class="QPushButton" name="showSimilarList">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <italic>true</italic>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>Similar Tracks</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="icons.qrc">
+                   <normaloff>:/icons/sidebar/showRecommend.png</normaloff>:/icons/sidebar/showRecommend.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="QWidget" name="recommWidget" native="true">
                  <property name="styleSheet">
                   <string notr="true">QWidget#recommWidget{
@@ -1791,28 +1811,6 @@ border:none;
                   <property name="bottomMargin">
                    <number>2</number>
                   </property>
-                  <item>
-                   <widget class="Line" name="line_3">
-                    <property name="minimumSize">
-                     <size>
-                      <width>0</width>
-                      <height>1</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>16777215</width>
-                      <height>1</height>
-                     </size>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">background-color: #808080;</string>
-                    </property>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
                   <item>
                    <widget class="playerQueue" name="recommListWidget">
                     <property name="minimumSize">
@@ -1871,26 +1869,6 @@ QScrollBar:vertical {
                    </widget>
                   </item>
                  </layout>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="showSimilarList">
-                 <property name="font">
-                  <font>
-                   <pointsize>10</pointsize>
-                   <italic>true</italic>
-                  </font>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true"/>
-                 </property>
-                 <property name="text">
-                  <string>Similar Tracks</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="icons.qrc">
-                   <normaloff>:/icons/sidebar/showRecommend.png</normaloff>:/icons/sidebar/showRecommend.png</iconset>
-                 </property>
                 </widget>
                </item>
               </layout>
