@@ -19,7 +19,6 @@ apps:
   olivia:
     command: desktop-launch olivia
     environment:
-       QT_STYLE_OVERRIDE: "gtk"
        DISABLE_WAYLAND: 1
     desktop: usr/share/applications/olivia.desktop
     plugs:

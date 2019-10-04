@@ -70,6 +70,10 @@ fi
 # Launcher common exports for any desktop app #
 ###############################################
 
+if [ "${XDG_CURRENT_DESKTOP}" != "KDE" ]; then
+  export QT_STYLE_OVERRIDE=GTK+
+fi
+
 function prepend_dir() {
   local var="$1"
   local dir="$2"
