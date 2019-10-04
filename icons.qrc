@@ -101,5 +101,7 @@
         <file>icons/download_widget/empty.png</file>
         <file>icons/sidebar/spotify.png</file>
         <file>icons/others/jump_goto.png</file>
+        <file>icons/sidebar/hideRecommend.png</file>
+        <file>icons/sidebar/showRecommend.png</file>
     </qresource>
 </RCC>
