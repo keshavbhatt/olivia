@@ -144,6 +144,9 @@ border:none;</string>
           <item>
            <widget class="QLineEdit" name="songId"/>
           </item>
+          <item>
+           <widget class="QLineEdit" name="meta"/>
+          </item>
          </layout>
         </item>
         <item>
