@@ -263,6 +263,8 @@ private slots:
     void on_recommListWidget_itemDoubleClicked(QListWidgetItem *item);
     void startGetRecommendedTrackForAutoPlayTimer(QString songId);
     bool similarTracksListHasTrackToBeRemoved();
+    void showRecommendedTrackOption();
+    void showPayPalDonationMessageBox();
 private:
     SimilarTracks *similarTracks = nullptr;
     Widget *downloadWidget;

@@ -320,7 +320,8 @@ void MainWindow::init_settings(){
     connect(settingsUi.delete_tracks_cache,&QPushButton::clicked,[=](){
           QMessageBox msgBox;
           msgBox.setText("This will delete all downloaded songs!");
-          msgBox.setIcon(QMessageBox::Information);
+                msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+
           msgBox.setInformativeText("Delete all downloaded songs cache ?");
           msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
           msgBox.setDefaultButton(QMessageBox::No);
@@ -343,7 +344,7 @@ void MainWindow::init_settings(){
     connect(settingsUi.drop_database,&QPushButton::clicked,[=](){
           QMessageBox msgBox;
           msgBox.setText("This will clear your local database !!");
-          msgBox.setIcon(QMessageBox::Information);
+          msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
           msgBox.setInformativeText("Delete local database ? \n\nThis only include database, downloaded songs cache will remain.");
           msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
           msgBox.setDefaultButton(QMessageBox::No);
@@ -380,7 +381,8 @@ void MainWindow::init_settings(){
 void MainWindow::restart_required(){
     QMessageBox msgBox;
     msgBox.setText("Application need to restart!");
-    msgBox.setIcon(QMessageBox::Information);
+          msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+
     msgBox.setInformativeText("Please restart application for new changes.");
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.setDefaultButton(QMessageBox::Ok);
@@ -700,8 +702,17 @@ void MainWindow::init_webview(){
     connect(ui->webview,SIGNAL(loadFinished(bool)),this,SLOT(webViewLoaded(bool)));
 
     //websettings---------------------------------------------------------------
+    ui->webview->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     ui->webview->page()->settings()->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls,true);
     ui->webview->page()->settings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls,true);
+    connect(ui->webview->page(),&QWebPage::linkClicked,[=](QUrl url){
+        QString link = url.toString();
+        if(link.contains("paypal")){
+            showPayPalDonationMessageBox();
+        }else{
+            ui->webview->load(url);
+        }
+    });
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QString cookieJarPath ;
     if(setting_path.split("/").last().isEmpty()){
@@ -738,6 +749,34 @@ void MainWindow::init_webview(){
         zoom =  settingsObj.value("zoom","100.0").toReal();
         setZoom(zoom);
     }
+}
+
+void MainWindow::showPayPalDonationMessageBox(){
+      QMessageBox msgBox;
+      QString btn_style ="QPushButton{color: silver; background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 3px; padding-right: 3px; border-radius: 2px; outline: none;}"
+      "QPushButton:disabled { background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; /*border-radius: 2px;*/ color: #636363;}"
+      "QPushButton:hover{border: 1px solid #272727;background-color:#5A584F; color:silver ;}"
+      "QPushButton:pressed {background-color: #45443F;color: silver;padding-bottom:1px;}";
+
+      msgBox.setWindowTitle(qApp->applicationName()+"- Donation");
+      msgBox.setText("You clicked donation button,");
+      msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+      msgBox.setInformativeText("Do you want proceed to load donation page in Olivia <br> <center>or</center> <br>Do you want to donate from a externl browser by copying donation link ?");
+      QAbstractButton *donateHereBtn = msgBox.addButton(tr(" Donate here"), QMessageBox::AcceptRole);
+      QAbstractButton *copyLinkBtn = msgBox.addButton(tr(" Copy Donation Link"), QMessageBox::AcceptRole);
+      donateHereBtn->setIcon(QIcon(":/icons/micro/redo.png"));
+      copyLinkBtn->setIcon(QIcon(":/icons/micro/url.png"));
+      donateHereBtn->setStyleSheet(btn_style);
+      copyLinkBtn->setStyleSheet(btn_style);
+      msgBox.addButton(tr("Close"), QMessageBox::RejectRole)->hide();
+
+      msgBox.exec();
+        if (msgBox.clickedButton() == donateHereBtn) {
+            ui->webview->load(QUrl("https://paypal.me/keshavnrj/"));
+        }else if (msgBox.clickedButton() == copyLinkBtn){
+            QClipboard *clipboard = QGuiApplication::clipboard();
+              clipboard->setText("https://paypal.me/keshavnrj/");
+        }
 }
 
 void MainWindow::init_offline_storage(){
@@ -797,6 +836,8 @@ void MainWindow::loadPlayerQueue(){ //  #7
         track_widget->setToolTip(title);
         track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
+
+        track_ui.meta->hide();
 
         QFont font("Ubuntu");
         font.setPixelSize(12);
@@ -1211,8 +1252,16 @@ void MainWindow::addToSimilarTracksQueue(const QStringList arr){
     track_ui.id->hide();
     track_ui.url->hide();
     track_ui.option->setObjectName(songId+"optionButton");
-    //TODO connect track_option button
-//    connect(track_ui.option,SIGNAL(clicked(bool)),this,SLOT(showRecommendedTrackOption()));
+
+    QString meta;
+    foreach (QString str, arr) {
+        meta.append(str+"!=-=!");
+    }
+    meta.chop(5); //remove last !=-=!
+    track_ui.meta->setText(meta);
+    track_ui.meta->hide();
+    qDebug()<<meta;
+    connect(track_ui.option,SIGNAL(clicked(bool)),this,SLOT(showRecommendedTrackOption()));
 
     LoadCover( QUrl(coverUrl),*track_ui.cover);
     if(albumId.contains("undefined-")){
@@ -1302,7 +1351,7 @@ void MainWindow::addToQueue(QString id,QString title,
         text.setHtml(htmlToPlainText(title));
         QString plainTitle = text.toPlainText();
 
-
+        track_ui.meta->hide();
 
         ElidedLabel *titleLabel = new ElidedLabel(plainTitle,nullptr);
         titleLabel->setFont(font);
@@ -1422,6 +1471,41 @@ void MainWindow::addToQueue(QString id,QString title,
             store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
             store_manager->add_to_player_queue(songId);
     }
+}
+
+void MainWindow::showRecommendedTrackOption(){
+    QPushButton* senderButton = qobject_cast<QPushButton*>(sender());
+    QString songId = senderButton->objectName().remove("optionButton").trimmed();
+    QString meta = senderButton->parent()->findChild<QLineEdit*>("meta")->text().trimmed();
+    QStringList arr = meta.split("!=-=!");
+    //get the values from track Widget
+    QString artist,album,ytIds,albumId,artistId,title,coverUrl;
+    ytIds= arr.at(0);
+    title= arr.at(1);
+    artist= arr.at(2);
+    album= arr.at(3);
+    coverUrl= arr.at(4);
+    songId= arr.at(5);
+    albumId= arr.at(6);
+    artistId = arr.at(7);
+
+    QAction *addToLibrary = new QAction("Add song to collection",nullptr);
+    addToLibrary->setIcon(QIcon(":/icons/sidebar/addToLibrary.png"));
+
+    QMenu menu;
+    menu.addAction(addToLibrary);
+    menu.setStyleSheet(menuStyle());
+    menu.exec(QCursor::pos());
+
+    //SAVE DATA TO LOCAL DATABASE
+//    store_manager->saveAlbumArt(albumId,base64);
+//    store_manager->saveArtist(artistId,artist);
+//    store_manager->saveAlbum(albumId,album);
+//    store_manager->saveDominantColor(albumId,dominantColor);
+//    store_manager->saveytIds(songId,ytIds);
+//    store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
+//    store_manager->add_to_player_queue(songId);
+
 }
 
 void MainWindow::showTrackOption(){
@@ -2755,7 +2839,7 @@ void MainWindow::compare_versions(QString date,QString n_date){
     if(update){
         QMessageBox msgBox;
           msgBox.setText("Olivia Engine update (<b>ver: "+n_date+"</b>) available !");
-          msgBox.setIcon(QMessageBox::Information);
+          msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
           msgBox.setInformativeText("You are having an outdated engine (<b>ver: "+date+"</b>), please update to latest engine for better performance. Update now ?");
           msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
           msgBox.setDefaultButton(QMessageBox::Ok);
@@ -2777,7 +2861,7 @@ void MainWindow::evoke_engine_check(){
     if(settingsUi.engine_status->text()=="Absent"){
         QMessageBox msgBox;
           msgBox.setText("Olivia need to download its engine which is responsible for finding music online!");
-          msgBox.setIcon(QMessageBox::Information);
+          msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
           msgBox.setInformativeText("Olivia engine (1.4Mb in size) is youtube-dl with some modifications, without this the app will not work properly, Download now ?");
           msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
           QPushButton *p = new QPushButton("Quit",nullptr);
