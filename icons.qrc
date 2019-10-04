@@ -103,5 +103,7 @@
         <file>icons/others/jump_goto.png</file>
         <file>icons/sidebar/hideRecommend.png</file>
         <file>icons/sidebar/showRecommend.png</file>
+        <file>icons/sidebar/addToLibrary.png</file>
+        <file>icons/sidebar/info.png</file>
     </qresource>
 </RCC>
