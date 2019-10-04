@@ -402,6 +402,8 @@ function track_option(track_id){
     artistId= arr[6];
     millis = arr[7];
 
+    title = title.replace("\'"," ");
+
     //onclick=\''+$('#'+track_id).parent().attr("onclick")+'\'
     //https://www.youtube.com/watch?v=eqBkiu4M0Os
     var target = $( this ),
