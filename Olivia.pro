@@ -44,6 +44,7 @@ SOURCES += main.cpp\
     cookiejar.cpp \
     elidedlabel.cpp \
     nowplaying.cpp \
+    similartracks.cpp \
     store.cpp \
     radio.cpp \
     onlinesearchsuggestion.cpp \
@@ -65,6 +66,7 @@ HEADERS  += mainwindow.h \
     elidedlabel.h \
     equalizer.h \
     nowplaying.h \
+    similartracks.h \
     store.h \
     radio.h \
     onlinesearchsuggestion.h \
