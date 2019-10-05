@@ -81,16 +81,20 @@ $(document).on("click","#overview",function(){
 //  core functions -------------
 function overview(){
 
+    showLoading();
     $("#overview_page .ui-loader-overview").show();
     $('#overview_page .ui-content').fadeOut('slow');
     $.ajax({
         url: baseUrl+"overview.php",
         success: function(html) {
+            $.mobile.loading("hide");
             overview_loaded = true;
             $('#overview_page .ui-content').fadeOut('slow');
             $('#overview_page .ui-content').html(html);
             $('#overview_page .ui-content').trigger('create').fadeIn('slow');
             $("#overview_page .ui-loader-overview").hide();
+
+            //set country by user's ip if is not set by user
             if(youtube.getCurrentCountry().length>0){
                  //$('#currentCountry').text(youtube.getCurrentCountry());
             }else{
