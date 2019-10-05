@@ -34,16 +34,18 @@ $( document ).on( "pageshow", "[data-role='page']", function() {
     });
 });
 
-
-
-
 $(document).ready(function($) {
+
+    if(!overview_loaded){
+        overview();
+    }
 
     colorThief = new ColorThief();
 
     $(function () {
         $("[data-role=popup]").popup().enhanceWithin();
     });
+
 });
 
 function showLoading() {
@@ -68,9 +70,6 @@ var overview_loaded = false;
 var currentAlbumId = "null";
 
 
-
-
-
 //onclicks functions
 $(document).on("click","#overview",function(){
     if(!overview_loaded){
@@ -81,6 +80,7 @@ $(document).on("click","#overview",function(){
 
 //  core functions -------------
 function overview(){
+
     $("#overview_page .ui-loader-overview").show();
     $('#overview_page .ui-content').fadeOut('slow');
     $.ajax({
@@ -91,6 +91,11 @@ function overview(){
             $('#overview_page .ui-content').html(html);
             $('#overview_page .ui-content').trigger('create').fadeIn('slow');
             $("#overview_page .ui-loader-overview").hide();
+            if(youtube.getCurrentCountry().length>0){
+                 //$('#currentCountry').text(youtube.getCurrentCountry());
+            }else{
+                getCountry();
+            }
         },error: function(){
             overview_loaded = false;
         }
