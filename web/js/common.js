@@ -48,6 +48,11 @@ function changeBg(rgba){ // sets bg color var in mainwindow and changes bg color
     var g = arr[1];
     var b = arr[2];
     var a = arr[3];
+
+    var scroll = "<style type='text/css'>::-webkit-scrollbar-track{background-color:rgba("+rgba+") !important;}</style>";
+    $(scroll).appendTo('head');
+
+    $("::-webkit-scrollbar-track").css("cssText","background-color:rgba("+rgba+") !important;");
     $("body").css("cssText","background-color:rgba("+rgba+") !important;");
     $(".ui-listview>.ui-li-divider").css("cssText","background-color:rgba("+rgba+") !important;");
     mainwindow.setThemeColor(themeColor);
