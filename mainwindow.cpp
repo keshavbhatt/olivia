@@ -56,8 +56,8 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-//    database = "hjkfdsll";
-    database = "test";
+    database = "hjkfdsll";
+//    database = "test";
     store_manager = new store(this,database);
 
     pagination_manager = new paginator(this);
