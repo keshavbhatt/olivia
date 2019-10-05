@@ -1279,6 +1279,10 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     albumId= currentSimilarTrackMeta.at(5);
     artistId = currentSimilarTrackMeta.at(6);
 
+    //add dominantColor and base64 to currenttrackmeta stringlist
+    currentSimilarTrackMeta.append(dominantColor);
+    currentSimilarTrackMeta.append(base64);
+
 
     QWidget *track_widget = new QWidget(ui->recommListWidget);
     track_widget->setToolTip(title);
@@ -1320,6 +1324,7 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     track_ui.url->hide();
     track_ui.option->setObjectName(songId+"optionButton");
 
+    //prepare meta str and add it to track meta lineEdit
     QString meta;
     foreach (QString str, currentSimilarTrackMeta) {
         meta.append(str+"!=-=!");
@@ -1561,16 +1566,20 @@ void MainWindow::showRecommendedTrackOption(){
     QString songId = senderButton->objectName().remove("optionButton").trimmed();
     QString meta = senderButton->parent()->findChild<QLineEdit*>("meta")->text().trimmed();
     QStringList arr = meta.split("!=-=!");
-    //get the values from track Widget
-    QString artist,album,ytIds,albumId,artistId,title,coverUrl;
-    ytIds= arr.at(0);
-    title= arr.at(1);
-    artist= arr.at(2);
-    album= arr.at(3);
-    coverUrl= arr.at(4);
-    songId= arr.at(5);
-    albumId= arr.at(6);
-    artistId = arr.at(7);
+    QString base64,dominantColor,artist,album,ytIds,albumId,artistId,title,coverUrl;
+
+    if(arr.count()==9){
+        title= arr.at(0);
+        artist= arr.at(1);
+        album= arr.at(2);
+        coverUrl= arr.at(3);
+        ytIds= arr.at(4);
+        songId= arr.at(4);
+        albumId= arr.at(5);
+        artistId = arr.at(6);
+        dominantColor = arr.at(7);
+        base64 = arr.at(8);
+    }
 
     QAction *addToLibrary = new QAction("Add song to collection",nullptr);
     addToLibrary->setIcon(QIcon(":/icons/sidebar/addToLibrary.png"));
@@ -1580,16 +1589,19 @@ void MainWindow::showRecommendedTrackOption(){
     menu.setStyleSheet(menuStyle());
     menu.exec(QCursor::pos());
 
-
     connect(addToLibrary,&QAction::triggered,[=](){
-        //SAVE DATA TO LOCAL DATABASE
-//        store_manager->saveAlbumArt(albumId,base64);
-//        store_manager->saveArtist(artistId,artist);
-//        store_manager->saveAlbum(albumId,album);
-//        store_manager->saveDominantColor(albumId,dominantColor);
-//        store_manager->saveytIds(songId,ytIds);
-//        store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
-//        store_manager->add_to_player_queue(songId);
+        if(arr.count()==9){
+            //SAVE DATA TO LOCAL DATABASE
+            store_manager->saveAlbumArt(albumId,base64);
+            store_manager->saveArtist(artistId,artist);
+            store_manager->saveAlbum(albumId,album);
+            store_manager->saveDominantColor(albumId,dominantColor);
+            store_manager->saveytIds(songId,ytIds);
+            store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
+            store_manager->add_to_player_queue(songId);
+        }else{
+           qDebug()<<"Unable to add song to Library";
+        }
     });
 }
 
@@ -2507,6 +2519,7 @@ void MainWindow::getNowPlayingTrackId(){
             nowPlayingSongIdWatcher->setValue(static_cast<QLineEdit*>(songId)->text());
         }
     }
+    ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongIdWatcher->getValue()+"'");
 }
 
 void MainWindow::resizeEvent(QResizeEvent *resizeEvent){
