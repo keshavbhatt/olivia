@@ -105,5 +105,6 @@
         <file>icons/sidebar/showRecommend.png</file>
         <file>icons/sidebar/addToLibrary.png</file>
         <file>icons/sidebar/info.png</file>
+        <file>icons/sidebar/help.png</file>
     </qresource>
 </RCC>
