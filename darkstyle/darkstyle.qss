@@ -15,7 +15,7 @@ QToolTip{
   background-color:palette(base);
   border:0px solid palette(highlight);
   border-radius:4px;
-  padding: 4px;
+  padding: 2px;
 }
 QStatusBar{
   background-color:qlineargradient(x1:0,y1:0,x2:0,y2:1,stop:0 rgba(25,25,25,127),stop:1 rgba(53,53,53,75));
@@ -115,7 +115,7 @@ QSplitter::handle:horizontal{
   width:5px;
 }
 QSplitter::handle:vertical{
-  height:10px;
+  height:5px;
 }
 
 QMainWindow::separator:hover,QSplitter::handle:hover{
