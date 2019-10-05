@@ -3848,6 +3848,11 @@ void MainWindow::playVideo(QString trackId){
 //jump to queue of nowPlaying track scroll to it and select it
 void MainWindow::on_jump_to_nowplaying_clicked()
 {
+
+    //clear any filter if applied to any listviews and load all tracks to listviews
+    ui->filter_olivia->clear();
+    ui->filter_youtube->clear();
+
     //identify the player queue name
     QString listName;
     QListWidget *listWidget;
