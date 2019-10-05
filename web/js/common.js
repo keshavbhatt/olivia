@@ -28,9 +28,12 @@ function isEmpty(obj) {
 var themeColor; //sets the global themeColor for webview is accessible from all web
 var NowPlayingTrackId;
 
+// used to hide loader when ajaxerror occur
 function hideLoading(){
     $.mobile.loading("hide");
-    mainwindow.showAjaxError();
+    if(typeof(mainwindow)!== "undefined"){
+        mainwindow.showAjaxError();
+    }
 }
 
 $( document ).ajaxError(function( event, request, settings) {
