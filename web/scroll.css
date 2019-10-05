@@ -19,27 +19,27 @@ hr{
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-button {
   width: 0px;
   height: 0px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #201f1f;
+  background: grey;
   border: none;
-  border-radius: 0px;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #201f1f;
+  background: grey;
 }
 ::-webkit-scrollbar-thumb:active {
-  background: #201f1f;
+  background: grey;
 }
 ::-webkit-scrollbar-track {
   background: transparent !important;
-  border: 0px none #ffffff;
+  border: none;
   border-radius: 0px;
 }
 ::-webkit-scrollbar-track:hover {
