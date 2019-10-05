@@ -2179,7 +2179,6 @@ void MainWindow::internet_radio(){
 //PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::on_right_list_itemDoubleClicked(QListWidgetItem *item)
 {
-    listItemDoubleClicked(ui->right_list,item);
 
     //hide playing labels in other list
     QList<QLabel*> playing_label_list_other;
@@ -2196,12 +2195,11 @@ void MainWindow::on_right_list_itemDoubleClicked(QListWidgetItem *item)
         playing->setToolTip("");
     }
 
+    listItemDoubleClicked(ui->right_list,item);
 }
 
 void MainWindow::on_recommListWidget_itemDoubleClicked(QListWidgetItem *item)
 {
-    listItemDoubleClicked(ui->recommListWidget,item);
-
     //hide playing labels in other list
     QList<QLabel*> playing_label_list_other;
     playing_label_list_other = ui->right_list->findChildren<QLabel*>("playing");
@@ -2217,11 +2215,12 @@ void MainWindow::on_recommListWidget_itemDoubleClicked(QListWidgetItem *item)
         playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         playing->setToolTip("");
     }
+
+    listItemDoubleClicked(ui->recommListWidget,item);
 }
 
 void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
 {
-    listItemDoubleClicked(ui->right_list_2,item);
 
     //hide playing labels in other list
     QList<QLabel*> playing_label_list_other;
@@ -2237,6 +2236,8 @@ void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
         playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         playing->setToolTip("");
     }
+
+    listItemDoubleClicked(ui->right_list_2,item);
 }
 
 void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
