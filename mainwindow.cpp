@@ -29,12 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->debug_widget->hide();
-    //sets search icon in label
-    ui->label_5->resize(ui->label_5->width(),ui->search->height());
-    ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
-    qApp->setQuitOnLastWindowClosed(true);
 
     init_app();
     init_webview();
@@ -56,8 +51,8 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
+//  database = "test";
     database = "hjkfdsll";
-//    database = "test";
     store_manager = new store(this,database);
 
     pagination_manager = new paginator(this);
@@ -69,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_videoOption();
 
     browse();
+
     installEventFilters();
     loadSettings();
 }
@@ -618,6 +614,13 @@ const QColor& SelectColorButton::getColor(){
 
 //set up app #1
 void MainWindow::init_app(){
+
+    ui->debug_widget->hide();
+    //sets search icon in label
+    ui->label_5->resize(ui->label_5->width(),ui->search->height());
+    ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+    qApp->setQuitOnLastWindowClosed(true);
+
     //init youtube class
     youtube = new Youtube(this);
     connect(youtube,SIGNAL(setCountry(QString)),this,SLOT(setCountry(QString)));
@@ -652,8 +655,6 @@ void MainWindow::init_app(){
     ui->verticalLayout_3->addWidget(split3);
 
     split3->setCollapsible(1,false);
-
-
 
     ui->similarTrackLoader->setRoundness(70.0);
     ui->similarTrackLoader->setMinimumTrailOpacity(15.0);
@@ -1115,6 +1116,8 @@ void MainWindow::webViewLoaded(bool loaded){
 
     if(loaded){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"),  this);
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
+
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("paginator"), pagination_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+themeColor+"')");
         if(!nowPlayingSongIdWatcher->getValue().isEmpty()){
