@@ -53,6 +53,7 @@ SOURCES += main.cpp\
     volumeslider.cpp \
     settings.cpp \
     paginator.cpp \
+    waitingspinnerwidget.cpp \
     youtube.cpp \
     playerqueue.cpp \
     lyrics.cpp \
@@ -76,6 +77,7 @@ HEADERS  += mainwindow.h \
     volumeslider.h \
     settings.h \
     paginator.h \
+    waitingspinnerwidget.h \
     youtube.h \
     playerqueue.h \
     lyrics.h \
