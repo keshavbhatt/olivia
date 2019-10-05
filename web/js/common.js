@@ -251,4 +251,47 @@ var recomm_url = "https://api.magicplaylist.co/mp/search";
 var recomm_url_pl_create = "https://api.magicplaylist.co/mp/create/";
 var recomm_url_search = "https://api.magicplaylist.co/mp/search?";
 
+$.getScript("qrc:///web/js/color-thief.min.js", function() {
+   alert("Script loaded but not necessarily executed.");
+});
 
+//helper function to return donminantColor and base64 of given image Url used by similar tracks list
+function getBase64andDominantColor(coverUrl){
+    var colorThief = new ColorThief();
+    var base64, dominantColor;
+    //init colorThief lib
+    if(typeof(colorThief) === "undefined"){
+        colorThief = new ColorThief(); // colorThief object init
+    }
+    toDataUrl(coverUrl, function(myBase64) {
+        base64 = myBase64;
+        //check if #coverImage element is present in page, create one if not present
+        if(document.querySelector("#coverImage2") === null){
+            $('body').append("<img style='display:none;' src='' id='coverImage2' />");
+        }
+        document.querySelector("#coverImage2").setAttribute("src",coverUrl);
+        var img = document.querySelector("#coverImage2");
+        if (!img.complete) {
+            img.addEventListener('load', function handler(e) {
+                e.currentTarget.removeEventListener(e.type, handler);
+                dominantColor = colorThief.getColor(img);
+                mainwindow.addToSimilarTracksQueue(dominantColor+"!=-=!"+base64);
+            });
+        }
+    });
+}
+
+//send base64 url of covers
+function toDataUrl(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+        var reader = new FileReader();
+        reader.onloadend = function() {
+            callback(reader.result);
+        }
+        reader.readAsDataURL(xhr.response);
+    };
+    xhr.open('GET', url);
+    xhr.responseType = 'blob';
+    xhr.send();
+}
