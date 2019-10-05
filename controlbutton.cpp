@@ -23,6 +23,12 @@ void controlButton::mouseMoveEvent(QMouseEvent *e){
         QToolTip::showText(this->mapToGlobal(e->localPos().toPoint())," Next: "+this->toolTip());
     }else if(this->objectName()=="previous"){
         QToolTip::showText(this->mapToGlobal(e->localPos().toPoint())," Previous: "+this->toolTip());
+    }else if (this->objectName()=="similarTracksHelp") {
+        QToolTip::showText(this->mapToGlobal(e->localPos().toPoint()),this->toolTip());
+    }else if (this->objectName()=="eq") {
+        QToolTip::showText(this->mapToGlobal(e->localPos().toPoint()),this->toolTip());
+    }else{
+        QToolTip::showText(this->mapToGlobal(e->localPos().toPoint()),this->toolTip());
     }
     QPushButton::mouseMoveEvent(e);
 }
