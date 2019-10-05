@@ -56,8 +56,8 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    database = "hjkfdsll";
-//    database = "test";
+//    database = "hjkfdsll";
+    database = "test";
     store_manager = new store(this,database);
 
     pagination_manager = new paginator(this);
@@ -922,7 +922,6 @@ void MainWindow::loadPlayerQueue(){ //  #7
             track_ui.cover->setPixmap(image);
         }
 
-
         if(albumId.contains("undefined-")){
 
             QListWidgetItem* item;
@@ -1551,6 +1550,9 @@ void MainWindow::addToQueue(QString id,QString title,
         }
 
         //SAVE DATA TO LOCAL DATABASE
+            base64.remove("data:image/jpeg;base64,");
+            base64.remove("data:image/jpg;base64,");
+            base64.remove("data:image/png;base64,");
             store_manager->saveAlbumArt(albumId,base64);
             store_manager->saveArtist(artistId,artist);
             store_manager->saveAlbum(albumId,album);
@@ -1568,41 +1570,52 @@ void MainWindow::showRecommendedTrackOption(){
     QStringList arr = meta.split("!=-=!");
     QString base64,dominantColor,artist,album,ytIds,albumId,artistId,title,coverUrl;
 
-    if(arr.count()==9){
+    if(arr.count()==11){
         title= arr.at(0);
         artist= arr.at(1);
         album= arr.at(2);
         coverUrl= arr.at(3);
-        ytIds= arr.at(4);
         songId= arr.at(4);
         albumId= arr.at(5);
         artistId = arr.at(6);
-        dominantColor = arr.at(7);
-        base64 = arr.at(8);
+
+        dominantColor = arr.at(9);
+        base64 = arr.at(10);
+
+        if(albumId.contains("undefined")){ //yt case
+            ytIds = arr[4];
+        }
     }
 
     QAction *addToLibrary = new QAction("Add song to collection",nullptr);
     addToLibrary->setIcon(QIcon(":/icons/sidebar/addToLibrary.png"));
 
-    QMenu menu;
-    menu.addAction(addToLibrary);
-    menu.setStyleSheet(menuStyle());
-    menu.exec(QCursor::pos());
+    base64.remove("data:image/jpeg;base64,");
+    base64.remove("data:image/jpg;base64,");
+    base64.remove("data:image/png;base64,");
 
     connect(addToLibrary,&QAction::triggered,[=](){
-        if(arr.count()==9){
+        if(arr.count()==11){
             //SAVE DATA TO LOCAL DATABASE
+//            base64 is cleared before
             store_manager->saveAlbumArt(albumId,base64);
             store_manager->saveArtist(artistId,artist);
             store_manager->saveAlbum(albumId,album);
             store_manager->saveDominantColor(albumId,dominantColor);
             store_manager->saveytIds(songId,ytIds);
             store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
-            store_manager->add_to_player_queue(songId);
+            qDebug()<<"saved song to Library";
         }else{
            qDebug()<<"Unable to add song to Library";
         }
     });
+
+    QMenu menu;
+    menu.addAction(addToLibrary);
+    menu.setStyleSheet(menuStyle());
+    menu.exec(QCursor::pos());
+
+
 }
 
 void MainWindow::showTrackOption(){
