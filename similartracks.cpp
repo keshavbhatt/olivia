@@ -2,9 +2,9 @@
 #include "elidedlabel.h"
 #include <QDebug>
 
-SimilarTracks::SimilarTracks(QObject *parent) : QObject(parent)
+SimilarTracks::SimilarTracks(QObject *parent,int limit) : QObject(parent)
 {
-
+    numberOfSimilarTracksToLoad = limit;
 }
 
 void SimilarTracks::addSimilarTracks(QString video_id){
@@ -17,27 +17,27 @@ void SimilarTracks::addSimilarTracks(QString video_id){
             list.removeFirst();
             QStringList finalList;
             foreach (QString str, list) {
-               finalList.append(QString(str.split(");\">").first()).remove("&quot;"));
-            }
-            if(finalList.count()>0){
-                for (int i = 0; i < 5;/*finalList.count();*/ i++) {
-                    QString videoId,title,artist,album,coverUrl,songId,albumId,artistId,millis;
-                    QStringList arr = QString(finalList.at(i)).split("!=-=!");
-                    title = arr[0];
-                    artist = arr[1];
-                    album = arr[2];
-                    coverUrl = arr[3];
-                    songId = arr[4];
-                    albumId = arr[5];
-                    artistId= arr[6];
-                    millis = arr[7];
-
-                    if(albumId.contains("undefined")){ //yt case
-                        videoId = arr[4];
-                    }
-                    emit addToSimilarTracksList(QStringList()<<videoId<<title<<artist<<album<<coverUrl<<songId<<albumId<<artistId);
+                //prevent adding already played tracks or add tracks only which are not played in this session
+                if(!playedTracksIds.contains(str.split("!=-=!")[4])){
+                    finalList.append(QString(str.split(");\">").first()).remove("&quot;"));
                 }
             }
+            if(finalList.count()>0){
+                emit setSimilarTracks(finalList);
+                int tracksLeft;
+                if(finalList.count()<numberOfSimilarTracksToLoad){ //set finalLeft tracks for the for loop below
+                    tracksLeft = finalList.count();
+                }else{
+                    tracksLeft = numberOfSimilarTracksToLoad;
+                }
+                for (int i = 0; i < tracksLeft; i++) {
+                   playedTracksIds.append(QString(finalList.at(i)).split("!=-=!")[4]);
+                }
+            }else{
+                emit failedGetSimilarTracks();
+            }
+        }else{
+            emit failedGetSimilarTracks();
         }
         rep->deleteLater();
         m_netwManager->deleteLater();
