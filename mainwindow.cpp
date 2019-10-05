@@ -80,9 +80,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::init_similar_tracks(){
     if(similarTracks==nullptr){
-        similarTracks = new SimilarTracks(this);
-        connect(similarTracks, &SimilarTracks::addToSimilarTracksList,[=](QStringList list){
-            addToSimilarTracksQueue(list);
+        similarTracks = new SimilarTracks(this,5);
+        connect(similarTracks, &SimilarTracks::setSimilarTracks,[=](QStringList list){
+            currentSimilarTrackList.clear();
+            currentSimilarTrackList = list;
+            currentSimilarTrackProcessing = 0;
+            prepareSimilarTracks();
+        });
+        connect(similarTracks, &SimilarTracks::failedGetSimilarTracks,[=](){
+            ui->similarTrackLoader->stop();
         });
     }
 }
@@ -1235,16 +1241,44 @@ QString MainWindow::getTerm(){
     return  term.replace(" ","+");
 }
 
-void MainWindow::addToSimilarTracksQueue(const QStringList arr){
+
+void MainWindow::prepareSimilarTracks(){
+
+//    currentSimilarTrackProcessing = 0;
+
+    QString videoId,title,artist,album,coverUrl,songId,albumId,artistId,millis;
+    QStringList arr = QString(currentSimilarTrackList.at(currentSimilarTrackProcessing)).split("!=-=!");
+
+    title = arr[0];
+    artist = arr[1];
+    album = arr[2];
+    coverUrl = arr[3];
+    songId = arr[4];
+    albumId = arr[5];
+    artistId= arr[6];
+    millis = arr[7];
+    if(albumId.contains("undefined")){ //yt case
+        videoId = arr[4];
+    }
+    ui->webview->page()->mainFrame()->evaluateJavaScript("getBase64andDominantColor('"+coverUrl+"')");
+    currentSimilarTrackMeta = arr;
+}
+
+void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
+    QString Base64andDominantColorStr = Base64andDominantColor.toString();
+    QString base64 = Base64andDominantColorStr.split("!=-=!").last();
+    QString dominantColor = Base64andDominantColorStr.split("!=-=!").first();
+
     QString ytIds,title,artist,album,coverUrl,songId,albumId,artistId;
-    ytIds= arr.at(0);
-    title= arr.at(1);
-    artist= arr.at(2);
-    album= arr.at(3);
-    coverUrl= arr.at(4);
-    songId= arr.at(5);
-    albumId= arr.at(6);
-    artistId = arr.at(7);
+    title= currentSimilarTrackMeta.at(0);
+    artist= currentSimilarTrackMeta.at(1);
+    album= currentSimilarTrackMeta.at(2);
+    coverUrl= currentSimilarTrackMeta.at(3);
+    ytIds= currentSimilarTrackMeta.at(4);
+    songId= currentSimilarTrackMeta.at(4);
+    albumId= currentSimilarTrackMeta.at(5);
+    artistId = currentSimilarTrackMeta.at(6);
+
 
     QWidget *track_widget = new QWidget(ui->recommListWidget);
     track_widget->setToolTip(title);
@@ -1276,7 +1310,7 @@ void MainWindow::addToSimilarTracksQueue(const QStringList arr){
     track_ui.verticalLayout_2->addWidget(albumLabel);
 
     track_ui.id->setText(ytIds);
-  //  track_ui.dominant_color->setText(dominantColor);
+    track_ui.dominant_color->setText(dominantColor);
     track_ui.songId->setText(songId);
     track_ui.playing->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
@@ -1287,7 +1321,7 @@ void MainWindow::addToSimilarTracksQueue(const QStringList arr){
     track_ui.option->setObjectName(songId+"optionButton");
 
     QString meta;
-    foreach (QString str, arr) {
+    foreach (QString str, currentSimilarTrackMeta) {
         meta.append(str+"!=-=!");
     }
     meta.chop(5); //remove last !=-=!
@@ -1295,7 +1329,15 @@ void MainWindow::addToSimilarTracksQueue(const QStringList arr){
     track_ui.meta->hide();
     connect(track_ui.option,SIGNAL(clicked(bool)),this,SLOT(showRecommendedTrackOption()));
 
-    LoadCover( QUrl(coverUrl),*track_ui.cover);
+   // LoadCover( QUrl(coverUrl),*track_ui.cover);
+    base64 = base64.split("base64,").last();
+    QByteArray ba = base64.toUtf8();
+    QPixmap image;
+    image.loadFromData(QByteArray::fromBase64(ba));
+    if(!image.isNull()){
+        track_ui.cover->setPixmap(image);
+    }
+
     if(albumId.contains("undefined-")){
         track_ui.cover->setMaximumHeight(track_widget->height());
         track_ui.cover->setMaximumWidth(static_cast<int>(track_widget->height()*1.15));
@@ -1335,6 +1377,15 @@ void MainWindow::addToSimilarTracksQueue(const QStringList arr){
         }
        // ui->recommListWidget->scrollToBottom();
     }
+
+    //clear meta of currentSimilarTrack and free it for next track
+    currentSimilarTrackMeta.clear();
+    //process next track in currentSimilarTrackList list;
+    if(currentSimilarTrackProcessing < similarTracks->numberOfSimilarTracksToLoad /*currentSimilarTrackList.count()-1*/){
+        currentSimilarTrackProcessing++;
+        prepareSimilarTracks();
+    }
+
 }
 
 void MainWindow::addToQueue(QString id,QString title,
@@ -1529,15 +1580,17 @@ void MainWindow::showRecommendedTrackOption(){
     menu.setStyleSheet(menuStyle());
     menu.exec(QCursor::pos());
 
-    //SAVE DATA TO LOCAL DATABASE
-//    store_manager->saveAlbumArt(albumId,base64);
-//    store_manager->saveArtist(artistId,artist);
-//    store_manager->saveAlbum(albumId,album);
-//    store_manager->saveDominantColor(albumId,dominantColor);
-//    store_manager->saveytIds(songId,ytIds);
-//    store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
-//    store_manager->add_to_player_queue(songId);
 
+    connect(addToLibrary,&QAction::triggered,[=](){
+        //SAVE DATA TO LOCAL DATABASE
+//        store_manager->saveAlbumArt(albumId,base64);
+//        store_manager->saveArtist(artistId,artist);
+//        store_manager->saveAlbum(albumId,album);
+//        store_manager->saveDominantColor(albumId,dominantColor);
+//        store_manager->saveytIds(songId,ytIds);
+//        store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
+//        store_manager->add_to_player_queue(songId);
+    });
 }
 
 void MainWindow::showTrackOption(){

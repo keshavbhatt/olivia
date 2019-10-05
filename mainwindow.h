@@ -84,6 +84,7 @@ public:
     Q_INVOKABLE void browse_youtube();
     Q_INVOKABLE void delete_song_cache(QVariant track_id);
     Q_INVOKABLE void remove_song(QVariant track_id);
+    Q_INVOKABLE void addToSimilarTracksQueue(const QVariant Base64andDominantColor);
 
     QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;
@@ -206,41 +207,6 @@ private slots:
         return text.toPlainText();
     }
 
-    void LoadCover(const QUrl &avatarUrl,QLabel &lable)
-    {
-       QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-
-       QNetworkAccessManager manager;
-       manager.setParent(this);
-       QNetworkDiskCache* diskCache = new QNetworkDiskCache(this);
-       diskCache->setCacheDirectory(setting_path);
-       manager.setCache(diskCache);
-
-       QEventLoop loop;
-       loop.setParent(this);
-       QNetworkReply *reply = manager.get(QNetworkRequest(avatarUrl));
-       QObject::connect(reply, &QNetworkReply::finished, &loop, [&reply, this,&loop ,&lable](){
-        if (reply->error() == QNetworkReply::NoError)
-        {
-            QByteArray jpegData = reply->readAll();
-            QPixmap pixmap;
-            pixmap.loadFromData(jpegData);
-            if (!pixmap.isNull())
-            {
-                lable.setPixmap(pixmap);
-            }
-        }else{
-           // qDebug()<<reply->errorString();
-        }
-        reply->deleteLater();
-        loop.quit();
-      });
-        diskCache->deleteLater();
-        manager.deleteLater();
-      loop.exec();
-    }
-
-
     void on_shuffle_toggled(bool checked);
 
     void on_hideDebug_clicked();
@@ -259,13 +225,16 @@ private slots:
     void on_showSimilarList_clicked();
 
     void init_similar_tracks();
-    void addToSimilarTracksQueue(const QStringList arr);
     void on_recommListWidget_itemDoubleClicked(QListWidgetItem *item);
     void startGetRecommendedTrackForAutoPlayTimer(QString songId);
     bool similarTracksListHasTrackToBeRemoved();
     void showRecommendedTrackOption();
     void showPayPalDonationMessageBox();
+    void prepareSimilarTracks();
 private:
+    QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
+    int currentSimilarTrackProcessing = 0;
+
     SimilarTracks *similarTracks = nullptr;
     Widget *downloadWidget;
     bool animationRunning = false;
@@ -312,6 +281,7 @@ private:
     MprisPlugin *dp = nullptr;
     QVariantMap mpris_song_meta;
     stringChangeWatcher* nowPlayingSongIdWatcher;
+
 
 };
 
