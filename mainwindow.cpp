@@ -22,6 +22,7 @@
 #include "manifest_resolver.h"
 #include "utils.h"
 #include "plugins/mpris/mprisplugin.h"
+#include "waitingspinnerwidget.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -32,7 +33,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //sets search icon in label
     ui->label_5->resize(ui->label_5->width(),ui->search->height());
     ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-    ui->recommWidget->hide();
 
     qApp->setQuitOnLastWindowClosed(true);
 
@@ -56,7 +56,8 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    database = "hjkfdsll";
+//    database = "hjkfdsll";
+    database = "test";
     store_manager = new store(this,database);
 
     pagination_manager = new paginator(this);
@@ -190,8 +191,10 @@ void MainWindow::installEventFilters(){
     ui->windowControls->installEventFilter(this);
     ui->label_6->installEventFilter(this);
     ui->nowPlayingGrip->installEventFilter(this);
-    ui->next->installEventFilter(this);
-    ui->previous->installEventFilter(this);
+    //install event filter for all buttons derived from controlButton to prevent their default tooltip event
+    foreach (controlButton *btn, this->findChildren<controlButton*>()) {
+        btn->installEventFilter(this);
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event){
@@ -315,7 +318,7 @@ void MainWindow::init_settings(){
     });
     connect(settingsUi.donate,&QPushButton::clicked,[=](){
         settingsWidget->close();
-        ui->webview->load(QUrl("https://paypal.me/keshavnrj/5"));
+        showPayPalDonationMessageBox();
     });
     connect(settingsUi.delete_tracks_cache,&QPushButton::clicked,[=](){
           QMessageBox msgBox;
@@ -634,6 +637,36 @@ void MainWindow::init_app(){
         }
     });
 
+    QSplitter *split3 = new QSplitter;
+    split3->setObjectName("split3");
+    split3->addWidget(ui->queueHolder);
+    split3->addWidget(ui->recommHolder);
+    split3->setOrientation(Qt::Vertical);
+
+    ui->verticalLayout_3->addWidget(split3);
+
+    split3->setCollapsible(1,false);
+
+
+
+    ui->similarTrackLoader->setRoundness(70.0);
+    ui->similarTrackLoader->setMinimumTrailOpacity(15.0);
+    ui->similarTrackLoader->setTrailFadePercentage(70.0);
+    ui->similarTrackLoader->setNumberOfLines(10);
+    ui->similarTrackLoader->setLineLength(6);
+    ui->similarTrackLoader->setLineWidth(2);
+    ui->similarTrackLoader->setInnerRadius(3);
+    ui->similarTrackLoader->setRevolutionsPerSecond(1);
+    ui->similarTrackLoader->setColor(QColor(227, 222, 222));
+
+    //hide recommWidget this code is  from on_showSimilarList_clicked()
+    split3->widget(1)->setMaximumHeight(ui->showSimilarList->height());
+    split3->setSizes(QList<int>()<<300<<0);
+    split3->handle(1)->setEnabled(false);
+    ui->recommWidget->hide();
+    ui->showSimilarList->setToolTip("Show Similar Tracks");
+
+
     setWindowIcon(QIcon(":/icons/olivia.png"));
     setWindowTitle(QApplication::applicationName());
 
@@ -761,9 +794,9 @@ void MainWindow::showPayPalDonationMessageBox(){
       msgBox.setWindowTitle(qApp->applicationName()+"- Donation");
       msgBox.setText("You clicked donation button,");
       msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-      msgBox.setInformativeText("Do you want proceed to load donation page in Olivia <br> <center>or</center> <br>Do you want to donate from a externl browser by copying donation link ?");
-      QAbstractButton *donateHereBtn = msgBox.addButton(tr(" Donate here"), QMessageBox::AcceptRole);
-      QAbstractButton *copyLinkBtn = msgBox.addButton(tr(" Copy Donation Link"), QMessageBox::AcceptRole);
+      msgBox.setInformativeText("Do you want proceed to load donation page in Olivia? <center>or</center> Do you want to donate from a externl browser by copying donation link ?");
+      QAbstractButton *donateHereBtn = msgBox.addButton(tr(" &Donate here"), QMessageBox::ActionRole);
+      QAbstractButton *copyLinkBtn = msgBox.addButton(tr(" &Copy Donation Link"), QMessageBox::ActionRole);
       donateHereBtn->setIcon(QIcon(":/icons/micro/redo.png"));
       copyLinkBtn->setIcon(QIcon(":/icons/micro/url.png"));
       donateHereBtn->setStyleSheet(btn_style);
@@ -1260,7 +1293,6 @@ void MainWindow::addToSimilarTracksQueue(const QStringList arr){
     meta.chop(5); //remove last !=-=!
     track_ui.meta->setText(meta);
     track_ui.meta->hide();
-    qDebug()<<meta;
     connect(track_ui.option,SIGNAL(clicked(bool)),this,SLOT(showRecommendedTrackOption()));
 
     LoadCover( QUrl(coverUrl),*track_ui.cover);
@@ -1868,11 +1900,15 @@ void MainWindow::ytdlReadyRead(){
 
                     }else{
                         listWidgetItem->setEnabled(true);
-                        //listWidgetItem->findChild<QLabel*>("loading")->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
                         QLineEdit *url = listWidgetItem->findChild<QLineEdit *>("url");
                         QString url_str = s_data.trimmed();
                         static_cast<QLineEdit*>(url)->setText(url_str);
                         store_manager->saveStreamUrl(songId,url_str,getExpireTime(url_str));
+                    }
+
+                    //stop spinner
+                    if(listName=="recommended"){
+                        ui->similarTrackLoader->stop();
                     }
                     //delete process/task
                     QProcess* senderProcess = qobject_cast<QProcess*>(sender());
@@ -2123,6 +2159,15 @@ void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
 }
 
 void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
+    if(list->objectName()!=("right_list")){
+        ui->right_list->clearSelection();
+    }
+    if(list->objectName()!=("right_list_2")){
+        ui->right_list_2->clearSelection();
+    }
+    if(list->objectName()!=("recommListWidget")){
+        ui->recommListWidget->clearSelection();
+    }
     //clear debug console
     ui->console->clear();
     //hide console
@@ -2454,6 +2499,10 @@ void MainWindow::radioStatus(QString radioState){
         }else{
             if(!settingsObj.value("shuffle").toBool()){
                 qDebug()<<"List ended play related songs";
+                //show similar list
+                if(!ui->recommWidget->isVisible()){
+                    ui->showSimilarList->click();
+                }
                 //assign next track in list if next item in list is valid
                 for(int i=0;i<ui->recommListWidget->count();i++){
                     if(ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->isEnabled()){
@@ -3164,6 +3213,7 @@ void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
     }
     if(!ui->next->isEnabled() && !settingsObj.value("shuffle").toBool()){
         qDebug()<<"Prepare related songs list";
+        ui->similarTrackLoader->start();
         //keep now playing song and remove others
         while(similarTracksListHasTrackToBeRemoved()){
             for (int i=0; i<ui->recommListWidget->count();i++) {
@@ -3726,6 +3776,22 @@ void MainWindow::on_jump_to_nowplaying_clicked()
         listWidget = ui->right_list_2;
         listName = "youtube";
     }
+    if(listWidgetItem==nullptr){
+        listWidgetItem= ui->recommListWidget->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
+        listWidget = ui->recommListWidget;
+        listName = "recommended";
+    }
+
+    if(listName!=("olivia")){
+        ui->right_list->clearSelection();
+    }
+    if(listName!=("youtube")){
+        ui->right_list_2->clearSelection();
+    }
+    if(listName!=("recommListWidget")){
+        ui->recommListWidget->clearSelection();
+    }
+
     //check if listWidgetItem found in one of list
     if(listWidgetItem==nullptr){
         qDebug()<<"CANNOT JUMP, TRACK NOT FOUND IN LIST";
@@ -3737,6 +3803,9 @@ void MainWindow::on_jump_to_nowplaying_clicked()
              ui->tabWidget->setCurrentWidget(ui->tab);
         if(listName=="youtube")
              ui->tabWidget->setCurrentWidget(ui->tab_2);
+        if(listName=="recommended" && !ui->recommWidget->isVisible())
+             ui->showSimilarList->click();
+
 
         //switch tab where track is found
         for (int i= 0;i<listWidget->count();i++) {
@@ -3751,7 +3820,21 @@ void MainWindow::on_jump_to_nowplaying_clicked()
 
 void MainWindow::on_showSimilarList_clicked()
 {
-    ui->recommWidget->isVisible() ? ui->recommWidget->hide():ui->recommWidget->show();
+    QSplitter *split3 =this->findChild<QSplitter*>("split3");
+
+    if(!ui->recommWidget->isVisible()){
+        split3->widget(1)->setMaximumHeight(16777215);
+        split3->setSizes(QList<int>()<<300<<300);
+        split3->handle(1)->setEnabled(true);
+        ui->recommWidget->show();
+        ui->showSimilarList->setToolTip("Hide Similar Tracks");
+    }else{
+        split3->widget(1)->setMaximumHeight(ui->showSimilarList->height());
+        split3->setSizes(QList<int>()<<300<<0);
+        split3->handle(1)->setEnabled(false);
+        ui->recommWidget->hide();
+        ui->showSimilarList->setToolTip("Show Similar Tracks");
+    }
     ui->recommWidget->isVisible() ? ui->showSimilarList->setIcon(QIcon(":/icons/sidebar/hideRecommend.png")):
                                         ui->showSimilarList->setIcon(QIcon(":/icons/sidebar/showRecommend.png"));
 }

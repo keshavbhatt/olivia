@@ -247,7 +247,7 @@ border-radius:0px;</string>
            <number>1</number>
           </property>
           <item>
-           <widget class="QPushButton" name="fullScreen">
+           <widget class="controlButton" name="fullScreen">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -919,7 +919,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="miniMode">
+                   <widget class="controlButton" name="miniMode">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1177,520 +1177,521 @@ border-right:0px;
                 <number>0</number>
                </property>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_6">
-                 <property name="spacing">
-                  <number>0</number>
-                 </property>
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>5</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>7</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="label_8">
-                   <property name="font">
-                    <font>
-                     <pointsize>14</pointsize>
-                    </font>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: transparent;
+                <widget class="QWidget" name="queueHolder" native="true">
+                 <layout class="QVBoxLayout" name="queueHolder_Layout">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_6">
+                    <property name="spacing">
+                     <number>0</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>5</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>7</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="label_8">
+                      <property name="font">
+                       <font>
+                        <pointsize>14</pointsize>
+                       </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">background-color: transparent;
 color: rgb(180, 180, 180);</string>
-                   </property>
-                   <property name="text">
-                    <string>PLAYER QUEUE</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="jump_to_nowplaying">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
-                   </property>
-                   <property name="toolTip">
-                    <string>Jump to NowPlaying Track</string>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">border:none;
+                      </property>
+                      <property name="text">
+                       <string>PLAYER QUEUE</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="controlButton" name="jump_to_nowplaying">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::NoFocus</enum>
+                      </property>
+                      <property name="toolTip">
+                       <string>Jump to NowPlaying Track</string>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">border:none;
 background-color: transparent;
 </string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="icons.qrc">
-                     <normaloff>:/icons/others/jump_goto.png</normaloff>:/icons/others/jump_goto.png</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>22</width>
-                     <height>22</height>
-                    </size>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="Line" name="line_2">
-                   <property name="minimumSize">
-                    <size>
-                     <width>1</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>1</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: #808080;</string>
-                   </property>
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="settings">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
-                   </property>
-                   <property name="toolTip">
-                    <string>Application Settings</string>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">border:none;
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="icons.qrc">
+                        <normaloff>:/icons/others/jump_goto.png</normaloff>:/icons/others/jump_goto.png</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>22</width>
+                        <height>22</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="Line" name="line_2">
+                      <property name="minimumSize">
+                       <size>
+                        <width>1</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>1</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #808080;</string>
+                      </property>
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="controlButton" name="settings">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::NoFocus</enum>
+                      </property>
+                      <property name="toolTip">
+                       <string>Application Settings</string>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">border:none;
 background-color: transparent;
 padding-left: 10px;</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="icons.qrc">
-                     <normaloff>:/icons/settings.png</normaloff>:/icons/settings.png</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>22</width>
-                     <height>22</height>
-                    </size>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QTabWidget" name="tabWidget">
-                 <property name="styleSheet">
-                  <string notr="true">background-color: rgb(239, 235, 231);
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="icons.qrc">
+                        <normaloff>:/icons/settings.png</normaloff>:/icons/settings.png</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>22</width>
+                        <height>22</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="QTabWidget" name="tabWidget">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(239, 235, 231);
 
 </string>
-                 </property>
-                 <property name="tabPosition">
-                  <enum>QTabWidget::North</enum>
-                 </property>
-                 <property name="tabShape">
-                  <enum>QTabWidget::Rounded</enum>
-                 </property>
-                 <property name="currentIndex">
-                  <number>1</number>
-                 </property>
-                 <property name="elideMode">
-                  <enum>Qt::ElideNone</enum>
-                 </property>
-                 <property name="usesScrollButtons">
-                  <bool>false</bool>
-                 </property>
-                 <property name="documentMode">
-                  <bool>false</bool>
-                 </property>
-                 <property name="tabBarAutoHide">
-                  <bool>false</bool>
-                 </property>
-                 <widget class="QWidget" name="tab">
-                  <property name="styleSheet">
-                   <string notr="true">border:none;
-background-color: transparent;
-</string>
-                  </property>
-                  <attribute name="icon">
-                   <iconset resource="icons.qrc">
-                    <normaloff>:/icons/sidebar/songs.png</normaloff>:/icons/sidebar/songs.png</iconset>
-                  </attribute>
-                  <attribute name="title">
-                   <string>Olivia</string>
-                  </attribute>
-                  <layout class="QVBoxLayout" name="verticalLayout_9">
-                   <property name="spacing">
-                    <number>6</number>
-                   </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>4</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
-                    <number>2</number>
-                   </property>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout">
-                     <property name="topMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="rightMargin">
-                      <number>4</number>
-                     </property>
-                     <item>
-                      <widget class="QLineEdit" name="filter_olivia">
-                       <property name="styleSheet">
-                        <string notr="true">border:none;
-background-color: transparent;
-</string>
-                       </property>
-                       <property name="placeholderText">
-                        <string>Filter this queue</string>
-                       </property>
-                       <property name="clearButtonEnabled">
-                        <bool>true</bool>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QPushButton" name="olivia_queue_options">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>20</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                       <property name="focusPolicy">
-                        <enum>Qt::NoFocus</enum>
-                       </property>
-                       <property name="toolTip">
-                        <string>This queue options</string>
-                       </property>
-                       <property name="styleSheet">
-                        <string notr="true">border:none;
-background-color: transparent;</string>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="icons.qrc">
-                         <normaloff>:/icons/sidebar/playlist.png</normaloff>:/icons/sidebar/playlist.png</iconset>
-                       </property>
-                       <property name="iconSize">
-                        <size>
-                         <width>20</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <widget class="playerQueue" name="right_list">
-                     <property name="minimumSize">
-                      <size>
-                       <width>200</width>
-                       <height>0</height>
-                      </size>
-                     </property>
+                    </property>
+                    <property name="tabPosition">
+                     <enum>QTabWidget::North</enum>
+                    </property>
+                    <property name="tabShape">
+                     <enum>QTabWidget::Rounded</enum>
+                    </property>
+                    <property name="currentIndex">
+                     <number>2</number>
+                    </property>
+                    <property name="elideMode">
+                     <enum>Qt::ElideNone</enum>
+                    </property>
+                    <property name="usesScrollButtons">
+                     <bool>false</bool>
+                    </property>
+                    <property name="documentMode">
+                     <bool>false</bool>
+                    </property>
+                    <property name="tabBarAutoHide">
+                     <bool>false</bool>
+                    </property>
+                    <widget class="QWidget" name="tab">
                      <property name="styleSheet">
-                      <string notr="true">QListWidget{
-	background-color: transparent;
-	border:none;
-}
-
-QScrollBar:vertical {
-	   background-color: transparent;
-	   border:none;
-       width: 10px;
-       margin: 22px 0 22px 0;
-   }
-   QScrollBar::handle:vertical {
-       background: grey;
-       min-height: 20px;
-   }</string>
-                     </property>
-                     <property name="verticalScrollBarPolicy">
-                      <enum>Qt::ScrollBarAsNeeded</enum>
-                     </property>
-                     <property name="horizontalScrollBarPolicy">
-                      <enum>Qt::ScrollBarAlwaysOff</enum>
-                     </property>
-                     <property name="autoScroll">
-                      <bool>false</bool>
-                     </property>
-                     <property name="autoScrollMargin">
-                      <number>5</number>
-                     </property>
-                     <property name="verticalScrollMode">
-                      <enum>QAbstractItemView::ScrollPerPixel</enum>
-                     </property>
-                     <property name="horizontalScrollMode">
-                      <enum>QAbstractItemView::ScrollPerPixel</enum>
-                     </property>
-                     <property name="movement">
-                      <enum>QListView::Free</enum>
-                     </property>
-                     <property name="spacing">
-                      <number>3</number>
-                     </property>
-                     <property name="uniformItemSizes">
-                      <bool>true</bool>
-                     </property>
-                     <property name="selectionRectVisible">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                 <widget class="QWidget" name="tab_2">
-                  <property name="styleSheet">
-                   <string notr="true">border:none;
+                      <string notr="true">border:none;
 background-color: transparent;
 </string>
-                  </property>
-                  <attribute name="icon">
-                   <iconset resource="icons.qrc">
-                    <normaloff>:/icons/sidebar/youtube.png</normaloff>:/icons/sidebar/youtube.png</iconset>
-                  </attribute>
-                  <attribute name="title">
-                   <string>Youtube</string>
-                  </attribute>
-                  <layout class="QVBoxLayout" name="verticalLayout_10">
-                   <property name="spacing">
-                    <number>6</number>
-                   </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>4</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
-                    <number>2</number>
-                   </property>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_7">
-                     <property name="topMargin">
-                      <number>0</number>
                      </property>
-                     <property name="rightMargin">
-                      <number>4</number>
-                     </property>
-                     <item>
-                      <widget class="QLineEdit" name="filter_youtube">
-                       <property name="styleSheet">
-                        <string notr="true">border:none;
-background-color: transparent;
-</string>
-                       </property>
-                       <property name="placeholderText">
-                        <string>Filter this queue</string>
-                       </property>
-                       <property name="clearButtonEnabled">
-                        <bool>true</bool>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QPushButton" name="youtube_queue_options">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>20</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                       <property name="focusPolicy">
-                        <enum>Qt::NoFocus</enum>
-                       </property>
-                       <property name="toolTip">
-                        <string>This queue options</string>
-                       </property>
-                       <property name="styleSheet">
-                        <string notr="true">border:none;
-background-color: transparent;</string>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="icons.qrc">
-                         <normaloff>:/icons/sidebar/playlist.png</normaloff>:/icons/sidebar/playlist.png</iconset>
-                       </property>
-                       <property name="iconSize">
-                        <size>
-                         <width>20</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <widget class="QListWidget" name="right_list_2">
-                     <property name="minimumSize">
-                      <size>
-                       <width>200</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">QListWidget{
-	background-color: transparent;
-	border:none;
-}
-
-QScrollBar:vertical {
-	   background-color: transparent;
-	   border:none;
-       width: 10px;
-       margin: 22px 0 22px 0;
-   }
-   QScrollBar::handle:vertical {
-       background: grey;
-       min-height: 20px;
-   }</string>
-                     </property>
-                     <property name="verticalScrollBarPolicy">
-                      <enum>Qt::ScrollBarAsNeeded</enum>
-                     </property>
-                     <property name="horizontalScrollBarPolicy">
-                      <enum>Qt::ScrollBarAlwaysOff</enum>
-                     </property>
-                     <property name="autoScroll">
-                      <bool>false</bool>
-                     </property>
-                     <property name="autoScrollMargin">
-                      <number>5</number>
-                     </property>
-                     <property name="dragEnabled">
-                      <bool>true</bool>
-                     </property>
-                     <property name="dragDropMode">
-                      <enum>QAbstractItemView::DragDrop</enum>
-                     </property>
-                     <property name="defaultDropAction">
-                      <enum>Qt::MoveAction</enum>
-                     </property>
-                     <property name="selectionMode">
-                      <enum>QAbstractItemView::SingleSelection</enum>
-                     </property>
-                     <property name="selectionBehavior">
-                      <enum>QAbstractItemView::SelectItems</enum>
-                     </property>
-                     <property name="verticalScrollMode">
-                      <enum>QAbstractItemView::ScrollPerPixel</enum>
-                     </property>
-                     <property name="horizontalScrollMode">
-                      <enum>QAbstractItemView::ScrollPerPixel</enum>
-                     </property>
-                     <property name="movement">
-                      <enum>QListView::Free</enum>
-                     </property>
-                     <property name="spacing">
-                      <number>3</number>
-                     </property>
-                     <property name="uniformItemSizes">
-                      <bool>true</bool>
-                     </property>
-                     <property name="selectionRectVisible">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                 <widget class="QWidget" name="tab_3">
-                  <attribute name="icon">
-                   <iconset resource="icons.qrc">
-                    <normaloff>:/icons/sidebar/tasks.png</normaloff>:/icons/sidebar/tasks.png</iconset>
-                  </attribute>
-                  <attribute name="title">
-                   <string>Tasks</string>
-                  </attribute>
-                  <layout class="QVBoxLayout" name="verticalLayout_12">
-                   <property name="spacing">
-                    <number>6</number>
-                   </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>4</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
-                    <number>2</number>
-                   </property>
-                   <item>
-                    <widget class="QGroupBox" name="stream_info">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>10</pointsize>
-                      </font>
-                     </property>
-                     <property name="title">
-                      <string>Stream Info Process Operations</string>
-                     </property>
-                     <layout class="QVBoxLayout" name="verticalLayout_13">
+                     <attribute name="icon">
+                      <iconset resource="icons.qrc">
+                       <normaloff>:/icons/sidebar/songs.png</normaloff>:/icons/sidebar/songs.png</iconset>
+                     </attribute>
+                     <attribute name="title">
+                      <string>Olivia</string>
+                     </attribute>
+                     <layout class="QVBoxLayout" name="verticalLayout_9">
+                      <property name="spacing">
+                       <number>6</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>2</number>
+                      </property>
                       <item>
-                       <widget class="QLabel" name="ytdlQueueLabel">
+                       <layout class="QHBoxLayout" name="horizontalLayout">
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>4</number>
+                        </property>
+                        <item>
+                         <widget class="QLineEdit" name="filter_olivia">
+                          <property name="styleSheet">
+                           <string notr="true">border:none;
+background-color: transparent;
+</string>
+                          </property>
+                          <property name="placeholderText">
+                           <string>Filter this queue</string>
+                          </property>
+                          <property name="clearButtonEnabled">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QPushButton" name="olivia_queue_options">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>20</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                          <property name="focusPolicy">
+                           <enum>Qt::NoFocus</enum>
+                          </property>
+                          <property name="toolTip">
+                           <string>This queue options</string>
+                          </property>
+                          <property name="styleSheet">
+                           <string notr="true">border:none;
+background-color: transparent;</string>
+                          </property>
+                          <property name="text">
+                           <string/>
+                          </property>
+                          <property name="icon">
+                           <iconset resource="icons.qrc">
+                            <normaloff>:/icons/sidebar/playlist.png</normaloff>:/icons/sidebar/playlist.png</iconset>
+                          </property>
+                          <property name="iconSize">
+                           <size>
+                            <width>20</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <widget class="playerQueue" name="right_list">
+                        <property name="minimumSize">
+                         <size>
+                          <width>200</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">QListWidget{
+	background-color: transparent;
+	border:none;
+}
+
+QScrollBar:vertical {
+	   background-color: transparent;
+	   border:none;
+       width: 10px;
+       margin: 22px 0 22px 0;
+   }
+   QScrollBar::handle:vertical {
+       background: grey;
+       min-height: 20px;
+   }</string>
+                        </property>
+                        <property name="verticalScrollBarPolicy">
+                         <enum>Qt::ScrollBarAsNeeded</enum>
+                        </property>
+                        <property name="horizontalScrollBarPolicy">
+                         <enum>Qt::ScrollBarAlwaysOff</enum>
+                        </property>
+                        <property name="autoScroll">
+                         <bool>false</bool>
+                        </property>
+                        <property name="autoScrollMargin">
+                         <number>5</number>
+                        </property>
+                        <property name="verticalScrollMode">
+                         <enum>QAbstractItemView::ScrollPerPixel</enum>
+                        </property>
+                        <property name="horizontalScrollMode">
+                         <enum>QAbstractItemView::ScrollPerPixel</enum>
+                        </property>
+                        <property name="movement">
+                         <enum>QListView::Free</enum>
+                        </property>
+                        <property name="spacing">
+                         <number>3</number>
+                        </property>
+                        <property name="uniformItemSizes">
+                         <bool>true</bool>
+                        </property>
+                        <property name="selectionRectVisible">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                    <widget class="QWidget" name="tab_2">
+                     <property name="styleSheet">
+                      <string notr="true">border:none;
+background-color: transparent;
+</string>
+                     </property>
+                     <attribute name="icon">
+                      <iconset resource="icons.qrc">
+                       <normaloff>:/icons/sidebar/youtube.png</normaloff>:/icons/sidebar/youtube.png</iconset>
+                     </attribute>
+                     <attribute name="title">
+                      <string>Youtube</string>
+                     </attribute>
+                     <layout class="QVBoxLayout" name="verticalLayout_10">
+                      <property name="spacing">
+                       <number>6</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>2</number>
+                      </property>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_7">
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>4</number>
+                        </property>
+                        <item>
+                         <widget class="QLineEdit" name="filter_youtube">
+                          <property name="styleSheet">
+                           <string notr="true">border:none;
+background-color: transparent;
+</string>
+                          </property>
+                          <property name="placeholderText">
+                           <string>Filter this queue</string>
+                          </property>
+                          <property name="clearButtonEnabled">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QPushButton" name="youtube_queue_options">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>20</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                          <property name="focusPolicy">
+                           <enum>Qt::NoFocus</enum>
+                          </property>
+                          <property name="toolTip">
+                           <string>This queue options</string>
+                          </property>
+                          <property name="styleSheet">
+                           <string notr="true">border:none;
+background-color: transparent;</string>
+                          </property>
+                          <property name="text">
+                           <string/>
+                          </property>
+                          <property name="icon">
+                           <iconset resource="icons.qrc">
+                            <normaloff>:/icons/sidebar/playlist.png</normaloff>:/icons/sidebar/playlist.png</iconset>
+                          </property>
+                          <property name="iconSize">
+                           <size>
+                            <width>20</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <widget class="QListWidget" name="right_list_2">
+                        <property name="minimumSize">
+                         <size>
+                          <width>200</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">QListWidget{
+	background-color: transparent;
+	border:none;
+}
+
+QScrollBar:vertical {
+	   background-color: transparent;
+	   border:none;
+       width: 10px;
+       margin: 22px 0 22px 0;
+   }
+   QScrollBar::handle:vertical {
+       background: grey;
+       min-height: 20px;
+   }</string>
+                        </property>
+                        <property name="verticalScrollBarPolicy">
+                         <enum>Qt::ScrollBarAsNeeded</enum>
+                        </property>
+                        <property name="horizontalScrollBarPolicy">
+                         <enum>Qt::ScrollBarAlwaysOff</enum>
+                        </property>
+                        <property name="autoScroll">
+                         <bool>false</bool>
+                        </property>
+                        <property name="autoScrollMargin">
+                         <number>5</number>
+                        </property>
+                        <property name="dragEnabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="dragDropMode">
+                         <enum>QAbstractItemView::DragDrop</enum>
+                        </property>
+                        <property name="defaultDropAction">
+                         <enum>Qt::MoveAction</enum>
+                        </property>
+                        <property name="selectionMode">
+                         <enum>QAbstractItemView::SingleSelection</enum>
+                        </property>
+                        <property name="selectionBehavior">
+                         <enum>QAbstractItemView::SelectItems</enum>
+                        </property>
+                        <property name="verticalScrollMode">
+                         <enum>QAbstractItemView::ScrollPerPixel</enum>
+                        </property>
+                        <property name="horizontalScrollMode">
+                         <enum>QAbstractItemView::ScrollPerPixel</enum>
+                        </property>
+                        <property name="movement">
+                         <enum>QListView::Free</enum>
+                        </property>
+                        <property name="spacing">
+                         <number>3</number>
+                        </property>
+                        <property name="uniformItemSizes">
+                         <bool>true</bool>
+                        </property>
+                        <property name="selectionRectVisible">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                    <widget class="QWidget" name="tab_3">
+                     <attribute name="icon">
+                      <iconset resource="icons.qrc">
+                       <normaloff>:/icons/sidebar/tasks.png</normaloff>:/icons/sidebar/tasks.png</iconset>
+                     </attribute>
+                     <attribute name="title">
+                      <string>Tasks</string>
+                     </attribute>
+                     <layout class="QVBoxLayout" name="verticalLayout_12">
+                      <property name="spacing">
+                       <number>6</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>2</number>
+                      </property>
+                      <item>
+                       <widget class="QGroupBox" name="stream_info">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                           <horstretch>0</horstretch>
@@ -1702,125 +1703,234 @@ QScrollBar:vertical {
                           <pointsize>10</pointsize>
                          </font>
                         </property>
-                        <property name="text">
-                         <string>no task</string>
+                        <property name="title">
+                         <string>Stream Info Process Operations</string>
                         </property>
-                        <property name="alignment">
-                         <set>Qt::AlignCenter</set>
-                        </property>
+                        <layout class="QVBoxLayout" name="verticalLayout_13">
+                         <item>
+                          <widget class="QLabel" name="ytdlQueueLabel">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>10</pointsize>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>no task</string>
+                           </property>
+                           <property name="alignment">
+                            <set>Qt::AlignCenter</set>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <layout class="QHBoxLayout" name="horizontalLayout_14">
+                           <property name="topMargin">
+                            <number>0</number>
+                           </property>
+                           <item>
+                            <widget class="QPushButton" name="ytdlStopAll">
+                             <property name="enabled">
+                              <bool>false</bool>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <pointsize>10</pointsize>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Stop processing current queue of dead tracks</string>
+                             </property>
+                             <property name="text">
+                              <string>Stop all</string>
+                             </property>
+                             <property name="icon">
+                              <iconset resource="icons.qrc">
+                               <normaloff>:/icons/others/stop.png</normaloff>:/icons/others/stop.png</iconset>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="ytdlRefreshAll">
+                             <property name="font">
+                              <font>
+                               <pointsize>10</pointsize>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Refresh all dead tracks</string>
+                             </property>
+                             <property name="text">
+                              <string>Refresh all tracks</string>
+                             </property>
+                             <property name="icon">
+                              <iconset resource="icons.qrc">
+                               <normaloff>:/icons/others/reset2.png</normaloff>:/icons/others/reset2.png</iconset>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
                        </widget>
                       </item>
                       <item>
-                       <layout class="QHBoxLayout" name="horizontalLayout_14">
-                        <property name="topMargin">
-                         <number>0</number>
-                        </property>
-                        <item>
-                         <widget class="QPushButton" name="ytdlStopAll">
-                          <property name="enabled">
-                           <bool>false</bool>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <pointsize>10</pointsize>
-                           </font>
-                          </property>
-                          <property name="toolTip">
-                           <string>Stop processing current queue of dead tracks</string>
-                          </property>
-                          <property name="text">
-                           <string>Stop all</string>
-                          </property>
-                          <property name="icon">
-                           <iconset resource="icons.qrc">
-                            <normaloff>:/icons/others/stop.png</normaloff>:/icons/others/stop.png</iconset>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QPushButton" name="ytdlRefreshAll">
-                          <property name="font">
-                           <font>
-                            <pointsize>10</pointsize>
-                           </font>
-                          </property>
-                          <property name="toolTip">
-                           <string>Refresh all dead tracks</string>
-                          </property>
-                          <property name="text">
-                           <string>Refresh all tracks</string>
-                          </property>
-                          <property name="icon">
-                           <iconset resource="icons.qrc">
-                            <normaloff>:/icons/others/reset2.png</normaloff>:/icons/others/reset2.png</iconset>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
+                       <layout class="QVBoxLayout" name="downloadWidgetVLayout"/>
                       </item>
                      </layout>
                     </widget>
-                   </item>
-                   <item>
-                    <layout class="QVBoxLayout" name="downloadWidgetVLayout"/>
-                   </item>
-                  </layout>
-                 </widget>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="showSimilarList">
-                 <property name="font">
-                  <font>
-                   <pointsize>10</pointsize>
-                   <italic>true</italic>
-                  </font>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true"/>
-                 </property>
-                 <property name="text">
-                  <string>Similar Tracks</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="icons.qrc">
-                   <normaloff>:/icons/sidebar/showRecommend.png</normaloff>:/icons/sidebar/showRecommend.png</iconset>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QWidget" name="recommWidget" native="true">
-                 <property name="styleSheet">
-                  <string notr="true">QWidget#recommWidget{
-border:none;
-}</string>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_15">
+                <widget class="QWidget" name="recommHolder" native="true">
+                 <layout class="QVBoxLayout" name="recommHolder_Layout">
                   <property name="spacing">
-                   <number>6</number>
+                   <number>0</number>
                   </property>
                   <property name="leftMargin">
                    <number>0</number>
                   </property>
                   <property name="topMargin">
-                   <number>4</number>
+                   <number>0</number>
                   </property>
                   <property name="rightMargin">
                    <number>0</number>
                   </property>
                   <property name="bottomMargin">
-                   <number>2</number>
+                   <number>0</number>
                   </property>
                   <item>
-                   <widget class="playerQueue" name="recommListWidget">
-                    <property name="minimumSize">
-                     <size>
-                      <width>200</width>
-                      <height>0</height>
-                     </size>
-                    </property>
+                   <widget class="QWidget" name="similarTracksButtonsWidget" native="true">
+                    <layout class="QHBoxLayout" name="horizontalLayout_15">
+                     <property name="spacing">
+                      <number>1</number>
+                     </property>
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="WaitingSpinnerWidget" name="similarTrackLoader" native="true">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>20</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="controlButton" name="showSimilarList">
+                       <property name="font">
+                        <font>
+                         <pointsize>10</pointsize>
+                         <italic>true</italic>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">background-color: rgb(136, 138, 133);</string>
+                       </property>
+                       <property name="text">
+                        <string>Smart playlist</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="icons.qrc">
+                         <normaloff>:/icons/sidebar/showRecommend.png</normaloff>:/icons/sidebar/showRecommend.png</iconset>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="controlButton" name="similarTracksHelp">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="focusPolicy">
+                        <enum>Qt::NoFocus</enum>
+                       </property>
+                       <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What is this ?&lt;/p&gt;&lt;p&gt;Smart playlist is endless list of similar tracks to your last played track which are played when player queue ended or when you call option to play similar tracks from any track. These tracks are temporary and are not saved to your library until you add them manualy using track option to add them to your library.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">border:none;
+background-color: transparent;
+</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="icons.qrc">
+                         <normaloff>:/icons/sidebar/help.png</normaloff>:/icons/sidebar/help.png</iconset>
+                       </property>
+                       <property name="iconSize">
+                        <size>
+                         <width>16</width>
+                         <height>16</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QWidget" name="recommWidget" native="true">
                     <property name="styleSheet">
-                     <string notr="true">QListWidget{
+                     <string notr="true">QWidget#recommWidget{
+border:none;
+}</string>
+                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_15">
+                     <property name="spacing">
+                      <number>0</number>
+                     </property>
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="playerQueue" name="recommListWidget">
+                       <property name="minimumSize">
+                        <size>
+                         <width>200</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QListWidget{
 	background-color: transparent;
 	border:none;
 }
@@ -1835,37 +1945,40 @@ QScrollBar:vertical {
        background: grey;
        min-height: 20px;
    }</string>
-                    </property>
-                    <property name="verticalScrollBarPolicy">
-                     <enum>Qt::ScrollBarAsNeeded</enum>
-                    </property>
-                    <property name="horizontalScrollBarPolicy">
-                     <enum>Qt::ScrollBarAlwaysOff</enum>
-                    </property>
-                    <property name="autoScroll">
-                     <bool>false</bool>
-                    </property>
-                    <property name="autoScrollMargin">
-                     <number>5</number>
-                    </property>
-                    <property name="verticalScrollMode">
-                     <enum>QAbstractItemView::ScrollPerPixel</enum>
-                    </property>
-                    <property name="horizontalScrollMode">
-                     <enum>QAbstractItemView::ScrollPerPixel</enum>
-                    </property>
-                    <property name="movement">
-                     <enum>QListView::Free</enum>
-                    </property>
-                    <property name="spacing">
-                     <number>3</number>
-                    </property>
-                    <property name="uniformItemSizes">
-                     <bool>true</bool>
-                    </property>
-                    <property name="selectionRectVisible">
-                     <bool>true</bool>
-                    </property>
+                       </property>
+                       <property name="verticalScrollBarPolicy">
+                        <enum>Qt::ScrollBarAsNeeded</enum>
+                       </property>
+                       <property name="horizontalScrollBarPolicy">
+                        <enum>Qt::ScrollBarAlwaysOff</enum>
+                       </property>
+                       <property name="autoScroll">
+                        <bool>false</bool>
+                       </property>
+                       <property name="autoScrollMargin">
+                        <number>5</number>
+                       </property>
+                       <property name="verticalScrollMode">
+                        <enum>QAbstractItemView::ScrollPerPixel</enum>
+                       </property>
+                       <property name="horizontalScrollMode">
+                        <enum>QAbstractItemView::ScrollPerPixel</enum>
+                       </property>
+                       <property name="movement">
+                        <enum>QListView::Free</enum>
+                       </property>
+                       <property name="spacing">
+                        <number>3</number>
+                       </property>
+                       <property name="uniformItemSizes">
+                        <bool>true</bool>
+                       </property>
+                       <property name="selectionRectVisible">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </widget>
                   </item>
                  </layout>
@@ -1923,7 +2036,7 @@ QScrollBar:vertical {
           <number>0</number>
          </property>
          <item>
-          <widget class="QPushButton" name="eq">
+          <widget class="controlButton" name="eq">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -2293,6 +2406,12 @@ border-radius:2px;</string>
    <class>playerQueue</class>
    <extends>QListWidget</extends>
    <header>playerqueue.h</header>
+  </customwidget>
+  <customwidget>
+   <class>WaitingSpinnerWidget</class>
+   <extends>QWidget</extends>
+   <header>waitingspinnerwidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
