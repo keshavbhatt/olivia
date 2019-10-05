@@ -71,7 +71,7 @@ fi
 ###############################################
 
 if [ "${XDG_CURRENT_DESKTOP}" != "KDE" ]; then
-  export QT_STYLE_OVERRIDE=GTK+
+  export QT_STYLE_OVERRIDE=gtk
 fi
 
 function prepend_dir() {
