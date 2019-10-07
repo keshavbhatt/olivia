@@ -801,7 +801,7 @@ void MainWindow::showPayPalDonationMessageBox(){
       msgBox.setWindowTitle(qApp->applicationName()+"- Donation");
       msgBox.setText("You clicked donation button,");
       msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-      msgBox.setInformativeText("Do you want proceed to load donation page in Olivia? <center>or</center> Do you want to donate from a externl browser by copying donation link ?");
+      msgBox.setInformativeText("Do you want proceed to load donation page in Olivia? <center>or</center> Do you want to donate from a external browser by copying donation link ?");
       QAbstractButton *donateHereBtn = msgBox.addButton(tr(" &Donate here"), QMessageBox::ActionRole);
       QAbstractButton *copyLinkBtn = msgBox.addButton(tr(" &Copy Donation Link"), QMessageBox::ActionRole);
       donateHereBtn->setIcon(QIcon(":/icons/micro/redo.png"));
@@ -873,7 +873,7 @@ void MainWindow::loadPlayerQueue(){ //  #7
         QString plainTitle = text.toPlainText();
 
         QWidget *track_widget = new QWidget(ui->right_list);
-        track_widget->setToolTip(title);
+        track_widget->setToolTip(htmlToPlainText(title));
         track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
 
@@ -1287,7 +1287,7 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
 
 
     QWidget *track_widget = new QWidget(ui->recommListWidget);
-    track_widget->setToolTip(title);
+    track_widget->setToolTip(htmlToPlainText(title));
     track_widget->setObjectName("track-widget-"+songId);
     track_ui.setupUi(track_widget);
 
@@ -1428,7 +1428,7 @@ void MainWindow::addToQueue(QString id,QString title,
         return;
     }else{
         QWidget *track_widget = new QWidget(ui->right_list);
-        track_widget->setToolTip(title);
+        track_widget->setToolTip(htmlToPlainText(title));
         track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
 
