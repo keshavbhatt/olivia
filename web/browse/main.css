@@ -38,6 +38,33 @@
     background: transparent !important;
 }
 
+#categories_page{
+ background: transparent !important;
+}
+
+#categories_result li p{
+    font-size:26px !important;
+}
+
+#category_playlist_page{
+ background: transparent !important;
+}
+
+#playlist_result li p{
+    font-size: 26px !important;
+    margin-left: 32px !important;
+    line-height: 35px !important;
+}
+
+#playlist_view_page{
+    background: transparent !important;
+}
+
+#playlist_view_page li p{
+    margin-left: 2.8em !important;
+    line-height: 1.8em !important;
+}
+
 #album_view_page{
     background: transparent !important;
 }

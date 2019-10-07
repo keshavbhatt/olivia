@@ -27,7 +27,7 @@
               <ul>
                 <li><a onclick="$.mobile.changePage($('#overview_page'));" id="overview" >OVERVIEW</a></li>
                 <li><a onclick="open_new_release();" id="new_releases" >NEW RELEASES</a></li>
-                <li><a onclick="$.mobile.changePage($('#genres_page'));" id="genres" >GENRES & MOODS</a></li>
+                <li><a onclick="open_categories();" id="genres" >GENRES & MOODS</a></li>
               </ul>
             </div>
          </div> <!--tabs-->
@@ -49,8 +49,8 @@
         </div>
         <!-- page footer-->
         <div  id="footer_new_releases" style='display:none; background-color: rgba(29, 29, 29, 0.64);' data-role='footer' data-position='fixed' data-tap-toggle='false'>
-            <a id='prevBtn' class='ui-btn ui-mini ui-icon-arrow-r ui-btn-icon-left ui-shadow ui-corner-all' style='float:left;width:40%;background-color: rgba(36, 142, 179, 0.66);border: none;'>Previous</a>
-            <a id='nextBtn' class='ui-btn ui-mini ui-icon-arrow-r ui-btn-icon-right ui-shadow ui-corner-all' style='float:right;width:40%;background-color: rgba(36, 142, 179, 0.66);border: none;'>Next</a>
+            <a id='prevBtn' class='ui-btn ui-mini ui-icon-arrow-l ui-btn-icon-left ui-shadow ui-corner-all' style='float:left;background-color: rgba(36, 142, 179, 0.66);border: none;'>Previous</a>
+            <a id='nextBtn' class='ui-btn ui-mini ui-icon-arrow-r ui-btn-icon-right ui-shadow ui-corner-all' style='float:right;background-color: rgba(36, 142, 179, 0.66);border: none;'>Next</a>
         </div>
     </div>
 
@@ -59,20 +59,50 @@
             <!--load data here-->
         </div>
         <div data-role="footer" data-position="fixed" data-tap-toggle="false">
-            <a onclick="back_to_release_page()" style="display: block;background-color: rgba(36, 142, 179, 0.5)"  class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all" data-transition="slidefade" href="#">Back</a>
+            <a onclick="back_to_release_page()" style="display: block;background-color: rgba(36, 142, 179, 0.5)"  class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all" data-transition="slidefade" href="#">Back to new releases</a>
         </div><!-- /footer -->
     </div>
 
-    <div id="genres_page" data-role="page" data-theme="b" data-title="GENRES & MOODS">
+    <div id="categories_page" data-role="page" data-theme="b" data-title="GENRES & MOODS">
         <div role="main" class="ui-content">
-            <!--load data here-->
-            Genres Not implimented yet :(
+            <ul class="list" id="categories_result" data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
+                <!--load data here-->
+            </ul>
+        </div>
+        <!-- page footer-->
+        <div  id="footer_categories" style='display:none; background-color: rgba(29, 29, 29, 0.64);' data-role='footer' data-position='fixed' data-tap-toggle='false'>
+            <a id='prevBtn' class='ui-btn ui-mini ui-icon-arrow-l ui-btn-icon-left ui-shadow ui-corner-all' style='float:left;width:40%;background-color: rgba(36, 142, 179, 0.66);border: none;'>Previous</a>
+            <a id='nextBtn' class='ui-btn ui-mini ui-icon-arrow-r ui-btn-icon-right ui-shadow ui-corner-all' style='float:right;width:40%;background-color: rgba(36, 142, 179, 0.66);border: none;'>Next</a>
         </div>
     </div>
 
+    <div id="category_playlist_page" data-role="page" data-theme="b" >
+        <div role="main" class="ui-content">
+            <ul class="list" id="playlist_result" data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
+                <!--load data here-->
+            </ul>
+        </div>
+        <!-- page footer-->
+        <div  id="footer_playlists" style='display:none; background-color: rgba(29, 29, 29, 0.64);' data-role='footer' data-position='fixed' data-tap-toggle='false'>
+            <a id='prevBtn' class='ui-btn ui-mini ui-icon-arrow-l ui-btn-icon-left ui-shadow ui-corner-all' style='float:left;background-color: rgba(36, 142, 179, 0.66);border: none;'>Previous</a>
+            <a id='nextBtn' class='ui-btn ui-mini ui-icon-arrow-r ui-btn-icon-right ui-shadow ui-corner-all' style='float:right;background-color: rgba(36, 142, 179, 0.66);border: none;'>Next</a>
+            <a onclick="back_to_categories_page()" style="display: block;background-color: rgba(36, 142, 179, 0.5)"  class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all" data-transition="slidefade" href="#">Back to genres</a>
+        </div>
+    </div>
 
-
-
+    <div id="playlist_view_page" data-role="page" data-theme="b" >
+        <div role="main" class="ui-content">
+            <ul class="list" id="playlist_tracks_result" data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
+                <!--load data here-->
+            </ul>
+        </div>
+        <!-- page footer-->
+        <div  id="footer_playlist_view" style='display:none; background-color: rgba(29, 29, 29, 0.64);' data-role='footer' data-position='fixed' data-tap-toggle='false'>
+            <a id='prevBtn' class='ui-btn ui-mini ui-icon-arrow-l ui-btn-icon-left ui-shadow ui-corner-all' style='float:left;background-color: rgba(36, 142, 179, 0.66);border: none;'>Previous</a>
+            <a id='nextBtn' class='ui-btn ui-mini ui-icon-arrow-r ui-btn-icon-right ui-shadow ui-corner-all' style='float:right;background-color: rgba(36, 142, 179, 0.66);border: none;'>Next</a>
+            <a onclick="back_to_playlists_page()" style="display: block;background-color: rgba(36, 142, 179, 0.5)"  class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all" data-transition="slidefade" href="#">Back to playlists</a>
+        </div>
+    </div>
 
 </body>
 </html>

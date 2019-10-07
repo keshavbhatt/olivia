@@ -64,10 +64,17 @@ var colorThief ; // colorThief object init
 var dominantColor; //global
 var html_data; //global html_data for youtube search
 var album_loaded = false;
+var categories_loaded = false;
 var track_loaded = false;
 var artist_loaded = false;
 var overview_loaded = false;
 var currentAlbumId = "null";
+
+var pageType = "null";
+var currentCategoryId = "null";
+
+var currentPlaylistId = "null";
+
 
 
 //onclicks functions
@@ -191,7 +198,7 @@ function gettrackinfo(searchterm){
 
     var query = title.replace("N/A","")+" - "+artist.replace("N/A",""); //+" - "+album.replace("N/A","")
 
-    console.log(query);
+  //  console.log(query);
 
     showLoading();
 
@@ -257,6 +264,112 @@ function open_new_release(){
     }
 }
 
+function open_categories(){
+    $.mobile.changePage($('#categories_page'))
+    if(!categories_loaded){
+        get_categories("null"); //empty url for init
+    }
+}
+
+function get_categories(url){
+    var country;
+    if(youtube.getCurrentCountry().length>0){
+         country = youtube.getCurrentCountry()
+    }else{
+         country = "US";
+    }
+    showLoading();
+    $.ajax({
+       url: baseUrl+"spotify/featured_categories.php",
+              type:"GET",
+              data:{
+                   "country": country,
+                   "url": url
+              },
+       success: function(html) {
+           pageType = "categories_page";
+           $('html, body').stop().animate({ scrollTop : 0 }, 500);
+           $("#categories_result").empty();
+           $("#footer_categories").show();
+           $.mobile.loading("hide");
+           $("#categories_result").append(html).listview("refresh");
+           $('#categories_page .ui-content').trigger('create');
+           $('#categories_page .ui-content').fadeIn('slow');
+           categories_loaded = true;
+       },error: function(){
+           categories_loaded = false;
+       }
+   });
+}
+
+function show_category_playlist(categoy_id,url){
+
+    var country;
+    if(youtube.getCurrentCountry().length>0){
+         country = youtube.getCurrentCountry()
+    }else{
+         country = "US";
+    }
+    $.mobile.changePage($('#category_playlist_page'));
+    $('body').css('overflow','auto');
+    $("#playlist_result").empty();
+    showLoading();
+    $.ajax({
+       url: baseUrl+"spotify/get_featured_categories_playlist.php",
+              type:"GET",
+              data:{
+                   "cat_id": categoy_id,
+                   "url": url,
+                   "country": country
+              },
+       success: function(html) {
+           pageType = "show_category_playlist";
+           $('html, body').stop().animate({ scrollTop : 0 }, 500);
+           $("#footer_playlists").show();
+           $.mobile.loading("hide");
+           $("#playlist_result").append(html).listview("refresh");
+           $('#playlist_result .ui-content').trigger('create');
+           $('#playlist_result .ui-content').fadeIn('slow');
+       },error: function(){
+           $.mobile.loading("hide");
+       }
+   });
+}
+
+function show_playlist(p_id,url){
+    $.mobile.changePage($('#playlist_view_page'));
+    $('#playlist_tracks_result').html("");
+    $('body').css('overflow','auto');
+    showLoading();
+     $.ajax({
+        url: baseUrl+"spotify/get_playlist_tracks.php",
+               type:"GET",
+               data:{
+                    "p_id":p_id,
+                    "url": url
+               },
+                success: function(html) {
+                    pageType = "show_playlist";
+                    $('html, body').stop().animate({ scrollTop : 0 }, 500);
+                    $("#footer_playlist_view").show();
+                    $.mobile.loading("hide");
+                    $("#playlist_tracks_result").append(html).listview("refresh");
+                    $('#playlist_tracks_result .ui-content').trigger('create');
+                    $('#playlist_tracks_result .ui-content').fadeIn('slow');
+                },error: function(){
+                    $.mobile.loading("hide");
+                }
+    });
+}
+
+function back_to_playlists_page(){
+    $.mobile.changePage($('#category_playlist_page'));
+}
+
+function back_to_categories_page(){
+    $.mobile.changePage($('#categories_page'));
+}
+
 function get_new_release(url){
     var country;
     if(youtube.getCurrentCountry().length>0){
@@ -273,6 +386,8 @@ function get_new_release(url){
                    "url": url
               },
        success: function(html) {
+           pageType = "new_releases_page";
+            $('html, body').stop().animate({ scrollTop : 0 }, 500);
            $("#albums_result").empty();
            $("#footer_new_releases").show();
            $.mobile.loading("hide");
@@ -285,6 +400,8 @@ function get_new_release(url){
        }
    });
 }
+
+
 
 //  album view
 function album_view(id){
@@ -318,7 +435,8 @@ function album_view(id){
                 $('#album_view_page .ui-content').fadeIn('slow');
                 if(typeof(NowPlayingTrackId) !== "undefined"){
                     setNowPlaying(NowPlayingTrackId);
-                }            }
+                }
+            }
         });
     }
 }
@@ -326,6 +444,11 @@ function album_view(id){
 $(document).on("pageshow","#new_releases_page",function(){
     if(typeof(currentAlbumId) !== "undefined" && currentAlbumId !== "null" )
         $(document).scrollTop($('#'+currentAlbumId).offset().top-40);
+});
+
+$(document).on("pageshow","#category_playlist_page",function(){
+    if(typeof(currentCategoryId) !== "undefined" && currentCategoryId !== "null" )
+        $(document).scrollTop($('#'+currentCategoryId).offset().top-40);
 });
 
 //called from album_view.php
@@ -348,7 +471,18 @@ function setNextButton(url){
 
         var newClasses = $.mobile.activePage.find("#nextBtn").attr('class').replace("ui-disabled","");
         $.mobile.activePage.find("#nextBtn").attr('class',newClasses);
-        $.mobile.activePage.find("#nextBtn").attr("onclick","get_new_release('"+url+"')");
+        if(pageType==="categories_page"){
+            $.mobile.activePage.find("#nextBtn").attr("onclick","get_categories('"+url+"')");
+        }else if(pageType==="new_releases_page"){
+            $.mobile.activePage.find("#nextBtn").attr("onclick","get_new_release('"+url+"')");
+        }else if(pageType === "show_category_playlist"){
+            $.mobile.activePage.find("#nextBtn").attr("onclick","show_category_playlist('"+currentCategoryId+"','"+url+"')");
+        }else if(pageType === "show_playlist"){
+            $.mobile.activePage.find("#nextBtn").attr("onclick","show_playlist('"+currentPlaylistId+"','"+url+"')");
+        }
+    }else{
+        var classe = $.mobile.activePage.find("#nextBtn").attr('class').replace("ui-disabled","");
+        $.mobile.activePage.find("#nextBtn").attr("class",classe+" ui-disabled");
     }
 }
 
@@ -359,8 +493,19 @@ function setPreviousButton(url){
 
         var newClasses = $.mobile.activePage.find("#prevBtn").attr('class').replace("ui-disabled","");
         $.mobile.activePage.find("#prevBtn").attr('class',newClasses);
-        $.mobile.activePage.find("#prevBtn").attr("onclick","get_new_release('"+url+"')");
-    }
+        if(pageType==="categories_page"){
+            $.mobile.activePage.find("#prevBtn").attr("onclick","get_categories('"+url+"')");
+        }else if(pageType ==="new_releases_page"){
+            $.mobile.activePage.find("#prevBtn").attr("onclick","get_new_release('"+url+"')");
+        }else if(pageType === "show_category_playlist"){
+            $.mobile.activePage.find("#prevBtn").attr("onclick","show_category_playlist('"+currentCategoryId+"','"+url+"')");
+        }else if(pageType === "show_playlist"){
+            $.mobile.activePage.find("#prevBtn").attr("onclick","show_playlist('"+currentPlaylistId+"','"+url+"')");
+        }
+    }else{
+            var classe = $.mobile.activePage.find("#prevBtn").attr('class').replace("ui-disabled","");
+            $.mobile.activePage.find("#prevBtn").attr("class",classe+" ui-disabled");
+         }
 }
 
 function back_to_release_page(){
