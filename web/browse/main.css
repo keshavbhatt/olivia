@@ -77,6 +77,11 @@
   background: transparent !important;
 }
 
+#recommendation_page{
+    background: transparent !important;
+}
+
+
 /*list element*/
 #country {
  background: transparent !important;

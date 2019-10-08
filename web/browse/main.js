@@ -116,7 +116,7 @@ function overview(){
 
 function track_option(track_id){
    // var channelHref = $('#'+track_id).parent().attr("data-channelhref");
-    var searchterm = $('#'+track_id).parent().attr("onclick").split("gettrackinfo(\'")[1].split(");")[0];
+    var searchterm = $('#'+track_id).parent().attr("onclick").split("gettrackinfo(\"")[1].split("\");")[0];
     var arr = searchterm.split("!=-=!")
     title = arr[0];
     artist = arr[1];
