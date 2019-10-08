@@ -4,11 +4,12 @@
 
 SimilarTracks::SimilarTracks(QObject *parent,int limit) : QObject(parent)
 {
+
     numberOfSimilarTracksToLoad = limit;
 }
 
 void SimilarTracks::addSimilarTracks(QString video_id){
-
+    isLoadingPLaylist = false;
     QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
     connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
         if(rep->error() == QNetworkReply::NoError){
@@ -46,3 +47,23 @@ void SimilarTracks::addSimilarTracks(QString video_id){
     QNetworkRequest request(url);
     m_netwManager->get(request);
 }
+
+void SimilarTracks::addPlaylist(QString data){
+    isLoadingPLaylist = true;
+
+    emit clearList();
+
+    QStringList list = data.split("gettrackinfo(");
+    list.removeFirst();
+
+    QStringList finalList;
+    foreach (QString str, list) {
+        finalList.append(QString(str.split(");\">").first()).remove("&quot;"));
+    }
+    if(finalList.count()>0){
+        emit setPlaylist(finalList);
+    }else{
+        emit failedGetSimilarTracks();
+    }
+}
+

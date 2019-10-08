@@ -10,15 +10,19 @@ class SimilarTracks : public QObject
 public:
     explicit SimilarTracks(QObject *parent = nullptr, int limit = 5);
     int numberOfSimilarTracksToLoad;
+    bool isLoadingPLaylist = false;
 private:
     QStringList playedTracksIds;
 
 signals:
     void setSimilarTracks(QStringList);
+    void setPlaylist(QStringList);
     void failedGetSimilarTracks();
+    void clearList();
 
 public slots:
     void addSimilarTracks(QString video_id);
+    void addPlaylist(QString data);
 };
 
 #endif // SIMILARTRACKS_H

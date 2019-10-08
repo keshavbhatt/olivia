@@ -1333,7 +1333,7 @@ padding-left: 10px;</string>
                      <enum>QTabWidget::Rounded</enum>
                     </property>
                     <property name="currentIndex">
-                     <number>0</number>
+                     <number>1</number>
                     </property>
                     <property name="elideMode">
                      <enum>Qt::ElideNone</enum>
@@ -1476,6 +1476,9 @@ QScrollBar:vertical {
                         </property>
                         <property name="autoScrollMargin">
                          <number>5</number>
+                        </property>
+                        <property name="dragDropMode">
+                         <enum>QAbstractItemView::NoDragDrop</enum>
                         </property>
                         <property name="verticalScrollMode">
                          <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -1628,15 +1631,6 @@ QScrollBar:vertical {
                         </property>
                         <property name="autoScrollMargin">
                          <number>5</number>
-                        </property>
-                        <property name="dragEnabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="dragDropMode">
-                         <enum>QAbstractItemView::DragDrop</enum>
-                        </property>
-                        <property name="defaultDropAction">
-                         <enum>Qt::MoveAction</enum>
                         </property>
                         <property name="selectionMode">
                          <enum>QAbstractItemView::SingleSelection</enum>
@@ -1957,6 +1951,9 @@ QScrollBar:vertical {
                        </property>
                        <property name="autoScrollMargin">
                         <number>5</number>
+                       </property>
+                       <property name="dragDropMode">
+                        <enum>QAbstractItemView::NoDragDrop</enum>
                        </property>
                        <property name="verticalScrollMode">
                         <enum>QAbstractItemView::ScrollPerPixel</enum>

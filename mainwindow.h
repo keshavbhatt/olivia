@@ -85,6 +85,7 @@ public:
     Q_INVOKABLE void delete_song_cache(QVariant track_id);
     Q_INVOKABLE void remove_song(QVariant track_id);
     Q_INVOKABLE void addToSimilarTracksQueue(const QVariant Base64andDominantColor);
+    Q_INVOKABLE void addPlaylistByData(QString data);
 
     QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;
@@ -231,6 +232,7 @@ private slots:
     void showRecommendedTrackOption();
     void showPayPalDonationMessageBox();
     void prepareSimilarTracks();
+    void similarTracksProcessHelper();
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;

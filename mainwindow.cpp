@@ -78,6 +78,14 @@ void MainWindow::init_similar_tracks(){
     if(similarTracks==nullptr){
         similarTracks = new SimilarTracks(this,5);
         connect(similarTracks, &SimilarTracks::setSimilarTracks,[=](QStringList list){
+            similarTracks->isLoadingPLaylist = false;
+            currentSimilarTrackList.clear();
+            currentSimilarTrackList = list;
+            currentSimilarTrackProcessing = 0;
+            prepareSimilarTracks();
+        });
+        connect(similarTracks, &SimilarTracks::setPlaylist,[=](QStringList list){
+            similarTracks->isLoadingPLaylist = true;
             currentSimilarTrackList.clear();
             currentSimilarTrackList = list;
             currentSimilarTrackProcessing = 0;
@@ -85,6 +93,10 @@ void MainWindow::init_similar_tracks(){
         });
         connect(similarTracks, &SimilarTracks::failedGetSimilarTracks,[=](){
             ui->similarTrackLoader->stop();
+        });
+        connect(similarTracks, &SimilarTracks::clearList,[=](){
+            currentSimilarTrackList.clear();
+            ui->recommListWidget->clear();
         });
     }
 }
@@ -1285,7 +1297,6 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     currentSimilarTrackMeta.append(dominantColor);
     currentSimilarTrackMeta.append(base64);
 
-
     QWidget *track_widget = new QWidget(ui->recommListWidget);
     track_widget->setToolTip(htmlToPlainText(title));
     track_widget->setObjectName("track-widget-"+songId);
@@ -1370,29 +1381,75 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
         a->start(QPropertyAnimation::DeleteWhenStopped);
         ui->recommListWidget->addItem(item);
 
-        ui->recommListWidget->setCurrentRow(ui->recommListWidget->count()-1);
+       // ui->recommListWidget->setCurrentRow(ui->recommListWidget->count()-1);
         if(store_manager->isDownloaded(songId)){
             ui->recommListWidget->itemWidget(item)->setEnabled(true);
             track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
             track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         }else{
           getAudioStream(ytIds,songId);
-          //reverse the process queue, so that recently added song can get first chance to process
-          if(ytdlQueue.count()>1){
-              ytdlQueue.insert(1,  ytdlQueue.takeAt(ytdlQueue.count()-1));
-          }
         }
-       // ui->recommListWidget->scrollToBottom();
-    }
+        similarTracksProcessHelper();
+    }else{
+        QListWidgetItem* item;
+        item = new QListWidgetItem(ui->recommListWidget);
 
+        QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
+
+        item->setSizeHint(track_widget->minimumSizeHint());
+        ui->recommListWidget->setItemWidget(item, track_widget);
+        ui->recommListWidget->itemWidget(item)->setGraphicsEffect(eff);
+        ui->recommListWidget->itemWidget(item)->setEnabled(false); //enable when finds a url
+
+        QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
+        a->setDuration(500);
+        a->setStartValue(0);
+        a->setEndValue(1);
+        a->setEasingCurve(QEasingCurve::InCirc);
+        a->start(QPropertyAnimation::DeleteWhenStopped);
+        ui->recommListWidget->addItem(item);
+
+        //ui->recommListWidget->setCurrentRow(ui->recommListWidget->count()-1);
+        if(store_manager->isDownloaded(songId)){
+            ui->recommListWidget->itemWidget(item)->setEnabled(true);
+            track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
+            track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        }else{
+            QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
+            connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
+                if(rep->error() == QNetworkReply::NoError){
+                     QString id = rep->readAll();
+                     getAudioStream(id,songId);
+                     similarTracksProcessHelper();
+                     rep->deleteLater();
+                     m_netwManager->deleteLater();
+                }else{
+                    qDebug()<<"error processing track"<<rep->request().url().toString();
+                }
+            });
+            QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
+            QUrl url("http://ktechpit.com/USS/Olivia/youtube.php?millis=0&query="+query);
+            QNetworkRequest request(url);
+            m_netwManager->get(request);
+        }
+    }
+}
+
+void MainWindow::similarTracksProcessHelper(){
     //clear meta of currentSimilarTrack and free it for next track
     currentSimilarTrackMeta.clear();
     //process next track in currentSimilarTrackList list;
-    if(currentSimilarTrackProcessing < similarTracks->numberOfSimilarTracksToLoad /*currentSimilarTrackList.count()-1*/){
-        currentSimilarTrackProcessing++;
-        prepareSimilarTracks();
+    if(similarTracks->isLoadingPLaylist){
+        if(currentSimilarTrackProcessing < currentSimilarTrackList.count()-1){
+            currentSimilarTrackProcessing++;
+            prepareSimilarTracks();
+        }
+    }else{
+        if(currentSimilarTrackProcessing < similarTracks->numberOfSimilarTracksToLoad /*currentSimilarTrackList.count()-1*/){
+            currentSimilarTrackProcessing++;
+            prepareSimilarTracks();
+        }
     }
-
 }
 
 void MainWindow::addToQueue(QString id,QString title,
@@ -1969,7 +2026,7 @@ void MainWindow::ytdlReadyRead(){
                             listWidgetItem->setEnabled(true);
                             QLineEdit *url = listWidgetItem->findChild<QLineEdit *>("url");
                             static_cast<QLineEdit*>(url)->setText(m48url);
-                            qDebug()<<"NEW URL:"<<m48url;
+                            //qDebug()<<"NEW URL:"<<m48url;
                             //TODO
                             store_manager->saveStreamUrl(songId,m48url,getExpireTime(m48url));
                             mfr->deleteLater();
@@ -2353,11 +2410,17 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         shadow_list_.back()->setColor(QColor("#292929"));
         lbl->setGraphicsEffect(shadow_list_.back());
     }
+
     if(store_manager->isDownloaded(songId)){
         radio_manager->playRadio(false,QUrl(url));
     }else{
         saveTracksAfterBuffer =  settingsObj.value("saveAfterBuffer","true").toBool();
-        radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url));
+        //do not save tracks if playing from similar tracks list
+        if(list->objectName()=="recommListWidget"){
+            radio_manager->playRadio(false,QUrl(url));
+        }else{
+            radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url));
+        }
     }
 
     //update metadata of MPRIS interface
@@ -3925,4 +3988,9 @@ void MainWindow::on_showSimilarList_clicked()
     }
     ui->recommWidget->isVisible() ? ui->showSimilarList->setIcon(QIcon(":/icons/sidebar/hideRecommend.png")):
                                         ui->showSimilarList->setIcon(QIcon(":/icons/sidebar/showRecommend.png"));
+}
+
+//add playlist from web interface
+void MainWindow::addPlaylistByData(QString data){
+    similarTracks->addPlaylist(data);
 }
