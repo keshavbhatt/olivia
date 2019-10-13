@@ -2,14 +2,14 @@
 <html>
 <head>
     <meta charset="utf-8">
-	<title>Browse</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Browse</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
     <script src="qrc:///web/js/jquery-1.11.1.min.js"></script>
-    <script src="qrc:///web/songs/main.js"></script>
+    <script src="qrc:///web/recently_played/main.js"></script>
     <script src="qrc:///web/js/jquery.mobile-1.4.5.min.js"></script>
-    <link rel="stylesheet" href="qrc:///web/songs/main.css" />
+    <link rel="stylesheet" href="qrc:///web/recently_played/main.css" />
 
     <script src="qrc:///web/js/color-thief.min.js"></script>
     <link rel="stylesheet" href="qrc:///web/scroll.css" />
@@ -29,20 +29,21 @@
              <form id="songsfilter-input-form" data-theme="b" style="height:55px;">
                  <table style='width:100%'><tr>
                      <td id="searchinput">
-                         <input id="songsfilter-input" placeholder="Filter songs..." type='search'/>
+                         <input id="songsfilter-input" placeholder="Filter tracks..." type='search'/>
                      </td>
                      <td style='width:5.5em'>
                           <input type="button" id="closeSearch" data-icon="delete" value="Close"/>
                      </td>
                  </tr></table>
              </form>
+             <a id="a-home" onclick="open_recently_tracks()" class="ui-btn-left ui-btn  ui-corner-all ui-btn-icon-left ui-icon-home">Home</a>
              <h1 class="header-title"></h1>
              <a id="a-search" class="ui-btn-right ui-btn  ui-corner-all ui-btn-icon-left ui-icon-search">Search</a>
         </div><!-- /header -->
 
 
         <div role="main" class="ui-content">
-            <ul style="margin-right: 20px;" data-input="#songsfilter-input" class="list" id="saved_tracks_result" data-filter="true" data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
+            <ul style="margin-right: 20px;" data-input="#songsfilter-input" class="list" id="recent_tracks_result" data-filter="true" data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
                 <!--load data here-->
             </ul>
 

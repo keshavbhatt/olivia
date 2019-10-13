@@ -66,10 +66,6 @@ $(document).ready(function($) {
     $(function() {
            $.mobile.defaultHomeScroll = 0;
     });
-
-//    $("#coverImage").load(function(){
-//          dominantColor = colorThief.getColor(document.querySelector("#coverImage"));
-//    });
 });
 
 
@@ -84,19 +80,27 @@ function capitalize(str) {
 }
 
 //  core functions -------------
-function open_saved_tracks(){
-    $("#saved_tracks_result").empty();
+function open_recently_tracks(){
+    $("#recent_tracks_result").empty();
     showLoading();
     $.mobile.changePage($('#tracks_page'));
-    var json = JSON.parse(store.web_print_saved_tracks()); //songs Data is returned in json format
+    $('.ui-content').hide();
+    var json = JSON.parse(store.web_print_recent_tracks()); //songs Data is returned in json format
     var $html = "";
-    $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" songs in library");
+    $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" recently played tracks");
     for(var i= 0; i < json.length;i++){
         var albumType = (json[i].album === "undefined") ? "Youtube":"";
+        var imgHtml,para;
+               if(json[i].albumId.includes("undefined-")){
+                   para = "<p style='margin-left: 7.5em;'>";
+                   imgHtml = "<img id='"+json[i].songId+"' style='max-width:178px;max-height:144px;width=178px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \>";
+               }else{
+                   para = "<p style='margin-left: 14.5em;' >";
+                   imgHtml = "<p style='background-color:rgb("+json[i].dominant+");' class='li-img-wrapper'><img id='"+json[i].songId+"' style='width:100%;max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \></p>";
+               }
         $html = $html+
             "<li onclick='mainwindow.playLocalTrack(\""+json[i].songId+"\")' data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"'  data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"' ><a>"+
-            "<img id='"+json[i].songId+"' style='max-width:100px;max-height:144px;width=100px;height=100px;'  src='data:image/png;base64,"+json[i].base64+"' \>"+
-                    "<p>"+
+             imgHtml+para+
                         ""+json[i].title+
                         "<br>"+
                         "Album: "+json[i].album+
@@ -107,15 +111,16 @@ function open_saved_tracks(){
                "</a>"+
             "</li>";
     }
-    $.mobile.loading("hide");
-    $("#saved_tracks_result").append($html).listview("refresh");
+    $("#recent_tracks_result").append($html).listview("refresh");
     $('#tracks_page .ui-content').trigger('create');
     $('#tracks_page .ui-content').fadeIn('slow');
+    $.mobile.loading("hide");
 }
 
 $(document).on("pagecreate", "#tracks_page", function(){
     $('#a-search, #closeSearch').on('vclick', function (event) {
         $('#songsfilter-input-form').toggleClass('moved');
+        $("#songsfilter-input").focus();
     });
 });
 
@@ -179,8 +184,3 @@ function gettrackinfo(searchterm){
 
     });
 }
-
-
-
-
-
