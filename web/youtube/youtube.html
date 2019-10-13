@@ -27,15 +27,12 @@
 
     <div id="manul_youtube_page" data-role="page" data-theme="b" data-title="YOUTUBE SEARCH">
         <div role="main" class="ui-content">
-
-
             <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false'>
                  <h1>Youtube</h1>
-<!--                 <a id="home" onclick="$('#result_div').empty();load_history();$('#history_div').fadeIn();$('#trending_div').show();" class="ui-btn-left ui-btn ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext">Home</a>-->
-                <a id="home" onclick="mainwindow.browse_youtube();" class="ui-btn-left ui-btn ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext">Home</a>
+                <a id="home" onclick="$('.ui-content').fadeOut('slow');mainwindow.browse_youtube();" class="ui-btn-left ui-btn ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext">Home</a>
                 <a id="settings" onclick="$('#settingsDialog').popup('open')" href="#" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn-right ui-btn ui-shadow ui-corner-all ui-icon-gear ui-btn-icon-notext">Settings</a>
             </div>
-            <input  type="search" id='manual_search' value='' placeholder="Your query...">
+            <input class="ui-icon-alt"  type="search" id='manual_search' value='' placeholder="Your query...">
             <ul   class="list" id="manul_youtube_page_suggestions"  data-filter="true" data-input="#manual_search"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
             <!-- load suggestions here -->
             </ul>
