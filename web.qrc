@@ -16,18 +16,9 @@
         <file>web/top/main.js</file>
         <file>web/top/top.html</file>
         <file>web/js/common.js</file>
-        <file>web/songs/main.css</file>
-        <file>web/songs/main.js</file>
-        <file>web/songs/songs.html</file>
         <file>web/local_songs/local_songs.html</file>
         <file>web/local_songs/main.css</file>
         <file>web/local_songs/main.js</file>
-        <file>web/album/main.css</file>
-        <file>web/album/main.js</file>
-        <file>web/album/albums.html</file>
-        <file>web/artist/artists.html</file>
-        <file>web/artist/main.css</file>
-        <file>web/artist/main.js</file>
         <file>web/radio/main.css</file>
         <file>web/radio/main.js</file>
         <file>web/radio/radio.html</file>
@@ -50,5 +41,9 @@
         <file>web/local_videos/main.css</file>
         <file>web/local_videos/main.js</file>
         <file>web/youtube/channel.png</file>
+        <file>web/css/images/search_icon_white.png</file>
+        <file>web/recently_played/main.css</file>
+        <file>web/recently_played/main.js</file>
+        <file>web/recently_played/recent.html</file>
     </qresource>
 </RCC>
