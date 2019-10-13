@@ -75,7 +75,6 @@ public:
     Q_INVOKABLE void playSongById(QVariant songIdVar);
     Q_INVOKABLE void playRadioFromWeb(QVariant streamDetails);
     Q_INVOKABLE void saveRadioChannelToFavourite(QVariant channelInfo);
-    Q_INVOKABLE void resultLoaded();
     Q_INVOKABLE void setSearchTermAndOpenYoutube(QVariant term);
     Q_INVOKABLE void setThemeColor(QString); //sets themeColor in mainWindow
     Q_INVOKABLE void showAjaxError();
@@ -155,12 +154,10 @@ private slots:
     void on_play_pause_clicked();
     void on_radioSeekSlider_sliderMoved(int position);
     void on_radioVolumeSlider_valueChanged(int value);
-    void on_right_list_2_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-    void on_right_list_2_itemClicked(QListWidgetItem *item);
-    void on_right_list_2_itemDoubleClicked(QListWidgetItem *item);
-    void on_right_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-    void on_right_list_itemClicked(QListWidgetItem *item);
-    void on_right_list_itemDoubleClicked(QListWidgetItem *item);
+    void on_youtube_list_itemClicked(QListWidgetItem *item);
+    void on_youtube_list_itemDoubleClicked(QListWidgetItem *item);
+    void on_olivia_list_itemClicked(QListWidgetItem *item);
+    void on_olivia_list_itemDoubleClicked(QListWidgetItem *item);
     void on_search_returnPressed();
     void on_settings_clicked();
     void on_stop_clicked();
@@ -169,7 +166,6 @@ private slots:
     void on_ytdlRefreshAll_clicked();
     void on_ytdlStopAll_clicked();
     void processYtdlQueue();
-    void queue_currentItemChanged(QListWidget *queue, QListWidgetItem *current, QListWidgetItem *previous);
     void queueShowOption(QListWidget *queue);
     void radio_demuxer_cache_duration_changed(double, double radio_playerPosition);
     void radioDuration(int dur);
@@ -187,9 +183,6 @@ private slots:
     void setTrackItemNowPlaying();
     void setZoom(qreal);
     void show_local_saved_songs();
-    void show_saved_albums();
-    void show_saved_artists();
-    void show_saved_songs();
     void show_top();
     void showTrackOption();
     void slot_netwManagerFinished(QNetworkReply *reply);
@@ -223,16 +216,21 @@ private slots:
     void on_jump_to_nowplaying_clicked();
 
     void getRecommendedTracksForAutoPlay(QString songId);
-    void on_showSimilarList_clicked();
+    void on_show_hide_smart_list_button_clicked();
 
     void init_similar_tracks();
-    void on_recommListWidget_itemDoubleClicked(QListWidgetItem *item);
+    void on_smart_list_itemDoubleClicked(QListWidgetItem *item);
     void startGetRecommendedTrackForAutoPlayTimer(QString songId);
     bool similarTracksListHasTrackToBeRemoved();
     void showRecommendedTrackOption();
     void showPayPalDonationMessageBox();
     void prepareSimilarTracks();
     void similarTracksProcessHelper();
+    void listClearSelection(QString listName);
+    void reverseYtdlProcessList();
+    void prepareTrack(QString songId, QString query, QString millis, QListWidget *list);
+    void findTrackInQueue(QString songId);
+    void show_recently_played();
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
@@ -240,9 +238,7 @@ private:
     SimilarTracks *similarTracks = nullptr;
     Widget *downloadWidget;
     bool animationRunning = false;
-    bool isLoadingResults;
     equalizer *eq = nullptr;
-    int currentResultPage;
     int left_panel_width;
     Lyrics *lyricsWidget;
     onlineSearchSuggestion * _onlineSearchSuggestion_ = nullptr;
@@ -259,8 +255,6 @@ private:
     QString core_local_date,core_remote_date;
     QString database;
     QString gotoAlbumId,gotoArtistId,recommendationSongId,youtubeVideoId;//jumper vars
-//    QString nowPlayingSongId;
-    QString offsetstr;
     QString pageType;
     QString previous_eqArg;
     QString setting_path;
@@ -283,7 +277,6 @@ private:
     MprisPlugin *dp = nullptr;
     QVariantMap mpris_song_meta;
     stringChangeWatcher* nowPlayingSongIdWatcher;
-
 
 };
 

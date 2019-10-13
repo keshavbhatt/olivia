@@ -618,33 +618,6 @@ QScrollBar:vertical {
                 </item>
                 <item>
                  <property name="text">
-                  <string>Songs</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="icons.qrc">
-                   <normaloff>:/icons/sidebar/songs.png</normaloff>:/icons/sidebar/songs.png</iconset>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Albums</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="icons.qrc">
-                   <normaloff>:/icons/sidebar/album.png</normaloff>:/icons/sidebar/album.png</iconset>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Artists</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="icons.qrc">
-                   <normaloff>:/icons/sidebar/artist.png</normaloff>:/icons/sidebar/artist.png</iconset>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
                   <string>Saved Music</string>
                  </property>
                  <property name="icon">
@@ -693,9 +666,6 @@ QScrollBar:vertical {
                   <iconset resource="icons.qrc">
                    <normaloff>:/icons/sidebar/recent.png</normaloff>:/icons/sidebar/recent.png</iconset>
                  </property>
-                 <property name="flags">
-                  <set>NoItemFlags</set>
-                 </property>
                 </item>
                 <item>
                  <property name="text">
@@ -726,23 +696,6 @@ QScrollBar:vertical {
                  <property name="icon">
                   <iconset resource="icons.qrc">
                    <normaloff>:/icons/sidebar/radio.png</normaloff>:/icons/sidebar/radio.png</iconset>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="flags">
-                  <set>NoItemFlags</set>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Quit</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="icons.qrc">
-                   <normaloff>:/icons/sidebar/quit.png</normaloff>:/icons/sidebar/quit.png</iconset>
                  </property>
                 </item>
                </widget>
@@ -1441,7 +1394,7 @@ background-color: transparent;</string>
                        </layout>
                       </item>
                       <item>
-                       <widget class="playerQueue" name="right_list">
+                       <widget class="QListWidget" name="olivia_list">
                         <property name="minimumSize">
                          <size>
                           <width>200</width>
@@ -1476,9 +1429,6 @@ QScrollBar:vertical {
                         </property>
                         <property name="autoScrollMargin">
                          <number>5</number>
-                        </property>
-                        <property name="dragDropMode">
-                         <enum>QAbstractItemView::NoDragDrop</enum>
                         </property>
                         <property name="verticalScrollMode">
                          <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -1596,7 +1546,7 @@ background-color: transparent;</string>
                        </layout>
                       </item>
                       <item>
-                       <widget class="QListWidget" name="right_list_2">
+                       <widget class="QListWidget" name="youtube_list">
                         <property name="minimumSize">
                          <size>
                           <width>200</width>
@@ -1631,12 +1581,6 @@ QScrollBar:vertical {
                         </property>
                         <property name="autoScrollMargin">
                          <number>5</number>
-                        </property>
-                        <property name="selectionMode">
-                         <enum>QAbstractItemView::SingleSelection</enum>
-                        </property>
-                        <property name="selectionBehavior">
-                         <enum>QAbstractItemView::SelectItems</enum>
                         </property>
                         <property name="verticalScrollMode">
                          <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -1836,7 +1780,7 @@ QScrollBar:vertical {
                       </widget>
                      </item>
                      <item>
-                      <widget class="controlButton" name="showSimilarList">
+                      <widget class="controlButton" name="show_hide_smart_list_button">
                        <property name="font">
                         <font>
                          <pointsize>10</pointsize>
@@ -1916,7 +1860,7 @@ border:none;
                       <number>0</number>
                      </property>
                      <item>
-                      <widget class="playerQueue" name="recommListWidget">
+                      <widget class="QListWidget" name="smart_list">
                        <property name="minimumSize">
                         <size>
                          <width>200</width>
@@ -1953,7 +1897,7 @@ QScrollBar:vertical {
                         <number>5</number>
                        </property>
                        <property name="dragDropMode">
-                        <enum>QAbstractItemView::NoDragDrop</enum>
+                        <enum>QAbstractItemView::DragOnly</enum>
                        </property>
                        <property name="verticalScrollMode">
                         <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -2398,11 +2342,6 @@ border-radius:2px;</string>
    <class>controlButton</class>
    <extends>QPushButton</extends>
    <header>controlbutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>playerQueue</class>
-   <extends>QListWidget</extends>
-   <header>playerqueue.h</header>
   </customwidget>
   <customwidget>
    <class>WaitingSpinnerWidget</class>

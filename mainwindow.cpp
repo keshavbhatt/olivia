@@ -24,13 +24,12 @@
 #include "plugins/mpris/mprisplugin.h"
 #include "waitingspinnerwidget.h"
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-
     init_app();
     init_webview();
     init_offline_storage();
@@ -38,10 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_miniMode();
     init_lyrics();
     init_similar_tracks();
-
     init_downloadWidget();
-
-
     QTimer::singleShot(1000, [this]() {
         if(!checkEngine()){
             evoke_engine_check();
@@ -51,10 +47,10 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-//  database = "test";
+//    database = "test2";
     database = "hjkfdsll";
     store_manager = new store(this,database);
-
+    store_manager->setObjectName("store_manager");
     pagination_manager = new paginator(this);
     connect(pagination_manager,SIGNAL(reloadRequested(QString,QString)),this,SLOT(reloadREquested(QString,QString)));
 
@@ -62,9 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_search_autoComplete();
     init_radio();
     init_videoOption();
-
     browse();
-
     installEventFilters();
     loadSettings();
 }
@@ -96,7 +90,7 @@ void MainWindow::init_similar_tracks(){
         });
         connect(similarTracks, &SimilarTracks::clearList,[=](){
             currentSimilarTrackList.clear();
-            ui->recommListWidget->clear();
+            ui->smart_list->clear();
         });
     }
 }
@@ -170,7 +164,9 @@ void MainWindow::init_radio(){
         }
     });
 
-    init_mpris();
+    if(settingsObj.value("mpris").toBool()){
+        init_mpris();
+    }
 }
 
 void MainWindow::init_mpris(){
@@ -268,6 +264,9 @@ void MainWindow::init_settings(){
     connect(settingsUi.showSearchSuggestion,SIGNAL(toggled(bool)),settUtils,SLOT(changeShowSearchSuggestion(bool)));
     connect(settingsUi.dynamicTheme,SIGNAL(toggled(bool)),settUtils,SLOT(changeDynamicTheme(bool)));
 
+    connect(settingsUi.mpris_checkBox,SIGNAL(toggled(bool)),settUtils,SLOT(changeMpris(bool)));
+    connect(settingsUi.smart_playlist_checkBox,SIGNAL(toggled(bool)),settUtils,SLOT(changeSmartPlaylist(bool)));
+
     connect(settingsUi.equalizer,&QCheckBox::toggled,[=](bool checked){
        settUtils->changeEqualizerSetting(checked);
        ui->eq->setVisible(checked);
@@ -330,10 +329,6 @@ void MainWindow::init_settings(){
             util->deleteLater();
         }
     });
-    connect(settingsUi.donate,&QPushButton::clicked,[=](){
-        settingsWidget->close();
-        showPayPalDonationMessageBox();
-    });
     connect(settingsUi.delete_tracks_cache,&QPushButton::clicked,[=](){
           QMessageBox msgBox;
           msgBox.setText("This will delete all downloaded songs!");
@@ -346,11 +341,32 @@ void MainWindow::init_settings(){
           switch (ret) {
             case QMessageBox::Yes:{
                   utils* util = new utils(this);
-
                       store_manager->delete_track_cache(setting_path+"/downloadedTracks");
                       settingsUi.cached_tracks_size->setText(util->refreshCacheSize(setting_path+"/downloadedTracks"));
                       util->deleteLater();
                       clear_queue();
+                      loadPlayerQueue();
+              break;}
+            case  QMessageBox::No:
+              break;
+          }
+    });
+
+    connect(settingsUi.delete_videos_cache,&QPushButton::clicked,[=](){
+          QMessageBox msgBox;
+          msgBox.setText("This will delete all downloaded videos!");
+                msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+
+          msgBox.setInformativeText("Delete all downloaded videos cache ?");
+          msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+          msgBox.setDefaultButton(QMessageBox::No);
+          int ret = msgBox.exec();
+          switch (ret) {
+            case QMessageBox::Yes:{
+                  utils* util = new utils(this);
+                      util->delete_cache(setting_path+"/downloadedVideos");
+                      settingsUi.cached_videos_size->setText(util->refreshCacheSize(setting_path+"/downloadedVideos"));
+                      util->deleteLater();
                       loadPlayerQueue();
               break;}
             case  QMessageBox::No:
@@ -433,7 +449,8 @@ void MainWindow::loadSettings(){
     settingsUi.miniModeStayOnTop->setChecked(settingsObj.value("miniModeStayOnTop","false").toBool());
     settingsUi.equalizer->setChecked(settingsObj.value("equalizer","false").toBool());
     settingsUi.visualizer->setChecked(settingsObj.value("visualizer","false").toBool());
-
+    settingsUi.mpris_checkBox->setChecked(settingsObj.value("mpris","false").toBool());
+    settingsUi.smart_playlist_checkBox->setChecked(settingsObj.value("smart_playlist","true").toBool());
 
     settingsUi.dynamicTheme->setChecked(settingsObj.value("dynamicTheme","false").toBool());
 
@@ -471,8 +488,8 @@ void MainWindow::loadSettings(){
 void MainWindow::add_colors_to_color_widget(){
 
         color_list<<"fakeitem"<<"#FF0034"<<"#2A82DA"<<"#029013"
-                        <<"#D22298"<<"#FF901F"<<"#565655"
-                        <<"#2B2929"<<"#E95420"<<"#6C2164";
+                        <<"#D22298"<<"#FF901F"<<"#2B2929";
+//                        <<"#2B2929"<<"#E95420"<<"#6C2164";
 
         QObject *layout = settingsWidget->findChild<QObject*>("themeHolderGridLayout");
         int row=0;
@@ -554,13 +571,13 @@ void MainWindow::set_app_theme(QColor rgb){
                             "}";
     ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
     ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
-    ui->right_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
-    ui->right_list_2->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
+    ui->olivia_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
+    ui->youtube_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
 
     ui->recommWidget->setStyleSheet("QWidget#recommWidget{"+widgetStyle+";border:none;}");
-    ui->recommListWidget->setStyleSheet("QListWidget{"+widgetStyle+";border:none;}"+scrollbarStyle);
+    ui->smart_list->setStyleSheet("QListWidget{"+widgetStyle+";border:none;}"+scrollbarStyle);
 
-    ui->showSimilarList->setStyleSheet("QPushButton#showSimilarList{"+widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;}");
+    ui->show_hide_smart_list_button->setStyleSheet("QPushButton#show_hide_smart_list_button{"+widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;}");
 
 
     miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
@@ -578,7 +595,7 @@ void MainWindow::set_app_theme(QColor rgb){
    "QPushButton:hover{border: 1px solid #272727;background-color:#5A584F; color:silver ;}"
    "QPushButton:pressed {background-color: #45443F;color: silver;padding-bottom:1px;}";
 
-    ui->showSimilarList->setStyleSheet(widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;");
+    ui->show_hide_smart_list_button->setStyleSheet(widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;");
     ui->ytdlRefreshAll->setStyleSheet(btn_style);
     ui->ytdlStopAll->setStyleSheet(btn_style);
 
@@ -593,7 +610,9 @@ void MainWindow::set_app_theme(QColor rgb){
     settingsUi.minus->setStyleSheet(btn_style);
     settingsUi.delete_offline_pages->setStyleSheet(btn_style);
     settingsUi.delete_tracks_cache->setStyleSheet(btn_style);
+    settingsUi.delete_videos_cache->setStyleSheet(btn_style);
     settingsUi.drop_database->setStyleSheet(btn_style);
+    settingsWidget->findChild<QPushButton*>("custom_color")->setStyleSheet(btn_style);
 }
 
 void MainWindow::customColor(){
@@ -607,7 +626,7 @@ void SelectColorButton::updateColor(){
 }
 
 void SelectColorButton::changeColor(){
-   QColor newColor = QColorDialog::getColor(color,parentWidget());
+   QColor newColor = QColorDialog::getColor(color,parentWidget(),"Choose theme color",QColorDialog::DontUseNativeDialog);
    if ( newColor != color )
    {
            setColor( newColor );
@@ -626,6 +645,10 @@ const QColor& SelectColorButton::getColor(){
 
 //set up app #1
 void MainWindow::init_app(){
+    ui->olivia_list->setDragDropMode(QAbstractItemView::NoDragDrop);
+    ui->youtube_list->setDragDropMode(QAbstractItemView::NoDragDrop);
+    ui->smart_list->setDragDropMode(QAbstractItemView::NoDragDrop);
+
 
     ui->debug_widget->hide();
     //sets search icon in label
@@ -678,12 +701,12 @@ void MainWindow::init_app(){
     ui->similarTrackLoader->setRevolutionsPerSecond(1);
     ui->similarTrackLoader->setColor(QColor(227, 222, 222));
 
-    //hide recommWidget this code is  from on_showSimilarList_clicked()
-    split3->widget(1)->setMaximumHeight(ui->showSimilarList->height());
+    //hide recommWidget this code is  from on_show_hide_smart_list_button_clicked()
+    split3->widget(1)->setMaximumHeight(ui->show_hide_smart_list_button->height());
     split3->setSizes(QList<int>()<<300<<0);
     split3->handle(1)->setEnabled(false);
     ui->recommWidget->hide();
-    ui->showSimilarList->setToolTip("Show Similar Tracks");
+    ui->show_hide_smart_list_button->setToolTip("Show Similar Tracks");
 
 
     setWindowIcon(QIcon(":/icons/olivia.png"));
@@ -884,7 +907,7 @@ void MainWindow::loadPlayerQueue(){ //  #7
         text.setHtml(title);
         QString plainTitle = text.toPlainText();
 
-        QWidget *track_widget = new QWidget(ui->right_list);
+        QWidget *track_widget = new QWidget(ui->olivia_list);
         track_widget->setToolTip(htmlToPlainText(title));
         track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
@@ -909,7 +932,7 @@ void MainWindow::loadPlayerQueue(){ //  #7
         albumLabel->setFont(font);
         track_ui.verticalLayout_2->addWidget(albumLabel);
 
-        track_ui.id->setText(id);
+
         track_ui.dominant_color->setText(dominantColor);
         track_ui.songId->setText(songId);
         track_ui.playing->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
@@ -918,6 +941,7 @@ void MainWindow::loadPlayerQueue(){ //  #7
         track_ui.dominant_color->hide();
         track_ui.id->hide();
         if(store_manager->isDownloaded(songId)){
+            track_ui.id->setText(store_manager->getYoutubeIds(songId));
             track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
             track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         }else{
@@ -936,11 +960,10 @@ void MainWindow::loadPlayerQueue(){ //  #7
         }
 
         if(albumId.contains("undefined-")){
-
+            track_ui.id->setText(id);
             QListWidgetItem* item;
-            item = new QListWidgetItem(ui->right_list_2);
+            item = new QListWidgetItem(ui->youtube_list);
 
-            QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
 
             //set size for track widget
             track_ui.cover->setMaximumSize(149,90);
@@ -948,56 +971,34 @@ void MainWindow::loadPlayerQueue(){ //  #7
             track_ui.widget->adjustSize();
             item->setSizeHint(track_widget->minimumSizeHint());
 
-            ui->right_list_2->setItemWidget(item, track_widget);
-            ui->right_list_2->itemWidget(item)->setGraphicsEffect(eff);
+            ui->youtube_list->setItemWidget(item, track_widget);
 
             // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
             if(url.isEmpty() || (store_manager->getExpiry(songId) && track_ui.url->text().contains("http"))){
             //track_ui.loading->setPixmap(QPixmap(":/icons/url_issue.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-                ui->right_list_2->itemWidget(item)->setEnabled(false);
+                ui->youtube_list->itemWidget(item)->setEnabled(false);
                 if(!track_ui.id->text().isEmpty()){
                     getAudioStream(track_ui.id->text().trimmed(),track_ui.songId->text().trimmed());
                 }
-            }else{
-            //track_ui.loading->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }
-            QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
-            a->setDuration(500);
-            a->setStartValue(0);
-            a->setEndValue(1);
-            a->setEasingCurve(QEasingCurve::InCirc);
-            a->start(QPropertyAnimation::DeleteWhenStopped);
-            ui->right_list_2->addItem(item);
+            ui->youtube_list->addItem(item);
         }else{
+            track_ui.id->setText(id);
             QListWidgetItem* item;
-            item = new QListWidgetItem(ui->right_list);
-
-            QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
-
+            item = new QListWidgetItem(ui->olivia_list);
             item->setSizeHint(track_widget->minimumSizeHint());
-
-
-            ui->right_list->setItemWidget(item, track_widget);
-            ui->right_list->itemWidget(item)->setGraphicsEffect(eff);
-
+            ui->olivia_list->setItemWidget(item, track_widget);
             // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
             if(url.isEmpty() || (store_manager->getExpiry(songId) && track_ui.url->text().contains("http"))){
-            //track_ui.loading->setPixmap(QPixmap(":/icons/url_issue.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-                ui->right_list->itemWidget(item)->setEnabled(false);
+                ui->olivia_list->itemWidget(item)->setEnabled(false);
                 if(!track_ui.id->text().isEmpty()){
                     getAudioStream(track_ui.id->text().trimmed(),track_ui.songId->text().trimmed());
+                }else{
+                    QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
+                    prepareTrack(songId,query,"0",ui->olivia_list);
                 }
-            }else{
-            //track_ui.loading->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.loading->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }
-            QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
-            a->setDuration(500);
-            a->setStartValue(0);
-            a->setEndValue(1);
-            a->setEasingCurve(QEasingCurve::InCirc);
-            a->start(QPropertyAnimation::DeleteWhenStopped);
-            item->setData(playerQueue::IdentifierRole,true);
-             ui->right_list->addItem(item,true);
+           ui->olivia_list->addItem(item);
         }
     }
     ui->tabWidget->resize(ui->tabWidget->size().width()-1,ui->tabWidget->size().height());
@@ -1139,10 +1140,13 @@ void MainWindow::webViewLoaded(bool loaded){
         QWebSettings::globalSettings()->clearMemoryCaches();
         ui->webview->history()->clear();
     }
-    if(pageType=="saved_songs"){
+
+    if(pageType=="recently_played"){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
-        ui->webview->page()->mainFrame()->evaluateJavaScript(" open_saved_tracks();");
+        ui->webview->page()->mainFrame()->evaluateJavaScript("open_recently_tracks();");
     }
+
+
     if(pageType=="local_saved_songs"){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript(" open_local_saved_tracks();");
@@ -1151,41 +1155,32 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("open_local_saved_videos();");
     }
-    if(pageType=="saved_albums"){
-        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
-        ui->webview->page()->mainFrame()->evaluateJavaScript("open_saved_albums();");
-    }
-    if(pageType=="saved_artists"){
-        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
-        ui->webview->page()->mainFrame()->evaluateJavaScript("open_saved_artists();");
-    }
+
     if(pageType=="radio"){
-        qDebug()<<"radio";
+       // qDebug()<<"radio";
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("loadTopStations('most-played');");
     }
 
     if(pageType=="goto_album"){
-        leftListChangeCurrentRow(7);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
         ui->webview->page()->mainFrame()->evaluateJavaScript("album_view('"+gotoAlbumId+"')");
     }
 
     if(pageType=="goto_artist"){
-        leftListChangeCurrentRow(8);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
         ui->webview->page()->mainFrame()->evaluateJavaScript("artist_view('"+gotoArtistId+"')");
     }
 
     if(pageType=="goto_youtube_channel"){
-        leftListChangeCurrentRow(15);
+        leftListChangeCurrentRow(12);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
         ui->webview->page()->mainFrame()->evaluateJavaScript("get_channel('"+youtubeVideoId+"')");
     }
 
     if(pageType=="goto_youtube_recommendation"){
-        leftListChangeCurrentRow(15);
+        leftListChangeCurrentRow(12);
         if(!youtubeVideoId.isEmpty()){
 
             ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
@@ -1193,7 +1188,7 @@ void MainWindow::webViewLoaded(bool loaded){
             QString trackTitle = QString(store_manager->getTrack(youtubeVideoId).at(1)).remove("'").remove("\"");
             youtubeVideoId = store_manager->getYoutubeIds(youtubeVideoId).split("<br>").first().trimmed();
 
-            qDebug()<<youtubeVideoId<<"ytid";
+           // qDebug()<<youtubeVideoId<<"ytid";
             ui->webview->page()->mainFrame()->evaluateJavaScript("show_related('"+youtubeVideoId+"','"+trackTitle+"')");
         }
         youtubeVideoId.clear();
@@ -1227,27 +1222,22 @@ void MainWindow::webViewLoaded(bool loaded){
     }
 
     if(pageType=="search"){
-        if(!ui->search->text().isEmpty() && loaded && !offsetstr.contains("offset")){
+        if(!ui->search->text().isEmpty() && loaded){
             ui->left_list->setCurrentRow(3);
             QString term = ui->search->text();
             term = term.replace(" ","+");
             term = term.replace("'","%27");
             search(term);
-            isLoadingResults=false;
-        }else{
-            isLoadingResults = false;
         }
     }
 }
 
 void MainWindow::setSearchTermAndOpenYoutube(QVariant term){
     youtubeSearchTerm = term.toString();
-    ui->left_list->setCurrentRow(15); //set youtube page
+    ui->left_list->setCurrentRow(12); //set youtube page
 }
 
-void MainWindow::resultLoaded(){
-  isLoadingResults =false;
-}
+
 
 //returns search query to webend
 QString MainWindow::getTerm(){
@@ -1257,9 +1247,6 @@ QString MainWindow::getTerm(){
 
 
 void MainWindow::prepareSimilarTracks(){
-
-//    currentSimilarTrackProcessing = 0;
-
     QString videoId,title,artist,album,coverUrl,songId,albumId,artistId,millis;
     QStringList arr = QString(currentSimilarTrackList.at(currentSimilarTrackProcessing)).split("!=-=!");
 
@@ -1297,7 +1284,7 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     currentSimilarTrackMeta.append(dominantColor);
     currentSimilarTrackMeta.append(base64);
 
-    QWidget *track_widget = new QWidget(ui->recommListWidget);
+    QWidget *track_widget = new QWidget(ui->smart_list);
     track_widget->setToolTip(htmlToPlainText(title));
     track_widget->setObjectName("track-widget-"+songId);
     track_ui.setupUi(track_widget);
@@ -1360,8 +1347,7 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
         track_ui.cover->setMaximumHeight(track_widget->height());
         track_ui.cover->setMaximumWidth(static_cast<int>(track_widget->height()*1.15));
         QListWidgetItem* item;
-        item = new QListWidgetItem(ui->recommListWidget);
-        QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
+        item = new QListWidgetItem(ui->smart_list);
 
         //set size for track widget
         track_ui.cover->setMaximumSize(149,90);
@@ -1369,70 +1355,96 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
         track_ui.widget->adjustSize();
         item->setSizeHint(track_widget->minimumSizeHint());
 
-        ui->recommListWidget->setItemWidget(item, track_widget);
-        ui->recommListWidget->itemWidget(item)->setGraphicsEffect(eff);
-        ui->recommListWidget->itemWidget(item)->setEnabled(false); //enable when finds a url
+        ui->smart_list->setItemWidget(item, track_widget);
+        ui->smart_list->itemWidget(item)->setEnabled(false); //enable when finds a url
+        ui->smart_list->addItem(item);
 
-        QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
-        a->setDuration(500);
-        a->setStartValue(0);
-        a->setEndValue(1);
-        a->setEasingCurve(QEasingCurve::InCirc);
-        a->start(QPropertyAnimation::DeleteWhenStopped);
-        ui->recommListWidget->addItem(item);
-
-       // ui->recommListWidget->setCurrentRow(ui->recommListWidget->count()-1);
+       // ui->smart_list->setCurrentRow(ui->smart_list->count()-1);
         if(store_manager->isDownloaded(songId)){
-            ui->recommListWidget->itemWidget(item)->setEnabled(true);
+            ui->smart_list->itemWidget(item)->setEnabled(true);
+            ui->similarTrackLoader->stop();
             track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
             track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         }else{
-          getAudioStream(ytIds,songId);
+            if(store_manager->getYoutubeIds(songId).isEmpty()){
+//                QString millis = ytIds; // we were given ytids as millis from webend
+                QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
+                prepareTrack(songId,query,"0",ui->smart_list);
+            }else{
+                // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
+                if(store_manager->getExpiry(songId)){
+                    ui->smart_list->itemWidget(item)->setEnabled(false);
+                    getAudioStream(store_manager->getYoutubeIds(songId),songId);
+                }else{
+                    ui->smart_list->itemWidget(item)->setEnabled(true);
+                    ui->similarTrackLoader->stop();
+                    track_ui.url->setText(store_manager->getOfflineUrl(songId));
+                }
+            }
         }
         similarTracksProcessHelper();
     }else{
         QListWidgetItem* item;
-        item = new QListWidgetItem(ui->recommListWidget);
-
-        QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
-
+        item = new QListWidgetItem(ui->smart_list);
         item->setSizeHint(track_widget->minimumSizeHint());
-        ui->recommListWidget->setItemWidget(item, track_widget);
-        ui->recommListWidget->itemWidget(item)->setGraphicsEffect(eff);
-        ui->recommListWidget->itemWidget(item)->setEnabled(false); //enable when finds a url
+        ui->smart_list->setItemWidget(item, track_widget);
+        ui->smart_list->itemWidget(item)->setEnabled(false); //enable when finds a url
+        ui->smart_list->addItem(item);
 
-        QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
-        a->setDuration(500);
-        a->setStartValue(0);
-        a->setEndValue(1);
-        a->setEasingCurve(QEasingCurve::InCirc);
-        a->start(QPropertyAnimation::DeleteWhenStopped);
-        ui->recommListWidget->addItem(item);
-
-        //ui->recommListWidget->setCurrentRow(ui->recommListWidget->count()-1);
+        //ui->smart_list->setCurrentRow(ui->smart_list->count()-1);
         if(store_manager->isDownloaded(songId)){
-            ui->recommListWidget->itemWidget(item)->setEnabled(true);
+            track_ui.id->setText(store_manager->getYoutubeIds(songId));
+            ui->smart_list->itemWidget(item)->setEnabled(true);
+            ui->similarTrackLoader->stop();
             track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
             track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         }else{
-            QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
-            connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
-                if(rep->error() == QNetworkReply::NoError){
-                     QString id = rep->readAll();
-                     getAudioStream(id,songId);
-                     similarTracksProcessHelper();
-                     rep->deleteLater();
-                     m_netwManager->deleteLater();
+
+            if(store_manager->getYoutubeIds(songId).isEmpty()){
+//              QString millis = ytIds; // we were given ytids as millis from webend
+                QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
+                prepareTrack(songId,query,"0",ui->smart_list);
+            }else{
+                // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
+                if(store_manager->getExpiry(songId)){
+                    ui->smart_list->itemWidget(item)->setEnabled(false);
+                    QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
+                    connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
+                        if(rep->error() == QNetworkReply::NoError){
+                             QString ytIds = rep->readAll();
+                             track_ui.id->setText(ytIds.trimmed());
+                             //SAVE DATA TO LOCAL DATABASE
+                             store_manager->saveytIds(songId,ytIds);
+
+                             getAudioStream(ytIds,songId);
+                             similarTracksProcessHelper();
+                             rep->deleteLater();
+                             m_netwManager->deleteLater();
+                        }else{
+                            qDebug()<<"error processing track"<<rep->request().url().toString();
+                        }
+                    });
+                    QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
+                    QUrl url("http://ktechpit.com/USS/Olivia/youtube.php?millis=0&query="+query);
+                    QNetworkRequest request(url);
+                    m_netwManager->get(request);
                 }else{
-                    qDebug()<<"error processing track"<<rep->request().url().toString();
+                    ui->smart_list->itemWidget(item)->setEnabled(true);
+                    ui->similarTrackLoader->stop();
+                    track_ui.url->setText(store_manager->getOfflineUrl(songId));
                 }
-            });
-            QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
-            QUrl url("http://ktechpit.com/USS/Olivia/youtube.php?millis=0&query="+query);
-            QNetworkRequest request(url);
-            m_netwManager->get(request);
+            }
         }
     }
+    //SAVE DATA TO LOCAL DATABASE
+    base64.remove("data:image/jpeg;base64,");
+    base64.remove("data:image/jpg;base64,");
+    base64.remove("data:image/png;base64,");
+    store_manager->saveAlbumArt(albumId,base64);
+    store_manager->saveArtist(artistId,artist);
+    store_manager->saveAlbum(albumId,album);
+    store_manager->saveDominantColor(albumId,dominantColor);
+    store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
 }
 
 void MainWindow::similarTracksProcessHelper(){
@@ -1452,39 +1464,17 @@ void MainWindow::similarTracksProcessHelper(){
     }
 }
 
-void MainWindow::addToQueue(QString id,QString title,
+//INVOKABLE method to add track to one of the player queue
+void MainWindow::addToQueue(QString ytIds,QString title,
                             QString artist,QString album,QString base64,
                             QString dominantColor,QString songId,QString albumId,QString artistId){
-
-//    id is youtube ids not songID;
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-
+    //check if track is in player queue already if found prevent further execution
     if(store_manager->isInQueue(songId)){
-        ui->console->append("Song - "+songId+" Already in queue");
-        QWidget *listWidgetItem = ui->right_list_2->findChild<QWidget*>("track-widget-"+songId);
-        if(listWidgetItem!=nullptr){
-            QListWidget * listWidget =  ui->right_list_2;
-            for (int i = 0; i < listWidget->count(); ++i) {
-                if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
-                    listWidget->setCurrentItem(listWidget->item(i));
-                    ui->right_list_2->scrollToItem(ui->right_list_2->item(i));
-                    break;
-                }
-            }
-        }else{
-            QWidget *listWidgetItem = ui->right_list->findChild<QWidget*>("track-widget-"+songId);
-            QListWidget * listWidget =  ui->right_list;
-            for (int i = 0; i < listWidget->count(); ++i) {
-                if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
-                    listWidget->setCurrentItem(listWidget->item(i));
-                    ui->right_list->scrollToItem(ui->right_list->item(i));
-                    break;
-                }
-            }
-        }
+        findTrackInQueue(songId);
         return;
-    }else{
-        QWidget *track_widget = new QWidget(ui->right_list);
+    }else{ // add track to one of the list
+        QWidget *track_widget = new QWidget(ui->olivia_list);
         track_widget->setToolTip(htmlToPlainText(title));
         track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
@@ -1497,8 +1487,6 @@ void MainWindow::addToQueue(QString id,QString title,
         QTextDocument text;
         text.setHtml(htmlToPlainText(title));
         QString plainTitle = text.toPlainText();
-
-        track_ui.meta->hide();
 
         ElidedLabel *titleLabel = new ElidedLabel(plainTitle,nullptr);
         titleLabel->setFont(font);
@@ -1515,15 +1503,18 @@ void MainWindow::addToQueue(QString id,QString title,
         albumLabel->setFont(font);
         track_ui.verticalLayout_2->addWidget(albumLabel);
 
-        track_ui.id->setText(id);
         track_ui.dominant_color->setText(dominantColor);
         track_ui.songId->setText(songId);
         track_ui.playing->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
+        //hide meta widgets
+        track_ui.meta->hide();
         track_ui.songId->hide();
-        track_ui.dominant_color->hide();
         track_ui.id->hide();
         track_ui.url->hide();
+        track_ui.dominant_color->hide();
+
+        //set option button
         track_ui.option->setObjectName(songId+"optionButton");
         connect(track_ui.option,SIGNAL(clicked(bool)),this,SLOT(showTrackOption()));
 
@@ -1535,78 +1526,77 @@ void MainWindow::addToQueue(QString id,QString title,
             track_ui.cover->setPixmap(image);
         }
 
-        if(albumId.contains("undefined-")){
-            track_ui.cover->setMaximumHeight(track_widget->height());
-            track_ui.cover->setMaximumWidth(static_cast<int>(track_widget->height()*1.15));
+        //check track type and decide where it will be added
+        if(albumId.contains("undefined-")){  // youtube track
+            track_ui.id->setText(ytIds);
             QListWidgetItem* item;
-            item = new QListWidgetItem(ui->right_list_2);
-            QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
-
+            item = new QListWidgetItem(ui->youtube_list);
             //set size for track widget
             track_ui.cover->setMaximumSize(149,90);
             track_ui.cover->setMinimumSize(149,79);
             track_ui.widget->adjustSize();
             item->setSizeHint(track_widget->minimumSizeHint());
+            ui->youtube_list->setItemWidget(item, track_widget);
+            ui->youtube_list->itemWidget(item)->setEnabled(false); //enable when finds a url
+            ui->youtube_list->addItem(item);
+            ui->youtube_list->setCurrentRow(ui->youtube_list->count()-1);
 
-            ui->right_list_2->setItemWidget(item, track_widget);
-            ui->right_list_2->itemWidget(item)->setGraphicsEffect(eff);
-            ui->right_list_2->itemWidget(item)->setEnabled(false); //enable when finds a url
-
-            QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
-            a->setDuration(500);
-            a->setStartValue(0);
-            a->setEndValue(1);
-            a->setEasingCurve(QEasingCurve::InCirc);
-            a->start(QPropertyAnimation::DeleteWhenStopped);
-            ui->right_list_2->addItem(item);
-
-            ui->right_list_2->setCurrentRow(ui->right_list_2->count()-1);
             if(store_manager->isDownloaded(songId)){
-                ui->right_list_2->itemWidget(item)->setEnabled(true);
+                ui->youtube_list->itemWidget(item)->setEnabled(true);
                 track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
                 track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }else{
-              getAudioStream(id,songId);
-              //reverse the process queue, so that recently added song can get first chance to process
-              if(ytdlQueue.count()>1){
-                  ytdlQueue.insert(1,  ytdlQueue.takeAt(ytdlQueue.count()-1));
-              }
+                if(store_manager->getYoutubeIds(songId).isEmpty()){
+                    QString millis = ytIds; // we were given ytids as millis from webend
+                    QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
+                    prepareTrack(songId,query,millis,ui->youtube_list);
+                }else{
+                    // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
+                    if(store_manager->getExpiry(songId)){
+                        ui->youtube_list->itemWidget(item)->setEnabled(false);
+                        getAudioStream(store_manager->getYoutubeIds(songId),songId);
+                        reverseYtdlProcessList();
+                    }else{
+                        ui->youtube_list->itemWidget(item)->setEnabled(true);
+                        track_ui.url->setText(store_manager->getOfflineUrl(songId));
+                    }
+                }
             }
             ui->tabWidget->setCurrentWidget(ui->tab_2);
-            ui->right_list_2->scrollToBottom();
-        }else{
+            ui->youtube_list->scrollToBottom();
+            store_manager->saveytIds(songId,ytIds);
+        }else{//not a youtube track prepare it(find ytids and url) and add it to olivia list
             QListWidgetItem* item;
-            item = new QListWidgetItem(ui->right_list);
-
-            QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
-
+            item = new QListWidgetItem(ui->olivia_list);
             item->setSizeHint(track_widget->minimumSizeHint());
-            ui->right_list->setItemWidget(item, track_widget);
-            ui->right_list->itemWidget(item)->setGraphicsEffect(eff);
-            ui->right_list->itemWidget(item)->setEnabled(false); //enable when finds a url
+            ui->olivia_list->setItemWidget(item, track_widget);
+            ui->olivia_list->itemWidget(item)->setEnabled(false); //enable when finds a url
+            ui->olivia_list->addItem(item);
+            ui->olivia_list->setCurrentRow(ui->olivia_list->count()-1);
 
-            QPropertyAnimation *a = new QPropertyAnimation(eff,"opacity");
-            a->setDuration(500);
-            a->setStartValue(0);
-            a->setEndValue(1);
-            a->setEasingCurve(QEasingCurve::InCirc);
-            a->start(QPropertyAnimation::DeleteWhenStopped);
-            ui->right_list->addItem(item);
-
-            ui->right_list->setCurrentRow(ui->right_list->count()-1);
             if(store_manager->isDownloaded(songId)){
-                ui->right_list->itemWidget(item)->setEnabled(true);
+                ui->olivia_list->itemWidget(item)->setEnabled(true);
                 track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
                 track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }else{
-              getAudioStream(id,songId);
-              //reverse the process queue, so that recently added song can get first chance to process
-              if(ytdlQueue.count()>1){
-                  ytdlQueue.insert(1,  ytdlQueue.takeAt(ytdlQueue.count()-1));
-              }
+                if(store_manager->getYoutubeIds(songId).isEmpty()){
+                    QString millis = ytIds; // we were given ytids as millis from webend
+                    QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
+                    prepareTrack(songId,query,millis,ui->olivia_list);
+                }else{
+                    // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
+                    if(store_manager->getExpiry(songId)){
+                        ui->olivia_list->itemWidget(item)->setEnabled(false);
+                        getAudioStream(store_manager->getYoutubeIds(songId),songId);
+                        reverseYtdlProcessList();
+                    }else{
+                        ui->olivia_list->itemWidget(item)->setEnabled(true);
+                        track_ui.url->setText(store_manager->getOfflineUrl(songId));
+                    }
+                }
             }
             ui->tabWidget->setCurrentWidget(ui->tab);
-            ui->right_list->scrollToBottom();
+            ui->olivia_list->scrollToBottom();
         }
 
         //SAVE DATA TO LOCAL DATABASE
@@ -1617,9 +1607,66 @@ void MainWindow::addToQueue(QString id,QString title,
             store_manager->saveArtist(artistId,artist);
             store_manager->saveAlbum(albumId,album);
             store_manager->saveDominantColor(albumId,dominantColor);
-            store_manager->saveytIds(songId,id);
             store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
             store_manager->add_to_player_queue(songId);
+    }
+}
+
+//jumps to track in one of player queue where the given songId is present
+void MainWindow::findTrackInQueue(QString songId){
+    ui->console->append("Song - "+songId+" Already in queue");
+    QWidget *listWidgetItem = ui->youtube_list->findChild<QWidget*>("track-widget-"+songId);
+    if(listWidgetItem!=nullptr){
+        QListWidget * listWidget =  ui->youtube_list;
+        for (int i = 0; i < listWidget->count(); ++i) {
+            if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
+                listWidget->setCurrentItem(listWidget->item(i));
+                ui->youtube_list->scrollToItem(ui->youtube_list->item(i));
+                break;
+            }
+        }
+    }else{
+        QWidget *listWidgetItem = ui->olivia_list->findChild<QWidget*>("track-widget-"+songId);
+        QListWidget * listWidget =  ui->olivia_list;
+        for (int i = 0; i < listWidget->count(); ++i) {
+            if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
+                listWidget->setCurrentItem(listWidget->item(i));
+                ui->olivia_list->scrollToItem(ui->olivia_list->item(i));
+                break;
+            }
+        }
+    }
+}
+
+//get track's ytIds and playable source url
+void MainWindow::prepareTrack(QString songId,QString query,QString millis,QListWidget *list){
+    QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
+    connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
+        if(rep->error() == QNetworkReply::NoError){
+             QString ytIds = rep->readAll().trimmed();
+             QWidget *listWidgetItem = list->findChild<QWidget*>("track-widget-"+songId);
+             if(listWidgetItem !=nullptr){//check if track is not removed before this request finish
+                 listWidgetItem->findChild<QLineEdit*>("id")->setText(ytIds);
+             }
+             //save ytids to store
+             store_manager->saveytIds(songId,ytIds);
+             getAudioStream(ytIds,songId);
+             reverseYtdlProcessList();
+             rep->deleteLater();
+             m_netwManager->deleteLater();
+        }else{
+            qDebug()<<"error processing track"<<rep->request().url().toString();
+        }
+    });
+    QUrl url("http://ktechpit.com/USS/Olivia/youtube.php?millis="+millis+"&query="+query);
+    QNetworkRequest request(url);
+    m_netwManager->get(request);
+}
+
+//reverse the process queue, so that recently added song can get first chance to process
+void MainWindow::reverseYtdlProcessList(){
+    if(ytdlQueue.count()>1){
+        ytdlQueue.insert(1,  ytdlQueue.takeAt(ytdlQueue.count()-1));
     }
 }
 
@@ -1657,7 +1704,6 @@ void MainWindow::showRecommendedTrackOption(){
     connect(addToLibrary,&QAction::triggered,[=](){
         if(arr.count()==11){
             //SAVE DATA TO LOCAL DATABASE
-//            base64 is cleared before
             store_manager->saveAlbumArt(albumId,base64);
             store_manager->saveArtist(artistId,artist);
             store_manager->saveAlbum(albumId,album);
@@ -1674,8 +1720,6 @@ void MainWindow::showRecommendedTrackOption(){
     menu.addAction(addToLibrary);
     menu.setStyleSheet(menuStyle());
     menu.exec(QCursor::pos());
-
-
 }
 
 void MainWindow::showTrackOption(){
@@ -1720,7 +1764,7 @@ void MainWindow::showTrackOption(){
             lyrics_search_string = songTitle +" - "+  artistTitle;
        }
        lyricsWidget->setStyleSheet("");
-       lyricsWidget->setCustomStyle(ui->search->styleSheet(),ui->right_list->styleSheet(),this->styleSheet());
+       lyricsWidget->setCustomStyle(ui->search->styleSheet(),ui->olivia_list->styleSheet(),this->styleSheet());
        lyricsWidget->setQueryString(htmlToPlainText(lyrics_search_string));
     });
 
@@ -1812,18 +1856,18 @@ void MainWindow::showTrackOption(){
 
 void MainWindow::remove_song(QVariant track_id){
     QString songId = track_id.toString().remove("<br>").trimmed();
-    for (int i= 0;i<ui->right_list->count();i++) {
-       QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+    for (int i= 0;i<ui->olivia_list->count();i++) {
+       QString songIdFromWidget = static_cast<QLineEdit*>(ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
         if(songId==songIdFromWidget){
-            ui->right_list->takeItem(i);
+            ui->olivia_list->takeItem(i);
             store_manager->removeFromQueue(songId);
             break;
         }
     }
-    for (int i= 0;i<ui->right_list_2->count();i++) {
-       QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+    for (int i= 0;i<ui->youtube_list->count();i++) {
+       QString songIdFromWidget = static_cast<QLineEdit*>(ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
         if(songId==songIdFromWidget){
-            ui->right_list_2->takeItem(i);
+            ui->youtube_list->takeItem(i);
             store_manager->removeFromQueue(songId);
             break;
         }
@@ -1836,25 +1880,25 @@ void MainWindow::delete_song_cache(QVariant track_id){
     QFile cache(setting_path+"/downloadedTracks/"+songId);
     cache.remove();
     store_manager->update_track("downloaded",songId,"0");
-    for (int i= 0;i<ui->right_list->count();i++) {
-       QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+    for (int i= 0;i<ui->olivia_list->count();i++) {
+       QString songIdFromWidget = static_cast<QLineEdit*>(ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
         if(songId==songIdFromWidget){
-            ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
-            ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
+            ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
+            ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
             if(store_manager->getExpiry(songId)){
-                ui->right_list->itemWidget(ui->right_list->item(i))->setEnabled(false);
+                ui->olivia_list->itemWidget(ui->olivia_list->item(i))->setEnabled(false);
                 getAudioStream(store_manager->getYoutubeIds(songId),songId);
             }
             break;
         }
     }
-    for (int i= 0;i<ui->right_list_2->count();i++) {
-       QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+    for (int i= 0;i<ui->youtube_list->count();i++) {
+       QString songIdFromWidget = static_cast<QLineEdit*>(ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
         if(songId==songIdFromWidget){
-            ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
-            ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
+            ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
+            ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
             if(store_manager->getExpiry(songId)){
-                ui->right_list_2->itemWidget(ui->right_list_2->item(i))->setEnabled(false);
+                ui->youtube_list->itemWidget(ui->youtube_list->item(i))->setEnabled(false);
                 getAudioStream(store_manager->getYoutubeIds(songId),songId);
             }
             break;
@@ -1966,20 +2010,20 @@ void MainWindow::ytdlReadyRead(){
     if(!s_data.isEmpty()){
             QString listName;
             QListWidget *listWidget;
-            QWidget *listWidgetItem = ui->right_list->findChild<QWidget*>("track-widget-"+songId);
+            QWidget *listWidgetItem = ui->olivia_list->findChild<QWidget*>("track-widget-"+songId);
             listName = "olivia";
-            listWidget = ui->right_list;
+            listWidget = ui->olivia_list;
 
             if(listWidgetItem==nullptr){
-                listWidgetItem= ui->right_list_2->findChild<QWidget*>("track-widget-"+songId);
+                listWidgetItem= ui->youtube_list->findChild<QWidget*>("track-widget-"+songId);
                 listName = "youtube";
-                listWidget = ui->right_list_2;
+                listWidget = ui->youtube_list;
             }
 
             if(listWidgetItem==nullptr){
-                listWidgetItem= ui->recommListWidget->findChild<QWidget*>("track-widget-"+songId);
+                listWidgetItem= ui->smart_list->findChild<QWidget*>("track-widget-"+songId);
                 listName = "recommended";
-                listWidget = ui->recommListWidget;
+                listWidget = ui->smart_list;
             }
 
 
@@ -2020,13 +2064,12 @@ void MainWindow::ytdlReadyRead(){
 
                 if(s_data.contains("https")){
                     if(s_data.contains("manifest/dash/")){
-                        qDebug()<<"MENIFEAT URL:"<<s_data;
+                        //qDebug()<<"MENIFEAT URL:"<<s_data;
                         ManifestResolver *mfr= new ManifestResolver(s_data.trimmed(),this);
                         connect(mfr,&ManifestResolver::m4aAvailable,[=](QString m48url){
                             listWidgetItem->setEnabled(true);
                             QLineEdit *url = listWidgetItem->findChild<QLineEdit *>("url");
                             static_cast<QLineEdit*>(url)->setText(m48url);
-                            //qDebug()<<"NEW URL:"<<m48url;
                             //TODO
                             store_manager->saveStreamUrl(songId,m48url,getExpireTime(m48url));
                             mfr->deleteLater();
@@ -2087,24 +2130,6 @@ bool MainWindow::isNumericStr(const QString str){
      return  isNumeric;
 }
 
-void MainWindow::queue_currentItemChanged(QListWidget *queue,QListWidgetItem *current, QListWidgetItem *previous)
-{
-    Q_UNUSED(queue);
-    Q_UNUSED(current);
-    Q_UNUSED(previous);
-    //qDebug()<<queue->objectName()<<current<<previous;
-}
-
-void MainWindow::on_right_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
-{
-    queue_currentItemChanged(ui->right_list,current,previous);
-}
-void MainWindow::on_right_list_2_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
-{
-    queue_currentItemChanged(ui->right_list_2,current,previous);
-}
-
-
 void MainWindow::on_left_list_currentRowChanged(int currentRow)
 {
     switch (currentRow) {
@@ -2121,30 +2146,25 @@ void MainWindow::on_left_list_currentRowChanged(int currentRow)
          show_top();
         break;
     case 6:
-         show_saved_songs();
-        break;
-    case 7:
-         show_saved_albums();
-        break;
-    case 8:
-         show_saved_artists();
-        break;
-    case 9:
          show_local_saved_songs();
         break;
-    case 10:
+    case 7:
          show_local_saved_videos();
         break;
-    case 15:
+    case 8:
+         show_local_saved_videos();
+        break;
+    case 9:
+         show_local_saved_videos();
+        break;
+    case 10:
+         show_recently_played();
+        break;
+    case 12:
          browse_youtube();
         break;
-    case 16:
+    case 13:
          internet_radio();
-        break;
-    case 17:
-         qApp->quit();
-        break;
-    default:
         break;
     }
 }
@@ -2166,9 +2186,6 @@ void MainWindow::clear_youtubeSearchTerm(){
 
 void MainWindow::on_search_returnPressed()
 {
-    currentResultPage = 1;
-    isLoadingResults=false;
-    offsetstr="";
     search("");
 }
 
@@ -2182,7 +2199,6 @@ void MainWindow::search(QString offset){
      pageType = "search";
     if(offset.isEmpty()){
          ui->webview->load(QUrl("qrc:///web/search/search.html"));
-        isLoadingResults=false;
     }else{ //search page loaded perform js
         QString term = ui->search->text();
         term = term.replace(" ","+");
@@ -2191,10 +2207,7 @@ void MainWindow::search(QString offset){
            offset = offset.remove(term);
         }
         term.append(offset);
-        offsetstr = term;
-
         ui->webview->page()->mainFrame()->evaluateJavaScript("track_search('"+term+"')");
-        isLoadingResults=true;
      }
 }
 
@@ -2203,10 +2216,10 @@ void MainWindow::show_top(){
     ui->webview->load(QUrl("qrc:///web/top/top.html"));
 }
 
-void MainWindow::show_saved_songs(){
-    pageType = "saved_songs";
-    ui->webview->load(QUrl("qrc:///web/songs/songs.html"));
-}
+//void MainWindow::show_saved_songs(){
+//    pageType = "saved_songs";
+//    ui->webview->load(QUrl("qrc:///web/songs/songs.html"));
+//}
 
 void MainWindow::show_local_saved_songs(){
     pageType = "local_saved_songs";
@@ -2218,14 +2231,9 @@ void MainWindow::show_local_saved_videos(){
     ui->webview->load(QUrl("qrc:///web/local_videos/local_videos.html"));
 }
 
-void MainWindow::show_saved_albums(){
-    pageType = "saved_albums";
-    ui->webview->load(QUrl("qrc:///web/album/albums.html"));
-}
-
-void MainWindow::show_saved_artists(){
-    pageType = "saved_artists";
-    ui->webview->load(QUrl("qrc:///web/artist/artists.html"));
+void MainWindow::show_recently_played(){
+        pageType = "recently_played";
+        ui->webview->load(QUrl("qrc:///web/recently_played/recent.html"));
 }
 
 void MainWindow::internet_radio(){
@@ -2234,32 +2242,32 @@ void MainWindow::internet_radio(){
 }
 
 //PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::on_right_list_itemDoubleClicked(QListWidgetItem *item)
+void MainWindow::on_olivia_list_itemDoubleClicked(QListWidgetItem *item)
 {
 
     //hide playing labels in other list
     QList<QLabel*> playing_label_list_other;
-    playing_label_list_other = ui->right_list_2->findChildren<QLabel*>("playing");
+    playing_label_list_other = ui->youtube_list->findChildren<QLabel*>("playing");
     foreach (QLabel *playing, playing_label_list_other) {
         playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         playing->setToolTip("");
     }
 
     QList<QLabel*> playing_label_list_other2;
-    playing_label_list_other2 = ui->recommListWidget->findChildren<QLabel*>("playing");
+    playing_label_list_other2 = ui->smart_list->findChildren<QLabel*>("playing");
     foreach (QLabel *playing, playing_label_list_other2) {
         playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         playing->setToolTip("");
     }
 
-    listItemDoubleClicked(ui->right_list,item);
+    listItemDoubleClicked(ui->olivia_list,item);
 }
 
-void MainWindow::on_recommListWidget_itemDoubleClicked(QListWidgetItem *item)
+void MainWindow::on_smart_list_itemDoubleClicked(QListWidgetItem *item)
 {
     //hide playing labels in other list
     QList<QLabel*> playing_label_list_other;
-    playing_label_list_other = ui->right_list->findChildren<QLabel*>("playing");
+    playing_label_list_other = ui->olivia_list->findChildren<QLabel*>("playing");
     foreach (QLabel *playing, playing_label_list_other) {
         playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         playing->setToolTip("");
@@ -2267,46 +2275,38 @@ void MainWindow::on_recommListWidget_itemDoubleClicked(QListWidgetItem *item)
 
 
     QList<QLabel*> playing_label_list_other_2;
-    playing_label_list_other_2 = ui->right_list_2->findChildren<QLabel*>("playing");
+    playing_label_list_other_2 = ui->youtube_list->findChildren<QLabel*>("playing");
     foreach (QLabel *playing, playing_label_list_other_2) {
         playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         playing->setToolTip("");
     }
 
-    listItemDoubleClicked(ui->recommListWidget,item);
+    listItemDoubleClicked(ui->smart_list,item);
 }
 
-void MainWindow::on_right_list_2_itemDoubleClicked(QListWidgetItem *item)
+void MainWindow::on_youtube_list_itemDoubleClicked(QListWidgetItem *item)
 {
 
     //hide playing labels in other list
     QList<QLabel*> playing_label_list_other;
-    playing_label_list_other = ui->right_list->findChildren<QLabel*>("playing");
+    playing_label_list_other = ui->olivia_list->findChildren<QLabel*>("playing");
     foreach (QLabel *playing, playing_label_list_other) {
         playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         playing->setToolTip("");
     }
 
     QList<QLabel*> playing_label_list_other2;
-    playing_label_list_other2 = ui->recommListWidget->findChildren<QLabel*>("playing");
+    playing_label_list_other2 = ui->smart_list->findChildren<QLabel*>("playing");
     foreach (QLabel *playing, playing_label_list_other2) {
         playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         playing->setToolTip("");
     }
 
-    listItemDoubleClicked(ui->right_list_2,item);
+    listItemDoubleClicked(ui->youtube_list,item);
 }
 
 void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
-    if(list->objectName()!=("right_list")){
-        ui->right_list->clearSelection();
-    }
-    if(list->objectName()!=("right_list_2")){
-        ui->right_list_2->clearSelection();
-    }
-    if(list->objectName()!=("recommListWidget")){
-        ui->recommListWidget->clearSelection();
-    }
+    listClearSelection(list->objectName());
     //clear debug console
     ui->console->clear();
     //hide console
@@ -2315,11 +2315,9 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
     if(!list->itemWidget(item)->isEnabled())
         return;
-    QString id =  list->itemWidget(item)->findChild<QLineEdit*>("id")->text();
+
     QString url = list->itemWidget(item)->findChild<QLineEdit*>("url")->text();
     QString songId = list->itemWidget(item)->findChild<QLineEdit*>("songId")->text();
-
-    Q_UNUSED(id);
 
     ElidedLabel *title = list->itemWidget(item)->findChild<ElidedLabel *>("title_elided");
     QString titleStr = static_cast<ElidedLabel*>(title)->text();
@@ -2397,26 +2395,12 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     ElidedLabel *album2 = this->findChild<ElidedLabel *>("nowP_album");
     static_cast<ElidedLabel*>(album2)->setText(albumStr);
 
-
-    QList<ElidedLabel*> label_list_;
-    QList<QGraphicsDropShadowEffect*> shadow_list_;
-
-    // Get all UI labels and apply shadows
-    label_list_ = ui->nowplaying_widget->findChildren<ElidedLabel*>();
-    foreach(ElidedLabel *lbl, label_list_) {
-        shadow_list_.append(new QGraphicsDropShadowEffect);
-        shadow_list_.back()->setBlurRadius(5);
-        shadow_list_.back()->setOffset(1, 1);
-        shadow_list_.back()->setColor(QColor("#292929"));
-        lbl->setGraphicsEffect(shadow_list_.back());
-    }
-
     if(store_manager->isDownloaded(songId)){
         radio_manager->playRadio(false,QUrl(url));
     }else{
         saveTracksAfterBuffer =  settingsObj.value("saveAfterBuffer","true").toBool();
         //do not save tracks if playing from similar tracks list
-        if(list->objectName()=="recommListWidget"){
+        if(list->objectName()=="smart_list"){
             radio_manager->playRadio(false,QUrl(url));
         }else{
             radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url));
@@ -2451,56 +2435,13 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
             g="164";
             b="205";
         }
-
-        ui->nowplaying_widget->setColor(QColor(r.toInt(),g.toInt(),b.toInt()));
-        //change the color of main window according to album cover bug here
-        this->setStyleSheet(+"QMainWindow{"
-                               "background-color:rgba("+r+","+g+","+b+","+"0.1"+");"
-                               "background-image:url(:/icons/texture.png), linear-gradient(hsla(0,0%,32%,.99), hsla(0,0%,27%,.95));"
-                               "}");
-
-        QString widgetStyle= "background-color:"
-                             "qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,"
-                             "stop:0.129213 rgba("+r+", "+g+", "+b+", 30),"
-                             "stop:0.38764 rgba("+r+", "+g+", "+b+", 120),"
-                             "stop:0.679775 rgba("+r+", "+g+", "+b+", 84),"
-                             "stop:1 rgba("+r+", "+g+", "+b+", 30));";
-        QString scrollbarStyle ="QScrollBar:vertical {"
-                                    "background-color: transparent;"
-                                    "border:none;"
-                                    "width: 10px;"
-                                    "margin: 22px 0 22px 0;"
-                                "}"
-                                "QScrollBar::handle:vertical {"
-                                    "background: grey;"
-                                    "min-height: 20px;"
-                                "}";
-        ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
-        ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
-        ui->right_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
-        ui->right_list_2->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
-
-        ui->recommWidget->setStyleSheet("QWidget#recommWidget{"+widgetStyle+";border:none;}");
-        ui->recommListWidget->setStyleSheet("QListWidget{"+widgetStyle+";border:none;}"+scrollbarStyle);
-
-        ui->showSimilarList->setStyleSheet("QPushButton#showSimilarList{"+widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;}");
-
-        miniModeWidget->setStyleSheet (ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
-
-        ui->search->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
-        ui->label_5->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
-
-        //settingsUi theme is set when it is opened;
-        ui->stream_info->setStyleSheet("QWidget#stream_info{"+widgetStyle+"}"); //to remove style set by designer
-
-        if(eq != nullptr){
-            eq->setStyleSheet("QWidget#equalizer{"+ui->search->styleSheet()+"}"
-                                             +"QFrame{"+ui->search->styleSheet()+"}");
-            eq->removeStyle();
-        }
-
-        QString rgba = r+","+g+","+b+","+"0.2";
-        ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+rgba+"')");
+        set_app_theme(QColor(r.toInt(),g.toInt(),b.toInt()));
+    }
+    //add to recentlyPlayed tracks
+    store_manager->add_recently_played(songId);
+    //reload recent page if page is recently_played
+    if(pageType=="recently_played"){
+        ui->webview->page()->mainFrame()->evaluateJavaScript("open_recently_tracks()");
     }
 }
 //END PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
@@ -2553,24 +2494,15 @@ void MainWindow::on_settings_clicked()
 {
     if(!settingsWidget->isVisible())
     {
-        settingsWidget->setGeometry(
-            QStyle::alignedRect(
-                Qt::LeftToRight,
-                Qt::AlignCenter,
-                settingsWidget->size(),
-                qApp->desktop()->availableGeometry()
-            )
-        );
+        settingsWidget->adjustSize();
         settingsWidget->setStyleSheet("QWidget#settingsWidget{"+ui->search->styleSheet()+"}");
         //refresh cache sizes
         QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-
         utils* util = new utils(this);
-
         settingsUi.cached_tracks_size->setText(util->refreshCacheSize(setting_path+"/downloadedTracks"));
+        settingsUi.cached_videos_size->setText(util->refreshCacheSize(setting_path+"/downloadedVideos"));
         settingsUi.offline_pages_size->setText(util->refreshCacheSize(setting_path+"/paginator"));
         settingsUi.database_size->setText(util->refreshCacheSize(setting_path+"/storeDatabase/"+database));
-
         util->deleteLater();
 
         settingsWidget->showNormal();
@@ -2578,24 +2510,24 @@ void MainWindow::on_settings_clicked()
 }
 
 void MainWindow::getNowPlayingTrackId(){
-    for(int i = 0 ; i< ui->right_list->count();i++){
-         if(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
+    for(int i = 0 ; i< ui->olivia_list->count();i++){
+         if(ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
             //get songId of visible track
-            QLineEdit *songId = ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId");
+            QLineEdit *songId = ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("songId");
             nowPlayingSongIdWatcher->setValue(static_cast<QLineEdit*>(songId)->text());
         }
     }
-    for(int i = 0 ; i< ui->right_list_2->count();i++){
-         if(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
+    for(int i = 0 ; i< ui->youtube_list->count();i++){
+         if(ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
             //get songId of visible track
-            QLineEdit *songId = ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId");
+            QLineEdit *songId = ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("songId");
             nowPlayingSongIdWatcher->setValue(static_cast<QLineEdit*>(songId)->text());
         }
     }
-    for(int i = 0 ; i< ui->recommListWidget->count();i++){
-         if(ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
+    for(int i = 0 ; i< ui->smart_list->count();i++){
+         if(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
             //get songId of visible track
-            QLineEdit *songId = ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->findChild<QLineEdit*>("songId");
+            QLineEdit *songId = ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLineEdit*>("songId");
             nowPlayingSongIdWatcher->setValue(static_cast<QLineEdit*>(songId)->text());
         }
     }
@@ -2647,13 +2579,13 @@ void MainWindow::radioStatus(QString radioState){
                 qDebug()<<"List ended play related songs";
                 //show similar list
                 if(!ui->recommWidget->isVisible()){
-                    ui->showSimilarList->click();
+                    ui->show_hide_smart_list_button->click();
                 }
                 //assign next track in list if next item in list is valid
-                for(int i=0;i<ui->recommListWidget->count();i++){
-                    if(ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->isEnabled()){
+                for(int i=0;i<ui->smart_list->count();i++){
+                    if(ui->smart_list->itemWidget(ui->smart_list->item(i))->isEnabled()){
                         ui->next->setEnabled(true);
-                        assignNextTrack(ui->recommListWidget,i);
+                        assignNextTrack(ui->smart_list,i);
                         break;
                     }else {
                         ui->next->setEnabled(false);
@@ -2684,14 +2616,14 @@ void MainWindow::radioStatus(QString radioState){
 
 
 void MainWindow::setTrackItemNowPlaying(){ //removes playing icon from lists
-    for (int i= 0;i<ui->right_list->count();i++) {
-      ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
+    for (int i= 0;i<ui->olivia_list->count();i++) {
+      ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
     }
-    for (int i= 0;i<ui->right_list_2->count();i++) {
-      ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
+    for (int i= 0;i<ui->youtube_list->count();i++) {
+      ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
     }
-    for (int i= 0;i<ui->recommListWidget->count();i++) {
-      ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
+    for (int i= 0;i<ui->smart_list->count();i++) {
+      ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
     }
 }
 
@@ -2770,28 +2702,29 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
         id = trackDetails.at(8);
         dominantColor = trackDetails.at(9);
         addToQueue(id,title,artist,album,base64,dominantColor,songId,albumId,artistId);
-    }else{//else find and play the track
-        for (int i= 0;i<ui->right_list->count();i++) {
-           QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-            if(songId==songIdFromWidget){
-                ui->tabWidget->setCurrentWidget(ui->tab);
-                ui->right_list->setCurrentRow(i);
-                listItemDoubleClicked(ui->right_list,ui->right_list->item(i));
-                ui->right_list->scrollToItem(ui->right_list->item(i));
-                break;
-            }
-        }
-        for (int i= 0;i<ui->right_list_2->count();i++) {
-           QString songIdFromWidget = static_cast<QLineEdit*>(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-            if(songId==songIdFromWidget){
-                ui->tabWidget->setCurrentWidget(ui->tab_2);
-                ui->right_list_2->setCurrentRow(i);
-                listItemDoubleClicked(ui->right_list_2,ui->right_list_2->item(i));
-                ui->right_list_2->scrollToItem(ui->right_list_2->item(i));
-                break;
-            }
+    }
+     //else find and play the track
+    for (int i= 0;i<ui->olivia_list->count();i++) {
+       QString songIdFromWidget = static_cast<QLineEdit*>(ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+        if(songId==songIdFromWidget){
+            ui->tabWidget->setCurrentWidget(ui->tab);
+            ui->olivia_list->setCurrentRow(i);
+            listItemDoubleClicked(ui->olivia_list,ui->olivia_list->item(i));
+            ui->olivia_list->scrollToItem(ui->olivia_list->item(i));
+            break;
         }
     }
+    for (int i= 0;i<ui->youtube_list->count();i++) {
+       QString songIdFromWidget = static_cast<QLineEdit*>(ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+        if(songId==songIdFromWidget){
+            ui->tabWidget->setCurrentWidget(ui->tab_2);
+            ui->youtube_list->setCurrentRow(i);
+            listItemDoubleClicked(ui->youtube_list,ui->youtube_list->item(i));
+            ui->youtube_list->scrollToItem(ui->youtube_list->item(i));
+            break;
+        }
+    }
+
 }
 
 void MainWindow::saveRadioChannelToFavourite(QVariant channelInfo){
@@ -2803,7 +2736,6 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
     QString url,title,country,language,base64,stationId;
     QStringList list = streamDetails.toString().split("=,=");
     stationId = list.at(0);
-    qDebug()<<stationId;
     url = list.at(1);
     title = list.at(2);
     country = list.at(3);
@@ -2849,18 +2781,18 @@ void MainWindow::saveTrack(QString format){
         store_manager->update_track("downloaded",nowPlayingSongIdWatcher->getValue(),"1");
     }
       //show offline icon in track ui and change url to offline one
-      for(int i = 0 ; i< ui->right_list->count();i++){
-           if(ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongIdWatcher->getValue()){
-              QLabel *offline = ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLabel*>("offline");
+      for(int i = 0 ; i< ui->olivia_list->count();i++){
+           if(ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongIdWatcher->getValue()){
+              QLabel *offline = ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLabel*>("offline");
               static_cast<QLabel*>(offline)->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-              ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongIdWatcher->getValue());
+              ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongIdWatcher->getValue());
           }
       }
-      for(int i = 0 ; i< ui->right_list_2->count();i++){
-           if(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongIdWatcher->getValue()){
-              QLabel *offline = ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLabel*>("offline");
+      for(int i = 0 ; i< ui->youtube_list->count();i++){
+           if(ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongIdWatcher->getValue()){
+              QLabel *offline = ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLabel*>("offline");
               static_cast<QLabel*>(offline)->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-              ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongIdWatcher->getValue());
+              ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongIdWatcher->getValue());
           }
       }
 }
@@ -3085,11 +3017,11 @@ void MainWindow::evoke_engine_check(){
 
 //Filter Lists///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::on_filter_olivia_textChanged(const QString &arg1){
-    filterList(arg1,ui->right_list); //olivia
+    filterList(arg1,ui->olivia_list); //olivia
 }
 
 void MainWindow::on_filter_youtube_textChanged(const QString &arg1){
-    filterList(arg1,ui->right_list_2); //youtube
+    filterList(arg1,ui->youtube_list); //youtube
 }
 
 void MainWindow::filterList(const QString &arg1,QListWidget *list)
@@ -3340,7 +3272,7 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
 
 void MainWindow::startGetRecommendedTrackForAutoPlayTimer(QString songId){
     QTimer *timer = new QTimer(this);
-    timer->setInterval(5000);
+    timer->setInterval(20000);
     timer->setSingleShot(true);
     connect(timer, &QTimer::timeout, [=]() {
       getRecommendedTracksForAutoPlay(songId);
@@ -3352,19 +3284,20 @@ void MainWindow::startGetRecommendedTrackForAutoPlayTimer(QString songId){
 void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
     QString videoId = store_manager->getYoutubeIds(songId).split("<br>").first().trimmed();
     if(videoId.trimmed().isEmpty()){
-        QWidget *listWidgetItem = ui->recommListWidget->findChild<QWidget*>("track-widget-"+songId);
-        QString id = listWidgetItem->findChild<QLineEdit*>("id")->text();
-        videoId = id.split("<br>").first();
-        qDebug()<<"recommended songs based on "<<videoId;
+        QWidget *listWidgetItem = ui->smart_list->findChild<QWidget*>("track-widget-"+songId);
+        if(listWidgetItem != nullptr){
+            QString id = listWidgetItem->findChild<QLineEdit*>("id")->text();
+            videoId = id.split("<br>").first();
+        }
     }
     if(!ui->next->isEnabled() && !settingsObj.value("shuffle").toBool()){
-        qDebug()<<"Prepare related songs list";
+        qDebug()<<"Prepare related songs list for"<< videoId;
         ui->similarTrackLoader->start();
         //keep now playing song and remove others
         while(similarTracksListHasTrackToBeRemoved()){
-            for (int i=0; i<ui->recommListWidget->count();i++) {
-                if(ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
-                    QListWidgetItem *item =  ui->recommListWidget->takeItem(i);
+            for (int i=0; i<ui->smart_list->count();i++) {
+                if(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
+                    QListWidgetItem *item =  ui->smart_list->takeItem(i);
                      if(item != nullptr){
                          delete item;
                      }
@@ -3377,8 +3310,8 @@ void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
 
 bool MainWindow::similarTracksListHasTrackToBeRemoved(){
     bool has = false;
-     for (int i=0; i<ui->recommListWidget->count();i++) {
-         if(ui->recommListWidget->itemWidget(ui->recommListWidget->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
+     for (int i=0; i<ui->smart_list->count();i++) {
+         if(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
              has = true;
          }
          if(has)break;
@@ -3442,7 +3375,6 @@ void MainWindow::assignPreviousTrack(QListWidget *list ,int index)
 
 void MainWindow::on_ytdlStopAll_clicked()
 {
-   // qDebug()<<ytdlQueue.count()<<ytdlProcess;
     if(ytdlProcess!=nullptr){
         ytdlQueue.clear();
         ytdlProcess->close();
@@ -3457,13 +3389,13 @@ void MainWindow::on_ytdlStopAll_clicked()
 void MainWindow::on_ytdlRefreshAll_clicked()
 {
     //process Olivia queue
-    for (int i= 0;i<ui->right_list->count();i++) {
+    for (int i= 0;i<ui->olivia_list->count();i++) {
         //get disabled items
-        if(ui->right_list->itemWidget(ui->right_list->item(i))->isEnabled()==false){
+        if(ui->olivia_list->itemWidget(ui->olivia_list->item(i))->isEnabled()==false){
             //get id and songId
             QString id,songId;
-            id = ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("id")->text();
-            songId = ui->right_list->itemWidget(ui->right_list->item(i))->findChild<QLineEdit*>("songId")->text();
+            id = ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("id")->text();
+            songId = ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("songId")->text();
             //check if ytids are present
             if(!id.isEmpty()){
                 //add to ytdlProcessQueue
@@ -3472,13 +3404,13 @@ void MainWindow::on_ytdlRefreshAll_clicked()
         }
     }
     //process Youtube queue
-    for (int i= 0;i<ui->right_list_2->count();i++) {
+    for (int i= 0;i<ui->youtube_list->count();i++) {
         //get disabled items
-        if(ui->right_list_2->itemWidget(ui->right_list_2->item(i))->isEnabled()==false){
+        if(ui->youtube_list->itemWidget(ui->youtube_list->item(i))->isEnabled()==false){
             //get id and songId
             QString id,songId;
-            id = ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("id")->text();
-            songId = ui->right_list_2->itemWidget(ui->right_list_2->item(i))->findChild<QLineEdit*>("songId")->text();
+            id = ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("id")->text();
+            songId = ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("songId")->text();
             //check if ytids are present
             if(!id.isEmpty()){
                 //add to ytdlProcessQueue
@@ -3490,14 +3422,14 @@ void MainWindow::on_ytdlRefreshAll_clicked()
 
 
 //=========================================Track item click handler==========================================
-void MainWindow::on_right_list_2_itemClicked(QListWidgetItem *item)
+void MainWindow::on_youtube_list_itemClicked(QListWidgetItem *item)
 {
-    trackItemClicked(ui->right_list_2,item);
+    trackItemClicked(ui->youtube_list,item);
 }
 
-void MainWindow::on_right_list_itemClicked(QListWidgetItem *item)
+void MainWindow::on_olivia_list_itemClicked(QListWidgetItem *item)
 {
-    trackItemClicked(ui->right_list,item);
+    trackItemClicked(ui->olivia_list,item);
 }
 
 void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item){
@@ -3545,7 +3477,6 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
              store_manager->removeFromQueue(songId);
          });
 
-        //qDebug()<<songId<<ytIds;
         //if no ytIds set for track
         if(ytIds.isEmpty()){
              updateTrack->setEnabled(false);
@@ -3635,12 +3566,12 @@ QString MainWindow::menuStyle(){
 //create and show queue option
 void MainWindow::on_olivia_queue_options_clicked()
 {
-    queueShowOption(ui->right_list);
+    queueShowOption(ui->olivia_list);
 }
 
 void MainWindow::on_youtube_queue_options_clicked()
 {
-    queueShowOption(ui->right_list_2);
+    queueShowOption(ui->youtube_list);
 }
 
 void MainWindow::queueShowOption(QListWidget *queue){
@@ -3746,8 +3677,8 @@ bool MainWindow::trackIsBeingProcessed(QString songId){
 
 void MainWindow::clear_queue(){
     ui->stop->click();
-    ui->right_list->clear();
-    ui->right_list_2->clear();
+    ui->olivia_list->clear();
+    ui->youtube_list->clear();
 }
 
 //change app transparency
@@ -3884,18 +3815,19 @@ void MainWindow::videoOptionDownloadRequested(QStringList trackMetaData,QStringL
     downloadWidget->startWget(url_str,downloadWidget->downloadLocation,formats);
 }
 
+// switcher for menu listwidget used to change row without calling corresponding function
 void MainWindow::leftListChangeCurrentRow(int row){
     ui->left_list->blockSignals(true);
-     ui->left_list->setCurrentRow(row);
+    ui->left_list->setCurrentRow(row);
     ui->left_list->blockSignals(false);
 }
 
+//INVOKABLE play video function called from webend
 void MainWindow::playVideo(QString trackId){
     QDir dir(setting_path+"/downloadedVideos/");
     QStringList filter;
     filter<< trackId+"*";
     QFileInfoList files = dir.entryInfoList(filter);
-    //store *store_manager  = this->findChild<store*>("store_manager");
     if(store_manager!=nullptr){
         QString titleLabel =store_manager->getTrack(trackId).at(1);
         QProcess *player = new QProcess(this);
@@ -3903,15 +3835,12 @@ void MainWindow::playVideo(QString trackId){
         player->start("mpv",QStringList()<<"--title=MPV for Olivia - "+
                       titleLabel<<"--no-ytdl"<<files.at(0).filePath()<<"--volume"<<QString::number(radio_manager->volume)
                       );
-    }else{
-        qDebug()<<"StoreManager not found";
     }
 }
 
 //jump to queue of nowPlaying track scroll to it and select it
 void MainWindow::on_jump_to_nowplaying_clicked()
 {
-
     //clear any filter if applied to any listviews and load all tracks to listviews
     ui->filter_olivia->clear();
     ui->filter_youtube->clear();
@@ -3919,29 +3848,20 @@ void MainWindow::on_jump_to_nowplaying_clicked()
     //identify the player queue name
     QString listName;
     QListWidget *listWidget;
-    QWidget *listWidgetItem = ui->right_list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
-    listWidget = ui->right_list;
-    listName = "olivia";
+    QWidget *listWidgetItem = ui->olivia_list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
+    listWidget = ui->olivia_list;
+    listName = "olivia_list";
     if(listWidgetItem==nullptr){
-        listWidgetItem= ui->right_list_2->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
-        listWidget = ui->right_list_2;
-        listName = "youtube";
+        listWidgetItem= ui->youtube_list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
+        listWidget = ui->youtube_list;
+        listName = "youtube_list";
     }
     if(listWidgetItem==nullptr){
-        listWidgetItem= ui->recommListWidget->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
-        listWidget = ui->recommListWidget;
-        listName = "recommended";
+        listWidgetItem= ui->smart_list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
+        listWidget = ui->smart_list;
+        listName = "smart_list";
     }
-
-    if(listName!=("olivia")){
-        ui->right_list->clearSelection();
-    }
-    if(listName!=("youtube")){
-        ui->right_list_2->clearSelection();
-    }
-    if(listName!=("recommListWidget")){
-        ui->recommListWidget->clearSelection();
-    }
+    listClearSelection(listName);
 
     //check if listWidgetItem found in one of list
     if(listWidgetItem==nullptr){
@@ -3949,16 +3869,15 @@ void MainWindow::on_jump_to_nowplaying_clicked()
         listName="";
         return;
     }else{
-        // select current track
-        if(listName=="olivia")
-             ui->tabWidget->setCurrentWidget(ui->tab);
-        if(listName=="youtube")
-             ui->tabWidget->setCurrentWidget(ui->tab_2);
-        if(listName=="recommended" && !ui->recommWidget->isVisible())
-             ui->showSimilarList->click();
-
-
         //switch tab where track is found
+        if(listName=="olivia_list")
+             ui->tabWidget->setCurrentWidget(ui->tab);
+        if(listName=="youtube_list")
+             ui->tabWidget->setCurrentWidget(ui->tab_2);
+        if(listName=="smart_list" && !ui->recommWidget->isVisible())
+             ui->show_hide_smart_list_button->click();
+
+        // select current track
         for (int i= 0;i<listWidget->count();i++) {
             QString songIdFromWidget = static_cast<QLineEdit*>(listWidget->itemWidget(listWidget->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
              if(songIdFromWidget.contains(nowPlayingSongIdWatcher->getValue())){
@@ -3969,25 +3888,38 @@ void MainWindow::on_jump_to_nowplaying_clicked()
     }
 }
 
-void MainWindow::on_showSimilarList_clicked()
+//clears the selection player queues
+void MainWindow::listClearSelection(QString listName){
+    if(listName!=("olivia_list")){
+        ui->olivia_list->clearSelection();
+    }
+    if(listName!=("youtube_list")){
+        ui->youtube_list->clearSelection();
+    }
+    if(listName!=("smart_list")){
+        ui->smart_list->clearSelection();
+    }
+}
+
+//show and hide smart list button clicked method
+void MainWindow::on_show_hide_smart_list_button_clicked()
 {
     QSplitter *split3 =this->findChild<QSplitter*>("split3");
-
     if(!ui->recommWidget->isVisible()){
         split3->widget(1)->setMaximumHeight(16777215);
         split3->setSizes(QList<int>()<<300<<300);
         split3->handle(1)->setEnabled(true);
         ui->recommWidget->show();
-        ui->showSimilarList->setToolTip("Hide Similar Tracks");
+        ui->show_hide_smart_list_button->setToolTip("Hide Similar Tracks");
     }else{
-        split3->widget(1)->setMaximumHeight(ui->showSimilarList->height());
+        split3->widget(1)->setMaximumHeight(ui->show_hide_smart_list_button->height());
         split3->setSizes(QList<int>()<<300<<0);
         split3->handle(1)->setEnabled(false);
         ui->recommWidget->hide();
-        ui->showSimilarList->setToolTip("Show Similar Tracks");
+        ui->show_hide_smart_list_button->setToolTip("Show Similar Tracks");
     }
-    ui->recommWidget->isVisible() ? ui->showSimilarList->setIcon(QIcon(":/icons/sidebar/hideRecommend.png")):
-                                        ui->showSimilarList->setIcon(QIcon(":/icons/sidebar/showRecommend.png"));
+    ui->recommWidget->isVisible() ? ui->show_hide_smart_list_button->setIcon(QIcon(":/icons/sidebar/hideRecommend.png")):
+                                        ui->show_hide_smart_list_button->setIcon(QIcon(":/icons/sidebar/showRecommend.png"));
 }
 
 //add playlist from web interface
