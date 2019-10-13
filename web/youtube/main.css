@@ -2,6 +2,10 @@
     margin-top: 0;
 }
 
+.ui-alt-icon.ui-icon-search:after, .ui-alt-icon .ui-icon-search:after, .ui-input-search:after{
+    background-image: url("qrc:/web/css/images/search_icon_white.png") !important;
+}
+
 #container ul { list-style: none; }
 #container .buttons { margin-bottom: 20px; }
 
@@ -138,5 +142,4 @@ padding:0px;
 .ui-popup-screen {
 background-color: rgb(15, 12, 12);
 }
-
 

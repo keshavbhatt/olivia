@@ -66,9 +66,6 @@ $(document).ready(function($) {
            $.mobile.defaultHomeScroll = 0;
     });
 
-//    $("#coverImage").load(function(){
-//        //  dominantColor = colorThief.getColor(document.querySelector("#coverImage"));
-//    });
 });
 
 
@@ -81,7 +78,6 @@ function manual_youtube_search(term){
     }
     showLoading();
     $("#result_div").html("");
-
     if(paginator.isOffline("youtube","manual_youtube_search",term))
     {
         var html = paginator.load("youtube","manual_youtube_search",term);
@@ -163,19 +159,9 @@ function gettrackinfo(searchterm){
                     mainwindow.addToQueue(videoId+"<br>",title,artist,album,base64,dominantColor,songId,albumId,artistId);
                     $.mobile.loading("hide");
                 }else{
-                    $.ajax({
-                        url: baseUrl+"youtube.php",
-                           type:"GET",
-                           data:{
-                            "query": query,
-                            "millis": millis
-                           },
-                        success: function(html) {
-                            html_data = html;
-                            mainwindow.addToQueue(html_data,title,artist,album,base64,dominantColor,songId,albumId,artistId);
-                            $.mobile.loading("hide");
-                        }
-                    });
+                    $.mobile.loading("hide");
+                   //we passing millis instead of ytids at first item in the function below
+                    mainwindow.addToQueue(millis,title,artist,album,base64,dominantColor,songId,albumId,artistId);
                 }
             });
         }
