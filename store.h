@@ -23,6 +23,7 @@ public:
 
     Q_INVOKABLE QString search_print_local_saved_tracks(QVariant queryVar);
     Q_INVOKABLE QString open_search_local_saved_tracks(int pageNumber, QVariant queryStr);
+    Q_INVOKABLE QString web_print_recent_tracks();
 
 
 private:
@@ -64,6 +65,7 @@ public slots:
     void delete_track_cache(const QString download_path);
     void setRadioChannelToFavourite(QStringList meta);
     QStringList getRadioStation(QString trackId);
+    void add_recently_played(QString trackId);
 private slots:
 
     void initStore(QString dbName);
@@ -87,6 +89,7 @@ private slots:
 
     int getSearchResultTrackCount(QString queryStr);
     QList<QStringList> get_search_local_saved_tracks(int offset, QString queryStr);
+    QList<QStringList> getRecentTrackList();
 };
 
 #endif // STORE_H

@@ -25,7 +25,7 @@
 // init store class and creates defined directories
 store::store(QObject *parent, QString dbName) : QObject(parent)
 {
-    storeVersion = 2;  // 2 is the initial version of database
+    storeVersion = 3;  // 2 is the initial version of database
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/storeDatabase/";
     QDir d(setting_path+dbName);
     if(!d.exists()){
@@ -78,9 +78,11 @@ void store::openDb(QString dbName,QString type){
     if(db.open()){
         if(type=="new"){
             createTable(dbName);
-        }else if(localStoreVersion < storeVersion){
-                for (int i=localStoreVersion;i<storeVersion;i++) {
-                    createTableVersion(dbName,storeVersion);
+        }
+
+        if(localStoreVersion < storeVersion){
+                for (int i=0;i<=storeVersion;i++) {
+                    createTableVersion(dbName,i);
                 }
                 initStore(dbName);
         }else{
@@ -159,7 +161,9 @@ void store::createTable(QString dbName){
 
 //create or update store db according to requested version
 void store::createTableVersion(QString dbName,int version){
-    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/storeDatabase/"+dbName+"/";
+    Q_UNUSED(dbName);
+   // QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/storeDatabase/"+dbName+"/";
+    qDebug()<<"store update version "<<version<<" case is running...";
     switch (version) {
         // case 1 is default database, case 0 is nothing(updates started with case 2)
         case 2:{
@@ -172,6 +176,15 @@ void store::createTableVersion(QString dbName,int version){
                       "lang varchar(500),"
                       "country varchar(800))"
                       );
+        }
+            break;
+        case 3:{
+        QSqlQuery recently_played;
+        qWarning()<<"Update store with new update- "<<version<<" done.";
+        recently_played.exec("create table recently_played "
+                  "(trackId varchar(500) PRIMARY KEY,"
+                  "timestamp varchar(70))"
+                  );
         }
             break;
         //create cases here to update database table according to store version
@@ -666,6 +679,7 @@ QString store::web_print_saved_tracks(){
             recordObject.insert("base64",base64);
             recordObject.insert("url",url);
             recordObject.insert("id",id);
+            recordObject.insert("dominant",dominantColor);
             recordsArray.push_back(recordObject);
         }
     }
@@ -729,6 +743,7 @@ QString store::web_print_local_saved_videos(){
             recordObject.insert("base64",base64);
             recordObject.insert("url",url);
             recordObject.insert("id",id);
+            recordObject.insert("dominant",dominantColor);
             recordsArray.push_back(recordObject);
         }
     }
@@ -936,8 +951,6 @@ QString store::open_local_saved_tracks_PageNumber(int pageNumber){
                  "</div>";
     }
 
-
-
     //case for local_saved_tracks
     if(totalPages>0){
         QString html,li;
@@ -957,17 +970,27 @@ QString store::open_local_saved_tracks_PageNumber(int pageNumber){
             dominantColor = trackList.at(9);
             QString divider = "!=-=!";
 
+            QString albumType = (album == "undefined") ? "Youtube":"";
+            QString imgHtml,para;
+                   if(albumId.contains("undefined-")){
+                       para = "<p style='margin-left: 7.5em;'>";
+                       imgHtml = "<img id='"+songId+"' style='max-width:178px;max-height:144px;width=178px;height=100px;' id='' src='data:image/png;base64,"+base64+"' />";
+                   }else{
+                       para = "<p style='margin-left: 14.5em;' >";
+                       imgHtml = "<p style='background-color:rgb("+dominantColor+");' class='li-img-wrapper'><img id='"+songId+"' style='width:100%;max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+base64+"' /></p>";
+                   }
             li += "<li data-filtertext='"+title+" "+album+" "+artist+"' >"+
-            "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'><img id='"+songId+"' style='max-width:101px;max-height:101px;width=101px;height=101px;'  src='data:image/png;base64,"+base64+"'\\>"+
-                    "<p>"+
+            "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'>"
+                    +imgHtml+para+
                         ""+ title+
                         "<br>"+
                         "Album: "+QString(album=="undefined"?"Youtube":album)+
                         "<br>"+
                         "Artist: "+artist+
                     "</p>"+
+                    "<p class='ui-li-aside'>"+albumType+"</p>" +
                " </a>"+
-                   "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
+               "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
             "</li>";
         }
         html =  head+
@@ -996,7 +1019,7 @@ int store::getSearchResultTrackCount(QString queryStr){
 
 //main page loader returns html string of searched local downloaded tracks
 QString store::search_print_local_saved_tracks(QVariant queryStr){
-    limit = 20;
+    limit = 50;
     totalTracks = getSearchResultTrackCount(queryStr.toString());
     totalPages = totalTracks/limit;
     int itemsLeft = totalTracks -(totalPages*limit);
@@ -1017,10 +1040,10 @@ QList<QStringList> store::get_search_local_saved_tracks(int offset,QString query
              trackList.append(getTrack(query.value("trackId").toString()));
          }
 
-    artistIdquery.exec("SELECT artistId FROM artist WHERE artistName LIKE '%"+queryStr+"%';");
-        while(artistIdquery.next()){
-             artistMatched.append(artistIdquery.value("artistId").toString());
-        }
+//    artistIdquery.exec("SELECT artistId FROM artist WHERE artistName LIKE '%"+queryStr+"%';");
+//        while(artistIdquery.next()){
+//             artistMatched.append(artistIdquery.value("artistId").toString());
+//        }
 
       //  artistMatched = artistMatched.toSet().toList();
 
@@ -1088,17 +1111,27 @@ QString store::open_search_local_saved_tracks(int pageNumber,QVariant queryStr){
             dominantColor = trackList.at(9);
             QString divider = "!=-=!";
 
+            QString albumType = (album == "undefined") ? "Youtube":"";
+            QString imgHtml,para;
+                   if(albumId.contains("undefined-")){
+                       para = "<p style='margin-left: 7.5em;'>";
+                       imgHtml = "<img id='"+songId+"' style='max-width:178px;max-height:144px;width=178px;height=100px;' id='' src='data:image/png;base64,"+base64+"' />";
+                   }else{
+                       para = "<p style='margin-left: 14.5em;' >";
+                       imgHtml = "<p style='background-color:rgb("+dominantColor+");' class='li-img-wrapper'><img id='"+songId+"' style='width:100%;max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+base64+"' /></p>";
+                   }
             li += "<li data-filtertext='"+title+" "+album+" "+artist+"' >"+
-            "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'><img id='"+songId+"' style='max-width:101px;max-height:101px;width=101px;height=101px;'  src='data:image/png;base64,"+base64+"'\\>"+
-                    "<p>"+
+            "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'>"
+                    +imgHtml+para+
                         ""+ title+
                         "<br>"+
                         "Album: "+QString(album=="undefined"?"Youtube":album)+
                         "<br>"+
                         "Artist: "+artist+
                     "</p>"+
+                    "<p class='ui-li-aside'>"+albumType+"</p>" +
                " </a>"+
-                   "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
+               "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
             "</li>";
         }
         html =  head+
@@ -1112,3 +1145,61 @@ QString store::open_search_local_saved_tracks(int pageNumber,QVariant queryStr){
     }
 }
 //===========================END SONG FILTER METHOD====================================//
+
+//===========================START RECENTLY PLAYED===============================
+
+void store::add_recently_played(QString trackId){
+    QSqlQuery query;
+    bool added = query.exec("INSERT INTO recently_played('trackId','timestamp') VALUES('"+trackId.trimmed()+"','"+QString::number(QDateTime::currentMSecsSinceEpoch())+"')");
+    qDebug()<<added;
+    if(!added){
+        query.exec("UPDATE recently_played SET timestamp = '"+QString::number(QDateTime::currentMSecsSinceEpoch())+"'  WHERE trackId = '"+trackId.trimmed()+"'");
+    }
+}
+
+
+QList<QStringList> store::getRecentTrackList(){
+    QSqlQuery query;
+    QList<QStringList> trackList ;
+    query.exec("SELECT trackId FROM recently_played ORDER BY timestamp DESC LIMIT 100");
+    if(query.record().count()>0){
+        while(query.next()){
+             trackList.append(getTrack(query.value("trackId").toString()));
+        }
+    }
+    return trackList;
+}
+QString store::web_print_recent_tracks(){
+    qDebug()<<"LOAD RECENT TRACKS";
+    QJsonDocument json;
+    QJsonArray recordsArray;
+    foreach (QStringList trackDetails, getRecentTrackList()) {
+        QJsonObject recordObject;
+        QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
+        songId = trackDetails.at(0);
+        title = trackDetails.at(1);
+        albumId = trackDetails.at(2);
+        album = trackDetails.at(3);
+        artistId = trackDetails.at(4);
+        artist = trackDetails.at(5);
+        base64 = trackDetails.at(6);
+        url = trackDetails.at(7);
+        id = trackDetails.at(8);
+        dominantColor = trackDetails.at(9);
+        recordObject.insert("songId",songId);
+        recordObject.insert("title",title);
+        recordObject.insert("albumId",albumId);
+        recordObject.insert("album",album);
+        recordObject.insert("artistId",artistId);
+        recordObject.insert("artist",artist);
+        recordObject.insert("base64",base64);
+        recordObject.insert("url",url);
+        recordObject.insert("id",id);
+        recordObject.insert("dominant",dominantColor);
+        if(!title.trimmed().isEmpty()){
+            recordsArray.push_back(recordObject);
+        }
+    }
+    json.setArray(recordsArray);
+    return json.toJson();
+}
