@@ -50,4 +50,12 @@ void settings::changeSystemTitlebar(bool checked){
     settingsObj.setValue("systemTitlebar",checked);
 }
 
+void settings::changeMpris(bool checked){
+    settingsObj.setValue("mpris",checked);
+}
+
+void settings::changeSmartPlaylist(bool checked){
+    settingsObj.setValue("smart_playlist",checked);
+}
+
 

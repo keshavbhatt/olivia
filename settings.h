@@ -32,6 +32,8 @@ public slots:
     void changeAppTransperancy(int val);
     void changeEqualizerSetting(bool checked);
     void changeVisualizerSetting(bool checked);
+    void changeMpris(bool checked);
+    void changeSmartPlaylist(bool checked);
 };
 
 #endif // SETTINGS_H
