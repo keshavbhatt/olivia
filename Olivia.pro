@@ -55,7 +55,6 @@ SOURCES += main.cpp\
     paginator.cpp \
     waitingspinnerwidget.cpp \
     youtube.cpp \
-    playerqueue.cpp \
     lyrics.cpp \
     controlbutton.cpp \
     utils.cpp
@@ -79,7 +78,6 @@ HEADERS  += mainwindow.h \
     paginator.h \
     waitingspinnerwidget.h \
     youtube.h \
-    playerqueue.h \
     lyrics.h \
     controlbutton.h \
     manifest_resolver.h \
