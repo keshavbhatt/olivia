@@ -4,7 +4,6 @@
     <meta charset="utf-8">
 	<title>Browse</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
     <script src="qrc:///web/js/jquery-1.11.1.min.js"></script>
     <script src="qrc:///web/radio/main.js"></script>
@@ -37,14 +36,13 @@
         <div role="main" class="ui-content" style="margin-top: 40px;">
             <!--search radio stations-->
 
-            <input id="radio_search_input" type="search" placeholder="Search by station,tag,country...">
-
+            <input class="ui-icon-alt" id="radio_search_input" type="search" placeholder="Search by station,tag,country...">
 
             <div data-role="collapsible" id="country" data-mini="true">
                 <h4>By Country</h4>
                 <!-- search country -->
                 <form class="ui-filterable">
-                     <input id="countryfilter-input" data-type="search" placeholder="Search by Country">
+                     <input class="ui-icon-alt"  id="countryfilter-input" data-type="search" placeholder="Search by Country">
                 </form>
                 <ul data-input="#countryfilter-input" class="list" id="countries_result" data-split-icon="bars" data-filter="true"  data-role="listview"  data-split-theme="b" data-inset="false">
                     <!--load data here-->
@@ -58,7 +56,7 @@
                 <h4>By Language</h4>
                 <!-- search language -->
                 <form class="ui-filterable">
-                     <input id="languagefilter-input" data-type="search" placeholder="Search by Language">
+                     <input class="ui-icon-alt"  id="languagefilter-input" data-type="search" placeholder="Search by Language">
                 </form>
                 <ul data-input="#languagefilter-input" class="list" id="languages_result" data-split-icon="bars" data-filter="true" data-role="listview"   data-split-theme="b" data-inset="false">
                     <!--load data here-->
@@ -101,7 +99,7 @@
         <div role="main" class="ui-content" style="margin-top: 40px;">
             <!-- search language -->
             <form class="ui-filterable">
-                 <input id="station-list-filter-input" data-type="search" placeholder="Filter listed stations by name,tags,country,state,languages etc...">
+                 <input class="ui-icon-alt"  id="station-list-filter-input" data-type="search" placeholder="Filter listed stations by name,tags,country,state,languages etc...">
             </form>
             <ul class="list" id="stations_result"  data-input="#station-list-filter-input" data-filter="true" data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
                 <!--load data here-->
@@ -121,7 +119,7 @@
         <div role="main" class="ui-content">
             <!-- search channels -->
             <form class="ui-filterable">
-                 <input id="fav-station-list-filter-input" data-type="search" placeholder="Filter your favourite stations by name,tags,country,state,languages etc...">
+                 <input class="ui-icon-alt"  id="fav-station-list-filter-input" data-type="search" placeholder="Filter your favourite stations by name,tags,country,state,languages etc...">
             </form>
             <ul class="list" id="fav_stations_result"  data-input="#fav-station-list-filter-input" data-filter="true" data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
                 <!--load data here-->

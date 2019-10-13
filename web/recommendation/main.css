@@ -1,3 +1,7 @@
+.ui-alt-icon.ui-icon-search:after, .ui-alt-icon .ui-icon-search:after, .ui-input-search:after{
+    background-image: url("qrc:/web/css/images/search_icon_white.png") !important;
+}
+
 .ui-filter-inset {
     margin-top: 0;
 }

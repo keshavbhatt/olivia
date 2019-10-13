@@ -1,7 +1,7 @@
 ﻿var baseUrl = "http://ktechpit.com/USS/Olivia/"
 
 $(document).bind("mobileinit", function(){
-        $.mobile.defaultPageTransition = 'slide';
+        $.mobile.defaultPageTransition = 'slidefade';
         $.mobile.ajaxEnabled = false;
         $.mobile.hideUrlBar = false;
 });
@@ -90,13 +90,12 @@ function overview(){
 
     showLoading();
     $("#overview_page .ui-loader-overview").show();
-    $('#overview_page .ui-content').fadeOut('slow');
     $.ajax({
         url: baseUrl+"overview.php",
         success: function(html) {
             $.mobile.loading("hide");
             overview_loaded = true;
-            $('#overview_page .ui-content').fadeOut('slow');
+//          $('#overview_page .ui-content').fadeOut('slow');
             $('#overview_page .ui-content').html(html);
             $('#overview_page .ui-content').trigger('create').fadeIn('slow');
             $("#overview_page .ui-loader-overview").hide();
@@ -214,19 +213,9 @@ function gettrackinfo(searchterm){
                     mainwindow.addToQueue(videoId+"<br>",title,artist,album,base64,dominantColor,songId,albumId,artistId);
                     $.mobile.loading("hide");
                 }else{
-                    $.ajax({
-                        url: baseUrl+"youtube.php",
-                           type:"GET",
-                           data:{
-                            "query": query,
-                            "millis": millis
-                           },
-                        success: function(html) {
-                            html_data = html;
-                            mainwindow.addToQueue(html_data,title,artist,album,base64,dominantColor,songId,albumId,artistId);
-                            $.mobile.loading("hide");
-                        }
-                    });
+                    $.mobile.loading("hide");
+                   //we passing millis instead of ytids at first item in the function below
+                    mainwindow.addToQueue(millis,title,artist,album,base64,dominantColor,songId,albumId,artistId);
                 }
               });
          }

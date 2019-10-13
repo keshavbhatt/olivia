@@ -5,14 +5,13 @@
     <title>Browse</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
-    <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
     <script src="qrc:///web/js/jquery-1.11.1.min.js"></script>
+    <script src="qrc:///web/browse/main.js"></script>
     <script src="qrc:///web/js/jquery.mobile-1.4.5.min.js"></script>
     <link rel="stylesheet" href="qrc:///web/browse/main.css" />
 
     <script src="qrc:///web/js/color-thief.min.js"></script>
     <link rel="stylesheet" href="qrc:///web/scroll.css" />
-    <script src="qrc:///web/browse/main.js"></script>
     <script src="qrc:///web/js/common.js"></script>
 </head>
 <!-- oncontextmenu="return false;" -->
@@ -59,7 +58,7 @@
             <!--load data here-->
         </div>
         <div data-role="footer" data-position="fixed" data-tap-toggle="false">
-            <a onclick="back_to_release_page()" style="display: block;background-color: rgba(36, 142, 179, 0.5)"  class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all" data-transition="slidefade" href="#">Back to new releases</a>
+            <a onclick="back_to_release_page()" style="display: block;background-color: rgba(36, 142, 179, 0.5)"  class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all" data-transition="slidefade" >Back to new releases</a>
         </div><!-- /footer -->
     </div>
 
@@ -86,7 +85,7 @@
         <div  id="footer_playlists" style='display:none; background-color: rgba(29, 29, 29, 0.64);' data-role='footer' data-position='fixed' data-tap-toggle='false'>
             <a id='prevBtn' class='ui-btn ui-mini ui-icon-arrow-l ui-btn-icon-left ui-shadow ui-corner-all' style='float:left;background-color: rgba(36, 142, 179, 0.66);border: none;'>Previous</a>
             <a id='nextBtn' class='ui-btn ui-mini ui-icon-arrow-r ui-btn-icon-right ui-shadow ui-corner-all' style='float:right;background-color: rgba(36, 142, 179, 0.66);border: none;'>Next</a>
-            <a onclick="back_to_categories_page()" style="display: block;background-color: rgba(36, 142, 179, 0.5)"  class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all" data-transition="slidefade" href="#">Back to genres</a>
+            <a onclick="back_to_categories_page()" style="display: block;background-color: rgba(36, 142, 179, 0.5)"  class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all" data-transition="slidefade" >Back to genres</a>
         </div>
     </div>
 
@@ -101,42 +100,6 @@
             <a id='prevBtn' class='ui-btn ui-mini ui-icon-arrow-l ui-btn-icon-left ui-shadow ui-corner-all' style='float:left;background-color: rgba(36, 142, 179, 0.66);border: none;'>Previous</a>
             <a id='nextBtn' class='ui-btn ui-mini ui-icon-arrow-r ui-btn-icon-right ui-shadow ui-corner-all' style='float:right;background-color: rgba(36, 142, 179, 0.66);border: none;'>Next</a>
             <a onclick="back_to_playlists_page()" style="display: block;background-color: rgba(36, 142, 179, 0.5)"  class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all" data-transition="slidefade" href="#">Back to playlists</a>
-        </div>
-    </div>
-    <div id="recommendation_page" data-role="page" data-theme="b" data-title="RECOMMENDATION">
-        <div role="main" class="ui-content">
-            <input  type="search" id='manual_search' value='' placeholder="Type a song name, ex- the river - aurora">
-            <ul   class="list" id="recommendation_page_suggestions"  data-filter="true" data-input="#manual_search"  data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
-            <!-- load suggestions here -->
-            </ul>
-                <div id="result_div"  style="visibility:hidden;">
-                    <div id="HEADER_DIV" style="text-align:center;background-position: center;text-shadow: 1px 3px 14px rgb(0, 0, 0);box-shadow:rgb(0, 0, 0) 0px 0px 30px;">
-                        <div id="HEADER_WRAPPER" style="background-color:rgba(0, 0, 0, 0.27);padding-bottom:25px;">
-                            <h2 style="padding:10px;background-color:rgba(0,0,0,0.53)" >Recommendations</h2>
-                            <div id="wrapper" style="margin:0 auto;width:200px;height:200px;" onMouseOver="show_playOriginal()" onMouseOut="hide_playOriginal()">
-                                <img style="max-height:200px;max-width:200px; box-shadow: 3px 2px 95px rgb(0, 0, 0);opacity: 0.8;" id="ALBUM_ART"/>
-                                <a href="#" id="playOriginalButton" style="height:100%;line-height:200px;text-decoration:none;display:block;" >
-                                   <div style="visibility:hidden;" id="playOriginal">
-                                        <p>Add this track</p>
-                                    </div>
-                                </a>
-                            </div>
-                            <br>
-                            <p style="display: block;background-color: rgba(0, 0, 0, 0.53);padding: 12px;bottom: -41px;position: relative;">
-                                <b>Based on : </b><b id="BASETRACK"></b>
-                                <br>
-                            </p>
-                        </div>
-                    </div>
-                    <hr>
-                    <h5 style="margin: 0px 0px -12px 0px;">Tracks:</h5>
-
-                    <ul class="list" id="tracks_result_view" data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
-                        <!-- load result here -->
-                    </ul>
-
-                </div>
-            <hr>
         </div>
     </div>
 

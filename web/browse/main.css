@@ -1,3 +1,7 @@
+.ui-alt-icon.ui-icon-search:after, .ui-alt-icon .ui-icon-search:after, .ui-input-search:after{
+    background-image: url("qrc:/web/css/images/search_icon_white.png") !important;
+}
+
 #container ul { list-style: none; }
 #container .buttons { margin-bottom: 20px; }
 
@@ -51,8 +55,7 @@
 }
 
 #playlist_result li p{
-    font-size: 26px !important;
-    margin-left: 32px !important;
+    margin-left: 4.2em !important;
     line-height: 35px !important;
 }
 

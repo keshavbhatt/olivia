@@ -264,19 +264,9 @@ function gettrackinfo(searchterm){
             img.addEventListener('load', function handler(e) {
                 e.currentTarget.removeEventListener(e.type, handler);
                 dominantColor = colorThief.getColor(img);
-                $.ajax({
-                    url: baseUrl+"youtube.php",
-                           type:"GET",
-                           data:{
-                            "query": query,
-                            "millis": millis
-                           },
-                    success: function(html) {
-                        html_data =html;
-                        mainwindow.addToQueue(html_data,title,artist,album,base64,dominantColor,songId,albumId,artistId);
-                        $.mobile.loading("hide");
-                    }
-                });
+                $.mobile.loading("hide");
+               //we passing millis instead of ytids at first item in the function below
+                mainwindow.addToQueue(millis,title,artist,album,base64,dominantColor,songId,albumId,artistId);
             });
         }
 

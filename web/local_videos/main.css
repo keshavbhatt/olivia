@@ -1,9 +1,24 @@
+.ui-alt-icon.ui-icon-search:after, .ui-alt-icon .ui-icon-search:after, .ui-input-search:after{
+    background-image: url("qrc:/web/css/images/search_icon_white.png") !important;
+}
+
 #container ul { list-style: none; }
 #container .buttons { margin-bottom: 20px; }
 
 #container .list li { width: 100%;margin-bottom: 10px;}
 
 #container .grid li { float: left; width: 20%; height: 50px; border-right: 1px dotted #CCC; border-bottom: 1px dotted #CCC; padding: 20px; }
+
+.li-img-wrapper{
+    text-align: center;
+    vertical-align: middle;
+    position: absolute!important;
+    left: 0!important;
+    top: 0!important;
+    padding: 0px!important;
+    margin: 0px !important;
+    width: 178px!important;
+}
 
 .ui-listview>li p {
     margin-left: 1.1em;

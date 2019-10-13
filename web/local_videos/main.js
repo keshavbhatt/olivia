@@ -78,15 +78,23 @@ function open_local_saved_videos(){
     $("#saved_tracks_result").empty();
     showLoading();
     $.mobile.changePage($('#tracks_page'));
+    $('.ui-content').hide();
     var json = JSON.parse(store.web_print_local_saved_videos()); //songs Data is returned in json format
     var $html = "";
     $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" downloaded videos");
     for(var i= 0; i < json.length;i++){
         var albumType = (json[i].album === "undefined") ? "Youtube":"";
+        var imgHtml,para;
+               if(json[i].albumId.includes("undefined-")){
+                   para = "<p style='margin-left: 7.5em;'>";
+                   imgHtml = "<img id='"+json[i].songId+"' style='max-width:178px;max-height:144px;width=178px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \>";
+               }else{
+                   para = "<p style='margin-left: 14.5em;' >";
+                   imgHtml = "<p style='background-color:rgb("+json[i].dominant+");' class='li-img-wrapper'><img id='"+json[i].songId+"' style='width:100%;max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \></p>";
+               }
          $html = $html+
             "<li onclick='mainwindow.playVideo(\""+json[i].songId+"\")' data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"' ><a>"+
-            "<img id='"+json[i].songId+"' style='max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \>"+
-                    "<p>"+
+                    imgHtml+para+
                         ""+json[i].title+
                         "<br>"+
                         "Album: "+json[i].album+
@@ -97,15 +105,16 @@ function open_local_saved_videos(){
                " </a>"+
             "</li>";
     }
-    $.mobile.loading("hide");
     $("#saved_tracks_result").append($html).listview("refresh");
     $('#tracks_page .ui-content').trigger('create');
     $('#tracks_page .ui-content').fadeIn('slow');
+    $.mobile.loading("hide");
 }
 
 $(document).on("pagecreate", "#tracks_page", function(){
     $('#a-search, #closeSearch').on('vclick', function (event) {
         $('#songsfilter-input-form').toggleClass('moved');
+        $("#songsfilter-input").focus();
     });
 });
 
@@ -150,19 +159,10 @@ function gettrackinfo(searchterm){
             img.addEventListener('load', function handler(e) {
                 e.currentTarget.removeEventListener(e.type, handler);
                 dominantColor = colorThief.getColor(img);
-                $.ajax({
-                    url: baseUrl+"youtube.php",
-                           type:"GET",
-                           data:{
-                            "query": query,
-                            "millis": millis
-                           },
-                    success: function(html) {
-                        html_data =html;
-                        mainwindow.addToQueue(html_data,title,artist,album,base64,dominantColor,songId,albumId,artistId);
-                        $.mobile.loading("hide");
-                    }
-                });
+                $.mobile.loading("hide");
+               //we passing millis instead of ytids at first item in the function below
+                mainwindow.addToQueue(millis,title,artist,album,base64,dominantColor,songId,albumId,artistId);
+
             });
         }
 
