@@ -106,5 +106,7 @@
         <file>icons/sidebar/addToLibrary.png</file>
         <file>icons/sidebar/info.png</file>
         <file>icons/sidebar/help.png</file>
+        <file>icons/micro/delete.png</file>
+        <file>icons/sidebar/removeFromLibrary.png</file>
     </qresource>
 </RCC>
