@@ -8,6 +8,7 @@
 #include <QGraphicsDropShadowEffect>
 #include <QAction>
 #include <QToolTip>
+#include <QSpinBox>
 
 #include "cookiejar.h"
 #include "elidedlabel.h"
@@ -70,7 +71,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::init_similar_tracks(){
     if(similarTracks==nullptr){
-        similarTracks = new SimilarTracks(this,5);
+        similarTracks = new SimilarTracks(this,settingsObj.value("similarTracksToLoad",4).toInt());
         connect(similarTracks, &SimilarTracks::setSimilarTracks,[=](QStringList list){
             similarTracks->isLoadingPLaylist = false;
             currentSimilarTrackList.clear();
@@ -79,6 +80,7 @@ void MainWindow::init_similar_tracks(){
             prepareSimilarTracks();
         });
         connect(similarTracks, &SimilarTracks::setPlaylist,[=](QStringList list){
+            if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
             similarTracks->isLoadingPLaylist = true;
             currentSimilarTrackList.clear();
             currentSimilarTrackList = list;
@@ -91,6 +93,18 @@ void MainWindow::init_similar_tracks(){
         connect(similarTracks, &SimilarTracks::clearList,[=](){
             currentSimilarTrackList.clear();
             ui->smart_list->clear();
+        });
+        connect(similarTracks, &SimilarTracks::clearListKeepingPlayingTrack,[=](){
+            while(similarTracksListHasTrackToBeRemoved()){
+                for (int i=0; i<ui->smart_list->count();i++) {
+                    if(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
+                        QListWidgetItem *item =  ui->smart_list->takeItem(i);
+                         if(item != nullptr){
+                             delete item;
+                         }
+                    }
+                }
+            }
         });
     }
 }
@@ -259,18 +273,32 @@ void MainWindow::init_settings(){
     settingsWidget->setWindowFlags(Qt::Dialog);
     settingsWidget->setWindowModality(Qt::ApplicationModal);
     settingsWidget->adjustSize();
+
+    settingsUi.tracksToLoad->setMinimum(1);
+    settingsUi.tracksToLoad->setMaximum(10);
+
+    connect(settingsUi.tracksToLoad, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),[=](int value){
+        similarTracks->numberOfSimilarTracksToLoad = value-1;
+        settingsObj.setValue("similarTracksToLoad",similarTracks->numberOfSimilarTracksToLoad);
+    });
+
     connect(settingsUi.download_engine,SIGNAL(clicked()),this,SLOT(download_engine_clicked()));
     connect(settingsUi.saveAfterBuffer,SIGNAL(toggled(bool)),settUtils,SLOT(changeSaveAfterSetting(bool)));
     connect(settingsUi.showSearchSuggestion,SIGNAL(toggled(bool)),settUtils,SLOT(changeShowSearchSuggestion(bool)));
     connect(settingsUi.dynamicTheme,SIGNAL(toggled(bool)),settUtils,SLOT(changeDynamicTheme(bool)));
 
     connect(settingsUi.mpris_checkBox,SIGNAL(toggled(bool)),settUtils,SLOT(changeMpris(bool)));
-    connect(settingsUi.smart_playlist_checkBox,SIGNAL(toggled(bool)),settUtils,SLOT(changeSmartPlaylist(bool)));
 
     connect(settingsUi.equalizer,&QCheckBox::toggled,[=](bool checked){
        settUtils->changeEqualizerSetting(checked);
        ui->eq->setVisible(checked);
     });
+
+    connect(settingsUi.smart_playlist_checkBox,&QCheckBox::toggled,[=](bool checked){
+        settingsUi.tracksToLoad->setEnabled(checked);
+        settUtils->changeSmartPlaylist(checked);
+    });
+
 
     connect(settingsUi.visualizer,&QCheckBox::toggled,[=](bool checked){
        settUtils->changeVisualizerSetting(checked);
@@ -451,6 +479,7 @@ void MainWindow::loadSettings(){
     settingsUi.visualizer->setChecked(settingsObj.value("visualizer","false").toBool());
     settingsUi.mpris_checkBox->setChecked(settingsObj.value("mpris","false").toBool());
     settingsUi.smart_playlist_checkBox->setChecked(settingsObj.value("smart_playlist","true").toBool());
+    settingsUi.tracksToLoad->setValue(settingsObj.value("similarTracksToLoad",4).toInt());
 
     settingsUi.dynamicTheme->setChecked(settingsObj.value("dynamicTheme","false").toBool());
 
@@ -606,12 +635,6 @@ void MainWindow::set_app_theme(QColor rgb){
     }
 
     settingsUi.download_engine->setStyleSheet(btn_style);
-    settingsUi.plus->setStyleSheet(btn_style);
-    settingsUi.minus->setStyleSheet(btn_style);
-    settingsUi.delete_offline_pages->setStyleSheet(btn_style);
-    settingsUi.delete_tracks_cache->setStyleSheet(btn_style);
-    settingsUi.delete_videos_cache->setStyleSheet(btn_style);
-    settingsUi.drop_database->setStyleSheet(btn_style);
     settingsWidget->findChild<QPushButton*>("custom_color")->setStyleSheet(btn_style);
 }
 
@@ -658,6 +681,7 @@ void MainWindow::init_app(){
 
     //init youtube class
     youtube = new Youtube(this);
+    youtube->setObjectName("youtube");
     connect(youtube,SIGNAL(setCountry(QString)),this,SLOT(setCountry(QString)));
 
     QSplitter *split1 = new QSplitter;
@@ -1248,21 +1272,22 @@ QString MainWindow::getTerm(){
 
 void MainWindow::prepareSimilarTracks(){
     QString videoId,title,artist,album,coverUrl,songId,albumId,artistId,millis;
-    QStringList arr = QString(currentSimilarTrackList.at(currentSimilarTrackProcessing)).split("!=-=!");
-
-    title = arr[0];
-    artist = arr[1];
-    album = arr[2];
-    coverUrl = arr[3];
-    songId = arr[4];
-    albumId = arr[5];
-    artistId= arr[6];
-    millis = arr[7];
-    if(albumId.contains("undefined")){ //yt case
-        videoId = arr[4];
+    if(currentSimilarTrackProcessing<currentSimilarTrackList.count()){
+        QStringList arr = QString(currentSimilarTrackList.at(currentSimilarTrackProcessing)).split("!=-=!");
+        title = arr[0];
+        artist = arr[1];
+        album = arr[2];
+        coverUrl = arr[3];
+        songId = arr[4];
+        albumId = arr[5];
+        artistId= arr[6];
+        millis = arr[7];
+        if(albumId.contains("undefined")){ //yt case
+            videoId = arr[4];
+        }
+        ui->webview->page()->mainFrame()->evaluateJavaScript("getBase64andDominantColor('"+coverUrl+"')");
+        currentSimilarTrackMeta = arr;
     }
-    ui->webview->page()->mainFrame()->evaluateJavaScript("getBase64andDominantColor('"+coverUrl+"')");
-    currentSimilarTrackMeta = arr;
 }
 
 void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
@@ -1399,7 +1424,6 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
             track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
             track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         }else{
-
             if(store_manager->getYoutubeIds(songId).isEmpty()){
 //              QString millis = ytIds; // we were given ytids as millis from webend
                 QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
@@ -1415,7 +1439,6 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
                              track_ui.id->setText(ytIds.trimmed());
                              //SAVE DATA TO LOCAL DATABASE
                              store_manager->saveytIds(songId,ytIds);
-
                              getAudioStream(ytIds,songId);
                              similarTracksProcessHelper();
                              rep->deleteLater();
@@ -1435,6 +1458,7 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
                 }
             }
         }
+        similarTracksProcessHelper();
     }
     //SAVE DATA TO LOCAL DATABASE
     base64.remove("data:image/jpeg;base64,");
@@ -1445,6 +1469,12 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     store_manager->saveAlbum(albumId,album);
     store_manager->saveDominantColor(albumId,dominantColor);
     store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
+
+    for (int i = 0; i <  currentSimilarTrackList.count(); i++) {
+        if(currentSimilarTrackList.at(i).contains(songId)){
+            currentSimilarTrackList.removeAt(i);
+        }
+    }
 }
 
 void MainWindow::similarTracksProcessHelper(){
@@ -1452,14 +1482,16 @@ void MainWindow::similarTracksProcessHelper(){
     currentSimilarTrackMeta.clear();
     //process next track in currentSimilarTrackList list;
     if(similarTracks->isLoadingPLaylist){
-        if(currentSimilarTrackProcessing < currentSimilarTrackList.count()-1){
+        if(currentSimilarTrackProcessing < settingsObj.value("similarTracksToLoad",3).toInt()/*currentSimilarTrackList.count()-1*/){
             currentSimilarTrackProcessing++;
             prepareSimilarTracks();
         }
     }else{
         if(currentSimilarTrackProcessing < similarTracks->numberOfSimilarTracksToLoad /*currentSimilarTrackList.count()-1*/){
-            currentSimilarTrackProcessing++;
-            prepareSimilarTracks();
+            if(currentSimilarTrackProcessing<currentSimilarTrackList.count()){
+                currentSimilarTrackProcessing++;
+                prepareSimilarTracks();
+            }
         }
     }
 }
@@ -2366,7 +2398,14 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
     if(list->currentRow()==list->count()-1){
         ui->next->setEnabled(false);
-        startGetRecommendedTrackForAutoPlayTimer(songId);
+        //set loading playlist = false if the track are being played from normal queues
+        if(list->objectName()=="olivia_list"||list->objectName()=="youtube_list"){
+            currentSimilarTrackProcessing = 0;
+            similarTracks->isLoadingPLaylist = false;
+        }
+        if(settingsObj.value("smart_playlist",true).toBool()){
+            startGetRecommendedTrackForAutoPlayTimer(songId);
+        }
     }else{
         //assign next track in list if next item in list is valid
         for(int i=list->currentRow()+1;i<list->count();i++){
@@ -2577,8 +2616,8 @@ void MainWindow::radioStatus(QString radioState){
         }else{
             if(!settingsObj.value("shuffle").toBool()){
                 qDebug()<<"List ended play related songs";
-                //show similar list
-                if(!ui->recommWidget->isVisible()){
+                //show smart list if enabled
+                if(settingsObj.value("smart_playlist",true).toBool() && !ui->recommWidget->isVisible()){
                     ui->show_hide_smart_list_button->click();
                 }
                 //assign next track in list if next item in list is valid
@@ -3266,13 +3305,12 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
         list->setCurrentRow(index);
         listItemDoubleClicked(list,list->item(index));
         list->scrollToItem(list->item(index));
-     //   startGetRecommendedTrackForAutoPlayTimer(songId);
     });
 }
 
 void MainWindow::startGetRecommendedTrackForAutoPlayTimer(QString songId){
     QTimer *timer = new QTimer(this);
-    timer->setInterval(20000);
+    timer->setInterval(2000);
     timer->setSingleShot(true);
     connect(timer, &QTimer::timeout, [=]() {
       getRecommendedTracksForAutoPlay(songId);
@@ -3291,7 +3329,8 @@ void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
         }
     }
     if(!ui->next->isEnabled() && !settingsObj.value("shuffle").toBool()){
-        qDebug()<<"Prepare related songs list for"<< videoId;
+        qDebug()<<"Prepare related songs list for videoId"<< videoId << songId;
+        currentSimilarTrackProcessing = 0;
         ui->similarTrackLoader->start();
         //keep now playing song and remove others
         while(similarTracksListHasTrackToBeRemoved()){
@@ -3304,7 +3343,11 @@ void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
                 }
             }
         }
-        similarTracks->addSimilarTracks(videoId);
+        if(similarTracks->isLoadingPLaylist){
+            similarTracks->getNextTracksInPlaylist(currentSimilarTrackList);
+        }else{
+            similarTracks->addSimilarTracks(videoId,songId);
+        }
     }
 }
 
