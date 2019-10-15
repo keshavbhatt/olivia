@@ -2,14 +2,16 @@
 #include "elidedlabel.h"
 #include <QDebug>
 
+
 SimilarTracks::SimilarTracks(QObject *parent,int limit) : QObject(parent)
 {
-
     numberOfSimilarTracksToLoad = limit;
+    store_manager = this->parent()->findChild<store*>("store_manager");
 }
 
-void SimilarTracks::addSimilarTracks(QString video_id){
+void SimilarTracks::addSimilarTracks(QString video_id,QString songId){
     isLoadingPLaylist = false;
+
     QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
     connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
         if(rep->error() == QNetworkReply::NoError){
@@ -23,6 +25,7 @@ void SimilarTracks::addSimilarTracks(QString video_id){
                     finalList.append(QString(str.split(");\">").first()).remove("&quot;"));
                 }
             }
+          //  qDebug()<<finalList;
             if(finalList.count()>0){
                 emit setSimilarTracks(finalList);
                 int tracksLeft;
@@ -43,12 +46,25 @@ void SimilarTracks::addSimilarTracks(QString video_id){
         rep->deleteLater();
         m_netwManager->deleteLater();
     });
-    QUrl url("http://ktechpit.com/USS/Olivia/youtube_related_videos.php?video_id="+video_id);
+    QUrl url;
+    if(store_manager->getAlbumId(songId).contains("undefined-") || isNumericStr(songId)){
+         url = "http://ktechpit.com/USS/Olivia/youtube_related_videos.php?video_id="+video_id;
+    }else{
+         url = "http://ktechpit.com/USS/Olivia/spotify/spotify_related_seed_song.php?s_id="+songId+"&url=null";
+    }
     QNetworkRequest request(url);
     m_netwManager->get(request);
 }
 
+bool SimilarTracks::isNumericStr(const QString str){
+    bool isNumeric;
+     str.toInt(&isNumeric, 16);
+     str.toInt(&isNumeric, 10);
+     return  isNumeric;
+}
+
 void SimilarTracks::addPlaylist(QString data){
+
     isLoadingPLaylist = true;
 
     emit clearList();
@@ -57,11 +73,26 @@ void SimilarTracks::addPlaylist(QString data){
     list.removeFirst();
 
     QStringList finalList;
+
     foreach (QString str, list) {
         finalList.append(QString(str.split(");\">").first()).remove("&quot;"));
     }
+
     if(finalList.count()>0){
         emit setPlaylist(finalList);
+    }else{
+        emit failedGetSimilarTracks();
+    }
+}
+
+void SimilarTracks::getNextTracksInPlaylist(QStringList trackListFromMainWindow){
+
+    isLoadingPLaylist = true;
+
+    emit clearListKeepingPlayingTrack();
+
+    if(trackListFromMainWindow.count()>0){
+        emit setPlaylist(trackListFromMainWindow);
     }else{
         emit failedGetSimilarTracks();
     }
