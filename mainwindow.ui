@@ -1764,6 +1764,40 @@ QScrollBar:vertical {
                       <number>0</number>
                      </property>
                      <item>
+                      <widget class="controlButton" name="playlistLoaderButtton">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="focusPolicy">
+                        <enum>Qt::NoFocus</enum>
+                       </property>
+                       <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A Playlist detected, click me to add it to Smart Playlist.&lt;/p&gt;&lt;p&gt;Smart playlist will load all tracks, and play them on demand sequentially.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">border:none;
+background-color: transparent;
+</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="icons.qrc">
+                         <normaloff>:/icons/sidebar/add_playlist.png</normaloff>:/icons/sidebar/add_playlist.png</iconset>
+                       </property>
+                       <property name="iconSize">
+                        <size>
+                         <width>18</width>
+                         <height>18</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
                       <widget class="WaitingSpinnerWidget" name="similarTrackLoader" native="true">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
@@ -1773,8 +1807,8 @@ QScrollBar:vertical {
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>20</width>
-                         <height>0</height>
+                         <width>18</width>
+                         <height>18</height>
                         </size>
                        </property>
                       </widget>
@@ -1823,7 +1857,7 @@ background-color: transparent;
                        </property>
                        <property name="icon">
                         <iconset resource="icons.qrc">
-                         <normaloff>:/icons/sidebar/help.png</normaloff>:/icons/sidebar/help.png</iconset>
+                         <normaloff>:/icons/micro/help.png</normaloff>:/icons/micro/help.png</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -2311,6 +2345,11 @@ border-radius:2px;</string>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
+   <class>controlButton</class>
+   <extends>QPushButton</extends>
+   <header>controlbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
    <header>QtWebKitWidgets/QWebView</header>
@@ -2337,11 +2376,6 @@ border-radius:2px;</string>
    <class>volumeSlider</class>
    <extends>QSlider</extends>
    <header>volumeslider.h</header>
-  </customwidget>
-  <customwidget>
-   <class>controlButton</class>
-   <extends>QPushButton</extends>
-   <header>controlbutton.h</header>
   </customwidget>
   <customwidget>
    <class>WaitingSpinnerWidget</class>
