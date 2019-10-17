@@ -115,6 +115,7 @@ function open_recently_tracks(){
     $('#tracks_page .ui-content').trigger('create');
     $('#tracks_page .ui-content').fadeIn('slow');
     $.mobile.loading("hide");
+   // setNowPlaying(NowPlayingTrackId);
 }
 
 $(document).on("pagecreate", "#tracks_page", function(){

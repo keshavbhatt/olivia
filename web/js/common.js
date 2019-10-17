@@ -23,6 +23,28 @@ function isEmpty(obj) {
     return true;
 }
 
+$( document ).ajaxError(function( event, request, settings) {
+    //console.log(event,request,settings.url);
+    hideLoading();
+});
+
+$(document).ajaxStart(function() {
+    if(typeof(mainwindow)!== "undefined"){
+        mainwindow.hidePlaylistButton();
+    }
+});
+
+$(document).on( "pagechange", function() {
+    if(typeof(mainwindow)!== "undefined"){
+        mainwindow.hidePlaylistButton();
+    }
+});
+
+$( document ).ajaxSuccess(function( event, request, settings) {
+    if(typeof(mainwindow)!== "undefined"){
+        mainwindow.checkForPlaylist();
+    }
+});
 
 
 var themeColor; //sets the global themeColor for webview is accessible from all web
@@ -35,11 +57,6 @@ function hideLoading(){
         mainwindow.showAjaxError();
     }
 }
-
-$( document ).ajaxError(function( event, request, settings) {
-    console.log(event,request,settings.url);
-    hideLoading();
-});
 
 
 function msToTime(s) {
@@ -84,9 +101,11 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
     console.log(songId);
     if(typeof(songId) !== "undefined"){
         if(songId.length>0 && songId!=="0000000" && $.mobile.activePage.find("#"+songId).length > 0){
+
             //removes all now playing
-            $(".nowPlaying").remove();
-            $.mobile.activePage.remove(".nowPlaying");
+            $(".nowPlaying").each(function( index ) {
+                $(this).remove();
+            });
 
             var songIdStr = "#"+songId;
 
@@ -100,20 +119,33 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
                 maxWidth = "100px";
                 width = "100";
             }
-            //adds nowPlaying pages
-            $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth);// removed width:'+width.toString()+'px;
+
+            var wrapperWidth;
+
             $.mobile.activePage.find(songIdStr).each(function( index ) {
-              $( this ).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
+                if($.mobile.activePage.find(songIdStr).parent().attr("class")==="li-img-wrapper"){
+                    wrapperWidth =  $.mobile.activePage.find(songIdStr).parent().css("width");
+                   // $.mobile.activePage.find(songIdStr).css("cssText",'left: 0px;top: 0px; max-width:'+maxWidth);// removed width:'+width.toString()+'px;
+                    $( this ).before("<div style='max-width:"+wrapperWidth+"; width:"+wrapperWidth+";' class='nowPlaying'></div>");
+                }else{
+                   // $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth);
+                    $( this ).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
+                }
             });
 
 
             //for album [adds nowPlaying active page]
-            $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px;max-width:'+width+'px; width:'+width+'px;');
-            $.mobile.activePage.find(songIdStr).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
+            if($.mobile.activePage.find(songIdStr).parent().attr("class")==="li-img-wrapper"){
+                wrapperWidth =  $.mobile.activePage.find(songIdStr).parent().css("width");
+                $.mobile.activePage.find(songIdStr).css("cssText",'left: 0px;top: 0px;max-width:'+width+'px; width:'+width+'px;');
+            }else{
+                $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px;max-width:'+width+'px; width:'+width+'px;');
+            }
+
         }else{
-            console.log("here");
-            $(".nowPlaying").remove();
-            $.mobile.activePage.remove(".nowPlaying");
+            $(".nowPlaying").each(function( index ) {
+                $(this).remove();
+            });
         }
     }
 }

@@ -189,7 +189,12 @@ function gettrackinfo(searchterm){
 
 function track_option(track_id){
    // var channelHref = $('#'+track_id).parent().attr("data-channelhref");
-    var searchterm = $("#"+track_id).parent().attr("data-trackinfo");
+    var searchterm ;
+    if(typeof($("#"+track_id).parent().attr("data-trackinfo"))==="undefined"){
+        searchterm = $("#"+track_id).parent().parent().attr("data-trackinfo");
+    }else{
+        searchterm =   $("#"+track_id).parent().attr("data-trackinfo")
+    }
     var arr = searchterm.split("!=-=!")
     title = arr[0];
     artist = arr[1];
@@ -214,9 +219,14 @@ function track_option(track_id){
                 link = "<span >id: "+ songId+"</span>",
                 closebtn = '<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>',
                 header = '<div style="margin: -12px -12px 0px -12px;" data-role="header"><h2>Options</h2></div>',
-                img = '<img style="padding: 20px 0px 10px 0px;max-width: 200px;" src="data:image/png;base64,'+base64+'" alt="' + title + '" class="photo">',
-                details = $('#'+track_id).parent().find("p")[0].outerHTML,
+                img = '<img style="padding: 20px 0px 10px 0px;max-width: 60%;" src="data:image/png;base64,'+base64+'" alt="' + title + '" class="photo">',
                 popup = '<div data-history="false" style="text-align:center;padding:12px 12px; max-width:400px" data-transition="slideup" data-overlay-theme="b" data-dismissible="true" data-position-to="window" data-role="popup" id="popup-' + songId + '" data-short="' + songId +'"  data-corners="false" data-tolerance="15"></div>';
+                var details;
+                if(typeof($('#'+track_id).parent().find("p")[0])==="undefined"){
+                    details = $('#'+track_id).parent().parent().parent().find("p")[1].outerHTML;
+                }else{
+                    details = $('#'+track_id).parent().find("p")[0].outerHTML
+                }
             $( link ).appendTo($( details ));
             // Create the popup.
             $( header )

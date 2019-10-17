@@ -90,12 +90,12 @@ function overview(){
 
     showLoading();
     $("#overview_page .ui-loader-overview").show();
+    $("#pageloader i").text("Loading content please wait...");
     $.ajax({
         url: baseUrl+"overview.php",
         success: function(html) {
             $.mobile.loading("hide");
             overview_loaded = true;
-//          $('#overview_page .ui-content').fadeOut('slow');
             $('#overview_page .ui-content').html(html);
             $('#overview_page .ui-content').trigger('create').fadeIn('slow');
             $("#overview_page .ui-loader-overview").hide();
@@ -108,6 +108,7 @@ function overview(){
             }
         },error: function(){
             overview_loaded = false;
+            $("#pageloader i").text("An error occured, Unable to connect to host.");
         }
     });
 }
@@ -268,6 +269,7 @@ function get_categories(url){
          country = "US";
     }
     showLoading();
+    $.mobile.activePage.find("#pageloader").fadeOut();
     $.ajax({
        url: baseUrl+"spotify/featured_categories.php",
               type:"GET",
@@ -287,6 +289,8 @@ function get_categories(url){
            categories_loaded = true;
        },error: function(){
            categories_loaded = false;
+           $.mobile.activePage.find("#pageloader i").text("An error occured, Unable to connect to host.");
+           $.mobile.activePage.find("#pageloader").fadeIn();
        }
    });
 }
@@ -303,6 +307,7 @@ function show_category_playlist(categoy_id,url){
     $('body').css('overflow','auto');
     $("#playlist_result").empty();
     showLoading();
+    $.mobile.activePage.find("#pageloader").fadeOut();
     $.ajax({
        url: baseUrl+"spotify/get_featured_categories_playlist.php",
               type:"GET",
@@ -321,6 +326,8 @@ function show_category_playlist(categoy_id,url){
            $('#playlist_result .ui-content').fadeIn('slow');
        },error: function(){
            $.mobile.loading("hide");
+           $.mobile.activePage.find("#pageloader i").text("An error occured, Unable to connect to host.");
+           $.mobile.activePage.find("#pageloader").fadeIn();
        }
    });
 }
@@ -330,6 +337,7 @@ function show_playlist(p_id,url){
     $('#playlist_tracks_result').html("");
     $('body').css('overflow','auto');
     showLoading();
+    $.mobile.activePage.find("#pageloader").fadeOut();
      $.ajax({
         url: baseUrl+"spotify/get_playlist_tracks.php",
                type:"GET",
@@ -347,6 +355,8 @@ function show_playlist(p_id,url){
                     $('#playlist_tracks_result .ui-content').fadeIn('slow');
                 },error: function(){
                     $.mobile.loading("hide");
+                    $.mobile.activePage.find("#pageloader i").text("An error occured, Unable to connect to host.");
+                    $.mobile.activePage.find("#pageloader").fadeIn();
                 }
     });
 }
@@ -367,6 +377,8 @@ function get_new_release(url){
          country = "US";
     }
     showLoading();
+    $.mobile.activePage.find("#pageloader").fadeOut();
+
     $.ajax({
        url: baseUrl+"spotify/new_release.php",
               type:"GET",
@@ -386,6 +398,8 @@ function get_new_release(url){
            album_loaded = true;
        },error: function(){
            album_loaded = false;
+           $.mobile.activePage.find("#pageloader i").text("An error occured, Unable to connect to host.");
+           $.mobile.activePage.find("#pageloader").fadeIn();
        }
    });
 }
@@ -398,6 +412,8 @@ function album_view(id){
     $('#album_view_page .ui-content').html("");
     $('body').css('overflow','auto');
     showLoading();
+    $.mobile.activePage.find("#pageloader").fadeOut();
+
     if(paginator.isOffline("album_view","album_view",id))
     {
         var html = paginator.load("album_view","album_view",id);
@@ -425,6 +441,9 @@ function album_view(id){
                 if(typeof(NowPlayingTrackId) !== "undefined"){
                     setNowPlaying(NowPlayingTrackId);
                 }
+            },error:function(){
+                $.mobile.activePage.find("#pageloader i").text("An error occured, Unable to connect to host.");
+                $.mobile.activePage.find("#pageloader").fadeIn();
             }
         });
     }
