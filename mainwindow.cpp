@@ -278,6 +278,8 @@ void MainWindow::init_settings(){
     settingsUi.tracksToLoad->setMinimum(1);
     settingsUi.tracksToLoad->setMaximum(10);
 
+    //TODO test dbOp algo before making it public
+    settingsUi.optimizeDb->hide();
     connect(settingsUi.optimizeDb,&controlButton::clicked,[=](){
         QMessageBox msgBox;
         msgBox.setText("This will remove unneccesary tracks meta data from databse and make it faster.");
@@ -285,7 +287,7 @@ void MainWindow::init_settings(){
 
         msgBox.setInformativeText("Optimize Database ?");
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        msgBox.setDefaultButton(QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::Yes);
         int ret = msgBox.exec();
         switch (ret) {
           case QMessageBox::Yes:{
@@ -1383,8 +1385,7 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     meta.chop(5); //remove last !=-=!
     track_ui.meta->setText(meta);
     track_ui.meta->hide();
-    connect(track_ui.option,SIGNAL(clicked(bool)),this,SLOT(showRecommendedTrackOption()));
-
+    connect(track_ui.option,SIGNAL(clicked(bool)),this,SLOT(showTrackOption()));
    // LoadCover( QUrl(coverUrl),*track_ui.cover);
     base64 = base64.split("base64,").last();
     QByteArray ba = base64.toUtf8();
@@ -1741,57 +1742,6 @@ void MainWindow::reverseYtdlProcessList(){
     }
 }
 
-void MainWindow::showRecommendedTrackOption(){
-    QPushButton* senderButton = qobject_cast<QPushButton*>(sender());
-    QString songId = senderButton->objectName().remove("optionButton").trimmed();
-    QString meta = senderButton->parent()->findChild<QLineEdit*>("meta")->text().trimmed();
-    QStringList arr = meta.split("!=-=!");
-    QString base64,dominantColor,artist,album,ytIds,albumId,artistId,title,coverUrl;
-
-    if(arr.count()==11){
-        title= arr.at(0);
-        artist= arr.at(1);
-        album= arr.at(2);
-        coverUrl= arr.at(3);
-        songId= arr.at(4);
-        albumId= arr.at(5);
-        artistId = arr.at(6);
-
-        dominantColor = arr.at(9);
-        base64 = arr.at(10);
-
-        if(albumId.contains("undefined")){ //yt case
-            ytIds = arr[4];
-        }
-    }
-
-    QAction *addToLibrary = new QAction("Add song to collection",nullptr);
-    addToLibrary->setIcon(QIcon(":/icons/sidebar/addToLibrary.png"));
-
-    base64.remove("data:image/jpeg;base64,");
-    base64.remove("data:image/jpg;base64,");
-    base64.remove("data:image/png;base64,");
-
-    connect(addToLibrary,&QAction::triggered,[=](){
-        if(arr.count()==11){
-            //SAVE DATA TO LOCAL DATABASE
-            store_manager->saveAlbumArt(albumId,base64);
-            store_manager->saveArtist(artistId,artist);
-            store_manager->saveAlbum(albumId,album);
-            store_manager->saveDominantColor(albumId,dominantColor);
-            store_manager->saveytIds(songId,ytIds);
-            store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
-            qDebug()<<"saved song to Library";
-        }else{
-           qDebug()<<"Unable to add song to Library";
-        }
-    });
-
-    QMenu menu;
-    menu.addAction(addToLibrary);
-    menu.setStyleSheet(menuStyle());
-    menu.exec(QCursor::pos());
-}
 
 void MainWindow::showTrackOption(){
 
@@ -1927,20 +1877,17 @@ void MainWindow::showTrackOption(){
 
 void MainWindow::remove_song(QVariant track_id){
     QString songId = track_id.toString().remove("<br>").trimmed();
-    for (int i= 0;i<ui->olivia_list->count();i++) {
-       QString songIdFromWidget = static_cast<QLineEdit*>(ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-        if(songId==songIdFromWidget){
-            ui->olivia_list->takeItem(i);
-            store_manager->removeFromQueue(songId);
-            break;
-        }
-    }
-    for (int i= 0;i<ui->youtube_list->count();i++) {
-       QString songIdFromWidget = static_cast<QLineEdit*>(ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
-        if(songId==songIdFromWidget){
-            ui->youtube_list->takeItem(i);
-            store_manager->removeFromQueue(songId);
-            break;
+    QListWidget *queue = this->findChild<QListWidget*>(getCurrentPlayerQueue(songId));
+    if(queue!=nullptr){
+        QWidget *listWidgetItem = queue->findChild<QWidget*>("track-widget-"+songId);
+        if(listWidgetItem!=nullptr){
+            for (int i= 0;i<queue->count();i++) {
+                QString songIdFromWidget = static_cast<QLineEdit*>(queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+                 if(songIdFromWidget.contains(songId)){
+                    queue->takeItem(i);
+                 }
+            }
+           store_manager->removeFromQueue(songId);
         }
     }
 }
@@ -1970,6 +1917,19 @@ void MainWindow::delete_song_cache(QVariant track_id){
             ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
             if(store_manager->getExpiry(songId)){
                 ui->youtube_list->itemWidget(ui->youtube_list->item(i))->setEnabled(false);
+                getAudioStream(store_manager->getYoutubeIds(songId),songId);
+            }
+            break;
+        }
+    }
+
+    for (int i= 0;i<ui->smart_list->count();i++) {
+       QString songIdFromWidget = static_cast<QLineEdit*>(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+        if(songId==songIdFromWidget){
+            ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("offline")->setPixmap(QPixmap(":/icons/blank.png"));
+            ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLineEdit*>("url")->setText(store_manager->getOfflineUrl(songId));
+            if(store_manager->getExpiry(songId)){
+                ui->smart_list->itemWidget(ui->youtube_list->item(i))->setEnabled(false);
                 getAudioStream(store_manager->getYoutubeIds(songId),songId);
             }
             break;
@@ -2562,6 +2522,7 @@ void MainWindow::checkForPlaylist(){
     QVariant ulCount = ui->webview->page()->mainFrame()->evaluateJavaScript("$.mobile.activePage.find('ul').length");
     if(ulCount.isValid()){
         int totalUl = ulCount.toInt();
+        qDebug()<<ulCount.isValid()<<totalUl;
         // find ul which contains gettrackinfo
         for (int i = 0; i < totalUl; i++) {
             QVariant validList = ui->webview->page()->mainFrame()->evaluateJavaScript("$($.mobile.activePage.find('ul')["+QString::number(i)+"]).html().includes('gettrackinfo')");
@@ -3889,7 +3850,7 @@ void MainWindow::on_jump_to_nowplaying_clicked()
     ui->filter_youtube->clear();
 
     //identify the player queue name
-    QString listName = getCurrentPlayerQueue();
+    QString listName = getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue());
     QListWidget *listWidget = this->findChild<QListWidget*>(listName);
     QWidget *listWidgetItem = listWidget->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
 
@@ -3973,15 +3934,15 @@ void MainWindow::on_playlistLoaderButtton_clicked()
             }
         }
     }
-    if(getCurrentPlayerQueue()=="smart_list"){
+    if(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue())=="smart_list"){
         ui->next->setEnabled(false);
     }
 }
 
 //returns the player queue where the player is playing track
-QString MainWindow::getCurrentPlayerQueue(){
+QString MainWindow::getCurrentPlayerQueue(QString songId){
     QString listName;
-    QList<QWidget*>listWidgetItems = ui->right_panel->findChildren<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
+    QList<QWidget*>listWidgetItems = ui->right_panel->findChildren<QWidget*>("track-widget-"+songId);
     if(listWidgetItems.isEmpty()){
         qDebug()<<"PLAYER QUEUE NOT FOUND";
     }else{
