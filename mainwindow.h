@@ -236,6 +236,9 @@ private slots:
     void show_recently_played();
     void on_playlistLoaderButtton_clicked();
 
+    void show_liked_songs();
+    void show_playlists();
+    QString getCurrentPlayerQueue();
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;

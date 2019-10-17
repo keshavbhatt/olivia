@@ -278,6 +278,30 @@ void MainWindow::init_settings(){
     settingsUi.tracksToLoad->setMinimum(1);
     settingsUi.tracksToLoad->setMaximum(10);
 
+    connect(settingsUi.optimizeDb,&controlButton::clicked,[=](){
+        QMessageBox msgBox;
+        msgBox.setText("This will remove unneccesary tracks meta data from databse and make it faster.");
+              msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+
+        msgBox.setInformativeText("Optimize Database ?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+        int ret = msgBox.exec();
+        switch (ret) {
+          case QMessageBox::Yes:{
+                store_manager->cleanUp();
+                utils* util = new utils(this);
+                    settingsUi.database_size->setText(util->refreshCacheSize(setting_path+"/storeDatabase/"+database));
+                    util->deleteLater();
+                    clear_queue();
+                    loadPlayerQueue();
+            break;
+        }
+          case  QMessageBox::No:
+            break;
+        }
+    });
+
     connect(settingsUi.tracksToLoad, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),[=](int value){
         similarTracks->numberOfSimilarTracksToLoad = value-1;
         settingsObj.setValue("similarTracksToLoad",similarTracks->numberOfSimilarTracksToLoad);
@@ -2052,63 +2076,18 @@ void MainWindow::ytdlReadyRead(){
     QByteArray b;
     b.append(senderProcess->readAll());
     QString s_data = QTextCodec::codecForMib(106)->toUnicode(b).trimmed();
-  //  qDebug()<<s_data;
 
     if(!s_data.isEmpty()){
-            QString listName;
-            QListWidget *listWidget;
-            QWidget *listWidgetItem = ui->olivia_list->findChild<QWidget*>("track-widget-"+songId);
-            listName = "olivia";
-            listWidget = ui->olivia_list;
-
-            if(listWidgetItem==nullptr){
-                listWidgetItem= ui->youtube_list->findChild<QWidget*>("track-widget-"+songId);
-                listName = "youtube";
-                listWidget = ui->youtube_list;
-            }
-
-            if(listWidgetItem==nullptr){
-                listWidgetItem= ui->smart_list->findChild<QWidget*>("track-widget-"+songId);
-                listName = "recommended";
-                listWidget = ui->smart_list;
-            }
-
-
-            //check if listWidgetItem found in one of list
-            if(listWidgetItem==nullptr){
-                qDebug()<<"TRACK NOT FOUND IN LIST";
-                listName = "";
-                QProcess* senderProcess = qobject_cast<QProcess*>(sender());
-                senderProcess->close();
-                if(senderProcess != nullptr)
-                senderProcess->deleteLater();
-            }else{
-                //algo to assign next/previous song if current processed track is next to currently playing track.
-                int row;
-                if(!listName.isEmpty()){
-                    for(int i=0;i<listWidget->count();i++){
-                        if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
-                            row = i;
-                            if( row+1 <= listWidget->count()){
-                             if(row != 0){
-                                if(listWidget->itemWidget(listWidget->item(row-1))->objectName().contains(nowPlayingSongIdWatcher->getValue())){
-                                    assignNextTrack(listWidget,row);
-                                    ui->next->setEnabled(true);
-                                }
-                             }
-                             if(row+1 != listWidget->count()){
-                                if(listWidget->itemWidget(listWidget->item(row+1))->objectName().contains(nowPlayingSongIdWatcher->getValue())){
-                                    assignPreviousTrack(listWidget,row);
-                                    ui->previous->setEnabled(true);
-                                }
-                             }
-                            }
-                          break;
-                        }
-                    }
-                }
-                //END algo to assign next/previous song if current processed track is next to currently playing track.
-
+        QList<QWidget*>listWidgetItems = ui->right_panel->findChildren<QWidget*>("track-widget-"+songId);
+        if(listWidgetItems.isEmpty()){
+            qDebug()<<"TRACK NOT FOUND IN LIST";
+            senderProcess->close();
+            if(senderProcess != nullptr)
+            senderProcess->deleteLater();
+        }else{
+            foreach (QWidget *listWidgetItem, listWidgetItems) {
+                QListWidget *listWidget = static_cast<QListWidget*>(listWidgetItem->parent()->parent());
+                QString listName = listWidget->objectName();
                 if(s_data.contains("https")){
                     if(s_data.contains("manifest/dash/")){
                         //qDebug()<<"MENIFEAT URL:"<<s_data;
@@ -2117,7 +2096,6 @@ void MainWindow::ytdlReadyRead(){
                             listWidgetItem->setEnabled(true);
                             QLineEdit *url = listWidgetItem->findChild<QLineEdit *>("url");
                             static_cast<QLineEdit*>(url)->setText(m48url);
-                            //TODO
                             store_manager->saveStreamUrl(songId,m48url,getExpireTime(m48url));
                             mfr->deleteLater();
                         });
@@ -2134,18 +2112,45 @@ void MainWindow::ytdlReadyRead(){
                         store_manager->saveStreamUrl(songId,url_str,getExpireTime(url_str));
                     }
 
+                    //algo to assign next/previous song if current processed track is next to currently playing track.
+                    int row;
+                    if(!listName.isEmpty()){
+                        for(int i=0;i<listWidget->count();i++){
+                            if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
+                                row = i;
+                                if( row+1 <= listWidget->count()){
+                                 if(row != 0){
+                                    if(listWidget->itemWidget(listWidget->item(row-1))->objectName().contains(nowPlayingSongIdWatcher->getValue())){
+                                        assignNextTrack(listWidget,row);
+                                        ui->next->setEnabled(true);
+                                    }
+                                 }
+                                 if(row+1 != listWidget->count()){
+                                    if(listWidget->itemWidget(listWidget->item(row+1))->objectName().contains(nowPlayingSongIdWatcher->getValue())){
+                                        assignPreviousTrack(listWidget,row);
+                                        ui->previous->setEnabled(true);
+                                    }
+                                 }
+                                }
+                              break;
+                            }
+                        }
+                    }
+                    //END algo to assign next/previous song if current processed track is next to currently playing track.
+
+
                     //stop spinner
-                    if(listName=="recommended"){
+                    if(listName=="smart_list"){
                         ui->similarTrackLoader->stop();
                         if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
                     }
                     //delete process/task
-                    QProcess* senderProcess = qobject_cast<QProcess*>(sender());
                     senderProcess->close();
                     if(senderProcess != nullptr)
                     senderProcess->deleteLater();
                 }
             }
+        }
     }
 }
 
@@ -2199,10 +2204,10 @@ void MainWindow::on_left_list_currentRowChanged(int currentRow)
          show_local_saved_videos();
         break;
     case 8:
-         show_local_saved_videos();
+         show_liked_songs();
         break;
     case 9:
-         show_local_saved_videos();
+         show_playlists();
         break;
     case 10:
          show_recently_played();
@@ -2263,11 +2268,6 @@ void MainWindow::show_top(){
     ui->webview->load(QUrl("qrc:///web/top/top.html"));
 }
 
-//void MainWindow::show_saved_songs(){
-//    pageType = "saved_songs";
-//    ui->webview->load(QUrl("qrc:///web/songs/songs.html"));
-//}
-
 void MainWindow::show_local_saved_songs(){
     pageType = "local_saved_songs";
     ui->webview->load(QUrl("qrc:///web/local_songs/local_songs.html"));
@@ -2276,6 +2276,16 @@ void MainWindow::show_local_saved_songs(){
 void MainWindow::show_local_saved_videos(){
     pageType = "local_saved_videos";
     ui->webview->load(QUrl("qrc:///web/local_videos/local_videos.html"));
+}
+
+void MainWindow::show_liked_songs(){
+    pageType = "liked_songs";
+    ui->webview->load(QUrl("qrc:///web/liked_songs/liked_songs.html"));
+}
+
+void MainWindow::show_playlists(){
+    pageType = "playlists";
+    ui->webview->load(QUrl("qrc:///web/playlists/playlists.html"));
 }
 
 void MainWindow::show_recently_played(){
@@ -3329,9 +3339,10 @@ void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
                          delete item;
                      }
                 }
+                ui->previous->setEnabled(false);
             }
         }
-        ui->previous->setEnabled(false);
+
         if(similarTracks->isLoadingPLaylist){
             similarTracks->getNextTracksInPlaylist(currentSimilarTrackList);
         }else{
@@ -3878,21 +3889,10 @@ void MainWindow::on_jump_to_nowplaying_clicked()
     ui->filter_youtube->clear();
 
     //identify the player queue name
-    QString listName;
-    QListWidget *listWidget;
-    QWidget *listWidgetItem = ui->olivia_list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
-    listWidget = ui->olivia_list;
-    listName = "olivia_list";
-    if(listWidgetItem==nullptr){
-        listWidgetItem= ui->youtube_list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
-        listWidget = ui->youtube_list;
-        listName = "youtube_list";
-    }
-    if(listWidgetItem==nullptr){
-        listWidgetItem= ui->smart_list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
-        listWidget = ui->smart_list;
-        listName = "smart_list";
-    }
+    QString listName = getCurrentPlayerQueue();
+    QListWidget *listWidget = this->findChild<QListWidget*>(listName);
+    QWidget *listWidgetItem = listWidget->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
+
     listClearSelection(listName);
 
     //check if listWidgetItem found in one of list
@@ -3973,4 +3973,22 @@ void MainWindow::on_playlistLoaderButtton_clicked()
             }
         }
     }
+    if(getCurrentPlayerQueue()=="smart_list"){
+        ui->next->setEnabled(false);
+    }
+}
+
+//returns the player queue where the player is playing track
+QString MainWindow::getCurrentPlayerQueue(){
+    QString listName;
+    QList<QWidget*>listWidgetItems = ui->right_panel->findChildren<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
+    if(listWidgetItems.isEmpty()){
+        qDebug()<<"PLAYER QUEUE NOT FOUND";
+    }else{
+        foreach (QWidget *listWidgetItem, listWidgetItems) {
+            QListWidget *listWidget = static_cast<QListWidget*>(listWidgetItem->parent()->parent());
+            listName = listWidget->objectName();
+        }
+    }
+    return listName;
 }
