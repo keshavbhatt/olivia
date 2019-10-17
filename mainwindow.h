@@ -225,7 +225,6 @@ private slots:
     void on_smart_list_itemDoubleClicked(QListWidgetItem *item);
     void startGetRecommendedTrackForAutoPlayTimer(QString songId);
     bool similarTracksListHasTrackToBeRemoved();
-    void showRecommendedTrackOption();
     void showPayPalDonationMessageBox();
     void prepareSimilarTracks();
     void similarTracksProcessHelper();
@@ -238,7 +237,7 @@ private slots:
 
     void show_liked_songs();
     void show_playlists();
-    QString getCurrentPlayerQueue();
+    QString getCurrentPlayerQueue(QString songId);
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
