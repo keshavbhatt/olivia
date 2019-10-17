@@ -108,5 +108,8 @@
         <file>icons/sidebar/help.png</file>
         <file>icons/micro/delete.png</file>
         <file>icons/sidebar/removeFromLibrary.png</file>
+        <file>icons/micro/storage.png</file>
+        <file>icons/micro/playlist_add.png</file>
+        <file>icons/micro/help.png</file>
     </qresource>
 </RCC>
