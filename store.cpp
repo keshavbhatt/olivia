@@ -1214,22 +1214,40 @@ void store::cleanUp(){
     //if track in not in use in above remove them from database
 
     QSqlQuery query;
-    QStringList trackToRemove; //useless ids after 100 recent tracks
+    QStringList trackToRemove; //useless ids after 50 recent tracks
     query.exec("SELECT trackId FROM recently_played ORDER BY timestamp DESC LIMIT 1000 OFFSET 50");
         while(query.next()){
              trackToRemove.append(query.value("trackId").toString());
         }
-    bool found;
+
     for (int i = 0; i < trackToRemove.count(); i++) {
         QSqlQuery q;
-        found =q.exec("SELECT trackId FROM queue WHERE trackId ='"+trackToRemove.at(i)+"';");
-        if(found && q.next()){
-            found = q.exec("SELECT trackId FROM tracks WHERE downloaded ='1';");
-            if(found && q.next()){
-                //remove track from trackToRemove list
-                trackToRemove.removeAt(i);
-            }
+        q.exec("SELECT trackId FROM queue WHERE trackId ='"+trackToRemove.at(i)+"';");
+        while(q.next()){
+            trackToRemove.removeAt(i);
         }
+    }
+    for (int i = 0; i < trackToRemove.count(); i++) {
+        QSqlQuery q;
+        q.exec("SELECT trackId FROM tracks WHERE downloaded ='1' AND trackId='"+trackToRemove.at(i)+"';");
+        while(q.next()){
+            //remove track from trackToRemove list
+            trackToRemove.removeAt(i);
+        }
+    }
+
+    QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QDir dir(setting_path+"/downloadedVideos/");
+    QStringList filter;
+    filter<< +"*.webm"<<"*.mp4"<<"*.mpeg"<<"*.mkv"<<"*.avi"<<"*.flv"<<"*.ogv"<<"*.ogg";
+    QFileInfoList files = dir.entryInfoList(filter);
+    foreach (QFileInfo fileInfo, files) {
+         QString trackId = fileInfo.baseName();
+         for (int i = 0; i < trackToRemove.count(); i++) {
+             if(trackToRemove.at(i) == trackId){
+                 trackToRemove.removeAt(i);
+             }
+         }
     }
     qDebug()<<trackToRemove;
     //remove track found in trackToRemove list
@@ -1240,6 +1258,8 @@ void store::cleanUp(){
             QSqlQuery().exec("DELETE FROM stream_url WHERE trackId = '"+trackId+"';");
         //from ytids table
             QSqlQuery().exec("DELETE FROM ytids WHERE trackId = '"+trackId+"';");
+        //from player queue
+            QSqlQuery().exec("DELETE FROM queue WHERE trackId = '"+trackId+"';");
 
         //from color table
         //from arts table
