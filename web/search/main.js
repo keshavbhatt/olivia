@@ -126,7 +126,6 @@ function track_search(term){
         $('#tracks_page .ui-content').trigger('create');
         $('#tracks_page .ui-content').fadeIn('slow');
         track_loaded = true;
-        mainwindow.resultLoaded();
 
     }else{
         $.ajax({
@@ -148,7 +147,9 @@ function track_search(term){
                $('#tracks_page .ui-content').trigger('create');
                $('#tracks_page .ui-content').fadeIn('slow');
                track_loaded = true;
-               mainwindow.resultLoaded();
+               if(typeof(mainwindow)!== "undefined"){
+                   mainwindow.checkForPlaylist();
+               }
            }
        });
     }
@@ -170,7 +171,7 @@ function album_search(term){
             $('#albums_page .ui-content').trigger('create');
             $('#albums_page .ui-content').fadeIn('slow');
             album_loaded = true;
-            mainwindow.resultLoaded();
+
         }
     });
 }
@@ -189,7 +190,7 @@ function artist_search(term){
             $('#artists_page .ui-content').trigger('create');
             $('#artist_page .ui-content').fadeIn('slow');
             artist_loaded = true;
-            mainwindow.resultLoaded();
+
         }
     });
 }
