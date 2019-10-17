@@ -105,6 +105,7 @@ void MainWindow::init_similar_tracks(){
                     }
                 }
             }
+            ui->previous->setEnabled(false);
         });
     }
 }
@@ -668,6 +669,8 @@ const QColor& SelectColorButton::getColor(){
 
 //set up app #1
 void MainWindow::init_app(){
+    ui->playlistLoaderButtton->hide();
+
     ui->olivia_list->setDragDropMode(QAbstractItemView::NoDragDrop);
     ui->youtube_list->setDragDropMode(QAbstractItemView::NoDragDrop);
     ui->smart_list->setDragDropMode(QAbstractItemView::NoDragDrop);
@@ -719,9 +722,9 @@ void MainWindow::init_app(){
     ui->similarTrackLoader->setMinimumTrailOpacity(15.0);
     ui->similarTrackLoader->setTrailFadePercentage(70.0);
     ui->similarTrackLoader->setNumberOfLines(10);
-    ui->similarTrackLoader->setLineLength(6);
+    ui->similarTrackLoader->setLineLength(5);
     ui->similarTrackLoader->setLineWidth(2);
-    ui->similarTrackLoader->setInnerRadius(3);
+    ui->similarTrackLoader->setInnerRadius(2);
     ui->similarTrackLoader->setRevolutionsPerSecond(1);
     ui->similarTrackLoader->setColor(QColor(227, 222, 222));
 
@@ -732,10 +735,8 @@ void MainWindow::init_app(){
     ui->recommWidget->hide();
     ui->show_hide_smart_list_button->setToolTip("Show Similar Tracks");
 
-
     setWindowIcon(QIcon(":/icons/olivia.png"));
     setWindowTitle(QApplication::applicationName());
-
 
     ElidedLabel *title = new ElidedLabel("-",nullptr);
     ElidedLabel *artist = new ElidedLabel("-",nullptr);
@@ -1161,6 +1162,7 @@ void MainWindow::webViewLoaded(bool loaded){
             ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongIdWatcher->getValue()+"'");
             ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+nowPlayingSongIdWatcher->getValue()+"')");
         }
+
         QWebSettings::globalSettings()->clearMemoryCaches();
         ui->webview->history()->clear();
     }
@@ -1388,6 +1390,8 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
         if(store_manager->isDownloaded(songId)){
             ui->smart_list->itemWidget(item)->setEnabled(true);
             ui->similarTrackLoader->stop();
+            if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
+
             track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
             track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         }else{
@@ -1403,6 +1407,8 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
                 }else{
                     ui->smart_list->itemWidget(item)->setEnabled(true);
                     ui->similarTrackLoader->stop();
+                    if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
+
                     track_ui.url->setText(store_manager->getOfflineUrl(songId));
                 }
             }
@@ -1421,6 +1427,8 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
             track_ui.id->setText(store_manager->getYoutubeIds(songId));
             ui->smart_list->itemWidget(item)->setEnabled(true);
             ui->similarTrackLoader->stop();
+            if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
+
             track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
             track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         }else{
@@ -1454,6 +1462,8 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
                 }else{
                     ui->smart_list->itemWidget(item)->setEnabled(true);
                     ui->similarTrackLoader->stop();
+                    if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
+
                     track_ui.url->setText(store_manager->getOfflineUrl(songId));
                 }
             }
@@ -1683,7 +1693,12 @@ void MainWindow::prepareTrack(QString songId,QString query,QString millis,QListW
              //save ytids to store
              store_manager->saveytIds(songId,ytIds);
              getAudioStream(ytIds,songId);
-             reverseYtdlProcessList();
+             if(similarTracks->isLoadingPLaylist==false){
+                 reverseYtdlProcessList();
+             }
+             if(ytdlQueue.count() > 3){
+                 reverseYtdlProcessList();
+             }
              rep->deleteLater();
              m_netwManager->deleteLater();
         }else{
@@ -2122,6 +2137,7 @@ void MainWindow::ytdlReadyRead(){
                     //stop spinner
                     if(listName=="recommended"){
                         ui->similarTrackLoader->stop();
+                        if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
                     }
                     //delete process/task
                     QProcess* senderProcess = qobject_cast<QProcess*>(sender());
@@ -2151,7 +2167,6 @@ QString MainWindow::getExpireTime(const QString urlStr){
     if(expiryTime.isEmpty() || !isNumericStr(expiryTime)){
         expiryTime = QString::number((QDateTime::currentMSecsSinceEpoch()/1000)+18000);
     }
-
     return expiryTime;
 }
 
@@ -2276,64 +2291,16 @@ void MainWindow::internet_radio(){
 //PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::on_olivia_list_itemDoubleClicked(QListWidgetItem *item)
 {
-
-    //hide playing labels in other list
-    QList<QLabel*> playing_label_list_other;
-    playing_label_list_other = ui->youtube_list->findChildren<QLabel*>("playing");
-    foreach (QLabel *playing, playing_label_list_other) {
-        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-        playing->setToolTip("");
-    }
-
-    QList<QLabel*> playing_label_list_other2;
-    playing_label_list_other2 = ui->smart_list->findChildren<QLabel*>("playing");
-    foreach (QLabel *playing, playing_label_list_other2) {
-        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-        playing->setToolTip("");
-    }
-
     listItemDoubleClicked(ui->olivia_list,item);
 }
 
 void MainWindow::on_smart_list_itemDoubleClicked(QListWidgetItem *item)
 {
-    //hide playing labels in other list
-    QList<QLabel*> playing_label_list_other;
-    playing_label_list_other = ui->olivia_list->findChildren<QLabel*>("playing");
-    foreach (QLabel *playing, playing_label_list_other) {
-        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-        playing->setToolTip("");
-    }
-
-
-    QList<QLabel*> playing_label_list_other_2;
-    playing_label_list_other_2 = ui->youtube_list->findChildren<QLabel*>("playing");
-    foreach (QLabel *playing, playing_label_list_other_2) {
-        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-        playing->setToolTip("");
-    }
-
     listItemDoubleClicked(ui->smart_list,item);
 }
 
 void MainWindow::on_youtube_list_itemDoubleClicked(QListWidgetItem *item)
 {
-
-    //hide playing labels in other list
-    QList<QLabel*> playing_label_list_other;
-    playing_label_list_other = ui->olivia_list->findChildren<QLabel*>("playing");
-    foreach (QLabel *playing, playing_label_list_other) {
-        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-        playing->setToolTip("");
-    }
-
-    QList<QLabel*> playing_label_list_other2;
-    playing_label_list_other2 = ui->smart_list->findChildren<QLabel*>("playing");
-    foreach (QLabel *playing, playing_label_list_other2) {
-        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-        playing->setToolTip("");
-    }
-
     listItemDoubleClicked(ui->youtube_list,item);
 }
 
@@ -2366,14 +2333,7 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     ui->cover->setPixmap(QPixmap(*cover->pixmap()).scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     QPixmap(*cover->pixmap()).save(QString(setting_path+"/albumArts/"+"currentArt.png"),0);
 
-
-   //hide playing labels in current list
-    QList<QLabel*> playing_label_list_;
-    playing_label_list_ = list->findChildren<QLabel*>("playing");
-    foreach (QLabel *playing, playing_label_list_) {
-        playing->setPixmap(QPixmap(":/icons/blank.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-        playing->setToolTip("");
-    }
+    setTrackItemNowPlaying();
 
     //show now playing on current track
     QLabel *playing = list->itemWidget(item)->findChild<QLabel *>("playing");
@@ -2418,7 +2378,6 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
             }
         }
     }
-
     getNowPlayingTrackId();
 
     ui->nowplaying_widget->setImage(*cover->pixmap());
@@ -2580,8 +2539,28 @@ void MainWindow::resizeEvent(QResizeEvent *resizeEvent){
     QMainWindow::resizeEvent(resizeEvent);
 }
 
+//called from common.js
 void MainWindow::showAjaxError(){
     qDebug()<<"NETWORK ERROR OR USER CANCELED REQUEST";
+}
+//called from common.js
+void MainWindow::hidePlaylistButton(){
+    ui->playlistLoaderButtton->hide();
+}
+//called from common.js
+void MainWindow::checkForPlaylist(){
+    QVariant ulCount = ui->webview->page()->mainFrame()->evaluateJavaScript("$.mobile.activePage.find('ul').length");
+    if(ulCount.isValid()){
+        int totalUl = ulCount.toInt();
+        // find ul which contains gettrackinfo
+        for (int i = 0; i < totalUl; i++) {
+            QVariant validList = ui->webview->page()->mainFrame()->evaluateJavaScript("$($.mobile.activePage.find('ul')["+QString::number(i)+"]).html().includes('gettrackinfo')");
+            if(validList.isValid() && validList.toBool() == true){
+                ui->playlistLoaderButtton->show();
+                break;
+            }
+        }
+    }
 }
 
 //returns theme color from common.js
@@ -2605,10 +2584,9 @@ void MainWindow::radioStatus(QString radioState){
         ui->stop->setEnabled(false);
         ui->play_pause->setEnabled(false);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
-
         //remove nowplaying from central widget
-        nowPlayingSongIdWatcher->setValue("0000000"); //null
         setTrackItemNowPlaying();
+        nowPlayingSongIdWatcher->setValue("0000000"); //null
 
         // play next track
         if(ui->next->isEnabled()){
@@ -2619,6 +2597,13 @@ void MainWindow::radioStatus(QString radioState){
                 //show smart list if enabled
                 if(settingsObj.value("smart_playlist",true).toBool() && !ui->recommWidget->isVisible()){
                     ui->show_hide_smart_list_button->click();
+                }
+                //check if last track is playing from a playlist if thats the case prevent from reasigning smae track again
+                if(this->similarTracks->isLoadingPLaylist && currentSimilarTrackList.count()<1){
+                    radio_manager->radioPlaybackTimer->stop();
+                    ui->state->setText(radioState);
+                    ui->previous->setEnabled(false);
+                    return;
                 }
                 //assign next track in list if next item in list is valid
                 for(int i=0;i<ui->smart_list->count();i++){
@@ -2637,13 +2622,14 @@ void MainWindow::radioStatus(QString radioState){
         }
     }
     else if(radioState=="stopped"){
+        setTrackItemNowPlaying();
         nowPlayingSongIdWatcher->setValue("0000000");
         ui->stop->setEnabled(false);
         ui->play_pause->setEnabled(false);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
-        setTrackItemNowPlaying();
     }
     if(radioState=="failed"){
+        setTrackItemNowPlaying();
         nowPlayingSongIdWatcher->setValue("0000000");
         if(!ui->debug_widget->isVisible())
             ui->debug_widget->show();
@@ -2652,18 +2638,14 @@ void MainWindow::radioStatus(QString radioState){
 }
 
 
-
-
-void MainWindow::setTrackItemNowPlaying(){ //removes playing icon from lists
-    for (int i= 0;i<ui->olivia_list->count();i++) {
-      ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
-    }
-    for (int i= 0;i<ui->youtube_list->count();i++) {
-      ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
-    }
-    for (int i= 0;i<ui->smart_list->count();i++) {
-      ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
-    }
+//removes playing icon and tooltips from lists trackItem
+void MainWindow::setTrackItemNowPlaying(){
+    QString previousNowPlayingTrackId = nowPlayingSongIdWatcher->getValue();
+       QList<QWidget*>listWidgetItems =ui->right_panel->findChildren<QWidget*>("track-widget-"+previousNowPlayingTrackId);
+       foreach (QWidget *listWidgetItem, listWidgetItems) {
+           listWidgetItem->findChild<QLabel *>("playing")->setToolTip("");
+           listWidgetItem->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
+       }
 }
 
 void MainWindow::radioPosition(int pos){
@@ -2719,11 +2701,12 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
     QStringList tracskList ;
     tracskList = store_manager->getTrack(songId);
 
+
     title = tracskList[1];
     album = tracskList[3];
     artist = tracskList[5];
     base64 = tracskList[6];
-    nowPlayingSongIdWatcher->setValue(songId.remove("<br>"));
+//    nowPlayingSongIdWatcher->setValue(songId.remove("<br>"));
     QString setting_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     url = "file://"+setting_path+"/downloadedTracks/"+songId;
 
@@ -2764,6 +2747,10 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
         }
     }
 
+    if(settingsObj.value("smart_playlist",true).toBool()){
+        similarTracks->clearList();
+    }
+
 }
 
 void MainWindow::saveRadioChannelToFavourite(QVariant channelInfo){
@@ -2771,6 +2758,8 @@ void MainWindow::saveRadioChannelToFavourite(QVariant channelInfo){
 }
 
 void MainWindow::playRadioFromWeb(QVariant streamDetails){
+    //clear playing icon from player queue
+    setTrackItemNowPlaying();
     ui->console->clear();
     QString url,title,country,language,base64,stationId;
     QStringList list = streamDetails.toString().split("=,=");
@@ -2802,10 +2791,9 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
     saveTracksAfterBuffer=false;
     radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url.trimmed()));
     nowPlayingSongIdWatcher->setValue(stationId);
-    //clear playing icon from player queue
-    setTrackItemNowPlaying();
+    ui->next->setEnabled(false);
+    ui->previous->setEnabled(false);
 }
-
 
 void MainWindow::saveTrack(QString format){
     Q_UNUSED(format);
@@ -3343,6 +3331,7 @@ void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
                 }
             }
         }
+        ui->previous->setEnabled(false);
         if(similarTracks->isLoadingPLaylist){
             similarTracks->getNextTracksInPlaylist(currentSimilarTrackList);
         }else{
@@ -3968,4 +3957,20 @@ void MainWindow::on_show_hide_smart_list_button_clicked()
 //add playlist from web interface
 void MainWindow::addPlaylistByData(QString data){
     similarTracks->addPlaylist(data);
+}
+
+void MainWindow::on_playlistLoaderButtton_clicked()
+{
+    QVariant ulCount = ui->webview->page()->mainFrame()->evaluateJavaScript("$.mobile.activePage.find('ul').length");
+    if(ulCount.isValid()){
+        int totalUl = ulCount.toInt();
+        // find ul which contains gettrackinfo
+        for (int i = 0; i < totalUl; i++) {
+            QVariant validList = ui->webview->page()->mainFrame()->evaluateJavaScript("$($.mobile.activePage.find('ul')["+QString::number(i)+"]).html().includes('gettrackinfo')");
+            if(validList.isValid() && validList.toBool() == true){
+                ui->webview->page()->mainFrame()->evaluateJavaScript("mainwindow.addPlaylistByData($($.mobile.activePage.find('ul')["+QString::number(i)+"]).html())");
+                break;
+            }
+        }
+    }
 }
