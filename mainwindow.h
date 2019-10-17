@@ -85,6 +85,8 @@ public:
     Q_INVOKABLE void remove_song(QVariant track_id);
     Q_INVOKABLE void addToSimilarTracksQueue(const QVariant Base64andDominantColor);
     Q_INVOKABLE void addPlaylistByData(QString data);
+    Q_INVOKABLE void checkForPlaylist();
+    Q_INVOKABLE void hidePlaylistButton();
 
     QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;
@@ -92,6 +94,7 @@ public:
 public slots:
     void set_eq(QString eq_args);
     void disable_eq();
+
 
 protected slots:
     void closeEvent(QCloseEvent *event);
@@ -231,6 +234,8 @@ private slots:
     void prepareTrack(QString songId, QString query, QString millis, QListWidget *list);
     void findTrackInQueue(QString songId);
     void show_recently_played();
+    void on_playlistLoaderButtton_clicked();
+
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
