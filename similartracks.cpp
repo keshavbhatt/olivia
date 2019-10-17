@@ -22,7 +22,12 @@ void SimilarTracks::addSimilarTracks(QString video_id,QString songId){
             foreach (QString str, list) {
                 //prevent adding already played tracks or add tracks only which are not played in this session
                 if(!playedTracksIds.contains(str.split("!=-=!")[4])){
-                    finalList.append(QString(str.split(");\">").first()).remove("&quot;"));
+                    QString dataStr = QString(str.split(");\">").first()).remove("&quot;");
+                    if(!dataStr.isEmpty() && (QString(dataStr.at(0))=="'"||QString(dataStr.at(0))=="\"")){
+                        dataStr = dataStr.remove("'");
+                        dataStr = dataStr.remove("\"");
+                    }
+                    finalList.append(dataStr);
                 }
             }
           //  qDebug()<<finalList;
@@ -75,7 +80,12 @@ void SimilarTracks::addPlaylist(QString data){
     QStringList finalList;
 
     foreach (QString str, list) {
-        finalList.append(QString(str.split(");\">").first()).remove("&quot;"));
+        QString dataStr = QString(str.split(");\">").first()).remove("&quot;");
+        if(!dataStr.isEmpty() && (QString(dataStr.at(0))=="'"||QString(dataStr.at(0))=="\"")){
+            dataStr = dataStr.remove("'");
+            dataStr = dataStr.remove("\"");
+        }
+        finalList.append(dataStr);
     }
 
     if(finalList.count()>0){
