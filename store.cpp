@@ -1161,7 +1161,7 @@ void store::add_recently_played(QString trackId){
 QList<QStringList> store::getRecentTrackList(){
     QSqlQuery query;
     QList<QStringList> trackList ;
-    query.exec("SELECT trackId FROM recently_played ORDER BY timestamp DESC LIMIT 100");
+    query.exec("SELECT trackId FROM recently_played ORDER BY timestamp DESC LIMIT 50");
     if(query.record().count()>0){
         while(query.next()){
              trackList.append(getTrack(query.value("trackId").toString()));
@@ -1202,4 +1202,62 @@ QString store::web_print_recent_tracks(){
     }
     json.setArray(recordsArray);
     return json.toJson();
+}
+
+void store::cleanUp(){
+    //get track id of all recently played songs after 100
+    //check for tracks which are in use by olivia somewhere
+      //check them in player queue
+      //check them in the starred tracks [not implemented yet]
+      //check them in downloaded tracks list
+      //check them in downloaded videos list
+    //if track in not in use in above remove them from database
+
+    QSqlQuery query;
+    QStringList trackToRemove; //useless ids after 100 recent tracks
+    query.exec("SELECT trackId FROM recently_played ORDER BY timestamp DESC LIMIT 1000 OFFSET 50");
+        while(query.next()){
+             trackToRemove.append(query.value("trackId").toString());
+        }
+    bool found;
+    for (int i = 0; i < trackToRemove.count(); i++) {
+        QSqlQuery q;
+        found =q.exec("SELECT trackId FROM queue WHERE trackId ='"+trackToRemove.at(i)+"';");
+        if(found && q.next()){
+            found = q.exec("SELECT trackId FROM tracks WHERE downloaded ='1';");
+            if(found && q.next()){
+                //remove track from trackToRemove list
+                trackToRemove.removeAt(i);
+            }
+        }
+    }
+    qDebug()<<trackToRemove;
+    //remove track found in trackToRemove list
+    foreach (QString trackId, trackToRemove) {
+        //from tracks table
+            QSqlQuery().exec("DELETE FROM tracks WHERE trackId = '"+trackId+"';");
+        //from stream_url table
+            QSqlQuery().exec("DELETE FROM stream_url WHERE trackId = '"+trackId+"';");
+        //from ytids table
+            QSqlQuery().exec("DELETE FROM ytids WHERE trackId = '"+trackId+"';");
+
+        //from color table
+        //from arts table
+        //from album table
+        QSqlQuery deleteAlbum;
+        deleteAlbum.exec("DELETE FROM color WHERE albumId = 'undefined-"+trackId+"';");
+        if(deleteAlbum.numRowsAffected()>0){
+            deleteAlbum.exec("DELETE FROM arts WHERE albumId = 'undefined-"+trackId+"';");
+            if(deleteAlbum.numRowsAffected()>0){
+                deleteAlbum.exec("DELETE FROM album WHERE albumId = 'undefined-"+trackId+"';");
+                if(deleteAlbum.numRowsAffected()>0){
+                    // remove art from cache dir
+                    QString artId = "art-undefined-"+trackId;
+                    QString albumArtPath =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/albumArts/";
+                    QFile art(albumArtPath+artId);
+                    art.remove();
+                }
+            }
+        }
+    }
 }

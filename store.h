@@ -66,6 +66,7 @@ public slots:
     void setRadioChannelToFavourite(QStringList meta);
     QStringList getRadioStation(QString trackId);
     void add_recently_played(QString trackId);
+    void cleanUp();
 private slots:
 
     void initStore(QString dbName);
