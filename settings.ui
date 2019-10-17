@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>459</width>
-    <height>466</height>
+    <width>464</width>
+    <height>465</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -565,7 +565,7 @@ border:none;</string>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="delete_tracks_cache">
+                <widget class="controlButton" name="delete_tracks_cache">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -574,6 +574,9 @@ border:none;</string>
                  </property>
                  <property name="focusPolicy">
                   <enum>Qt::NoFocus</enum>
+                 </property>
+                 <property name="toolTip">
+                  <string>Delete Tracks</string>
                  </property>
                  <property name="styleSheet">
                   <string notr="true">background-color: transparent;
@@ -636,7 +639,7 @@ border:none;</string>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="delete_videos_cache">
+                <widget class="controlButton" name="delete_videos_cache">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -645,6 +648,9 @@ border:none;</string>
                  </property>
                  <property name="focusPolicy">
                   <enum>Qt::NoFocus</enum>
+                 </property>
+                 <property name="toolTip">
+                  <string>Delete Videos</string>
                  </property>
                  <property name="styleSheet">
                   <string notr="true">background-color: transparent;
@@ -707,7 +713,7 @@ border:none;</string>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="delete_offline_pages">
+                <widget class="controlButton" name="delete_offline_pages">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -716,6 +722,9 @@ border:none;</string>
                  </property>
                  <property name="focusPolicy">
                   <enum>Qt::NoFocus</enum>
+                 </property>
+                 <property name="toolTip">
+                  <string>Delete Offline Pages</string>
                  </property>
                  <property name="styleSheet">
                   <string notr="true">background-color: transparent;
@@ -778,7 +787,7 @@ border:none;</string>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="drop_database">
+                <widget class="controlButton" name="optimizeDb">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -787,6 +796,42 @@ border:none;</string>
                  </property>
                  <property name="focusPolicy">
                   <enum>Qt::NoFocus</enum>
+                 </property>
+                 <property name="toolTip">
+                  <string>Optimize Database</string>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: transparent;
+border:none;</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="icons.qrc">
+                   <normaloff>:/icons/micro/storage.png</normaloff>:/icons/micro/storage.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>18</width>
+                   <height>18</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="controlButton" name="drop_database">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
+                 <property name="toolTip">
+                  <string>Drop Database</string>
                  </property>
                  <property name="styleSheet">
                   <string notr="true">background-color: transparent;
@@ -834,6 +879,13 @@ border:none;</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>controlButton</class>
+   <extends>QPushButton</extends>
+   <header>controlbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="icons.qrc"/>
  </resources>
