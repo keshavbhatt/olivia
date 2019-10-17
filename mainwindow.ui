@@ -636,23 +636,20 @@ QScrollBar:vertical {
                 </item>
                 <item>
                  <property name="text">
+                  <string>Liked Songs</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="icons.qrc">
+                   <normaloff>:/icons/sidebar/liked.png</normaloff>:/icons/sidebar/liked.png</iconset>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
                   <string>Playlists</string>
                  </property>
                  <property name="icon">
                   <iconset resource="icons.qrc">
                    <normaloff>:/icons/sidebar/add_playlist.png</normaloff>:/icons/sidebar/add_playlist.png</iconset>
-                 </property>
-                 <property name="flags">
-                  <set>NoItemFlags</set>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Starred</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="icons.qrc">
-                   <normaloff>:/icons/sidebar/starred.png</normaloff>:/icons/sidebar/starred.png</iconset>
                  </property>
                  <property name="flags">
                   <set>NoItemFlags</set>
@@ -1775,7 +1772,7 @@ QScrollBar:vertical {
                         <enum>Qt::NoFocus</enum>
                        </property>
                        <property name="toolTip">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A Playlist detected, click me to add it to Smart Playlist.&lt;/p&gt;&lt;p&gt;Smart playlist will load all tracks, and play them on demand sequentially.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A playlist detected in center view, click  to add it to Smart Playlist.&lt;/p&gt;&lt;p&gt;Smart playlist will load all tracks, and play them on demand sequentially.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="styleSheet">
                         <string notr="true">border:none;
