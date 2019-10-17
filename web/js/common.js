@@ -37,6 +37,7 @@ $(document).ajaxStart(function() {
 $(document).on( "pagechange", function() {
     if(typeof(mainwindow)!== "undefined"){
         mainwindow.hidePlaylistButton();
+        mainwindow.checkForPlaylist();
     }
 });
 
