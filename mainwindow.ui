@@ -1784,7 +1784,7 @@ background-color: transparent;
                        </property>
                        <property name="icon">
                         <iconset resource="icons.qrc">
-                         <normaloff>:/icons/sidebar/add_playlist.png</normaloff>:/icons/sidebar/add_playlist.png</iconset>
+                         <normaloff>:/icons/micro/playlist_add.png</normaloff>:/icons/micro/playlist_add.png</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
