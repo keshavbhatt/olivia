@@ -126,15 +126,14 @@ padding:0px;
     left: 0px;
     top: 0px;
     position: absolute;
-    height: 100px;
-    width: 100px;
+    height: 144px;
+    width: 253px;
     margin-left: auto;
     margin-right: auto;
-    opacity: 0.8;
     z-index: 1;
     background: url("qrc:///icons/p_now_playing.png") no-repeat center;
-    background-size: 35%;
-    background-color: rgba(26, 152, 199, 0.47);
+    background-size: 25%;
+    background-color: rgba(26, 152, 199, 0.75);
 }
 
 
