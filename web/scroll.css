@@ -1,4 +1,8 @@
-
+.ui-icon-playall:after {
+    background-image: url("qrc:///icons/p_play.png");
+    /* Make your icon fit */
+    background-size: 18px 18px;
+}
 
 .ui-focus,
 .ui-btn:focus {
