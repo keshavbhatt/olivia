@@ -45,5 +45,8 @@
         <file>web/recently_played/main.css</file>
         <file>web/recently_played/main.js</file>
         <file>web/recently_played/recent.html</file>
+        <file>web/liked_songs/liked_songs.html</file>
+        <file>web/liked_songs/main.css</file>
+        <file>web/liked_songs/main.js</file>
     </qresource>
 </RCC>

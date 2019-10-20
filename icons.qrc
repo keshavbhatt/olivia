@@ -112,5 +112,6 @@
         <file>icons/micro/playlist_add.png</file>
         <file>icons/micro/help.png</file>
         <file>icons/sidebar/liked.png</file>
+        <file>icons/sidebar/not_liked.png</file>
     </qresource>
 </RCC>

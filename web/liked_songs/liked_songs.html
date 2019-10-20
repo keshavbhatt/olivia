@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<title>Browse</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
+    <script src="qrc:///web/js/jquery-1.11.1.min.js"></script>
+    <script src="qrc:///web/liked_songs/main.js"></script>
+    <script src="qrc:///web/js/jquery.mobile-1.4.5.min.js"></script>
+    <link rel="stylesheet" href="qrc:///web/liked_songs/main.css" />
+
+    <script src="qrc:///web/js/color-thief.min.js"></script>
+    <link rel="stylesheet" href="qrc:///web/scroll.css" />
+    <script src="qrc:///web/js/common.js"></script>
+
+</head>
+<!-- oncontextmenu="return false;" -->
+<body  onselectstart="return false;" ondragstart="return false;" ondrop="return false;">
+
+    <img style="display:none;" src="" id="coverImage" />
+
+
+    <div class="ui-loader-background"> </div>
+    <div id="tracks_page" data-role="page" data-theme="b" data-title="SAVED TRACKS">
+
+        <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false' style="padding-top:0px !important;">
+             <form id="songsfilter-input-form" data-theme="b" style="height:50px;">
+                 <table style='width:100%'>
+                 <tr>
+                     <td id="searchinput">
+                         <input class="ui-icon-alt"  id="songsfilter-input" placeholder="Filter songs..." type='search'/>
+                     </td>
+                     <td style='width:5.5em'>
+                          <input type="button" id="closeSearch" data-icon="delete" value="Close"/>
+                     </td>
+                 </tr></table>
+             </form>
+             <a id="a-home" onclick="open_liked_tracks()" class="ui-btn-left ui-btn  ui-corner-all ui-btn-icon-left ui-icon-home">Home</a>
+             <h1 class="header-title"></h1>
+             <a id="a-search"  class="ui-btn-right ui-btn  ui-corner-all ui-btn-icon-left ui-icon-search">Search</a>
+        </div><!-- /header -->
+
+        <div role="main" class="ui-content">
+            <!-- load data here -->
+        </div>
+    </div>
+
+
+</body>
+</html>
