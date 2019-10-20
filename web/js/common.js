@@ -127,10 +127,10 @@ function setNowPlaying(songId){ //nowPlaying styles are in main.css
                 if($.mobile.activePage.find(songIdStr).parent().attr("class")==="li-img-wrapper"){
                     wrapperWidth =  $.mobile.activePage.find(songIdStr).parent().css("width");
                    // $.mobile.activePage.find(songIdStr).css("cssText",'left: 0px;top: 0px; max-width:'+maxWidth);// removed width:'+width.toString()+'px;
-                    $( this ).before("<div style='max-width:"+wrapperWidth+"; width:"+wrapperWidth+";' class='nowPlaying'></div>");
+                    $( this ).before("<div style='height: 100% !important;max-width:"+wrapperWidth+"; width:"+wrapperWidth+";' class='nowPlaying'></div>");
                 }else{
                    // $.mobile.activePage.find(songIdStr).css("cssText",'position: absolute;left: 0px;top: 0px; max-width:'+maxWidth);
-                    $( this ).before("<div style='max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
+                    $( this ).before("<div style='height: 100% !important;max-width:"+width+"px; width:"+width+"px;' class='nowPlaying'></div>");
                 }
             });
 
