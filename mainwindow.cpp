@@ -1122,7 +1122,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
     if(obj==ui->search){
         return false;
     }
-        return obj->eventFilter(obj, event);
+
+    return obj->eventFilter(obj, event);
 }
 
 
@@ -1198,6 +1199,10 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->evaluateJavaScript("open_recently_tracks();");
     }
 
+    if(pageType=="liked_songs"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("open_liked_tracks();");
+    }
 
     if(pageType=="local_saved_songs"){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
@@ -1761,6 +1766,11 @@ void MainWindow::showTrackOption(){
     QAction *gotoAlbum = new QAction("Go to Album",nullptr);   
     QAction *removeSong = new QAction("Remove from queue",nullptr);
     QAction *deleteSongCache = new QAction("Delete song cache",nullptr);
+
+    QAction *addToLikedSongs = new QAction("Add to liked songs",nullptr);
+    QAction *removeFromLikedSongs = new QAction("Remove from liked songs",nullptr);
+
+
     deleteSongCache->setEnabled(store_manager->isDownloaded(songId));
 
     //setIcons
@@ -1773,7 +1783,17 @@ void MainWindow::showTrackOption(){
     openChannel->setIcon(QIcon(":/icons/sidebar/artist.png"));
     removeSong->setIcon(QIcon(":/icons/sidebar/remove.png"));
     deleteSongCache->setIcon(QIcon(":/icons/sidebar/delete.png"));
+    addToLikedSongs->setIcon(QIcon(":/icons/sidebar/liked.png"));
+    removeFromLikedSongs->setIcon(QIcon(":/icons/sidebar/not_liked.png"));
 
+
+    connect(addToLikedSongs,&QAction::triggered,[=](){
+        store_manager->add_to_liked(songId);
+    });
+
+    connect(removeFromLikedSongs,&QAction::triggered,[=](){
+         store_manager->remove_from_liked(songId);
+    });
 
     connect(showLyrics,&QAction::triggered,[=](){
         QString songTitle, artistTitle,lyrics_search_string;
@@ -1849,6 +1869,11 @@ void MainWindow::showTrackOption(){
     });
 
     QMenu menu;
+    if(store_manager->is_liked_track(songId)){
+        menu.addAction(removeFromLikedSongs);
+    }else{
+        menu.addAction(addToLikedSongs);
+    }
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
         menu.addAction(showLyrics);
         menu.addAction(watchVideo);
@@ -2522,11 +2547,14 @@ void MainWindow::checkForPlaylist(){
     QVariant ulCount = ui->webview->page()->mainFrame()->evaluateJavaScript("$.mobile.activePage.find('ul').length");
     if(ulCount.isValid()){
         int totalUl = ulCount.toInt();
-        qDebug()<<ulCount.isValid()<<totalUl;
         // find ul which contains gettrackinfo
         for (int i = 0; i < totalUl; i++) {
             QVariant validList = ui->webview->page()->mainFrame()->evaluateJavaScript("$($.mobile.activePage.find('ul')["+QString::number(i)+"]).html().includes('gettrackinfo')");
             if(validList.isValid() && validList.toBool() == true){
+                //this shows add all buttton in webview but is slow.
+//                QString js = "$($.mobile.activePage.find('ul')["+QString::number(i)+"]).prepend(\"<a id='playall' onclick='mainwindow.on_playlistLoaderButtton_clicked();' style='background-color: rgb(4, 125, 141) !important;border:none !important;' class='ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-playall'>Add to queue</a>\")";
+//                ui->webview->page()->mainFrame()->evaluateJavaScript(js);
+                QToolTip::showText( ui->playlistLoaderButtton->mapToGlobal( QPoint( 0, 0 ) ), ui->playlistLoaderButtton->toolTip(),ui->playlistLoaderButtton,ui->playlistLoaderButtton->rect(),3000);
                 ui->playlistLoaderButtton->show();
                 break;
             }

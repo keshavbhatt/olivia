@@ -87,6 +87,8 @@ public:
     Q_INVOKABLE void addPlaylistByData(QString data);
     Q_INVOKABLE void checkForPlaylist();
     Q_INVOKABLE void hidePlaylistButton();
+    Q_INVOKABLE void on_playlistLoaderButtton_clicked();
+
 
     QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;
@@ -233,7 +235,6 @@ private slots:
     void prepareTrack(QString songId, QString query, QString millis, QListWidget *list);
     void findTrackInQueue(QString songId);
     void show_recently_played();
-    void on_playlistLoaderButtton_clicked();
 
     void show_liked_songs();
     void show_playlists();
