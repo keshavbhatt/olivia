@@ -25,7 +25,7 @@
 // init store class and creates defined directories
 store::store(QObject *parent, QString dbName) : QObject(parent)
 {
-    storeVersion = 3;  // 2 is the initial version of database
+    storeVersion = 4;  // 2 is the initial version of database
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/storeDatabase/";
     QDir d(setting_path+dbName);
     if(!d.exists()){
@@ -182,6 +182,15 @@ void store::createTableVersion(QString dbName,int version){
         QSqlQuery recently_played;
         qWarning()<<"Update store with new update- "<<version<<" done.";
         recently_played.exec("create table recently_played "
+                  "(trackId varchar(500) PRIMARY KEY,"
+                  "timestamp varchar(70))"
+                  );
+        }
+            break;
+        case 4:{
+        QSqlQuery liked_tracks;
+        qWarning()<<"Update store with new update- "<<version<<" done.";
+        liked_tracks.exec("create table liked_tracks"
                   "(trackId varchar(500) PRIMARY KEY,"
                   "timestamp varchar(70))"
                   );
@@ -1146,12 +1155,11 @@ QString store::open_search_local_saved_tracks(int pageNumber,QVariant queryStr){
 }
 //===========================END SONG FILTER METHOD====================================//
 
-//===========================START RECENTLY PLAYED===============================
 
+//===========================START RECENTLY PLAYED===============================
 void store::add_recently_played(QString trackId){
     QSqlQuery query;
     bool added = query.exec("INSERT INTO recently_played('trackId','timestamp') VALUES('"+trackId.trimmed()+"','"+QString::number(QDateTime::currentMSecsSinceEpoch())+"')");
-    qDebug()<<added;
     if(!added){
         query.exec("UPDATE recently_played SET timestamp = '"+QString::number(QDateTime::currentMSecsSinceEpoch())+"'  WHERE trackId = '"+trackId.trimmed()+"'");
     }
@@ -1203,6 +1211,273 @@ QString store::web_print_recent_tracks(){
     json.setArray(recordsArray);
     return json.toJson();
 }
+//===========================END RECENTLY PLAYED===============================
+
+
+
+//===========================START LIKED SONGS===============================
+void store::add_to_liked(QString trackId){
+    QSqlQuery query;
+    query.exec("INSERT INTO liked_tracks('trackId','timestamp') VALUES('"+trackId.trimmed()+"','"+QString::number(QDateTime::currentMSecsSinceEpoch())+"')");
+}
+void store::remove_from_liked(QString trackId){
+    QSqlQuery query;
+    query.exec("DELETE FROM liked_tracks WHERE trackId = '"+trackId.trimmed()+"';");
+}
+
+bool store::is_liked_track(QString trackId){
+    QSqlQuery query;
+    query.exec("SELECT trackId FROM liked_tracks WHERE trackId = '"+trackId.trimmed()+"';");
+    if(query.next()){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+int store::getLikedTrackCount(QString fromTable,QString fromRow){
+    QSqlQuery query;
+    query.exec("SELECT "+fromRow+" FROM "+fromTable);
+    int count = 0;
+    while(query.next()){
+         count++;
+    }
+    return count;
+}
+
+//main result provider update query in getTrackCount also to get correct page numbers
+QList<QStringList> store::get_liked_tracks(int offset){
+    QSqlQuery query;
+    QList<QStringList> trackList ;
+    query.exec("SELECT trackId FROM liked_tracks ORDER BY timestamp DESC LIMIT "+QString::number(limit)+" OFFSET "+QString::number(offset));
+        while(query.next()){
+             trackList.append(getTrack(query.value("trackId").toString()));
+        }
+    return trackList;
+}
+
+QString store::web_print_liked_tracks(){
+    limit = 20;
+    totalTracks = getLikedTrackCount("liked_tracks","trackId");
+    totalPages = totalTracks/limit;
+    int itemsLeft = totalTracks -(totalPages*limit);
+    if(itemsLeft>0){
+        totalPages += 1;
+    }
+    currentPageNumber = 0;
+    return open_liked_tracks_PageNumber(currentPageNumber);
+
+}
+
+//open page number usually called from next prev buttons
+QString store::open_liked_tracks_PageNumber(int pageNumber){
+    currentPageNumber = pageNumber;
+    QString Next,Previous,pagination,script,head,footer;
+    head = "<p style='margin-top: -5px;'>showing page "+QString::number(currentPageNumber+1)+" of "+QString::number(totalPages)+" pages.</p>";
+    script = "<script>$(\".ui-page-active [data-role='header'] h1\").html(\""+QString::number(totalTracks)+" liked songs\");</script>";
+
+    Next = "<a class='ui-btn ui-mini ui-icon-arrow-r ui-btn-icon-right ui-shadow ui-corner-all'"+
+            QString(" style='float:right;width:40%;background-color: rgba(36, 142, 179, 0.66);border: none;'")+
+            " id='navBtn'"+
+            " onclick='openPagenumber(\""+QString::number(currentPageNumber+1)+"\")'"+
+            ">Next</a>";
+    Previous = "<a class='ui-btn ui-mini ui-icon-arrow-l ui-btn-icon-left ui-shadow ui-corner-all'"+
+            QString(" style='float:left;width:40%;background-color: rgba(36, 142, 179, 0.66);border: none;'")+
+            " id='navBtn'"+
+            " onclick='openPagenumber(\""+QString::number(currentPageNumber-1)+"\")'"+
+            ">Previous</a>";
+
+
+
+   // qDebug()<<totalTracks<<totalPages<<pageNumber;
+    if(pageNumber != 0 && pageNumber <= totalPages)
+        pagination += Previous;
+    if(totalPages > 0 && pageNumber+1 < totalPages)
+        pagination += Next;
+
+    if(!pagination.trimmed().isEmpty()){
+        footer = "<div style='background-color: rgba(29, 29, 29, 0.64);' data-role='footer'data-position='fixed' data-tap-toggle='false'>"+
+                    pagination+
+                 "</div>";
+    }
+
+    //case for local_saved_tracks
+    if(totalPages>0){
+        QString html,li;
+        int offset = pageNumber * limit;
+        foreach (QStringList trackList, get_liked_tracks(offset)) {
+
+            QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
+            songId = trackList.at(0);
+            title = trackList.at(1);
+            albumId = trackList.at(2);
+            album = trackList.at(3);
+            artistId = trackList.at(4);
+            artist = trackList.at(5);
+            base64 = trackList.at(6);
+            url = trackList.at(7);
+            id = trackList.at(8);
+            dominantColor = trackList.at(9);
+            QString divider = "!=-=!";
+
+            QString albumType = (album == "undefined") ? "Youtube":"";
+            QString imgHtml,para;
+                   if(albumId.contains("undefined-")){
+                       para = "<p style='margin-left: 7.5em;'>";
+                       imgHtml = "<img id='"+songId+"' style='max-width:178px;max-height:144px;width=178px;height=100px;' id='' src='data:image/png;base64,"+base64+"' />";
+                   }else{
+                       para = "<p style='margin-left: 14.5em;' >";
+                       imgHtml = "<p style='background-color:rgb("+dominantColor+");' class='li-img-wrapper'><img id='"+songId+"' style='width:100%;max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+base64+"' /></p>";
+                   }
+            li += "<li data-filtertext='"+title+" "+album+" "+artist+"' >"+
+            "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'>"
+                    +imgHtml+para+
+                        ""+ title+
+                        "<br>"+
+                        "Album: "+QString(album=="undefined"?"Youtube":album)+
+                        "<br>"+
+                        "Artist: "+artist+
+                    "</p>"+
+                    "<p class='ui-li-aside'>"+albumType+"</p>" +
+               " </a>"+
+               "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
+            "</li>";
+        }
+        html =  head+
+                "<ul style='margin-bottom: 60px;'  class='list' id='saved_tracks_result'   data-role='listview' data-split-icon='bars' data-split-theme='b' data-inset='true'>"
+                +li
+                +"</ul>"
+                +script+footer;
+        return html;
+    }else{
+        return "No data returned";
+    }
+}
+
+int store::getSearchResultTrackCountLikedSongs(QString queryStr){
+    QSqlQuery query;
+    query.exec("SELECT * FROM tracks as t, liked_tracks as l where l.trackId = t.trackId and t.title LIKE '%"+queryStr+"%';");
+    int count = 0;
+    while(query.next()){
+         count++;
+    }
+    return count;
+}
+
+//main page loader returns html string of searched local downloaded tracks
+QString store::search_print_liked_tracks(QVariant queryStr){
+    limit = 50;
+    totalTracks = getSearchResultTrackCountLikedSongs(queryStr.toString());
+    totalPages = totalTracks/limit;
+    int itemsLeft = totalTracks -(totalPages*limit);
+    if(itemsLeft>0){
+        totalPages += 1;
+    }
+    currentPageNumber = 0;
+    return open_search_liked_tracks(currentPageNumber,queryStr.toString());
+}
+
+//main result provider update query in getSearchResultTrackCount also to get correct page numbers
+QList<QStringList> store::get_search_liked_tracks(int offset,QString queryStr){
+    QSqlQuery query;
+    QList<QStringList> trackList;
+    query.exec("SELECT * FROM tracks as t, liked_tracks as l where l.trackId = t.trackId and t.title LIKE '%"+queryStr+"%' LIMIT "+QString::number(limit)+" OFFSET "+QString::number(offset));
+        while(query.next()){
+             trackList.append(getTrack(query.value("trackId").toString()));
+         }
+    return trackList;
+}
+
+
+
+//open page number usually called from next prev buttons
+QString store::open_search_liked_tracks(int pageNumber,QVariant queryStr){
+    currentPageNumber = pageNumber;
+    QString Next,Previous,pagination,script,head,footer;
+    head = "<p style='margin-top: -5px;text-align:centre;'>Showing results on page "+QString::number(currentPageNumber+1)+" of "+QString::number(totalPages)+" pages for your searched query : "+queryStr.toString()+"</p>";
+    script = "<script>$(\".ui-page-active [data-role='header'] h1\").html(\""+QString::number(totalTracks)+" liked songs\");</script>";
+
+    Next = "<a class='ui-btn ui-mini ui-icon-arrow-r ui-btn-icon-right ui-shadow ui-corner-all'"+
+            QString(" style='float:right;width:40%;background-color: rgba(36, 142, 179, 0.66);border: none;'")+
+            " id='navBtn'"+
+            " onclick='openSearchPagenumber(\""+QString::number(currentPageNumber+1)+"\",\""+queryStr.toString()+"\")'"+
+            ">Next</a>";
+    Previous = "<a class='ui-btn ui-mini ui-icon-arrow-l ui-btn-icon-left ui-shadow ui-corner-all'"+
+            QString(" style='float:left;width:40%;background-color: rgba(36, 142, 179, 0.66);border: none;'")+
+            " id='navBtn'"+
+            " onclick='openSearchPagenumber(\""+QString::number(currentPageNumber-1)+"\",\""+queryStr.toString()+"\")'"+
+            ">Previous</a>";
+
+
+   // qDebug()<<totalTracks<<totalPages<<pageNumber;
+    if(pageNumber != 0 && pageNumber <= totalPages)
+        pagination += Previous;
+    if(totalPages > 0 && pageNumber+1 < totalPages)
+        pagination += Next;
+
+    if(!pagination.trimmed().isEmpty()){
+        footer = "<div style='background-color: rgba(29, 29, 29, 0.64);' data-role='footer' data-position='fixed' data-tap-toggle='false'>"+
+                    pagination+
+                 "</div>";
+    }
+
+    //case for local_saved_tracks
+    if(totalPages>0){
+        QString html,li;
+        int offset = pageNumber * limit;
+        foreach (QStringList trackList, get_search_liked_tracks(offset,queryStr.toString())) {
+
+            QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
+            songId = trackList.at(0);
+            title = trackList.at(1);
+            albumId = trackList.at(2);
+            album = trackList.at(3);
+            artistId = trackList.at(4);
+            artist = trackList.at(5);
+            base64 = trackList.at(6);
+            url = trackList.at(7);
+            id = trackList.at(8);
+            dominantColor = trackList.at(9);
+            QString divider = "!=-=!";
+
+            QString albumType = (album == "undefined") ? "Youtube":"";
+            QString imgHtml,para;
+                   if(albumId.contains("undefined-")){
+                       para = "<p style='margin-left: 7.5em;'>";
+                       imgHtml = "<img id='"+songId+"' style='max-width:178px;max-height:144px;width=178px;height=100px;' id='' src='data:image/png;base64,"+base64+"' />";
+                   }else{
+                       para = "<p style='margin-left: 14.5em;' >";
+                       imgHtml = "<p style='background-color:rgb("+dominantColor+");' class='li-img-wrapper'><img id='"+songId+"' style='width:100%;max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+base64+"' /></p>";
+                   }
+            li += "<li data-filtertext='"+title+" "+album+" "+artist+"' >"+
+            "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'>"
+                    +imgHtml+para+
+                        ""+ title+
+                        "<br>"+
+                        "Album: "+QString(album=="undefined"?"Youtube":album)+
+                        "<br>"+
+                        "Artist: "+artist+
+                    "</p>"+
+                    "<p class='ui-li-aside'>"+albumType+"</p>" +
+               " </a>"+
+               "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
+            "</li>";
+        }
+        html =  head+
+                "<ul style='margin-bottom: 60px;'  class='list' id='saved_tracks_result'   data-role='listview' data-split-icon='bars' data-split-theme='b' data-inset='true'>"
+                +li
+                +"</ul>"
+                +script+footer;
+        return html;
+    }else{
+        return "No data returned";
+    }
+}
+
+
+
+//===========================END LIKED SONGS===============================
+
 
 void store::cleanUp(){
     //get track id of all recently played songs after 100
@@ -1249,7 +1524,6 @@ void store::cleanUp(){
              }
          }
     }
-    qDebug()<<trackToRemove;
     //remove track found in trackToRemove list
     foreach (QString trackId, trackToRemove) {
         //from tracks table

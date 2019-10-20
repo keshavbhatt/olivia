@@ -24,6 +24,12 @@ public:
     Q_INVOKABLE QString search_print_local_saved_tracks(QVariant queryVar);
     Q_INVOKABLE QString open_search_local_saved_tracks(int pageNumber, QVariant queryStr);
     Q_INVOKABLE QString web_print_recent_tracks();
+    Q_INVOKABLE QString web_print_liked_tracks();
+    Q_INVOKABLE QString open_liked_tracks_PageNumber(int pageNumber);
+    Q_INVOKABLE QString open_search_liked_tracks(int pageNumber, QVariant queryStr);
+    Q_INVOKABLE QString search_print_liked_tracks(QVariant queryVar);
+
+
 
 
 private:
@@ -67,6 +73,11 @@ public slots:
     QStringList getRadioStation(QString trackId);
     void add_recently_played(QString trackId);
     void cleanUp();
+    void add_to_liked(QString trackId);
+    void remove_from_liked(QString trackId);
+    bool is_liked_track(QString trackId);
+
+
 private slots:
 
     void initStore(QString dbName);
@@ -91,6 +102,11 @@ private slots:
     int getSearchResultTrackCount(QString queryStr);
     QList<QStringList> get_search_local_saved_tracks(int offset, QString queryStr);
     QList<QStringList> getRecentTrackList();
+    QList<QStringList> get_liked_tracks(int offset);
+    int getLikedTrackCount(QString fromTable, QString fromRow);
+
+    int getSearchResultTrackCountLikedSongs(QString queryStr);
+    QList<QStringList> get_search_liked_tracks(int offset, QString queryStr);
 };
 
 #endif // STORE_H
