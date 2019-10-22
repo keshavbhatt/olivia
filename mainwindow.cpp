@@ -3013,9 +3013,9 @@ void MainWindow::compare_versions(QString date,QString n_date){
 void MainWindow::evoke_engine_check(){
     if(settingsUi.engine_status->text()=="Absent"){
         QMessageBox msgBox;
-          msgBox.setText("Olivia need to download its engine which is responsible for finding music online!");
+          msgBox.setText("Olivia needs to download it's engine which is responsible for finding music online");
           msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-          msgBox.setInformativeText("Olivia engine (1.4Mb in size) is youtube-dl with some modifications, without this the app will not work properly, Download now ?");
+          msgBox.setInformativeText("The Olivia engine (1.4Mb & is based on youtube-dl with some modifications), is missing, do you want to download it now?");
           msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
           QPushButton *p = new QPushButton("Quit",nullptr);
           msgBox.addButton(p,QMessageBox::NoRole);
