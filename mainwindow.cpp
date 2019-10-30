@@ -697,6 +697,10 @@ const QColor& SelectColorButton::getColor(){
 void MainWindow::init_app(){
     ui->playlistLoaderButtton->hide();
 
+    ui->favourite->setChecked(false);
+    ui->favourite->setEnabled(false);
+    ui->favourite->setIcon(QIcon(":/icons/sidebar/liked_disabled.png"));
+
     ui->olivia_list->setDragDropMode(QAbstractItemView::NoDragDrop);
     ui->youtube_list->setDragDropMode(QAbstractItemView::NoDragDrop);
     ui->smart_list->setDragDropMode(QAbstractItemView::NoDragDrop);
@@ -809,8 +813,9 @@ void MainWindow::init_app(){
      //init nowPlayingSongId change watcher
      nowPlayingSongIdWatcher = new stringChangeWatcher(this);
      connect(nowPlayingSongIdWatcher,&stringChangeWatcher::valueChanged,[=](){
-         ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+nowPlayingSongIdWatcher->getValue()+"')");
-        //qDebug()<<nowPlayingSongIdWatcher->getValue();
+         QString songId = nowPlayingSongIdWatcher->getValue();
+         ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
+         qDebug()<<"nowPlayingSongIdWatcher nowPlayingId="<<songId<<"isRadioStation="<<nowPlayingSongIdWatcher->isRadioStation;
      });
 }
 
@@ -1789,10 +1794,12 @@ void MainWindow::showTrackOption(){
 
     connect(addToLikedSongs,&QAction::triggered,[=](){
         store_manager->add_to_liked(songId);
+        setFavouriteButton(true);
     });
 
     connect(removeFromLikedSongs,&QAction::triggered,[=](){
-         store_manager->remove_from_liked(songId);
+         removeFromFavourite(songId);
+         setFavouriteButton(false);
     });
 
     connect(showLyrics,&QAction::triggered,[=](){
@@ -2373,7 +2380,12 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
             }
         }
     }
-    getNowPlayingTrackId();
+
+    nowPlayingSongIdWatcher->isRadioStation = false;
+
+    nowPlayingSongIdWatcher->setValue(songId);
+
+    ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongIdWatcher->getValue()+"'");
 
     ui->nowplaying_widget->setImage(*cover->pixmap());
 
@@ -2435,6 +2447,17 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     //reload recent page if page is recently_played
     if(pageType=="recently_played"){
         ui->webview->page()->mainFrame()->evaluateJavaScript("open_recently_tracks()");
+    }
+    //check favourite and set favourite icon
+    if(songId.isEmpty() || songId=="0000000"){
+        ui->favourite->setChecked(false);
+        ui->favourite->setEnabled(false);
+        ui->favourite->setIcon(QIcon(":/icons/sidebar/liked_disabled.png"));
+    }else{
+        ui->favourite->setEnabled(true);
+        //check if track is favourite and set button accordingly
+         setFavouriteButton(store_manager->is_liked_track(nowPlayingSongIdWatcher->getValue()));
+
     }
 }
 //END PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
@@ -2502,30 +2525,6 @@ void MainWindow::on_settings_clicked()
     }
 }
 
-void MainWindow::getNowPlayingTrackId(){
-    for(int i = 0 ; i< ui->olivia_list->count();i++){
-         if(ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
-            //get songId of visible track
-            QLineEdit *songId = ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("songId");
-            nowPlayingSongIdWatcher->setValue(static_cast<QLineEdit*>(songId)->text());
-        }
-    }
-    for(int i = 0 ; i< ui->youtube_list->count();i++){
-         if(ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
-            //get songId of visible track
-            QLineEdit *songId = ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("songId");
-            nowPlayingSongIdWatcher->setValue(static_cast<QLineEdit*>(songId)->text());
-        }
-    }
-    for(int i = 0 ; i< ui->smart_list->count();i++){
-         if(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->toolTip()=="playing..."){
-            //get songId of visible track
-            QLineEdit *songId = ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLineEdit*>("songId");
-            nowPlayingSongIdWatcher->setValue(static_cast<QLineEdit*>(songId)->text());
-        }
-    }
-    ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongIdWatcher->getValue()+"'");
-}
 
 void MainWindow::resizeEvent(QResizeEvent *resizeEvent){
     left_panel_width = ui->left_panel->width();
@@ -2790,8 +2789,20 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
     saveTracksAfterBuffer=false;
     radio_manager->playRadio(saveTracksAfterBuffer,QUrl(url.trimmed()));
     nowPlayingSongIdWatcher->setValue(stationId);
+    nowPlayingSongIdWatcher->isRadioStation = true;
     ui->next->setEnabled(false);
     ui->previous->setEnabled(false);
+
+    //check if channel is in favourite list
+    if(stationId.isEmpty() || stationId=="0000000"){
+        ui->favourite->setChecked(false);
+        ui->favourite->setEnabled(false);
+        ui->favourite->setIcon(QIcon(":/icons/sidebar/liked_disabled.png"));
+    }else{
+        ui->favourite->setEnabled(true);
+        //check if channel is favourite and set button accordingly
+        setFavouriteButton(store_manager->is_favourite_station(nowPlayingSongIdWatcher->getValue()));
+    }
 }
 
 void MainWindow::saveTrack(QString format){
@@ -3981,3 +3992,69 @@ QString MainWindow::getCurrentPlayerQueue(QString songId){
     }
     return listName;
 }
+
+//======================start favourite button============================================
+//fake toggle programmatic
+void MainWindow::setFavouriteButton(bool checked){
+    if(checked){
+        ui->favourite->setIcon(QIcon(":/icons/sidebar/liked_2.png"));
+        ui->favourite->setToolTip("Remove from favourite");
+        store_manager->add_to_liked(nowPlayingSongIdWatcher->getValue());
+    }else{
+        ui->favourite->setIcon(QIcon(":/icons/sidebar/liked_disabled.png"));
+        ui->favourite->setToolTip("Add to Favourite");
+    }
+    ui->favourite->blockSignals(true);
+    ui->favourite->setChecked(checked);
+    ui->favourite->blockSignals(false);
+}
+
+//real toggle by user
+void MainWindow::on_favourite_toggled(bool checked)
+{
+    if(nowPlayingSongIdWatcher->isRadioStation==false){
+        if(checked){
+            ui->favourite->setIcon(QIcon(":/icons/sidebar/liked_2.png"));
+            ui->favourite->setToolTip("Remove from favourite");
+            store_manager->add_to_liked(nowPlayingSongIdWatcher->getValue());
+        }else{
+            ui->favourite->setIcon(QIcon(":/icons/sidebar/liked_disabled.png"));
+            ui->favourite->setToolTip("Add to Favourite");
+            removeFromFavourite(nowPlayingSongIdWatcher->getValue());
+        }
+    }else{
+        QMessageBox msgBox;
+        msgBox.setText("Add or remove radio station to favourite from Internet radio page.");
+              msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        msgBox.setStandardButtons(QMessageBox::Ok );
+        msgBox.setDefaultButton(QMessageBox::Ok);
+        msgBox.exec();
+        //set fav to previous state
+        ui->favourite->blockSignals(true);
+        ui->favourite->setChecked(!checked);
+        ui->favourite->blockSignals(false);
+    }
+}
+//remove from favourite with msgbox asks user to remove song cache too
+void MainWindow::removeFromFavourite(QString songId){
+    if(store_manager->isDownloaded(songId)){
+        QMessageBox msgBox;
+        msgBox.setText("This track is also saved in local tracks cache !");
+              msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        msgBox.setInformativeText("Do you also want to delete it from local tracks ?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        int ret = msgBox.exec();
+        switch (ret) {
+          case QMessageBox::Yes:{
+                delete_song_cache(songId);
+            break;
+        }
+          case  QMessageBox::No:
+            break;
+        }
+    }
+    store_manager->remove_from_liked(songId);
+}
+//======================end favourite button============================================
+

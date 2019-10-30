@@ -88,6 +88,8 @@ public:
     Q_INVOKABLE void checkForPlaylist();
     Q_INVOKABLE void hidePlaylistButton();
     Q_INVOKABLE void on_playlistLoaderButtton_clicked();
+    Q_INVOKABLE void removeFromFavourite(QString songId);
+
 
 
     QString youtubeSearchTerm;
@@ -128,7 +130,6 @@ private slots:
     void filterList(const QString &arg1, QListWidget *list);
     void get_engine_version_info();
     void getAudioStream(QString ytIds, QString songId);
-    void getNowPlayingTrackId();
     void hideListItems(QListWidget *list);
     void init_app();
     void init_eq();
@@ -239,6 +240,9 @@ private slots:
     void show_liked_songs();
     void show_playlists();
     QString getCurrentPlayerQueue(QString songId);
+    void on_favourite_toggled(bool checked);
+
+    void setFavouriteButton(bool checked);
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
