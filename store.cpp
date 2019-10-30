@@ -251,6 +251,17 @@ void store::setRadioChannelToFavourite(QStringList meta){
                "VALUES('"+meta.at(0)+"','"+meta.at(1)+"','"+title+"','"+lang.remove(")").remove("(")+"','"+country+"')");
 }
 
+//check if is favourite channel
+bool store::is_favourite_station(QString channel_id){
+    QSqlQuery query;
+    query.exec("SELECT channelId FROM radio_favourite WHERE channelId = '"+channel_id.trimmed()+"';");
+    if(query.next()){
+        return true;
+    }else{
+        return false;
+    }
+}
+
 //remove
 void store::removeRadioChannelFromFavourite(QVariant channelId){
     QSqlQuery query;

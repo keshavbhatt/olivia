@@ -78,6 +78,7 @@ public slots:
     bool is_liked_track(QString trackId);
 
 
+    bool is_favourite_station(QString channel_id);
 private slots:
 
     void initStore(QString dbName);
