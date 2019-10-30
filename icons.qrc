@@ -113,5 +113,7 @@
         <file>icons/micro/help.png</file>
         <file>icons/sidebar/liked.png</file>
         <file>icons/sidebar/not_liked.png</file>
+        <file>icons/sidebar/liked_2.png</file>
+        <file>icons/sidebar/liked_disabled.png</file>
     </qresource>
 </RCC>
