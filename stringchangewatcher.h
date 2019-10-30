@@ -13,6 +13,8 @@ public:
     virtual ~stringChangeWatcher() {}
 
     QString getValue() const { return str; }
+    bool isRadioStation;
+
 public slots:
     void setValue( QString value )
     {
