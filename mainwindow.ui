@@ -2202,6 +2202,40 @@ background-color: transparent;</string>
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="favourite">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string/>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border:none;
+background-color: transparent;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/sidebar/liked_2.png</normaloff>
+             <disabledon>:/icons/sidebar/liked_disabled.png</disabledon>:/icons/sidebar/liked_2.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>22</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="volumeSlider" name="radioVolumeSlider">
            <property name="minimumSize">
             <size>
@@ -2342,11 +2376,6 @@ border-radius:2px;</string>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>controlButton</class>
-   <extends>QPushButton</extends>
-   <header>controlbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
    <header>QtWebKitWidgets/QWebView</header>
@@ -2373,6 +2402,11 @@ border-radius:2px;</string>
    <class>volumeSlider</class>
    <extends>QSlider</extends>
    <header>volumeslider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>controlButton</class>
+   <extends>QPushButton</extends>
+   <header>controlbutton.h</header>
   </customwidget>
   <customwidget>
    <class>WaitingSpinnerWidget</class>
