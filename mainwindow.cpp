@@ -1334,6 +1334,11 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     QString dominantColor = Base64andDominantColorStr.split("!=-=!").first();
 
     QString ytIds,title,artist,album,coverUrl,songId,albumId,artistId;
+
+    //check is meta is available prevent ASSERT failure in QList<T>
+    if(currentSimilarTrackMeta.isEmpty() && currentSimilarTrackMeta.count()<7)
+    return;
+
     title= currentSimilarTrackMeta.at(0);
     artist= currentSimilarTrackMeta.at(1);
     album= currentSimilarTrackMeta.at(2);
@@ -1692,26 +1697,12 @@ void MainWindow::addToQueue(QString ytIds,QString title,
 //jumps to track in one of player queue where the given songId is present
 void MainWindow::findTrackInQueue(QString songId){
     ui->console->append("Song - "+songId+" Already in queue");
-    QWidget *listWidgetItem = ui->youtube_list->findChild<QWidget*>("track-widget-"+songId);
-    if(listWidgetItem!=nullptr){
-        QListWidget * listWidget =  ui->youtube_list;
-        for (int i = 0; i < listWidget->count(); ++i) {
-            if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
-                listWidget->setCurrentItem(listWidget->item(i));
-                ui->youtube_list->scrollToItem(ui->youtube_list->item(i));
-                break;
-            }
-        }
-    }else{
-        QWidget *listWidgetItem = ui->olivia_list->findChild<QWidget*>("track-widget-"+songId);
-        QListWidget * listWidget =  ui->olivia_list;
-        for (int i = 0; i < listWidget->count(); ++i) {
-            if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
-                listWidget->setCurrentItem(listWidget->item(i));
-                ui->olivia_list->scrollToItem(ui->olivia_list->item(i));
-                break;
-            }
-        }
+    QListWidget *listWidget = ui->right_panel->findChild<QListWidget*>(getCurrentPlayerQueue(songId));
+    if(listWidget!=nullptr){
+        QWidget *listWidgetItem = listWidget->findChild<QWidget*>("track-widget-"+songId);
+        QPoint pos = listWidgetItem->pos();
+        listWidget->setCurrentItem(listWidget->itemAt(pos));
+        listWidget->scrollToItem(listWidget->itemAt(pos));
     }
 }
 
@@ -1758,7 +1749,6 @@ void MainWindow::showTrackOption(){
     QPushButton* senderButton = qobject_cast<QPushButton*>(sender());
 
     QString songId = senderButton->objectName().remove("optionButton").trimmed();
-    qDebug()<<songId;
     QString albumId = store_manager->getAlbumId(songId);
     QString artistId = store_manager->getArtistId(songId);
 
@@ -1871,8 +1861,20 @@ void MainWindow::showTrackOption(){
         delete_song_cache(songId);
     });
 
+
+    //find the list widget which requested menu
+    QObject *listObj = senderButton->parent();
+    while (!listObj -> objectName().contains("list")){
+        listObj = listObj -> parent();
+    }
+    QListWidget *list = qobject_cast<QListWidget*>(listObj);
+
     connect(removeSong,&QAction::triggered,[=](){
-        remove_song(songId);
+        if(list->objectName()=="smart_list"){
+             remove_song_from_smart_playlist(songId);
+        }else{
+             remove_song(songId);
+        }
     });
 
     QMenu menu;
@@ -1905,6 +1907,18 @@ void MainWindow::showTrackOption(){
     menu.addAction(deleteSongCache);
     menu.setStyleSheet(menuStyle());
     menu.exec(QCursor::pos());
+}
+
+//similar to remove_song but used only for smart playlist
+void MainWindow::remove_song_from_smart_playlist(QVariant track_id){
+     QString songId = track_id.toString().remove("<br>").trimmed();
+     QListWidget *queue = ui->smart_list;
+     for (int i= 0;i<queue->count();i++) {
+         QString songIdFromWidget = static_cast<QLineEdit*>(queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
+          if(songIdFromWidget.contains(songId)){
+             queue->takeItem(i);
+          }
+     }
 }
 
 void MainWindow::remove_song(QVariant track_id){
@@ -2129,7 +2143,6 @@ void MainWindow::ytdlReadyRead(){
                         }
                     }
                     //END algo to assign next/previous song if current processed track is next to currently playing track.
-
 
                     //stop spinner
                     if(listName=="smart_list"){

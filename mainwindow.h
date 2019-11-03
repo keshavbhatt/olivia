@@ -243,6 +243,7 @@ private slots:
     void on_favourite_toggled(bool checked);
 
     void setFavouriteButton(bool checked);
+    void remove_song_from_smart_playlist(QVariant track_id);
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
