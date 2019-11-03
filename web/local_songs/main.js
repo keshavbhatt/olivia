@@ -266,7 +266,7 @@ function delete_song(track_id){
 
     $("#"+songId).closest("li").remove();
     //keep the order below
-    mainwindow.remove_song(track_id);
+    //mainwindow.remove_song(track_id);
     mainwindow.delete_song_cache(track_id);
 }
 
