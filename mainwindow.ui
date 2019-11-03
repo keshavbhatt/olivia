@@ -2202,7 +2202,7 @@ background-color: transparent;</string>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="favourite">
+          <widget class="controlButton" name="favourite">
            <property name="minimumSize">
             <size>
              <width>0</width>
