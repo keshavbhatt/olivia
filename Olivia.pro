@@ -87,6 +87,7 @@ FORMS    += mainwindow.ui \
     download_widget.ui \
     downloaditem.ui \
     equalizer.ui \
+    smart_mode.ui \
     track.ui \
     settings.ui \
     minimode.ui \
