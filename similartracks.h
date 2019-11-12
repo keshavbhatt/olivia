@@ -9,7 +9,7 @@ class SimilarTracks : public QObject
 {
     Q_OBJECT
 public:
-    explicit SimilarTracks(QObject *parent = nullptr, int limit = 4);
+    explicit SimilarTracks(QObject *parent = nullptr, int limit = 3);
     int numberOfSimilarTracksToLoad = 0;
     bool isLoadingPLaylist = false;
 private:
