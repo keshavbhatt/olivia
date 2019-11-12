@@ -36,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_offline_storage();
     init_settings();
     init_miniMode();
+    init_smartMode();
     init_lyrics();
     init_similar_tracks();
     init_downloadWidget();
@@ -71,7 +72,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::init_similar_tracks(){
     if(similarTracks==nullptr){
-        similarTracks = new SimilarTracks(this,settingsObj.value("similarTracksToLoad",4).toInt());
+
+        similarTracks = new SimilarTracks(this,settingsObj.value("similarTracksToLoad",3).toInt());
+
         connect(similarTracks, &SimilarTracks::setSimilarTracks,[=](QStringList list){
             similarTracks->isLoadingPLaylist = false;
             currentSimilarTrackList.clear();
@@ -306,7 +309,7 @@ void MainWindow::init_settings(){
 
     connect(settingsUi.tracksToLoad, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),[=](int value){
         similarTracks->numberOfSimilarTracksToLoad = value-1;
-        settingsObj.setValue("similarTracksToLoad",similarTracks->numberOfSimilarTracksToLoad);
+        settingsObj.setValue("similarTracksToLoad",value);
     });
 
     connect(settingsUi.download_engine,SIGNAL(clicked()),this,SLOT(download_engine_clicked()));
@@ -506,7 +509,8 @@ void MainWindow::loadSettings(){
     settingsUi.visualizer->setChecked(settingsObj.value("visualizer","false").toBool());
     settingsUi.mpris_checkBox->setChecked(settingsObj.value("mpris","false").toBool());
     settingsUi.smart_playlist_checkBox->setChecked(settingsObj.value("smart_playlist","true").toBool());
-    settingsUi.tracksToLoad->setValue(settingsObj.value("similarTracksToLoad",4).toInt());
+
+    settingsUi.tracksToLoad->setValue(settingsObj.value("similarTracksToLoad",3).toInt());
 
     settingsUi.dynamicTheme->setChecked(settingsObj.value("dynamicTheme","false").toBool());
 
@@ -636,7 +640,10 @@ void MainWindow::set_app_theme(QColor rgb){
     ui->show_hide_smart_list_button->setStyleSheet("QPushButton#show_hide_smart_list_button{"+widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;}");
 
 
+    smartModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#smartModeWidget"));
+
     miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
+
 
     ui->search->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
     ui->label_5->setStyleSheet(widgetStyle+"border:none;border-radius:0px;");
@@ -741,7 +748,7 @@ void MainWindow::init_app(){
     QSplitter *split3 = new QSplitter;
     split3->setObjectName("split3");
     split3->addWidget(ui->queueHolder);
-    split3->addWidget(ui->recommHolder);
+    split3->addWidget(ui->smart_playlist_holder);
     split3->setOrientation(Qt::Vertical);
 
     ui->verticalLayout_3->addWidget(split3);
@@ -1698,6 +1705,10 @@ void MainWindow::addToQueue(QString ytIds,QString title,
 void MainWindow::findTrackInQueue(QString songId){
     ui->console->append("Song - "+songId+" Already in queue");
     QListWidget *listWidget = ui->right_panel->findChild<QListWidget*>(getCurrentPlayerQueue(songId));
+    //if listWidget not found in right_panel. this happens when player is witched to smart mode;
+    if(listWidget==nullptr){
+        listWidget = ui->recommHolder->findChild<QListWidget*>(getCurrentPlayerQueue(songId));
+    }
     if(listWidget!=nullptr){
         QWidget *listWidgetItem = listWidget->findChild<QWidget*>("track-widget-"+songId);
         QPoint pos = listWidgetItem->pos();
@@ -2047,6 +2058,7 @@ void MainWindow::processYtdlQueue(){
         }
     }else{
         ui->ytdlQueueLabel->setText("no task");
+        ui->similarTrackLoader->stop();
     }
 
     //update stream info buttons
@@ -2085,6 +2097,10 @@ void MainWindow::ytdlReadyRead(){
 
     if(!s_data.isEmpty()){
         QList<QWidget*>listWidgetItems = ui->right_panel->findChildren<QWidget*>("track-widget-"+songId);
+        //if listwidgetItems not found in right_panel. this happens when player is witched to smart mode;
+        if(listWidgetItems.count()==0){
+            listWidgetItems = ui->recommHolder->findChildren<QWidget*>("track-widget-"+songId);
+        }
         if(listWidgetItems.isEmpty()){
             qDebug()<<"TRACK NOT FOUND IN LIST";
             senderProcess->close();
@@ -2653,6 +2669,10 @@ void MainWindow::radioStatus(QString radioState){
 void MainWindow::setTrackItemNowPlaying(){
     QString previousNowPlayingTrackId = nowPlayingSongIdWatcher->getValue();
        QList<QWidget*>listWidgetItems =ui->right_panel->findChildren<QWidget*>("track-widget-"+previousNowPlayingTrackId);
+       //if listwidgetItems not found in right_panel. this happens when player is witched to smart mode;
+       if(listWidgetItems.count()==0){
+           listWidgetItems = ui->recommHolder->findChildren<QWidget*>("track-widget-"+previousNowPlayingTrackId);
+       }
        foreach (QWidget *listWidgetItem, listWidgetItems) {
            listWidgetItem->findChild<QLabel *>("playing")->setToolTip("");
            listWidgetItem->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
@@ -3137,6 +3157,20 @@ void MainWindow::init_lyrics(){
     lyricsWidget->setWindowModality(Qt::NonModal);
 }
 
+void MainWindow::init_smartMode(){
+    smartModeWidget = new QWidget(this);
+    smartMode_ui.setupUi(smartModeWidget);
+    smartModeWidget->setObjectName("smartModeWidget");
+    smartModeWidget->setWindowTitle(qAppName()+" | Smart mode");
+    if(settingsObj.value("smartModeStayOnTop","false").toBool()==true){
+        smartModeWidget->setWindowFlags(/*Qt::Window  | Qt::CustomizeWindowHint  |*/ Qt::WindowStaysOnTopHint  /*| Qt::FramelessWindowHint*/ );
+    }else{
+        smartModeWidget->setWindowFlags(Qt::Window /*| Qt::CustomizeWindowHint*/ /*| Qt::FramelessWindowHint*/  );
+    }
+    smartModeWidget->setWindowModality(Qt::ApplicationModal);
+    smartModeWidget->adjustSize();
+}
+
 void MainWindow::init_miniMode(){
     miniModeWidget = new QWidget(this);
     miniMode_ui.setupUi(miniModeWidget);
@@ -3168,6 +3202,9 @@ void MainWindow::on_miniMode_clicked()
 
         miniMode_ui.controlLayout->addWidget(ui->controls_widget);
         miniModeWidget->move(ui->miniMode->mapToGlobal(QPoint(QPoint(-miniModeWidget->width()+ui->miniMode->width(),30))));
+
+        ui->smartMode->hide();
+        ui->line->hide();
         this->hide();
         miniModeWidget->setMaximumHeight(miniModeWidget->height());
 
@@ -3180,6 +3217,8 @@ void MainWindow::on_miniMode_clicked()
     }else{
         //restore
         miniModeWidget->hide();
+        ui->smartMode->show();
+        ui->line->show();
         ui->miniMode->setToolTip("Switch to Mini Mode");
         ui->radioVolumeSlider->setMaximumWidth(200);
         ui->miniMode->setIcon(QIcon(":/icons/mini_mode.png"));
@@ -3951,10 +3990,18 @@ void MainWindow::on_show_hide_smart_list_button_clicked()
 {
     QSplitter *split3 =this->findChild<QSplitter*>("split3");
     if(!ui->recommWidget->isVisible()){
-        split3->widget(1)->setMaximumHeight(16777215);
-        split3->setSizes(QList<int>()<<300<<300);
-        split3->handle(1)->setEnabled(true);
-        ui->recommWidget->show();
+        if(smartMode){
+            split3->widget(1)->setMaximumHeight(16777215);
+            split3->setSizes(QList<int>()<<500<<500);
+            split3->handle(1)->setEnabled(true);
+            ui->recommWidget->show();
+        }else{
+            split3->widget(1)->setMaximumHeight(16777215);
+            split3->setSizes(QList<int>()<<300<<300);
+            split3->handle(1)->setEnabled(true);
+            ui->recommWidget->show();
+        }
+
         ui->show_hide_smart_list_button->setToolTip("Hide Similar Tracks");
     }else{
         split3->widget(1)->setMaximumHeight(ui->show_hide_smart_list_button->height());
@@ -3995,6 +4042,10 @@ void MainWindow::on_playlistLoaderButtton_clicked()
 QString MainWindow::getCurrentPlayerQueue(QString songId){
     QString listName;
     QList<QWidget*>listWidgetItems = ui->right_panel->findChildren<QWidget*>("track-widget-"+songId);
+    //if listwidgetItems not found in right_panel. this happens when player is witched to smart mode;
+    if(listWidgetItems.count()==0){
+        listWidgetItems = ui->recommHolder->findChildren<QWidget*>("track-widget-"+songId);
+    }
     if(listWidgetItems.isEmpty()){
         qDebug()<<"PLAYER QUEUE NOT FOUND";
     }else{
@@ -4071,3 +4122,62 @@ void MainWindow::removeFromFavourite(QString songId){
 }
 //======================end favourite button============================================
 
+
+void MainWindow::on_smartMode_clicked()
+{
+    if(!smartModeWidget->isVisible())
+    {
+        smartMode = true;
+
+        if(!ui->recommWidget->isVisible()){
+            ui->show_hide_smart_list_button->click();
+        }
+
+        ui->smartMode->setIcon(QIcon(":/icons/restore_mini_mode.png"));
+        ui->smartMode->setToolTip("Restore back to full mode");
+
+        smartMode_ui.nowPlayingLayout->addWidget(ui->nowplaying_widget);
+
+        smartMode_ui.seekSliderLyout->addWidget(ui->position);
+        smartMode_ui.seekSliderLyout->addWidget(ui->radioSeekSlider);
+        smartMode_ui.seekSliderLyout->addWidget(ui->duration);
+
+        ui->radioVolumeSlider->setMaximumWidth(16777215);
+        smartMode_ui.volumeSliderLayout->addWidget(ui->radioVolumeSlider);
+
+        smartMode_ui.playlistLayout->addWidget(ui->recommHolder);
+
+        smartMode_ui.controlLayout->addWidget(ui->controls_widget);
+        smartModeWidget->move(ui->smartMode->mapToGlobal(QPoint(QPoint(-smartModeWidget->width()+ui->smartMode->width(),30))));
+
+        ui->miniMode->hide();
+        ui->line->hide();
+        this->hide();
+//        smartModeWidget->setMaximumHeight(smartModeWidget->height());
+
+       // smartModeWidget->setWindowOpacity(qreal(95)/100);
+        smartModeWidget->setWindowOpacity(qreal(settingsObj.value("smartModeTransperancy","98").toReal()/100));
+
+        smartModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#smartModeWidget"));
+
+        smartModeWidget->showNormal();
+    }else{
+        smartMode = false;
+        //restore
+        smartModeWidget->hide();
+        ui->miniMode->show();
+        ui->line->show();
+        ui->smartMode->setToolTip("Switch to Smart Mode");
+        ui->radioVolumeSlider->setMaximumWidth(200);
+        ui->smartMode->setIcon(QIcon(":/icons/olivia_mini_icon.png"));
+        ui->left_panel->layout()->addWidget(ui->nowplaying_widget);
+        ui->horizontalLayout_11->addWidget(ui->radioVolumeSlider);
+        ui->horizontalLayout_11->layout()->addWidget(ui->position);
+        ui->horizontalLayout_11->layout()->addWidget(ui->radioSeekSlider);
+        ui->horizontalLayout_11->layout()->addWidget(ui->duration);
+        ui->smart_playlist_holder->layout()->addWidget(ui->recommHolder);
+        ui->centralWidget->layout()->addWidget(ui->controls_widget);
+        smartModeWidget->setMaximumHeight(16777215);
+        this->show();
+    }
+}

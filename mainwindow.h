@@ -55,6 +55,7 @@
 #include "ui_minimode.h"
 #include "ui_settings.h"
 #include "ui_track.h"
+#include "ui_smart_mode.h"
 
 
 namespace Ui {
@@ -244,6 +245,9 @@ private slots:
 
     void setFavouriteButton(bool checked);
     void remove_song_from_smart_playlist(QVariant track_id);
+    void on_smartMode_clicked();
+
+    void init_smartMode();
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
@@ -275,12 +279,14 @@ private:
     QStringList color_list ;
     QStringList searchSuggestionList;
     QWidget *miniModeWidget;
+    QWidget *smartModeWidget;
     QWidget *settingsWidget;
     radio *radio_manager = nullptr;
     settings *settUtils;
     store *store_manager = nullptr;
     Ui::MainWindow *ui;
     Ui::miniMode_form miniMode_ui;
+    Ui::smart_mode_form smartMode_ui;
     Ui::settings settingsUi;
     Ui::track track_ui;
     Youtube *youtube;
@@ -290,6 +296,7 @@ private:
     MprisPlugin *dp = nullptr;
     QVariantMap mpris_song_meta;
     stringChangeWatcher* nowPlayingSongIdWatcher;
+    bool smartMode = false;
 
 };
 
