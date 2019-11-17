@@ -9,12 +9,13 @@ class SimilarTracks : public QObject
 {
     Q_OBJECT
 public:
-    explicit SimilarTracks(QObject *parent = nullptr, int limit = 3);
+    explicit SimilarTracks(QObject *parent = nullptr, int limit = 1);
     int numberOfSimilarTracksToLoad = 0;
     bool isLoadingPLaylist = false;
+    QString parentSongId,previousParentSongId;
 private:
     QStringList playedTracksIds; //collection of song ids which were already played in the current session
-    store * store_manager= nullptr;     
+    store * store_manager= nullptr;
 
 signals:
     void setSimilarTracks(QStringList);

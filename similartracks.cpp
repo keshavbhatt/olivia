@@ -6,12 +6,17 @@
 SimilarTracks::SimilarTracks(QObject *parent,int limit) : QObject(parent)
 {
     numberOfSimilarTracksToLoad = limit;
+    qDebug()<<"Related songs limit"<<limit;
     store_manager = this->parent()->findChild<store*>("store_manager");
 }
 
 void SimilarTracks::addSimilarTracks(QString video_id,QString songId){
-    isLoadingPLaylist = false;
+    if(!parentSongId.isEmpty()){
+        previousParentSongId = parentSongId;
+    }
+    parentSongId = songId;
 
+    isLoadingPLaylist = false;
     QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
     connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
         if(rep->error() == QNetworkReply::NoError){
