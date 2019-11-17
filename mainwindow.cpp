@@ -73,7 +73,7 @@ MainWindow::~MainWindow()
 void MainWindow::init_similar_tracks(){
     if(similarTracks==nullptr){
 
-        similarTracks = new SimilarTracks(this,settingsObj.value("similarTracksToLoad",3).toInt());
+        similarTracks = new SimilarTracks(this,settingsObj.value("similarTracksToLoad",1).toInt());
 
         connect(similarTracks, &SimilarTracks::setSimilarTracks,[=](QStringList list){
             similarTracks->isLoadingPLaylist = false;
@@ -223,6 +223,7 @@ void MainWindow::installEventFilters(){
     foreach (controlButton *btn, this->findChildren<controlButton*>()) {
         btn->installEventFilter(this);
     }
+    smartModeWidget->installEventFilter(this);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event){
@@ -242,6 +243,8 @@ void MainWindow::closeEvent(QCloseEvent *event){
         QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(processIdList.at(i)));
         processIdList.removeAt(i);
     }
+    qDebug()<<event;
+    qApp->quit();
     QMainWindow::closeEvent(event);
 }
 
@@ -510,7 +513,7 @@ void MainWindow::loadSettings(){
     settingsUi.mpris_checkBox->setChecked(settingsObj.value("mpris","false").toBool());
     settingsUi.smart_playlist_checkBox->setChecked(settingsObj.value("smart_playlist","true").toBool());
 
-    settingsUi.tracksToLoad->setValue(settingsObj.value("similarTracksToLoad",3).toInt());
+    settingsUi.tracksToLoad->setValue(settingsObj.value("similarTracksToLoad",1).toInt());
 
     settingsUi.dynamicTheme->setChecked(settingsObj.value("dynamicTheme","false").toBool());
 
@@ -717,7 +720,7 @@ void MainWindow::init_app(){
     //sets search icon in label
     ui->label_5->resize(ui->label_5->width(),ui->search->height());
     ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-    qApp->setQuitOnLastWindowClosed(true);
+    qApp->setQuitOnLastWindowClosed(false);
 
     //init youtube class
     youtube = new Youtube(this);
@@ -1132,6 +1135,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
     }
 
     if(obj==ui->search){
+        return false;
+    }
+    if(obj==smartModeWidget && event->type()==QEvent::Close){
+        ui->smartMode->click();
         return false;
     }
 
@@ -2341,7 +2348,7 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     ui->console->clear();
     //hide console
     if(ui->debug_widget->isVisible())
-        ui->debug_widget->hide();
+       ui->debug_widget->hide();
 
     if(!list->itemWidget(item)->isEnabled())
         return;
@@ -2486,7 +2493,6 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         ui->favourite->setEnabled(true);
         //check if track is favourite and set button accordingly
          setFavouriteButton(store_manager->is_liked_track(nowPlayingSongIdWatcher->getValue()));
-
     }
 }
 //END PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
@@ -2616,9 +2622,30 @@ void MainWindow::radioStatus(QString radioState){
         nowPlayingSongIdWatcher->setValue("0000000"); //null
 
         // play next track
-        if(ui->next->isEnabled()){
+        if(ui->next->isEnabled() /*&& !smartMode*/){
             ui->next->click();
         }else{
+
+            //assign next track from smart playlist if the smart mode is on
+            //also populate smart playlist when smart mode is enabled
+            if(smartMode){
+                //assign next track in list if next item in list is valid
+                for(int i=0;i<ui->smart_list->count();i++){
+                    if(ui->smart_list->itemWidget(ui->smart_list->item(i))->isEnabled()){
+                        ui->next->setEnabled(true);
+                        assignNextTrack(ui->smart_list,i);
+                        break;
+                    }else {
+                        ui->next->setEnabled(false);
+                    }
+                }
+                if(ui->next->isEnabled()){
+                    ui->next->click();
+                }
+                return;
+            }
+
+            //proceed with normal smart play mode
             if(!settingsObj.value("shuffle").toBool()){
                 qDebug()<<"List ended play related songs";
                 //show smart list if enabled
@@ -3162,12 +3189,8 @@ void MainWindow::init_smartMode(){
     smartMode_ui.setupUi(smartModeWidget);
     smartModeWidget->setObjectName("smartModeWidget");
     smartModeWidget->setWindowTitle(qAppName()+" | Smart mode");
-    if(settingsObj.value("smartModeStayOnTop","false").toBool()==true){
-        smartModeWidget->setWindowFlags(/*Qt::Window  | Qt::CustomizeWindowHint  |*/ Qt::WindowStaysOnTopHint  /*| Qt::FramelessWindowHint*/ );
-    }else{
-        smartModeWidget->setWindowFlags(Qt::Window /*| Qt::CustomizeWindowHint*/ /*| Qt::FramelessWindowHint*/  );
-    }
-    smartModeWidget->setWindowModality(Qt::ApplicationModal);
+    smartModeWidget->setWindowFlags(this->windowFlags() | Qt::Window /*| Qt::CustomizeWindowHint*/ /*| Qt::FramelessWindowHint*/  );
+    smartModeWidget->setWindowModality(Qt::NonModal);
     smartModeWidget->adjustSize();
 }
 
@@ -3303,7 +3326,8 @@ void MainWindow::getEnabledTracks(QListWidget *currentListWidget){
 void MainWindow::assignNextTrack(QListWidget *list ,int index){
 
     //shuffled track assignment
-    if(settingsObj.value("shuffle").toBool()){
+    //shuffle is disabled in smartMode bcoz songs are already coming shuffled
+    if(settingsObj.value("shuffle",false).toBool() && !smartMode){
         getEnabledTracks(list);
         if(!shuffledPlayerQueue.isEmpty()){
             QString shuffledSongId;
@@ -3378,7 +3402,35 @@ void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
             videoId = id.split("<br>").first();
         }
     }
-    if(!ui->next->isEnabled() && !settingsObj.value("shuffle").toBool()){
+
+    //load tracks in smart playlist if smart mode is enabled
+    if(smartMode){
+        qDebug()<<"Prepare related songs list for videoId"<< videoId << songId;
+        currentSimilarTrackProcessing = 0;
+        ui->similarTrackLoader->start();
+        //keep now playing song and remove others
+        while(similarTracksListHasTrackToBeRemoved()){
+            for (int i=0; i<ui->smart_list->count();i++) {
+                if(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
+                    QListWidgetItem *item =  ui->smart_list->takeItem(i);
+                     if(item != nullptr){
+                         delete item;
+                     }
+                }
+                ui->previous->setEnabled(false);
+            }
+        }
+
+        if(similarTracks->isLoadingPLaylist){
+            similarTracks->getNextTracksInPlaylist(currentSimilarTrackList);
+        }else{
+            similarTracks->addSimilarTracks(videoId,songId);
+        }
+        return;
+    }
+
+    //load smart playlist if song is last and shuffle is off
+    if(!ui->next->isEnabled() /*&& !settingsObj.value("shuffle").toBool()*/){
         qDebug()<<"Prepare related songs list for videoId"<< videoId << songId;
         currentSimilarTrackProcessing = 0;
         ui->similarTrackLoader->start();
@@ -3417,7 +3469,8 @@ bool MainWindow::similarTracksListHasTrackToBeRemoved(){
 void MainWindow::assignPreviousTrack(QListWidget *list ,int index)
 {
     //shuffled track assignment
-    if(settingsObj.value("shuffle").toBool()){
+    //shuffle is disabled in smartMode bcoz songs are already coming shuffled
+    if(settingsObj.value("shuffle").toBool() && !smartMode){
         getEnabledTracks(list);
         if(!shuffledPlayerQueue.isEmpty()){
             QString shuffledSongId;
@@ -3804,7 +3857,6 @@ void MainWindow::init_eq(){
 
     if(eq == nullptr){
         eq = new equalizer(this);
-
         eq->setWindowTitle(QApplication::applicationName()+" - Equalizers");
         eq->setWindowFlags(Qt::Dialog);
         eq->setWindowModality(Qt::NonModal);
@@ -4128,34 +4180,46 @@ void MainWindow::on_smartMode_clicked()
     if(!smartModeWidget->isVisible())
     {
         smartMode = true;
+        smartModeShuffleState = ui->shuffle->isChecked();
+        //disbale shuffle cause track are coming shuffled
+        ui->shuffle->setChecked(false);
+        ui->shuffle->hide();
+        // populate smart playlist with currently playing track
+        //check if related songs of songId are already loaded
+        if(similarTracks->parentSongId == nowPlayingSongIdWatcher->getValue()){
+            similarTracks->previousParentSongId = nowPlayingSongIdWatcher->getValue();
+        }
+
+        if(similarTracks->previousParentSongId.isEmpty()){
+            similarTracks->parentSongId = nowPlayingSongIdWatcher->getValue();
+            startGetRecommendedTrackForAutoPlayTimer(nowPlayingSongIdWatcher->getValue());
+         // similarTracks->previousParentSongId = nowPlayingSongIdWatcher->getValue();
+        }else if(nowPlayingSongIdWatcher->getValue() != similarTracks->previousParentSongId ){
+            startGetRecommendedTrackForAutoPlayTimer(nowPlayingSongIdWatcher->getValue());
+            similarTracks->previousParentSongId = nowPlayingSongIdWatcher->getValue();
+        }
 
         if(!ui->recommWidget->isVisible()){
             ui->show_hide_smart_list_button->click();
         }
+        //disbale smart playlist show hide button
+        ui->show_hide_smart_list_button->blockSignals(true);
 
         ui->smartMode->setIcon(QIcon(":/icons/restore_mini_mode.png"));
         ui->smartMode->setToolTip("Restore back to full mode");
-
         smartMode_ui.nowPlayingLayout->addWidget(ui->nowplaying_widget);
-
         smartMode_ui.seekSliderLyout->addWidget(ui->position);
         smartMode_ui.seekSliderLyout->addWidget(ui->radioSeekSlider);
         smartMode_ui.seekSliderLyout->addWidget(ui->duration);
-
         ui->radioVolumeSlider->setMaximumWidth(16777215);
         smartMode_ui.volumeSliderLayout->addWidget(ui->radioVolumeSlider);
-
         smartMode_ui.playlistLayout->addWidget(ui->recommHolder);
-
         smartMode_ui.controlLayout->addWidget(ui->controls_widget);
         smartModeWidget->move(ui->smartMode->mapToGlobal(QPoint(QPoint(-smartModeWidget->width()+ui->smartMode->width(),30))));
-
         ui->miniMode->hide();
         ui->line->hide();
         this->hide();
-//        smartModeWidget->setMaximumHeight(smartModeWidget->height());
 
-       // smartModeWidget->setWindowOpacity(qreal(95)/100);
         smartModeWidget->setWindowOpacity(qreal(settingsObj.value("smartModeTransperancy","98").toReal()/100));
 
         smartModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#smartModeWidget"));
@@ -4163,6 +4227,12 @@ void MainWindow::on_smartMode_clicked()
         smartModeWidget->showNormal();
     }else{
         smartMode = false;
+        //show shuffle button and restore its state
+        ui->shuffle->show();
+        ui->shuffle->setChecked(smartModeShuffleState);
+        //reEnable smart playlist show hide button
+        ui->show_hide_smart_list_button->blockSignals(false);
+
         //restore
         smartModeWidget->hide();
         ui->miniMode->show();

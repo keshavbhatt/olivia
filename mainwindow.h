@@ -297,6 +297,7 @@ private:
     QVariantMap mpris_song_meta;
     stringChangeWatcher* nowPlayingSongIdWatcher;
     bool smartMode = false;
+    bool smartModeShuffleState = false;
 
 };
 
