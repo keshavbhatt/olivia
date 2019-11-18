@@ -97,7 +97,7 @@ function openSearchPagenumber(pagenumber,queryStr){
     showLoading();
     $.mobile.changePage($('#tracks_page'));
     $('.ui-content').hide();
-    var html = store.open_search_local_saved_tracks(pagenumber,queryStr);
+    var html = store.open_search_liked_tracks(pagenumber,queryStr);
     $('#tracks_page .ui-content').html(html);
     $('#tracks_page .ui-content').trigger('create');
     $('#tracks_page .ui-content').fadeIn('slow');
@@ -120,7 +120,7 @@ function openPagenumber(pagenumber){
     showLoading();
     $.mobile.changePage($('#tracks_page'));
     $('.ui-content').hide();
-    var html = store.open_local_saved_tracks_PageNumber(pagenumber);
+    var html = store.open_liked_tracks_PageNumber(pagenumber);
     $('#tracks_page .ui-content').html(html);
     $('#tracks_page .ui-content').trigger('create');
     $('#tracks_page .ui-content').fadeIn('slow');
