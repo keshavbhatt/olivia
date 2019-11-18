@@ -2,7 +2,10 @@
 
 # Olivia - Elegant music player for LINUX 
 
-by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktechpit.com) and [others](https://github.com/keshavbhatt/olivia/graphs/contributors)
+by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktechpit.com) and [others]
+(https://github.com/keshavbhatt/olivia/graphs/contributors)
+﻿
+﻿**Olivia hits mark of 5000+ active users already** 
 
 [![Snap Status](https://build.snapcraft.io/badge/keshavbhatt/olivia.svg)](https://build.snapcraft.io/user/keshavbhatt/olivia) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Percentage of issues still open") 
 
@@ -17,24 +20,29 @@ by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktech
 ![Arch Linux User's Repository ](http://badge.kloud51.com/aur/v/olivia.svg)  ![Maintainer](http://badge.kloud51.com/aur/m/olivia.svg) ![Popularity](http://badge.kloud51.com/aur/p/olivia.svg)
 
 **Features**
-* Allows search music online
-* Smart Music recommendation, can get you songs related to ant particular song 
-* Allows organise music 
-* Allows download song while streaming
-* Allows search YouTube and add result to library, sort results and other YouTube features
-* Plays audio only of YouTube streams (saves data bandwidth)
-* Support themes , Dynamic theme based on album art
-* Search suggestions
-* Player mini mode included , minimal player widget with always on capability and allows set transparency.
-* Internet radio, allows play more than 25k online radio stations, list them sort them according to language and country
-* Top music chart, allows list top 100 songs country wise
-* Top albums chart, allows list top 100 albums county wise
-* Beautiful Client side Decoration
-* Lyrics of playing songs and separate lyrics search
+* Olivia helps you discover new music and videos like no other service do.
+* Smart Music recommendation, can get you songs related to ant particular song. 
+* Allows organise music and videos at one place. 
+* Olivia can save track while you are streaming it, this saves your bandwidth.
+* Unique Smart Play Mode where you play a song and Olivia will play similar tracks for you until you stop it.
+* Olivia never stops playing song for you with its smart playlist feature it automatically starts playing related songs for you once your playlist ends
+* Watch or Download Video for any song in different audio video formats and quality. 
+* Allows search YouTube and add result to library, sort results and all other YouTube features like browse channels.
+* Plays audio only of YouTube streams (saves data bandwidth).
+* Support themes , Dynamic theme based on album art.
+* Intelligent Music Search suggestions engine integrated.
+* Player mini mode included , minimal player widget with always on capability and allows set transparency and make it act like a desktop widget.
+* Internet radio, allows play more than 25k online radio stations, list them sort them according to most played , most voted, language wise, country wise and by tags .
+* Olivia lets you browse new music according to your location.
+* Olivia lets you discover music based on their genres, moods and more.
+* Its easy to discover new music - singles, albums etc easily at one place.  
+* Top music chart, allows list top 100 songs country wise.
+* Top albums chart, allows list top 100 albums county wise.
+* Beautiful Client side Decoration.
+* Lyrics of playing songs and separate lyrics search.
 * Powerful audio equalizers and audio filters.
-* Watch video of any song you want in your preferred audio and video quality
-* MPRIS protocol support
-* More features like cloud synchronisation of music using an online account coming soon
+* MPRIS protocol support.
+* More features like cloud synchronisation of your Liked Music is coming soon, so you will be able to get your music back no matter where you are.
 
 ﻿**Consider Donating if you want this music player grow further**
 
