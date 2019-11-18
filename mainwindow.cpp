@@ -3226,7 +3226,7 @@ void MainWindow::on_miniMode_clicked()
         miniMode_ui.controlLayout->addWidget(ui->controls_widget);
         miniModeWidget->move(ui->miniMode->mapToGlobal(QPoint(QPoint(-miniModeWidget->width()+ui->miniMode->width(),30))));
 
-        ui->smartMode->hide();
+        ui->smartMode->setEnabled(false);
         ui->line->hide();
         this->hide();
         miniModeWidget->setMaximumHeight(miniModeWidget->height());
@@ -3240,7 +3240,7 @@ void MainWindow::on_miniMode_clicked()
     }else{
         //restore
         miniModeWidget->hide();
-        ui->smartMode->show();
+        ui->smartMode->setEnabled(true);
         ui->line->show();
         ui->miniMode->setToolTip("Switch to Mini Mode");
         ui->radioVolumeSlider->setMaximumWidth(200);
@@ -4216,7 +4216,7 @@ void MainWindow::on_smartMode_clicked()
         smartMode_ui.playlistLayout->addWidget(ui->recommHolder);
         smartMode_ui.controlLayout->addWidget(ui->controls_widget);
         smartModeWidget->move(ui->smartMode->mapToGlobal(QPoint(QPoint(-smartModeWidget->width()+ui->smartMode->width(),30))));
-        ui->miniMode->hide();
+        ui->miniMode->setEnabled(false);
         ui->line->hide();
         this->hide();
 
@@ -4235,7 +4235,7 @@ void MainWindow::on_smartMode_clicked()
 
         //restore
         smartModeWidget->hide();
-        ui->miniMode->show();
+        ui->miniMode->setEnabled(true);
         ui->line->show();
         ui->smartMode->setToolTip("Switch to Smart Mode");
         ui->radioVolumeSlider->setMaximumWidth(200);
