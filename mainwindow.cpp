@@ -2104,7 +2104,7 @@ void MainWindow::ytdlReadyRead(){
 
     if(!s_data.isEmpty()){
         QList<QWidget*>listWidgetItems = ui->right_panel->findChildren<QWidget*>("track-widget-"+songId);
-        //if listwidgetItems not found in right_panel. this happens when player is witched to smart mode;
+        //if listwidgetItems not found in right_panel. this happens when player is switched to smart mode;
         if(listWidgetItems.count()==0){
             listWidgetItems = ui->recommHolder->findChildren<QWidget*>("track-widget-"+songId);
         }
@@ -2625,7 +2625,6 @@ void MainWindow::radioStatus(QString radioState){
         if(ui->next->isEnabled() /*&& !smartMode*/){
             ui->next->click();
         }else{
-
             //assign next track from smart playlist if the smart mode is on
             //also populate smart playlist when smart mode is enabled
             if(smartMode){
@@ -4180,6 +4179,10 @@ void MainWindow::on_smartMode_clicked()
     if(!smartModeWidget->isVisible())
     {
         smartMode = true;
+        //disable next button to prevent/break normal next track assingment algo
+        ui->next->disconnect();
+        ui->next->setEnabled(false);
+
         smartModeShuffleState = ui->shuffle->isChecked();
         //disbale shuffle cause track are coming shuffled
         ui->shuffle->setChecked(false);
