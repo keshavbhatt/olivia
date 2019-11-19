@@ -1330,8 +1330,8 @@ QString store::open_liked_tracks_PageNumber(int pageNumber){
             id = trackList.at(8);
             dominantColor = trackList.at(9);
             QString divider = "!=-=!";
-
-            QString albumType = (album == "undefined") ? "Youtube":"";
+            QString offline = (isDownloaded(songId) == true)?"offline":"";
+            //QString albumType = (album == "undefined") ? "Youtube":"";
             QString imgHtml,para;
                    if(albumId.contains("undefined-")){
                        para = "<p style='margin-left: 7.5em;'>";
@@ -1349,7 +1349,7 @@ QString store::open_liked_tracks_PageNumber(int pageNumber){
                         "<br>"+
                         "Artist: "+artist+
                     "</p>"+
-                    "<p class='ui-li-aside'>"+albumType+"</p>" +
+                    "<p class='ui-li-aside'>"+offline+"</p>" +
                " </a>"+
                "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
             "</li>";
@@ -1450,8 +1450,8 @@ QString store::open_search_liked_tracks(int pageNumber,QVariant queryStr){
             id = trackList.at(8);
             dominantColor = trackList.at(9);
             QString divider = "!=-=!";
-
-            QString albumType = (album == "undefined") ? "Youtube":"";
+            QString offline = (isDownloaded(songId) == true)?"offline":"";
+//            QString albumType = (album == "undefined") ? "Youtube":"";
             QString imgHtml,para;
                    if(albumId.contains("undefined-")){
                        para = "<p style='margin-left: 7.5em;'>";
@@ -1469,7 +1469,7 @@ QString store::open_search_liked_tracks(int pageNumber,QVariant queryStr){
                         "<br>"+
                         "Artist: "+artist+
                     "</p>"+
-                    "<p class='ui-li-aside'>"+albumType+"</p>" +
+                    "<p class='ui-li-aside'>"+offline+"</p>" +
                " </a>"+
                "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
             "</li>";
