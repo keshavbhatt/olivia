@@ -14,6 +14,8 @@ void SimilarTracks::addSimilarTracks(QString video_id,QString songId){
     if(!parentSongId.isEmpty()){
         previousParentSongId = parentSongId;
     }
+    if(parentSongId==songId)//prevent loading recommendation for same song again and again
+        return;
     parentSongId = songId;
 
     isLoadingPLaylist = false;
@@ -51,6 +53,7 @@ void SimilarTracks::addSimilarTracks(QString video_id,QString songId){
                 emit failedGetSimilarTracks();
             }
         }else{
+            parentSongId = ""; //empty the parentsongid so user can reload request
             emit failedGetSimilarTracks();
         }
         rep->deleteLater();
