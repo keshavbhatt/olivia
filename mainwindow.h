@@ -248,6 +248,7 @@ private slots:
     void on_smartMode_clicked();
 
     void init_smartMode();
+//    void nextTrackHelper(QWidget *listWidgetItem);
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;

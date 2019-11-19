@@ -1445,7 +1445,6 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
             ui->smart_list->itemWidget(item)->setEnabled(true);
             ui->similarTrackLoader->stop();
             if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
-
             track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
             track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
         }else{
@@ -1462,7 +1461,6 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
                     ui->smart_list->itemWidget(item)->setEnabled(true);
                     ui->similarTrackLoader->stop();
                     if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
-
                     track_ui.url->setText(store_manager->getOfflineUrl(songId));
                 }
             }
@@ -1517,7 +1515,6 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
                     ui->smart_list->itemWidget(item)->setEnabled(true);
                     ui->similarTrackLoader->stop();
                     if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
-
                     track_ui.url->setText(store_manager->getOfflineUrl(songId));
                 }
             }
@@ -1540,6 +1537,37 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
         }
     }
 }
+
+//void MainWindow::nextTrackHelper(QWidget *listWidgetItem){
+//    QString listName = getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue());
+//    if(smartMode){
+//        listName = "smart_list";
+//    }
+//    QListWidget *listWidget = this->findChild<QListWidget*>(listName);
+//    int row;
+//    if(!listName.isEmpty()){
+//        for(int i=0;i<listWidget->count();i++){
+//            if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
+//                row = i;
+//                if( row+1 <= listWidget->count()){
+//                 if(row != 0){
+//                    if(listWidget->itemWidget(listWidget->item(row-1))->objectName().contains(nowPlayingSongIdWatcher->getValue())){
+//                        assignNextTrack(listWidget,row);
+//                        ui->next->setEnabled(true);
+//                    }
+//                 }
+//                 if(row+1 != listWidget->count()){
+//                    if(listWidget->itemWidget(listWidget->item(row+1))->objectName().contains(nowPlayingSongIdWatcher->getValue())){
+//                        assignPreviousTrack(listWidget,row);
+//                        ui->previous->setEnabled(true);
+//                    }
+//                 }
+//                }
+//              break;
+//            }
+//        }
+//    }
+//}
 
 void MainWindow::similarTracksProcessHelper(){
     //clear meta of currentSimilarTrack and free it for next track
@@ -4180,8 +4208,16 @@ void MainWindow::on_smartMode_clicked()
     {
         smartMode = true;
         //disable next button to prevent/break normal next track assingment algo
-        ui->next->disconnect();
-        ui->next->setEnabled(false);
+        if(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue())!="smart_list"){
+            ui->next->disconnect();
+            ui->next->setEnabled(false);
+        }
+
+        //CHECK THIS
+        if(similarTracks->parentSongId != nowPlayingSongIdWatcher->getValue()){
+            ui->next->disconnect();
+            ui->next->setEnabled(false);
+        }
 
         smartModeShuffleState = ui->shuffle->isChecked();
         //disbale shuffle cause track are coming shuffled
