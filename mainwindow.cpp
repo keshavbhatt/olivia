@@ -1954,11 +1954,11 @@ void MainWindow::showTrackOption(){
     }else{
         menu.addAction(addToLikedSongs);
     }
-    if(list->objectName()!="smart_list"){
+//    if(list->objectName()!="smart_list"){
         if((!nowPlayingSongIdWatcher->getValue().isEmpty() && nowPlayingSongIdWatcher->getValue()!="0000000")){
             menu.addAction(playNext);
         }
-    }
+//    }
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
         menu.addAction(showLyrics);
         menu.addAction(watchVideo);
