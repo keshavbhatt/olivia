@@ -14,6 +14,7 @@ public:
 
     QString getValue() const { return str; }
     bool isRadioStation;
+    QString previousSongId;
 
 public slots:
     void setValue( QString value )
