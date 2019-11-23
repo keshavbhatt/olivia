@@ -93,7 +93,7 @@
              <string>Download/Update</string>
             </property>
             <property name="icon">
-             <iconset resource="icons.qrc">
+             <iconset>
               <normaloff>:/icons/others/donwload2.png</normaloff>:/icons/others/donwload2.png</iconset>
             </property>
             <property name="iconSize">
@@ -381,7 +381,7 @@ border:none;</string>
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/icons/sidebar/removeFromLibrary.png</normaloff>:/icons/sidebar/removeFromLibrary.png</iconset>
               </property>
               <property name="iconSize">
@@ -439,7 +439,7 @@ border:none;</string>
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/icons/sidebar/addToLibrary.png</normaloff>:/icons/sidebar/addToLibrary.png</iconset>
               </property>
               <property name="iconSize">
@@ -586,7 +586,7 @@ border:none;</string>
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/icons/micro/delete.png</normaloff>:/icons/micro/delete.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -660,7 +660,7 @@ border:none;</string>
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/icons/micro/delete.png</normaloff>:/icons/micro/delete.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -734,7 +734,7 @@ border:none;</string>
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/icons/micro/delete.png</normaloff>:/icons/micro/delete.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -808,7 +808,7 @@ border:none;</string>
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/icons/micro/storage.png</normaloff>:/icons/micro/storage.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -841,7 +841,7 @@ border:none;</string>
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/icons/micro/delete.png</normaloff>:/icons/micro/delete.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -886,8 +886,6 @@ border:none;</string>
    <header>controlbutton.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
