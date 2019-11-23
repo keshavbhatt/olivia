@@ -14,10 +14,10 @@ void SimilarTracks::addSimilarTracks(QString video_id,QString songId){
     if(!parentSongId.isEmpty()){
         previousParentSongId = parentSongId;
     }
-    if(parentSongId==songId)//prevent loading recommendation for same song again and again
-        return;
+//    if(parentSongId==songId)//prevent loading recommendation for same song again and again
+//        return;
     parentSongId = songId;
-
+    emit lodingStarted();
     isLoadingPLaylist = false;
     QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
     connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){

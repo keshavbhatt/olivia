@@ -23,6 +23,7 @@ signals:
     void failedGetSimilarTracks();
     void clearList();
     void clearListKeepingPlayingTrack();
+    void lodingStarted();
 
 public slots:
     void addSimilarTracks(QString video_id, QString songId);
