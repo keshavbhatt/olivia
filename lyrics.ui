@@ -311,7 +311,7 @@ background:transparent;</string>
            </property>
            <property name="icon">
             <iconset resource="icons.qrc">
-             <normaloff>:/icons/micro/zoom-in.png</normaloff>:/icons/micro/zoom-in.png</iconset>
+             <normaloff>:/icons/sidebar/addToLibrary.png</normaloff>:/icons/sidebar/addToLibrary.png</iconset>
            </property>
           </widget>
          </item>
@@ -335,7 +335,29 @@ background:transparent;</string>
            </property>
            <property name="icon">
             <iconset resource="icons.qrc">
-             <normaloff>:/icons/micro/zoom-out.png</normaloff>:/icons/micro/zoom-out.png</iconset>
+             <normaloff>:/icons/sidebar/removeFromLibrary.png</normaloff>:/icons/sidebar/removeFromLibrary.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="line">
+           <property name="minimumSize">
+            <size>
+             <width>1</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>1</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: #808080;</string>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
           </widget>
          </item>
