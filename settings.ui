@@ -93,7 +93,7 @@
              <string>Download/Update</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="icons.qrc">
               <normaloff>:/icons/others/donwload2.png</normaloff>:/icons/others/donwload2.png</iconset>
             </property>
             <property name="iconSize">
@@ -381,7 +381,7 @@ border:none;</string>
                <string/>
               </property>
               <property name="icon">
-               <iconset>
+               <iconset resource="icons.qrc">
                 <normaloff>:/icons/sidebar/removeFromLibrary.png</normaloff>:/icons/sidebar/removeFromLibrary.png</iconset>
               </property>
               <property name="iconSize">
@@ -439,7 +439,7 @@ border:none;</string>
                <string/>
               </property>
               <property name="icon">
-               <iconset>
+               <iconset resource="icons.qrc">
                 <normaloff>:/icons/sidebar/addToLibrary.png</normaloff>:/icons/sidebar/addToLibrary.png</iconset>
               </property>
               <property name="iconSize">
@@ -565,6 +565,39 @@ border:none;</string>
                 </widget>
                </item>
                <item>
+                <widget class="controlButton" name="open_tracks_cache_dir">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
+                 <property name="toolTip">
+                  <string>Open Tracks Location</string>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: transparent;
+border:none;</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="icons.qrc">
+                   <normaloff>:/icons/micro/open_folder.png</normaloff>:/icons/micro/open_folder.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>16</width>
+                   <height>16</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="controlButton" name="delete_tracks_cache">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -586,7 +619,7 @@ border:none;</string>
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
+                  <iconset resource="icons.qrc">
                    <normaloff>:/icons/micro/delete.png</normaloff>:/icons/micro/delete.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -639,6 +672,39 @@ border:none;</string>
                 </widget>
                </item>
                <item>
+                <widget class="controlButton" name="open_video_cache_dir">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
+                 <property name="toolTip">
+                  <string>Open Videos Location</string>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: transparent;
+border:none;</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="icons.qrc">
+                   <normaloff>:/icons/micro/open_folder.png</normaloff>:/icons/micro/open_folder.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>16</width>
+                   <height>16</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="controlButton" name="delete_videos_cache">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -660,7 +726,7 @@ border:none;</string>
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
+                  <iconset resource="icons.qrc">
                    <normaloff>:/icons/micro/delete.png</normaloff>:/icons/micro/delete.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -734,7 +800,7 @@ border:none;</string>
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
+                  <iconset resource="icons.qrc">
                    <normaloff>:/icons/micro/delete.png</normaloff>:/icons/micro/delete.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -808,7 +874,7 @@ border:none;</string>
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
+                  <iconset resource="icons.qrc">
                    <normaloff>:/icons/micro/storage.png</normaloff>:/icons/micro/storage.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -841,7 +907,7 @@ border:none;</string>
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
+                  <iconset resource="icons.qrc">
                    <normaloff>:/icons/micro/delete.png</normaloff>:/icons/micro/delete.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -886,6 +952,8 @@ border:none;</string>
    <header>controlbutton.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
