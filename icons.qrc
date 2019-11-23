@@ -115,5 +115,10 @@
         <file>icons/sidebar/not_liked.png</file>
         <file>icons/sidebar/liked_2.png</file>
         <file>icons/sidebar/liked_disabled.png</file>
+        <file>icons/p_repeat.png</file>
+        <file>icons/p_repeat_off.png</file>
+        <file>icons/p_repeat_single.png</file>
+        <file>icons/sidebar/next.png</file>
+        <file>icons/p_repeat_queue.png</file>
     </qresource>
 </RCC>
