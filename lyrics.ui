@@ -292,6 +292,54 @@ background:transparent;</string>
           </layout>
          </item>
          <item>
+          <widget class="QPushButton" name="zoomIn">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Zoom In</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border:none;
+background:transparent;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/micro/zoom-in.png</normaloff>:/icons/micro/zoom-in.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="zoomOut">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Zoom Out</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border:none;
+background:transparent;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/micro/zoom-out.png</normaloff>:/icons/micro/zoom-out.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="close">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">

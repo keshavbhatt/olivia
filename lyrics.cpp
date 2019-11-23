@@ -304,3 +304,13 @@ void Lyrics::on_copy_clicked()
     ui->lyrics->selectAll();
     ui->lyrics->copy();
 }
+
+void Lyrics::on_zoomIn_clicked()
+{
+    ui->lyrics->zoomIn(1);
+}
+
+void Lyrics::on_zoomOut_clicked()
+{
+    ui->lyrics->zoomOut(1);
+}

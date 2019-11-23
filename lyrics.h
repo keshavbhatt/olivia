@@ -90,6 +90,10 @@ private slots:
         return text.toPlainText();
     }
 
+    void on_zoomIn_clicked();
+
+    void on_zoomOut_clicked();
+
 private:
     Ui::Lyrics *ui;
     Ui::lyricItem lyricItem_Ui;
