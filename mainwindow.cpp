@@ -2561,10 +2561,9 @@ void MainWindow::nextPreviousHelper(QListWidget *list){
     }
 
     //assign next track to next button
-    if(list->currentRow()==list->count()-1 && ui->repeat->checkState()!= Qt::PartiallyChecked){ //is last track
+    if(!ui->shuffle->isChecked() && (list->currentRow()==list->count()-1 && ui->repeat->checkState()!= Qt::PartiallyChecked)){ //is last track and not repeating current song
         ui->next->setEnabled(false);
-    }else{
-        if(ui->repeat->checkState() == Qt::PartiallyChecked){
+    }else if(ui->repeat->checkState() == Qt::PartiallyChecked){ //repeat current song
             QListWidget *list = this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue()));
             if(list!=nullptr){
                 QWidget *listWidgetItem = list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
@@ -2586,8 +2585,6 @@ void MainWindow::nextPreviousHelper(QListWidget *list){
                 }
             }
         }
-
-    }
 }
 
 //app menu to hide show sidebar
@@ -3406,11 +3403,12 @@ void MainWindow::reloadREquested(QString dataType,QString query){
 //currently used by suffle track fucntion only
 void MainWindow::getEnabledTracks(QListWidget *currentListWidget){
 
-    if(settingsObj.value("shuffle").toBool()){
+    if(settingsObj.value("shuffle",false).toBool()){
         shuffledPlayerQueue.clear();
         for(int i=0;i<currentListWidget->count();i++){
             if(currentListWidget->itemWidget(currentListWidget->item(i))->isEnabled()){
                 QString songId = currentListWidget->itemWidget(currentListWidget->item(i))->findChild<QLineEdit *>("songId")->text().trimmed();
+                if(songId!=nowPlayingSongIdWatcher->getValue())//prevent adding nowPlaying songId to shuffled list so it wont repeat song immediatly
                 shuffledPlayerQueue.append(songId);
             }
         }
@@ -4420,6 +4418,12 @@ void MainWindow::on_repeat_stateChanged(int arg1)
     case 1:{
         //partial
         //repeat current song
+        //disable shuffle if repeat current song is on
+        if(ui->shuffle->isChecked()){
+            ui->shuffle->setChecked(false);
+            showToast("Repeat current song, Shuffle: Off");
+        }
+
         ui->repeat->setToolTip("Repeating current song");
         showToast("Repeat current song");
         ui->repeat->setIcon(QIcon(":/icons/p_repeat.png"));
@@ -4431,11 +4435,6 @@ void MainWindow::on_repeat_stateChanged(int arg1)
                 assignNextTrack(list,index);
             }
         }
-        //disable shuffle if repeat current song is on
-        if(ui->shuffle->isChecked()){
-            ui->shuffle->setChecked(false);
-            showToast("Repeat current song, Shuffle: Off");
-        }
         break;
     }
     case 2:
@@ -4445,7 +4444,7 @@ void MainWindow::on_repeat_stateChanged(int arg1)
         showToast("Repeat current queue");
         ui->repeat->setIcon(QIcon(":/icons/p_repeat_queue.png"));
         //repeat queue
-        if(!ui->next->isEnabled()){
+        if(!ui->next->isEnabled() || list->currentRow()==list->count()-1 ){
             assignNextTrack(this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue())),0);
         }else {
             nextPreviousHelper(list);
