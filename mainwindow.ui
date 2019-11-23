@@ -771,7 +771,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QPushButton" name="smartMode">
+                   <widget class="controlButton" name="smartMode">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -2065,7 +2065,7 @@ background-color: transparent;</string>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="shuffle">
+          <widget class="controlButton" name="shuffle">
            <property name="minimumSize">
             <size>
              <width>0</width>
