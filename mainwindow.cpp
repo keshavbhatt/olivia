@@ -511,12 +511,15 @@ void MainWindow::loadSettings(){
     switch (repeat) {
     case 0:
         ui->repeat->setCheckState(Qt::Unchecked);
+        ui->repeat->setIcon(QIcon(":/icons/p_repeat_off.png"));
         break;
     case 1:
          ui->repeat->setCheckState(Qt::PartiallyChecked);
+         ui->repeat->setIcon(QIcon(":/icons/p_repeat.png"));
         break;
     case 2:
          ui->repeat->setCheckState(Qt::Checked);
+         ui->repeat->setIcon(QIcon(":/icons/p_repeat_queue.png"));
         break;
     default:
         break;
@@ -4423,10 +4426,9 @@ void MainWindow::on_repeat_stateChanged(int arg1)
 }
 
 void MainWindow::showToast(QString message){
-//    if(settingsObj.value("dynamicTheme").toBool()==true && !sender()->objectName().contains("repeat"))
-//        return;
-    if(!this->isVisible())
+    if(!this->isVisible())//only show notification toast when player is in normal mode.
         return;
+
     QWidget *widget = this->findChild<QWidget*>("toastWidget");
     if(widget!=nullptr){
         widget->close();
