@@ -56,6 +56,7 @@
 #include "ui_settings.h"
 #include "ui_track.h"
 #include "ui_smart_mode.h"
+#include "ui_toast.h"
 
 
 namespace Ui {
@@ -249,6 +250,11 @@ private slots:
 
     void init_smartMode();
 //    void nextTrackHelper(QWidget *listWidgetItem);
+    void on_repeat_stateChanged(int arg1);
+
+    void nextPreviousHelper(QListWidget *list);
+    void showToast(QString message);
+    void getRecommendedTracksForAutoPlayHelper(QString videoId, QString songId);
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
@@ -290,6 +296,7 @@ private:
     Ui::smart_mode_form smartMode_ui;
     Ui::settings settingsUi;
     Ui::track track_ui;
+    Ui::toastWidget_ toast;
     Youtube *youtube;
     VideoOption *videoOption = nullptr;
     QStringList shuffledPlayerQueue;
@@ -299,7 +306,6 @@ private:
     stringChangeWatcher* nowPlayingSongIdWatcher;
     bool smartMode = false;
     bool smartModeShuffleState = false;
-
 };
 
 class SelectColorButton : public QPushButton

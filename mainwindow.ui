@@ -2098,6 +2098,47 @@ background-color: transparent;</string>
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="repeat">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string/>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+    border: 0px;
+    height:0px;
+    width:0px;
+    background: none;
+	background-color: transparent;
+}</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/p_repeat.png</normaloff>:/icons/p_repeat.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>22</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="tristate">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="controlButton" name="previous">
            <property name="enabled">
             <bool>false</bool>

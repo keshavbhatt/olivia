@@ -75,6 +75,9 @@ void MainWindow::init_similar_tracks(){
 
         similarTracks = new SimilarTracks(this,settingsObj.value("similarTracksToLoad",1).toInt());
 
+        connect(similarTracks,&SimilarTracks::lodingStarted,[=](){
+            ui->similarTrackLoader->start();
+        });
         connect(similarTracks, &SimilarTracks::setSimilarTracks,[=](QStringList list){
             similarTracks->isLoadingPLaylist = false;
             currentSimilarTrackList.clear();
@@ -95,6 +98,8 @@ void MainWindow::init_similar_tracks(){
         });
         connect(similarTracks, &SimilarTracks::clearList,[=](){
             currentSimilarTrackList.clear();
+//            similarTracks->parentSongId.clear();
+//            similarTracks->previousParentSongId.clear();
             ui->smart_list->clear();
         });
         connect(similarTracks, &SimilarTracks::clearListKeepingPlayingTrack,[=](){
@@ -502,6 +507,21 @@ void MainWindow::dynamicThemeChanged(bool enabled){
 
 void MainWindow::loadSettings(){
 
+    int repeat = settingsObj.value("repeat",0).toInt();
+    switch (repeat) {
+    case 0:
+        ui->repeat->setCheckState(Qt::Unchecked);
+        break;
+    case 1:
+         ui->repeat->setCheckState(Qt::PartiallyChecked);
+        break;
+    case 2:
+         ui->repeat->setCheckState(Qt::Checked);
+        break;
+    default:
+        break;
+    }
+
     ui->shuffle->setChecked(settingsObj.value("shuffle").toBool());
     ui->shuffle->setIcon(QIcon(settingsObj.value("shuffle").toBool()?":/icons/shuffle_button.png":":/icons/shuffle_button_disabled.png"));
 
@@ -634,11 +654,13 @@ void MainWindow::set_app_theme(QColor rgb){
                             "}";
     ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
     ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
-    ui->olivia_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
-    ui->youtube_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
+
+    //temp changes
+//    ui->olivia_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
+//    ui->youtube_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
+//    ui->smart_list->setStyleSheet("QListWidget{"+widgetStyle+";border:none;}"+scrollbarStyle);
 
     ui->recommWidget->setStyleSheet("QWidget#recommWidget{"+widgetStyle+";border:none;}");
-    ui->smart_list->setStyleSheet("QListWidget{"+widgetStyle+";border:none;}"+scrollbarStyle);
 
     ui->show_hide_smart_list_button->setStyleSheet("QPushButton#show_hide_smart_list_button{"+widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;}");
 
@@ -1091,6 +1113,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
 
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event){
+
     if ((obj == ui->nowPlayingGrip || obj == ui->top_widget  || obj == ui->windowControls || obj == ui->label_6 ) && (event->type() == QEvent::MouseMove)) {
             const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
             if (me->buttons() & Qt::LeftButton) {
@@ -1099,7 +1122,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
                 }else{
                     move(me->globalPos() - oldPos);
                 }
-                event->accept();
             }
         return true;
     }
@@ -1113,7 +1135,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
                 }else{
                     oldPos = me->globalPos() - frameGeometry().topLeft();
                 }
-                 event->accept();
             }
             return true;
         }
@@ -1128,7 +1149,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
                 }else{
                     this->setWindowState(Qt::WindowMaximized);
                 }
-                 event->accept();
             }
             return true;
         }
@@ -1538,36 +1558,6 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     }
 }
 
-//void MainWindow::nextTrackHelper(QWidget *listWidgetItem){
-//    QString listName = getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue());
-//    if(smartMode){
-//        listName = "smart_list";
-//    }
-//    QListWidget *listWidget = this->findChild<QListWidget*>(listName);
-//    int row;
-//    if(!listName.isEmpty()){
-//        for(int i=0;i<listWidget->count();i++){
-//            if(listWidget->itemWidget(listWidget->item(i))->objectName()==listWidgetItem->objectName()){
-//                row = i;
-//                if( row+1 <= listWidget->count()){
-//                 if(row != 0){
-//                    if(listWidget->itemWidget(listWidget->item(row-1))->objectName().contains(nowPlayingSongIdWatcher->getValue())){
-//                        assignNextTrack(listWidget,row);
-//                        ui->next->setEnabled(true);
-//                    }
-//                 }
-//                 if(row+1 != listWidget->count()){
-//                    if(listWidget->itemWidget(listWidget->item(row+1))->objectName().contains(nowPlayingSongIdWatcher->getValue())){
-//                        assignPreviousTrack(listWidget,row);
-//                        ui->previous->setEnabled(true);
-//                    }
-//                 }
-//                }
-//              break;
-//            }
-//        }
-//    }
-//}
 
 void MainWindow::similarTracksProcessHelper(){
     //clear meta of currentSimilarTrack and free it for next track
@@ -1810,7 +1800,7 @@ void MainWindow::showTrackOption(){
 
     QAction *addToLikedSongs = new QAction("Add to liked songs",nullptr);
     QAction *removeFromLikedSongs = new QAction("Remove from liked songs",nullptr);
-
+    QAction *playNext =new QAction("Play next",nullptr);
 
     deleteSongCache->setEnabled(store_manager->isDownloaded(songId));
 
@@ -1826,6 +1816,7 @@ void MainWindow::showTrackOption(){
     deleteSongCache->setIcon(QIcon(":/icons/sidebar/delete.png"));
     addToLikedSongs->setIcon(QIcon(":/icons/sidebar/liked.png"));
     removeFromLikedSongs->setIcon(QIcon(":/icons/sidebar/not_liked.png"));
+    playNext->setIcon(QIcon(":/icons/sidebar/next.png"));
 
 
     connect(addToLikedSongs,&QAction::triggered,[=](){
@@ -1915,12 +1906,20 @@ void MainWindow::showTrackOption(){
     }
     QListWidget *list = qobject_cast<QListWidget*>(listObj);
 
+    connect(playNext,&QAction::triggered,[=](){
+        QWidget *listWidgetItem = list->findChild<QWidget*>("track-widget-"+songId);
+        QPoint pos = listWidgetItem->pos();
+        int index = list->row(list->itemAt(pos));
+        assignNextTrack(list,index);
+    });
+
     connect(removeSong,&QAction::triggered,[=](){
         if(list->objectName()=="smart_list"){
              remove_song_from_smart_playlist(songId);
         }else{
              remove_song(songId);
         }
+        nextPreviousHelper(list);
     });
 
     QMenu menu;
@@ -1928,6 +1927,11 @@ void MainWindow::showTrackOption(){
         menu.addAction(removeFromLikedSongs);
     }else{
         menu.addAction(addToLikedSongs);
+    }
+    if(list->objectName()!="smart_list"){
+        if((!nowPlayingSongIdWatcher->getValue().isEmpty() && nowPlayingSongIdWatcher->getValue()!="0000000")){
+            menu.addAction(playNext);
+        }
     }
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
         menu.addAction(showLyrics);
@@ -1947,6 +1951,7 @@ void MainWindow::showTrackOption(){
         menu.addAction(watchVideo);
         menu.addAction(youtubeShowRecommendation);
     }
+
     menu.addSeparator();
     menu.addAction(removeSong);
     menu.addSeparator();
@@ -1963,6 +1968,7 @@ void MainWindow::remove_song_from_smart_playlist(QVariant track_id){
          QString songIdFromWidget = static_cast<QLineEdit*>(queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
           if(songIdFromWidget.contains(songId)){
              queue->takeItem(i);
+
           }
      }
 }
@@ -2371,6 +2377,7 @@ void MainWindow::on_youtube_list_itemDoubleClicked(QListWidgetItem *item)
 }
 
 void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
+
     listClearSelection(list->objectName());
     //clear debug console
     ui->console->clear();
@@ -2378,6 +2385,9 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     if(ui->debug_widget->isVisible())
        ui->debug_widget->hide();
 
+    //prevent crash while playing song which is not in queue or removed by user
+    if(item==nullptr)
+        return;
     if(!list->itemWidget(item)->isEnabled())
         return;
 
@@ -2386,6 +2396,7 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
     ElidedLabel *title = list->itemWidget(item)->findChild<ElidedLabel *>("title_elided");
     QString titleStr = static_cast<ElidedLabel*>(title)->text();
+
 
     ElidedLabel *artist = list->itemWidget(item)->findChild<ElidedLabel *>("artist_elided");
     QString artistStr = static_cast<ElidedLabel*>(artist)->text();
@@ -2407,23 +2418,8 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     playing->setToolTip("playing...");
 
 
-    //assign next track to next button
-    if(list->currentRow()==0){
-        ui->previous->setEnabled(false);
-    }else{
-        //assign next track in list if next item in list is valid
-        for(int i=list->currentRow()-1;i>-1;i--){
-            if(list->itemWidget(list->item(i))->isEnabled()){
-                ui->previous->setEnabled(true);
-                assignPreviousTrack(list,i);
-                break;
-            }
-        }
-    }
-
 
     if(list->currentRow()==list->count()-1){
-        ui->next->setEnabled(false);
         //set loading playlist = false if the track are being played from normal queues
         if(list->objectName()=="olivia_list"||list->objectName()=="youtube_list"){
             currentSimilarTrackProcessing = 0;
@@ -2432,22 +2428,14 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         if(settingsObj.value("smart_playlist",true).toBool()){
             startGetRecommendedTrackForAutoPlayTimer(songId);
         }
-    }else{
-        //assign next track in list if next item in list is valid
-        for(int i=list->currentRow()+1;i<list->count();i++){
-            if(list->itemWidget(list->item(i))->isEnabled()){
-                ui->next->setEnabled(true);
-                assignNextTrack(list,i);
-                break;
-            }else{
-                ui->next->setEnabled(false);
-            }
-        }
     }
 
     nowPlayingSongIdWatcher->isRadioStation = false;
 
     nowPlayingSongIdWatcher->setValue(songId);
+
+    //decides next and previous song
+    nextPreviousHelper(list);
 
     ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongIdWatcher->getValue()+"'");
 
@@ -2506,6 +2494,11 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         }
         set_app_theme(QColor(r.toInt(),g.toInt(),b.toInt()));
     }
+
+    if(list->itemWidget(item)->rect().contains(list->itemWidget(item)->mapFromGlobal(QCursor::pos()))){
+        showToast("Playing: "+titleStr);
+    }
+
     //add to recentlyPlayed tracks
     store_manager->add_recently_played(songId);
     //reload recent page if page is recently_played
@@ -2524,6 +2517,52 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     }
 }
 //END PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::nextPreviousHelper(QListWidget *list){
+
+    //assign previous track to previous button
+    if(list->currentRow()==0){
+        ui->previous->setEnabled(false);
+    }else{
+        //assign previous track in list if next item in list is valid
+        for(int i=list->currentRow()-1;i>-1;i--){
+            if(list->itemWidget(list->item(i))->isEnabled()){
+                ui->previous->setEnabled(true);
+                assignPreviousTrack(list,i);
+                break;
+            }
+        }
+    }
+
+    //assign next track to next button
+    if(list->currentRow()==list->count()-1 && ui->repeat->checkState()!= Qt::PartiallyChecked){ //is last track
+        ui->next->setEnabled(false);
+    }else{
+        if(ui->repeat->checkState() == Qt::PartiallyChecked){
+            QListWidget *list = this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue()));
+            if(list!=nullptr){
+                QWidget *listWidgetItem = list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
+                if(listWidgetItem!=nullptr){
+                    QPoint pos = listWidgetItem->pos();
+                    int index = list->row(list->itemAt(pos));
+                    assignNextTrack(list,index);
+                }
+            }
+        }else{
+            //assign next track in list if next item in list is valid
+            for(int i=list->currentRow()+1;i<list->count();i++){
+                if(list->itemWidget(list->item(i))->isEnabled()){
+                    ui->next->setEnabled(true);
+                        assignNextTrack(list,i);
+                    break;
+                }else{
+                    ui->next->setEnabled(false);
+                }
+            }
+        }
+
+    }
+}
 
 //app menu to hide show sidebar
 void MainWindow::on_menu_clicked()
@@ -2647,6 +2686,7 @@ void MainWindow::radioStatus(QString radioState){
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
         //remove nowplaying from central widget
         setTrackItemNowPlaying();
+        nowPlayingSongIdWatcher->previousSongId = nowPlayingSongIdWatcher->getValue();
         nowPlayingSongIdWatcher->setValue("0000000"); //null
 
         // play next track
@@ -2867,6 +2907,7 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
     }
 
     this->findChild<ElidedLabel *>("nowP_title")->setText(htmlToPlainText(title));
+    showToast("Playing: "+htmlToPlainText(title));
 
     this->findChild<ElidedLabel *>("nowP_artist")->setText(language);
 
@@ -3352,6 +3393,9 @@ void MainWindow::getEnabledTracks(QListWidget *currentListWidget){
 
 void MainWindow::assignNextTrack(QListWidget *list ,int index){
 
+    if(list==nullptr) // prevent if list is not valid pointer
+        return;
+
     //shuffled track assignment
     //shuffle is disabled in smartMode bcoz songs are already coming shuffled
     if(settingsObj.value("shuffle",false).toBool() && !smartMode){
@@ -3378,28 +3422,36 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
     }
 
     //normal next track algo
-    QString songId;
-    if(settingsObj.value("shuffle",false).toBool()){
-
-    }else{
-         songId = list->itemWidget(list->item(index))->findChild<QLineEdit *>("songId")->text().trimmed();
-    }
-
+    if(list->itemWidget(list->item(index))==nullptr) //if itemwidget is not valid prevent assingment
+        return;
+    QString songId = list->itemWidget(list->item(index))->findChild<QLineEdit *>("songId")->text().trimmed();
     if(!songId.isEmpty()){
         QString tooltip = store_manager->getTrack(songId).at(1);
         if(!tooltip.isEmpty()){
             ui->next->setToolTip(htmlToPlainText(tooltip));
+            if(sender()!=nullptr &&sender()->objectName().contains("optionButton")){
+                showToast("Next: "+tooltip);
+            }
+            ui->next->setEnabled(true);
         }else{
             //dig title of track
             ElidedLabel *title = list->itemWidget(list->item(index))->findChild<ElidedLabel *>("title_elided");
             QString titleStr = static_cast<ElidedLabel*>(title)->text();
-            if(!titleStr.isEmpty())
+            if(!titleStr.isEmpty()){
                 ui->next->setToolTip(titleStr);
-            else
+                if(sender()!=nullptr && sender()->objectName().contains("optionButton")){
+                    showToast("Next: "+tooltip);
+                }
+                ui->next->setEnabled(true);
+            }
+            else{
                 ui->next->setToolTip("");
+                ui->next->setEnabled(false);
+            }
         }
     }else{
         ui->next->setToolTip("");
+        ui->next->setEnabled(false);
     }
     ui->next->disconnect();
     connect(ui->next,&QPushButton::clicked,[=](){
@@ -3420,6 +3472,30 @@ void MainWindow::startGetRecommendedTrackForAutoPlayTimer(QString songId){
     timer->start();
 }
 
+//call this anytime to load similar tracks of any song in smart-playlist
+void MainWindow::getRecommendedTracksForAutoPlayHelper(QString videoId, QString songId){
+    currentSimilarTrackProcessing = 0;
+    //keep now playing song and remove others
+    while(similarTracksListHasTrackToBeRemoved()){
+        for (int i=0; i<ui->smart_list->count();i++) {
+            if(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
+                QListWidgetItem *item =  ui->smart_list->takeItem(i);
+                 if(item != nullptr){
+                     delete item;
+                 }
+            }
+            ui->previous->setEnabled(false);
+        }
+    }
+
+    if(similarTracks->isLoadingPLaylist){
+        similarTracks->getNextTracksInPlaylist(currentSimilarTrackList);
+    }else{
+        similarTracks->addSimilarTracks(videoId,songId);
+    }
+}
+
+
 void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
     QString videoId = store_manager->getYoutubeIds(songId).split("<br>").first().trimmed();
     if(videoId.trimmed().isEmpty()){
@@ -3431,53 +3507,35 @@ void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
     }
 
     //load tracks in smart playlist if smart mode is enabled
-    if(smartMode){
-        qDebug()<<"Prepare related songs list for videoId"<< videoId << songId;
-        currentSimilarTrackProcessing = 0;
-        ui->similarTrackLoader->start();
-        //keep now playing song and remove others
-        while(similarTracksListHasTrackToBeRemoved()){
-            for (int i=0; i<ui->smart_list->count();i++) {
-                if(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
-                    QListWidgetItem *item =  ui->smart_list->takeItem(i);
-                     if(item != nullptr){
-                         delete item;
-                     }
-                }
-                ui->previous->setEnabled(false);
-            }
-        }
+    //prevent getting related songs in case if the track is repeating
+    if(smartMode && ui->repeat->checkState()!= Qt::PartiallyChecked){
+               if(ui->repeat->checkState()==Qt::Checked){
+                   //repeat queue
+                   if(!ui->next->isEnabled()){
+                       assignNextTrack(this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue())),0);
+                   }else{
+                       nextPreviousHelper(this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue())));
+                   }
+                   return;
+               }
 
-        if(similarTracks->isLoadingPLaylist){
-            similarTracks->getNextTracksInPlaylist(currentSimilarTrackList);
-        }else{
-            similarTracks->addSimilarTracks(videoId,songId);
-        }
-        return;
+            qDebug()<<"Prepare related songs list for videoId"<< videoId << songId;
+                getRecommendedTracksForAutoPlayHelper(videoId,songId);
+            return;
     }
 
-    //load smart playlist if song is last and shuffle is off
-    if(!ui->next->isEnabled() /*&& !settingsObj.value("shuffle").toBool()*/){
-        qDebug()<<"Prepare related songs list for videoId"<< videoId << songId;
-        currentSimilarTrackProcessing = 0;
-        ui->similarTrackLoader->start();
-        //keep now playing song and remove others
-        while(similarTracksListHasTrackToBeRemoved()){
-            for (int i=0; i<ui->smart_list->count();i++) {
-                if(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
-                    QListWidgetItem *item =  ui->smart_list->takeItem(i);
-                     if(item != nullptr){
-                         delete item;
-                     }
-                }
-                ui->previous->setEnabled(false);
-            }
+    if(ui->repeat->checkState()!=Qt::Checked && ui->repeat->checkState()!= Qt::PartiallyChecked){
+        //load smart playlist if song is last
+        if(!ui->next->isEnabled()){
+            qDebug()<<"Prepare related songs list for videoId"<< videoId << songId;
+             getRecommendedTracksForAutoPlayHelper(videoId,songId);
         }
-
-        if(similarTracks->isLoadingPLaylist){
-            similarTracks->getNextTracksInPlaylist(currentSimilarTrackList);
+    }else if(ui->repeat->checkState()==Qt::Checked){
+        //repeat queue
+        if(!ui->next->isEnabled()){
+            assignNextTrack(this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue())),0);
         }else{
-            similarTracks->addSimilarTracks(videoId,songId);
+            nextPreviousHelper(this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue())));
         }
     }
 }
@@ -3488,7 +3546,8 @@ bool MainWindow::similarTracksListHasTrackToBeRemoved(){
          if(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
              has = true;
          }
-         if(has)break;
+         if(has)
+             break;
      }
      return has;
 }
@@ -3678,8 +3737,8 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
             connect(updateTrack,&QAction::triggered,[=](){
                getAudioStream(ytIds,songId);
             });
-        }else if(ytdlProcess!=nullptr && ytdlQueue.count()>0){ // if ytdlProcess is running set the track to upcoming process in ytdlQueue
-            //move this to upcoming ytdlProcess
+        }else if(ytdlProcess!=nullptr && ytdlQueue.count()>0){ // if ytdlProcess is running set the track to Next process in ytdlQueue
+            //move this to Next ytdlProcess
         }
         //show menu
         QMenu menu;
@@ -3943,9 +4002,11 @@ void MainWindow::on_shuffle_toggled(bool checked)
 {
     settingsObj.setValue("shuffle",checked);
     if(checked){
+        showToast("Shuffle: On");
         ui->shuffle->setIcon(QIcon(":/icons/shuffle_button.png"));
         ui->shuffle->setToolTip("Shuffle (Enabled)");
     }else{
+        showToast("Shuffle: Off");
         ui->shuffle->setIcon(QIcon(":/icons/shuffle_button_disabled.png"));
         ui->shuffle->setToolTip("Shuffle (Disabled)");
     }
@@ -4074,11 +4135,13 @@ void MainWindow::on_show_hide_smart_list_button_clicked()
             split3->setSizes(QList<int>()<<500<<500);
             split3->handle(1)->setEnabled(true);
             ui->recommWidget->show();
+            ui->jump_to_nowplaying->click();
         }else{
             split3->widget(1)->setMaximumHeight(16777215);
             split3->setSizes(QList<int>()<<300<<300);
             split3->handle(1)->setEnabled(true);
             ui->recommWidget->show();
+            ui->jump_to_nowplaying->click();
         }
 
         ui->show_hide_smart_list_button->setToolTip("Hide Similar Tracks");
@@ -4130,7 +4193,11 @@ QString MainWindow::getCurrentPlayerQueue(QString songId){
     }else{
         foreach (QWidget *listWidgetItem, listWidgetItems) {
             QListWidget *listWidget = static_cast<QListWidget*>(listWidgetItem->parent()->parent());
-            listName = listWidget->objectName();
+            if(listWidget!=nullptr){
+                listName = listWidget->objectName();
+            }else{
+                qDebug()<<"PLAYER QUEUE NOT FOUND";
+            }
         }
     }
     return listName;
@@ -4257,15 +4324,24 @@ void MainWindow::on_smartMode_clicked()
         smartModeWidget->move(ui->smartMode->mapToGlobal(QPoint(QPoint(-smartModeWidget->width()+ui->smartMode->width(),30))));
         ui->miniMode->setEnabled(false);
         ui->line->hide();
+
         this->hide();
+
+
 
         smartModeWidget->setWindowOpacity(qreal(settingsObj.value("smartModeTransperancy","98").toReal()/100));
 
         smartModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#smartModeWidget"));
 
+//        smartModeWidget->resize(smartModeWidget->width(),smartModeWidget->height()+ui->smart_list->height()*2);
+         smartModeWidget->resize(smartModeWidget->width(),500);
+
         smartModeWidget->showNormal();
     }else{
         smartMode = false;
+
+        nextPreviousHelper(this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue())));
+
         //show shuffle button and restore its state
         ui->shuffle->show();
         ui->shuffle->setChecked(smartModeShuffleState);
@@ -4287,6 +4363,105 @@ void MainWindow::on_smartMode_clicked()
         ui->smart_playlist_holder->layout()->addWidget(ui->recommHolder);
         ui->centralWidget->layout()->addWidget(ui->controls_widget);
         smartModeWidget->setMaximumHeight(16777215);
-        this->show();
+        this->showNormal();
     }
+}
+
+void MainWindow::on_repeat_stateChanged(int arg1)
+{
+
+    settingsObj.setValue("repeat",arg1);
+
+    QListWidget *list = this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue()));
+    if(list==nullptr)
+        return;
+
+    switch (arg1) {
+    case 0:{
+        //unchecked
+        //repeat off
+        ui->repeat->setToolTip("Repeat is off");
+        showToast("Repeat Off");
+        ui->repeat->setIcon(QIcon(":/icons/p_repeat_off.png"));
+
+        nextPreviousHelper(list);
+
+        break;
+    }
+    case 1:{
+        //partial
+        //repeat current song
+        ui->repeat->setToolTip("Repeating current song");
+        showToast("Repeat current song");
+        ui->repeat->setIcon(QIcon(":/icons/p_repeat.png"));
+        if(list!=nullptr){
+            QWidget *listWidgetItem = list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
+            if(listWidgetItem!=nullptr){
+                QPoint pos = listWidgetItem->pos();
+                int index = list->row(list->itemAt(pos));
+                assignNextTrack(list,index);
+            }
+        }
+        break;
+    }
+    case 2:
+        //checked
+        //repeat queue
+        ui->repeat->setToolTip("Repeating current queue");
+        showToast("Repeat current queue");
+        ui->repeat->setIcon(QIcon(":/icons/p_repeat_queue.png"));
+        //repeat queue
+        if(!ui->next->isEnabled()){
+            assignNextTrack(this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue())),0);
+        }else {
+            nextPreviousHelper(list);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::showToast(QString message){
+//    if(settingsObj.value("dynamicTheme").toBool()==true && !sender()->objectName().contains("repeat"))
+//        return;
+    if(!this->isVisible())
+        return;
+    QWidget *widget = this->findChild<QWidget*>("toastWidget");
+    if(widget!=nullptr){
+        widget->close();
+        widget->deleteLater();
+    }
+
+    QWidget *toastWidget = new QWidget(this,Qt::ToolTip);
+    toastWidget->setObjectName("toastWidget");
+    toastWidget->setWindowModality(Qt::NonModal);
+    toastWidget->setWindowOpacity(qreal(QVariant("95").toReal()/100));
+    toastWidget->setStyleSheet("QWidget#toastWidget{border:none;background-color:rgba(26,128,166,197);}");
+    toast.setupUi(toastWidget);
+    toast.messageLabel->setText(message);
+    connect(toast.close,&QPushButton::clicked,[=](){
+       toastWidget->close();
+    });
+
+    QTimer *toastTimer = new QTimer(toastWidget);
+    toastTimer->setInterval(4000);
+    connect(toastTimer,&QTimer::timeout,[=](){
+       if(toastWidget!=nullptr && toastWidget->isVisible()){
+           toastWidget->close();
+           toastWidget->deleteLater();
+       }
+    });
+    toastTimer->start();
+    toastWidget->adjustSize();
+    int x = ui->top_widget->pos().x()+(ui->top_widget->width()-toastWidget->width())-ui->windowControls->width()-10;
+    int y = ui->top_widget->pos().y()+toastWidget->height()/4;
+
+    QPropertyAnimation *a = new QPropertyAnimation(toastWidget,"pos");
+    a->setDuration(200);
+    a->setStartValue( QCursor::pos());
+    a->setEndValue(this->mapToParent(QPoint(x,y)));
+    a->setEasingCurve(QEasingCurve::InSine);
+     a->start(QPropertyAnimation::DeleteWhenStopped);
+    toastWidget->show();
 }
