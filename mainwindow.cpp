@@ -289,6 +289,11 @@ void MainWindow::init_settings(){
     settingsUi.tracksToLoad->setMinimum(1);
     settingsUi.tracksToLoad->setMaximum(10);
 
+    connect(settingsUi.donate,&QPushButton::clicked,[=](){
+       QDesktopServices::openUrl(QUrl("https://paypal.me/keshavnrj/5"));
+       showToast("Opening donation link in browser..");
+    });
+
     connect(settingsUi.open_tracks_cache_dir,&controlButton::clicked,[=](){
         QDesktopServices::openUrl(QUrl("file://"+setting_path+"/downloadedTracks"));
     });
@@ -300,7 +305,7 @@ void MainWindow::init_settings(){
     settingsUi.optimizeDb->hide();
     connect(settingsUi.optimizeDb,&controlButton::clicked,[=](){
         QMessageBox msgBox;
-        msgBox.setText("This will remove unneccesary tracks meta data from databse and make it faster.");
+        msgBox.setText("This will remove unneccesary tracks meta data from databse and make it smaller and faster.");
               msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
         msgBox.setInformativeText("Optimize Database ?");
@@ -523,6 +528,10 @@ void MainWindow::loadSettings(){
     case 1:
          ui->repeat->setCheckState(Qt::PartiallyChecked);
          ui->repeat->setIcon(QIcon(":/icons/p_repeat.png"));
+         //disable shuffle if repeat current song is on
+         if(ui->shuffle->isChecked()){
+             ui->shuffle->setChecked(false);
+         }
         break;
     case 2:
          ui->repeat->setCheckState(Qt::Checked);
@@ -533,7 +542,11 @@ void MainWindow::loadSettings(){
     }
 
     ui->shuffle->setChecked(settingsObj.value("shuffle").toBool());
-    ui->shuffle->setIcon(QIcon(settingsObj.value("shuffle").toBool()?":/icons/shuffle_button.png":":/icons/shuffle_button_disabled.png"));
+    //disable shuffle if repeat current song is on
+    if(ui->repeat->checkState()==Qt::PartiallyChecked){
+        ui->shuffle->setChecked(false);
+    }
+    ui->shuffle->setIcon(QIcon(ui->shuffle->isChecked()?":/icons/shuffle_button.png":":/icons/shuffle_button_disabled.png"));
 
     settingsUi.saveAfterBuffer->setChecked(settingsObj.value("saveAfterBuffer","true").toBool());
     settingsUi.showSearchSuggestion->setChecked(settingsObj.value("showSearchSuggestion","true").toBool());
@@ -945,10 +958,13 @@ void MainWindow::showPayPalDonationMessageBox(){
 
       msgBox.exec();
         if (msgBox.clickedButton() == donateHereBtn) {
-            ui->webview->load(QUrl("https://paypal.me/keshavnrj/"));
+            ui->webview->load(QUrl("https://paypal.me/keshavnrj/5"));
+            showToast("Loading doantion page...");
         }else if (msgBox.clickedButton() == copyLinkBtn){
             QClipboard *clipboard = QGuiApplication::clipboard();
               clipboard->setText("https://paypal.me/keshavnrj/");
+              showToast("Donation link copied");
+              QDesktopServices::openUrl(QUrl("https://paypal.me/keshavnrj/5"));
         }
 }
 
@@ -4012,7 +4028,14 @@ void MainWindow::on_shuffle_toggled(bool checked)
 {
     settingsObj.setValue("shuffle",checked);
     if(checked){
-        showToast("Shuffle: On");
+        //disable repeat current song if shuffle is on
+        showToast("Repeat current song is not allowed while shuffle");
+        if(ui->repeat->checkState()==Qt::PartiallyChecked){
+            ui->repeat->setCheckState(Qt::Unchecked);
+            showToast("Shuffle: On, Repeat: Off");
+        }else{
+            showToast("Shuffle: On");
+        }
         ui->shuffle->setIcon(QIcon(":/icons/shuffle_button.png"));
         ui->shuffle->setToolTip("Shuffle (Enabled)");
     }else{
@@ -4379,9 +4402,7 @@ void MainWindow::on_smartMode_clicked()
 
 void MainWindow::on_repeat_stateChanged(int arg1)
 {
-
     settingsObj.setValue("repeat",arg1);
-
     QListWidget *list = this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue()));
     if(list==nullptr)
         return;
@@ -4393,9 +4414,7 @@ void MainWindow::on_repeat_stateChanged(int arg1)
         ui->repeat->setToolTip("Repeat is off");
         showToast("Repeat Off");
         ui->repeat->setIcon(QIcon(":/icons/p_repeat_off.png"));
-
         nextPreviousHelper(list);
-
         break;
     }
     case 1:{
@@ -4411,6 +4430,11 @@ void MainWindow::on_repeat_stateChanged(int arg1)
                 int index = list->row(list->itemAt(pos));
                 assignNextTrack(list,index);
             }
+        }
+        //disable shuffle if repeat current song is on
+        if(ui->shuffle->isChecked()){
+            ui->shuffle->setChecked(false);
+            showToast("Repeat current song, Shuffle: Off");
         }
         break;
     }
