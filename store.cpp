@@ -1329,6 +1329,7 @@ QString store::open_liked_tracks_PageNumber(int pageNumber){
             url = trackList.at(7);
             id = trackList.at(8);
             dominantColor = trackList.at(9);
+
             QString divider = "!=-=!";
             QString offline = (isDownloaded(songId) == true)?"offline":"";
             //QString albumType = (album == "undefined") ? "Youtube":"";
@@ -1340,19 +1341,21 @@ QString store::open_liked_tracks_PageNumber(int pageNumber){
                        para = "<p style='margin-left: 14.5em;' >";
                        imgHtml = "<p style='background-color:rgb("+dominantColor+");' class='li-img-wrapper'><img id='"+songId+"' style='width:100%;max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+base64+"' /></p>";
                    }
-            li += "<li data-filtertext='"+title+" "+album+" "+artist+"' >"+
-            "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'>"
-                    +imgHtml+para+
-                        ""+ title+
-                        "<br>"+
-                        "Album: "+QString(album=="undefined"?"Youtube":album)+
-                        "<br>"+
-                        "Artist: "+artist+
-                    "</p>"+
-                    "<p class='ui-li-aside'>"+offline+"</p>" +
-               " </a>"+
-               "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
-            "</li>";
+                   if(!title.trimmed().isEmpty()){
+                       li += "<li data-filtertext='"+title+" "+album+" "+artist+"' >"+
+                       "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'>"
+                               +imgHtml+para+
+                                   ""+ title+
+                                   "<br>"+
+                                   "Album: "+QString(album=="undefined"?"Youtube":album)+
+                                   "<br>"+
+                                   "Artist: "+artist+
+                               "</p>"+
+                               "<p class='ui-li-aside'>"+offline+"</p>" +
+                          " </a>"+
+                          "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
+                       "</li>";
+                   }
         }
         html =  head+
                 "<ul style='margin-bottom: 60px;'  class='list' id='saved_tracks_result'   data-role='listview' data-split-icon='bars' data-split-theme='b' data-inset='true'>"
@@ -1449,6 +1452,7 @@ QString store::open_search_liked_tracks(int pageNumber,QVariant queryStr){
             url = trackList.at(7);
             id = trackList.at(8);
             dominantColor = trackList.at(9);
+
             QString divider = "!=-=!";
             QString offline = (isDownloaded(songId) == true)?"offline":"";
 //            QString albumType = (album == "undefined") ? "Youtube":"";
@@ -1460,19 +1464,21 @@ QString store::open_search_liked_tracks(int pageNumber,QVariant queryStr){
                        para = "<p style='margin-left: 14.5em;' >";
                        imgHtml = "<p style='background-color:rgb("+dominantColor+");' class='li-img-wrapper'><img id='"+songId+"' style='width:100%;max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+base64+"' /></p>";
                    }
-            li += "<li data-filtertext='"+title+" "+album+" "+artist+"' >"+
-            "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'>"
-                    +imgHtml+para+
-                        ""+ title+
-                        "<br>"+
-                        "Album: "+QString(album=="undefined"?"Youtube":album)+
-                        "<br>"+
-                        "Artist: "+artist+
-                    "</p>"+
-                    "<p class='ui-li-aside'>"+offline+"</p>" +
-               " </a>"+
-               "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
-            "</li>";
+                   if(!title.trimmed().isEmpty()){
+                        li += "<li data-filtertext='"+title+" "+album+" "+artist+"' >"+
+                        "<a data-trackinfo='"+title+divider+artist+divider+album+divider+base64+divider+songId+divider+albumId+divider+artistId+divider+"millis"+"' onclick='mainwindow.playLocalTrack(\""+songId+"\")'>"
+                                +imgHtml+para+
+                                    ""+ title+
+                                    "<br>"+
+                                    "Album: "+QString(album=="undefined"?"Youtube":album)+
+                                    "<br>"+
+                                    "Artist: "+artist+
+                                "</p>"+
+                                "<p class='ui-li-aside'>"+offline+"</p>" +
+                           " </a>"+
+                           "<a href='#' onclick=\"track_option('"+songId+"')\">More Options</a>"+
+                        "</li>";
+                   }
         }
         html =  head+
                 "<ul style='margin-bottom: 60px;'  class='list' id='saved_tracks_result'   data-role='listview' data-split-icon='bars' data-split-theme='b' data-inset='true'>"
