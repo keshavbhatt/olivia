@@ -289,6 +289,13 @@ void MainWindow::init_settings(){
     settingsUi.tracksToLoad->setMinimum(1);
     settingsUi.tracksToLoad->setMaximum(10);
 
+    connect(settingsUi.open_tracks_cache_dir,&controlButton::clicked,[=](){
+        QDesktopServices::openUrl(QUrl("file://"+setting_path+"/downloadedTracks"));
+    });
+    connect(settingsUi.open_video_cache_dir,&controlButton::clicked,[=](){
+        QDesktopServices::openUrl(QUrl("file://"+setting_path+"/downloadedVideos"));
+    });
+
     //TODO test dbOp algo before making it public
     settingsUi.optimizeDb->hide();
     connect(settingsUi.optimizeDb,&controlButton::clicked,[=](){
