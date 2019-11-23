@@ -37,6 +37,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
+    analytics.cpp \
     download_widget.cpp \
     equalizer.cpp \
         mainwindow.cpp \
@@ -61,6 +62,7 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
     DarkStyle.h \
+    analytics.h \
     cookiejar.h \
     download_widget.h \
     elidedlabel.h \
@@ -88,6 +90,7 @@ FORMS    += mainwindow.ui \
     downloaditem.ui \
     equalizer.ui \
     smart_mode.ui \
+    toast.ui \
     track.ui \
     settings.ui \
     minimode.ui \
