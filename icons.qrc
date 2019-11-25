@@ -120,5 +120,8 @@
         <file>icons/p_repeat_single.png</file>
         <file>icons/sidebar/next.png</file>
         <file>icons/p_repeat_queue.png</file>
+        <file>icons/others/rate.png</file>
+        <file>icons/others/store.png</file>
+        <file>icons/others/donate_paypal.png</file>
     </qresource>
 </RCC>
