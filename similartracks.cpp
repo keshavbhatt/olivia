@@ -6,7 +6,6 @@
 SimilarTracks::SimilarTracks(QObject *parent,int limit) : QObject(parent)
 {
     numberOfSimilarTracksToLoad = limit;
-    qDebug()<<"Related songs limit"<<limit;
     store_manager = this->parent()->findChild<store*>("store_manager");
 }
 
@@ -14,8 +13,6 @@ void SimilarTracks::addSimilarTracks(QString video_id,QString songId){
     if(!parentSongId.isEmpty()){
         previousParentSongId = parentSongId;
     }
-//    if(parentSongId==songId)//prevent loading recommendation for same song again and again
-//        return;
     parentSongId = songId;
     emit lodingStarted();
     isLoadingPLaylist = false;
@@ -50,6 +47,7 @@ void SimilarTracks::addSimilarTracks(QString video_id,QString songId){
                    playedTracksIds.append(QString(finalList.at(i)).split("!=-=!")[4]);
                 }
             }else{
+                parentSongId = ""; //empty the parentsongid so user can reload request
                 emit failedGetSimilarTracks();
             }
         }else{
@@ -99,6 +97,7 @@ void SimilarTracks::addPlaylist(QString data){
     if(finalList.count()>0){
         emit setPlaylist(finalList);
     }else{
+        parentSongId = ""; //empty the parentsongid so user can reload request
         emit failedGetSimilarTracks();
     }
 }
@@ -112,6 +111,7 @@ void SimilarTracks::getNextTracksInPlaylist(QStringList trackListFromMainWindow)
     if(trackListFromMainWindow.count()>0){
         emit setPlaylist(trackListFromMainWindow);
     }else{
+        parentSongId = ""; //empty the parentsongid so user can reload request
         emit failedGetSimilarTracks();
     }
 }
