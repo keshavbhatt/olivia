@@ -1974,25 +1974,29 @@ void MainWindow::showTrackOption(){
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
         menu.addAction(showLyrics);
         menu.addAction(watchVideo);
+        menu.addSeparator();
+        menu.addAction(startRadio);
         if(!isNumericStr(songId)) //spotify song ids are not numeric
         {
             menu.addAction(showRecommendation);
         }
         //added youtube recommendation fallback for itunes tracks ids
         menu.addAction(youtubeShowRecommendation);
+        menu.addSeparator();
         menu.addAction(gotoAlbum);
-        menu.addAction(gotoArtist);
+       // menu.addAction(gotoArtist);
     }else{
         menu.addSeparator();
         menu.addAction(showLyrics);
         menu.addAction(openChannel);
         menu.addAction(watchVideo);
+        menu.addSeparator();
         menu.addAction(youtubeShowRecommendation);
+        menu.addAction(startRadio);
     }
-    menu.addAction(startRadio);
+
     menu.addSeparator();
     menu.addAction(removeSong);
-    menu.addSeparator();
     menu.addAction(deleteSongCache);
     menu.setStyleSheet(menuStyle());
     menu.exec(QCursor::pos());
