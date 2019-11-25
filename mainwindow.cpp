@@ -1828,6 +1828,7 @@ void MainWindow::showTrackOption(){
     QAction *removeFromLikedSongs = new QAction("Remove from liked songs",nullptr);
     QAction *playNext =new QAction("Play next",nullptr);
 
+
     deleteSongCache->setEnabled(store_manager->isDownloaded(songId));
 
     //setIcons
@@ -1843,7 +1844,6 @@ void MainWindow::showTrackOption(){
     addToLikedSongs->setIcon(QIcon(":/icons/sidebar/liked.png"));
     removeFromLikedSongs->setIcon(QIcon(":/icons/sidebar/not_liked.png"));
     playNext->setIcon(QIcon(":/icons/sidebar/next.png"));
-
 
     connect(addToLikedSongs,&QAction::triggered,[=](){
         store_manager->add_to_liked(songId);
@@ -1949,16 +1949,28 @@ void MainWindow::showTrackOption(){
     });
 
     QMenu menu;
+
+    //start radio
+    QAction *startRadio =new QAction("Start Radio",nullptr);
+    startRadio->setIcon(QIcon(":/icons/sidebar/radio.png"));
+    //radio connections
+    QString ytIds = store_manager->getYoutubeIds(songId).split("<br>").first();
+    connect(startRadio,&QAction::triggered,[=](){
+        showToast("Loading songs for radio...");
+        getRecommendedTracksForAutoPlayHelper(ytIds,songId);
+    });
+
     if(store_manager->is_liked_track(songId)){
         menu.addAction(removeFromLikedSongs);
     }else{
         menu.addAction(addToLikedSongs);
     }
-//    if(list->objectName()!="smart_list"){
-        if((!nowPlayingSongIdWatcher->getValue().isEmpty() && nowPlayingSongIdWatcher->getValue()!="0000000")){
+
+    //add playnnext to menu if something is playing
+    if((!nowPlayingSongIdWatcher->getValue().isEmpty() && nowPlayingSongIdWatcher->getValue()!="0000000")){
             menu.addAction(playNext);
-        }
-//    }
+    }
+
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
         menu.addAction(showLyrics);
         menu.addAction(watchVideo);
@@ -1977,7 +1989,7 @@ void MainWindow::showTrackOption(){
         menu.addAction(watchVideo);
         menu.addAction(youtubeShowRecommendation);
     }
-
+    menu.addAction(startRadio);
     menu.addSeparator();
     menu.addAction(removeSong);
     menu.addSeparator();
