@@ -294,6 +294,11 @@ void MainWindow::init_settings(){
        showToast("Opening donation link in browser..");
     });
 
+    connect(settingsUi.rate,&QPushButton::clicked,[=](){
+       QDesktopServices::openUrl(QUrl("snap://olivia"));
+       showToast("Opening Softwares App..");
+    });
+
     connect(settingsUi.open_tracks_cache_dir,&controlButton::clicked,[=](){
         QDesktopServices::openUrl(QUrl("file://"+setting_path+"/downloadedTracks"));
     });
@@ -717,6 +722,8 @@ void MainWindow::set_app_theme(QColor rgb){
     }
 
     settingsUi.download_engine->setStyleSheet(btn_style);
+    settingsUi.donate->setStyleSheet(btn_style);
+    settingsUi.rate->setStyleSheet(btn_style);
     settingsWidget->findChild<QPushButton*>("custom_color")->setStyleSheet(btn_style);
 }
 
@@ -1360,13 +1367,11 @@ void MainWindow::setSearchTermAndOpenYoutube(QVariant term){
 }
 
 
-
 //returns search query to webend
 QString MainWindow::getTerm(){
     QString term = ui->search->text();
     return  term.replace(" ","+");
 }
-
 
 void MainWindow::prepareSimilarTracks(){
     QString videoId,title,artist,album,coverUrl,songId,albumId,artistId,millis;
