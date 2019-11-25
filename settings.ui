@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>464</width>
-    <height>491</height>
+    <height>517</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -930,6 +930,33 @@ border:none;</string>
         <widget class="QPushButton" name="donate">
          <property name="text">
           <string>Donate</string>
+         </property>
+         <property name="icon">
+          <iconset resource="icons.qrc">
+           <normaloff>:/icons/others/donate_paypal.png</normaloff>:/icons/others/donate_paypal.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>15</width>
+           <height>15</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="rate">
+         <property name="text">
+          <string>Rate Olivia</string>
+         </property>
+         <property name="icon">
+          <iconset resource="icons.qrc">
+           <normaloff>:/icons/others/rate.png</normaloff>:/icons/others/rate.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>15</width>
+           <height>15</height>
+          </size>
          </property>
         </widget>
        </item>
