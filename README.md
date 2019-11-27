@@ -10,6 +10,7 @@ by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktech
 [![Snap Status](https://build.snapcraft.io/badge/keshavbhatt/olivia.svg)](https://build.snapcraft.io/user/keshavbhatt/olivia) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Percentage of issues still open") 
 
 ﻿**Nightly Build on any [snapd](https://docs.snapcraft.io/installing-snapd) enabled Linux Distribution can be installed using:**
+﻿[![olivia](https://snapcraft.io//olivia/badge.svg)](https://snapcraft.io/olivia) [![olivia](https://snapcraft.io//olivia/trending.svg?name=0)](https://snapcraft.io/olivia)
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/olivia)
 
@@ -21,7 +22,7 @@ by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktech
 
 **Features**
 * Olivia helps you discover new music and videos like no other service do.
-* Smart Music recommendation, can get you songs related to ant particular song. 
+* Smart Music recommendation, can get you songs related to any particular song. 
 * Allows organise music and videos at one place. 
 * Olivia can save track while you are streaming it, this saves your bandwidth.
 * Unique Smart Play Mode where you play a song and Olivia will play similar tracks for you until you stop it.
