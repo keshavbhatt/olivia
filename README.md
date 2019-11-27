@@ -43,7 +43,7 @@ by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktech
 * Lyrics of playing songs and separate lyrics search.
 * Powerful audio equalizers and audio filters.
 * MPRIS protocol support.
-* More features like cloud synchronisation of your Liked Music is coming soon, so you will be able to get your music back no matter where you are.
+* More features like cloud synchronization of your Liked Music is coming soon, so you will be able to get your music back no matter where you are.
 
 ﻿**Consider Donating if you want this music player grow further**
 
