@@ -167,6 +167,7 @@ private slots:
     void on_youtube_list_itemClicked(QListWidgetItem *item);
     void on_youtube_list_itemDoubleClicked(QListWidgetItem *item);
     void on_olivia_list_itemClicked(QListWidgetItem *item);
+    void on_smart_list_itemClicked(QListWidgetItem *item);
     void on_olivia_list_itemDoubleClicked(QListWidgetItem *item);
     void on_search_returnPressed();
     void on_settings_clicked();

@@ -2908,7 +2908,6 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
     QStringList tracskList ;
     tracskList = store_manager->getTrack(songId);
 
-
     title = tracskList[1];
     album = tracskList[3];
     artist = tracskList[5];
@@ -2938,7 +2937,9 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
         if(songId==songIdFromWidget){
             ui->tabWidget->setCurrentWidget(ui->tab);
             ui->olivia_list->setCurrentRow(i);
-            listItemDoubleClicked(ui->olivia_list,ui->olivia_list->item(i));
+            if(ui->olivia_list->itemWidget(ui->olivia_list->item(i))->isEnabled()){
+                listItemDoubleClicked(ui->olivia_list,ui->olivia_list->item(i));
+            }
             ui->olivia_list->scrollToItem(ui->olivia_list->item(i));
             break;
         }
@@ -2948,7 +2949,9 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
         if(songId==songIdFromWidget){
             ui->tabWidget->setCurrentWidget(ui->tab_2);
             ui->youtube_list->setCurrentRow(i);
-            listItemDoubleClicked(ui->youtube_list,ui->youtube_list->item(i));
+            if(ui->youtube_list->itemWidget(ui->youtube_list->item(i))->isEnabled()){
+                listItemDoubleClicked(ui->youtube_list,ui->youtube_list->item(i));
+            }
             ui->youtube_list->scrollToItem(ui->youtube_list->item(i));
             break;
         }
@@ -2957,7 +2960,6 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
     if(settingsObj.value("smart_playlist",true).toBool()){
         similarTracks->clearList();
     }
-
 }
 
 void MainWindow::saveRadioChannelToFavourite(QVariant channelInfo){
@@ -3747,6 +3749,11 @@ void MainWindow::on_youtube_list_itemClicked(QListWidgetItem *item)
 void MainWindow::on_olivia_list_itemClicked(QListWidgetItem *item)
 {
     trackItemClicked(ui->olivia_list,item);
+}
+
+void MainWindow::on_smart_list_itemClicked(QListWidgetItem *item)
+{
+    trackItemClicked(ui->smart_list,item);
 }
 
 void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item){
