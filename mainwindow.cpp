@@ -63,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
     browse();
     installEventFilters();
     loadSettings();
+    analytic = new analytics(this);
 }
 
 MainWindow::~MainWindow()
@@ -94,6 +95,7 @@ void MainWindow::init_similar_tracks(){
             prepareSimilarTracks();
         });
         connect(similarTracks, &SimilarTracks::failedGetSimilarTracks,[=](){
+            showToast("Failed to load smart playlist");
             ui->similarTrackLoader->stop();
         });
         connect(similarTracks, &SimilarTracks::clearList,[=](){
@@ -265,7 +267,7 @@ void MainWindow::closeEvent(QCloseEvent *event){
         QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(processIdList.at(i)));
         processIdList.removeAt(i);
     }
-    qDebug()<<event;
+    qDebug()<<analytic->getData();
     qApp->quit();
     QMainWindow::closeEvent(event);
 }
@@ -1778,16 +1780,28 @@ void MainWindow::addToQueue(QString ytIds,QString title,
 void MainWindow::findTrackInQueue(QString songId){
     ui->console->append("Song - "+songId+" Already in queue");
     QListWidget *listWidget = ui->right_panel->findChild<QListWidget*>(getCurrentPlayerQueue(songId));
-    //if listWidget not found in right_panel. this happens when player is witched to smart mode;
+
+    //if listWidget not found in right_panel. this happens when player is switched to smart mode;
     if(listWidget==nullptr){
         listWidget = ui->recommHolder->findChild<QListWidget*>(getCurrentPlayerQueue(songId));
     }
     if(listWidget!=nullptr){
+        //switch to listView
+        QString listName = listWidget->objectName();
+        if(listName=="olivia_list")
+             ui->tabWidget->setCurrentWidget(ui->tab);
+        if(listName=="youtube_list")
+             ui->tabWidget->setCurrentWidget(ui->tab_2);
+        if(listName=="smart_list" && !ui->recommWidget->isVisible())
+             ui->show_hide_smart_list_button->click();
+
+
         QWidget *listWidgetItem = listWidget->findChild<QWidget*>("track-widget-"+songId);
         QPoint pos = listWidgetItem->pos();
         listWidget->setCurrentItem(listWidget->itemAt(pos));
         listWidget->scrollToItem(listWidget->itemAt(pos));
     }
+
 }
 
 //get track's ytIds and playable source url
@@ -1822,11 +1836,18 @@ void MainWindow::prepareTrack(QString songId,QString query,QString millis,QListW
 
 //reverse the process queue, so that recently added song can get first chance to process
 void MainWindow::reverseYtdlProcessList(){
-    if(ytdlQueue.count()>1 && !smartMode){//prevent reversing if ytDlqueue onlly have one track and if not smartMode
+    //temp changes
+    bool isSmartList = false;
+    if(ytdlQueue.count()>0){
+        if(getCurrentPlayerQueue(ytdlQueue.last().at(1))=="smart_list"){
+            isSmartList = true;
+            qDebug()<<"not reversing queue";
+        }
+    }
+    if(ytdlQueue.count()>1 && (!smartMode && !isSmartList)){//prevent reversing if ytDlqueue onlly have one track and if not smartMode
         ytdlQueue.insert(1,  ytdlQueue.takeAt(ytdlQueue.count()-1));
     }
 }
-
 
 void MainWindow::showTrackOption(){
 
@@ -2716,7 +2737,7 @@ void MainWindow::checkForPlaylist(){
                 //this shows add all buttton in webview but is slow.
 //                QString js = "$($.mobile.activePage.find('ul')["+QString::number(i)+"]).prepend(\"<a id='playall' onclick='mainwindow.on_playlistLoaderButtton_clicked();' style='background-color: rgb(4, 125, 141) !important;border:none !important;' class='ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-playall'>Add to queue</a>\")";
 //                ui->webview->page()->mainFrame()->evaluateJavaScript(js);
-                QToolTip::showText( ui->playlistLoaderButtton->mapToGlobal( QPoint( 0, 0 ) ), ui->playlistLoaderButtton->toolTip(),ui->playlistLoaderButtton,ui->playlistLoaderButtton->rect(),3000);
+               // QToolTip::showText( ui->playlistLoaderButtton->mapToGlobal( QPoint( 0, 0 ) ), ui->playlistLoaderButtton->toolTip(),ui->playlistLoaderButtton,ui->playlistLoaderButtton->rect(),3000);
                 ui->playlistLoaderButtton->show();
                 break;
             }
@@ -4300,6 +4321,10 @@ void MainWindow::on_favourite_toggled(bool checked)
             ui->favourite->setIcon(QIcon(":/icons/sidebar/liked_disabled.png"));
             ui->favourite->setToolTip("Add to Favourite");
             removeFromFavourite(nowPlayingSongIdWatcher->getValue());
+        }
+        //reload liked tracks if page is liked_tracks
+        if(pageType=="liked_songs"){
+            ui->webview->page()->mainFrame()->evaluateJavaScript("open_liked_tracks()");
         }
     }else{
         QMessageBox msgBox;

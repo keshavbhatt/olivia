@@ -50,6 +50,7 @@
 #include "plugins/mpris/mprisplugin.h"
 #include "stringchangewatcher.h"
 #include "similartracks.h"
+#include <analytics.h>
 
 
 #include "ui_minimode.h"
@@ -57,6 +58,7 @@
 #include "ui_track.h"
 #include "ui_smart_mode.h"
 #include "ui_toast.h"
+
 
 
 namespace Ui {
@@ -301,6 +303,7 @@ private:
     QStringList shuffledPlayerQueue;
 
     MprisPlugin *dp = nullptr;
+    analytics *analytic = nullptr;
     QVariantMap mpris_song_meta;
     stringChangeWatcher* nowPlayingSongIdWatcher;
     bool smartMode = false;
