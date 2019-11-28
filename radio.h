@@ -37,6 +37,9 @@ signals:
     void icy_cover_changed(QPixmap pix);
     void radioProcessReady();
 
+    void getTrackInfo();
+    void showToast(QString);
+
 public slots:
     void playRadio(bool saveTracksAfterBuffer, QUrl url );
     void pauseRadio();

@@ -8,6 +8,7 @@
 #include <QApplication>
 #include "elidedlabel.h"
 #include "nowplaying.h"
+#include "mainwindow.h"
 
 
 
@@ -224,6 +225,11 @@ void radio::radioReadyRead(){
     if(output.contains("written to stdout")){
         emit saveTrack(QString("webm"));
     }
+    //url resource forbidden
+    if(output.contains("403 Forbidden",Qt::CaseInsensitive)){
+        emit showToast("Failed to load resource, refreshing track");
+        emit getTrackInfo();
+    }
     if(output.contains("[olivia:]")){
         // mpv sometimes sends output without ] in line this will append ] and fix it
         output = output.trimmed();
@@ -232,7 +238,8 @@ void radio::radioReadyRead(){
         }
         state_line = output.trimmed();
 //        QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
-//        ((QTextBrowser*)(console))->setText(output);
+//        if(console!=nullptr)((QTextBrowser*)(console))->setText(output);
+
     }else{
         QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
         static_cast<QTextBrowser*>(console)->append(output);
