@@ -12,7 +12,11 @@ public:
 
 signals:
 
+private:
+    qint64 startTime;
+
 public slots:
+    QString getData();
 };
 
 #endif // ANALYTICS_H
