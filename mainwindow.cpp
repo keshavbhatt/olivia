@@ -135,6 +135,23 @@ void MainWindow::init_radio(){
         ui->cover->clear();
         ui->cover->setPixmap(pix.scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     });
+
+    connect(radio_manager,&radio::showToast,[=](const QString str){
+        showToast(str);
+    });
+    connect(radio_manager,&radio::getTrackInfo,[=](){
+        const QString trackId = nowPlayingSongIdWatcher->getValue();
+        //disable track
+        QListWidget *list = this->findChild<QListWidget*>(getCurrentPlayerQueue(trackId));
+        if(list!=nullptr){
+            QWidget *itemWidget = list->findChild<QWidget*>("track-widget-"+trackId);
+            itemWidget->setEnabled(false);
+        }
+        //refresh track
+        getAudioStream(store_manager->getYoutubeIds(trackId),trackId);
+//      checkOtherTracksForExpiry();
+    });
+
     radio_manager->startRadioProcess(saveTracksAfterBuffer,"",false);
     connect(ui->radioSeekSlider,&seekSlider::setPosition,[=](QPoint localPos){
         ui->radioSeekSlider->blockSignals(true);
@@ -144,7 +161,7 @@ void MainWindow::init_radio(){
         a->setDuration(150);
         a->setStartValue(ui->radioSeekSlider->value());
         a->setEndValue(pos);
-        a->setEasingCurve(QEasingCurve::InCurve);
+        a->setEasingCurve(QEasingCurve::Linear);
         a->start(QPropertyAnimation::DeleteWhenStopped);
 
         radio_manager->radioSeek(pos);
@@ -164,7 +181,7 @@ void MainWindow::init_radio(){
         a->setDuration(150);
         a->setStartValue(ui->radioVolumeSlider->value());
         a->setEndValue(pos);
-        a->setEasingCurve(QEasingCurve::InCurve);
+        a->setEasingCurve(QEasingCurve::Linear);
         a->start(QPropertyAnimation::DeleteWhenStopped);
     });
     connect(ui->radioVolumeSlider,&volumeSlider::showToolTip,[=](QPoint localPos){
@@ -1805,7 +1822,7 @@ void MainWindow::prepareTrack(QString songId,QString query,QString millis,QListW
 
 //reverse the process queue, so that recently added song can get first chance to process
 void MainWindow::reverseYtdlProcessList(){
-    if(ytdlQueue.count()>1){
+    if(ytdlQueue.count()>1 && !smartMode){//prevent reversing if ytDlqueue onlly have one track and if not smartMode
         ytdlQueue.insert(1,  ytdlQueue.takeAt(ytdlQueue.count()-1));
     }
 }

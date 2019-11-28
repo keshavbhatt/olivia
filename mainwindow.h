@@ -100,7 +100,7 @@ public:
 public slots:
     void set_eq(QString eq_args);
     void disable_eq();
-
+    void showToast(QString message);
 
 protected slots:
     void closeEvent(QCloseEvent *event);
@@ -253,7 +253,6 @@ private slots:
     void on_repeat_stateChanged(int arg1);
 
     void nextPreviousHelper(QListWidget *list);
-    void showToast(QString message);
     void getRecommendedTracksForAutoPlayHelper(QString videoId, QString songId);
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
