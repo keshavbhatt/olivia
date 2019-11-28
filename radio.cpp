@@ -8,8 +8,6 @@
 #include <QApplication>
 #include "elidedlabel.h"
 #include "nowplaying.h"
-#include "mainwindow.h"
-
 
 
 radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : QObject(parent)
