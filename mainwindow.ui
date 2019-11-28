@@ -1286,7 +1286,7 @@ padding-left: 10px;</string>
                      <enum>QTabWidget::Rounded</enum>
                     </property>
                     <property name="currentIndex">
-                     <number>1</number>
+                     <number>0</number>
                     </property>
                     <property name="elideMode">
                      <enum>Qt::ElideNone</enum>
@@ -1642,7 +1642,7 @@ QScrollBar:vertical {
                          </font>
                         </property>
                         <property name="title">
-                         <string>Stream Info Process Operations</string>
+                         <string>Engine operations</string>
                         </property>
                         <layout class="QVBoxLayout" name="verticalLayout_13">
                          <item>
