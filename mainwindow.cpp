@@ -649,7 +649,7 @@ void MainWindow::add_colors_to_color_widget(){
         }
         QPushButton *pb =new QPushButton();
         pb->setIcon(QIcon(":/icons/picker.png"));
-        pb->setIconSize(QSize(22,22));
+        pb->setIconSize(QSize(15,15));
         pb->setObjectName("custom_color");
         pb->setText("Select color");
         pb->setToolTip("Choose custom color from color dialog.");
