@@ -322,28 +322,42 @@ function show_category_playlist(categoy_id,url){
     $("#playlist_result").empty();
     showLoading();
     $.mobile.activePage.find("#pageloader").fadeOut();
-    $.ajax({
-       url: baseUrl+"spotify/get_featured_categories_playlist.php",
-              type:"GET",
-              data:{
-                   "cat_id": categoy_id,
-                   "url": url,
-                   "country": country
-              },
-       success: function(html) {
-           pageType = "show_category_playlist";
-           $('html, body').stop().animate({ scrollTop : 0 }, 500);
-           $("#footer_playlists").show();
-           $.mobile.loading("hide");
-           $("#playlist_result").append(html).listview("refresh");
-           $('#playlist_result .ui-content').trigger('create');
-           $('#playlist_result .ui-content').fadeIn('slow');
-       },error: function(){
-           $.mobile.loading("hide");
-           $.mobile.activePage.find("#pageloader i").text("An error occured, Unable to connect to host.");
-           $.mobile.activePage.find("#pageloader").fadeIn();
-       }
-   });
+    if(paginator.isOffline("browse","show_category_playlist",categoy_id+"<==>"+url)){
+        var html_ = paginator.load("browse","show_category_playlist",categoy_id+"<==>"+url);
+        pageType = "show_category_playlist";
+        $('html, body').stop().animate({ scrollTop : 0 }, 500);
+        $("#footer_playlists").show();
+        $.mobile.loading("hide");
+        $("#playlist_result").append(html_).listview("refresh");
+        $('#playlist_result .ui-content').trigger('create');
+        $('#playlist_result .ui-content').fadeIn('slow');
+    }else{
+        $.ajax({
+           url: baseUrl+"spotify/get_featured_categories_playlist.php",
+                  type:"GET",
+                  data:{
+                       "cat_id": categoy_id,
+                       "url": url,
+                       "country": country
+                  },
+           success: function(html) {
+               paginator.save("browse","show_category_playlist",categoy_id+"<==>"+url,html);
+
+               pageType = "show_category_playlist";
+               $('html, body').stop().animate({ scrollTop : 0 }, 500);
+               $("#footer_playlists").show();
+               $.mobile.loading("hide");
+               $("#playlist_result").append(html).listview("refresh");
+               $('#playlist_result .ui-content').trigger('create');
+               $('#playlist_result .ui-content').fadeIn('slow');
+           },error: function(){
+               $.mobile.loading("hide");
+               $.mobile.activePage.find("#pageloader i").text("An error occured, Unable to connect to host.");
+               $.mobile.activePage.find("#pageloader").fadeIn();
+           }
+       });
+    }
+
 }
 
 function show_playlist(p_id,url){
@@ -352,27 +366,40 @@ function show_playlist(p_id,url){
     $('body').css('overflow','auto');
     showLoading();
     $.mobile.activePage.find("#pageloader").fadeOut();
-     $.ajax({
-        url: baseUrl+"spotify/get_playlist_tracks.php",
-               type:"GET",
-               data:{
-                    "p_id":p_id,
-                    "url": url
-               },
-                success: function(html) {
-                    pageType = "show_playlist";
-                    $('html, body').stop().animate({ scrollTop : 0 }, 500);
-                    $("#footer_playlist_view").show();
-                    $.mobile.loading("hide");
-                    $("#playlist_tracks_result").append(html).listview("refresh");
-                    $('#playlist_tracks_result .ui-content').trigger('create');
-                    $('#playlist_tracks_result .ui-content').fadeIn('slow');
-                },error: function(){
-                    $.mobile.loading("hide");
-                    $.mobile.activePage.find("#pageloader i").text("An error occured, Unable to connect to host.");
-                    $.mobile.activePage.find("#pageloader").fadeIn();
-                }
-    });
+    if(paginator.isOffline("browse","show_playlist",p_id+"<==>"+url)){
+        var html_ = paginator.load("browse","show_playlist",p_id+"<==>"+url);
+        pageType = "show_playlist";
+        $('html, body').stop().animate({ scrollTop : 0 }, 500);
+        $("#footer_playlist_view").show();
+        $.mobile.loading("hide");
+        $("#playlist_tracks_result").append(html_).listview("refresh");
+        $('#playlist_tracks_result .ui-content').trigger('create');
+        $('#playlist_tracks_result .ui-content').fadeIn('slow');
+    }else{
+        $.ajax({
+           url: baseUrl+"spotify/get_playlist_tracks.php",
+                  type:"GET",
+                  data:{
+                       "p_id":p_id,
+                       "url": url
+                  },
+                   success: function(html) {
+                       paginator.save("browse","show_playlist",p_id+"<==>"+url,html);
+                       pageType = "show_playlist";
+                       $('html, body').stop().animate({ scrollTop : 0 }, 500);
+                       $("#footer_playlist_view").show();
+                       $.mobile.loading("hide");
+                       $("#playlist_tracks_result").append(html).listview("refresh");
+                       $('#playlist_tracks_result .ui-content').trigger('create');
+                       $('#playlist_tracks_result .ui-content').fadeIn('slow');
+                   },error: function(){
+                       $.mobile.loading("hide");
+                       $.mobile.activePage.find("#pageloader i").text("An error occured, Unable to connect to host.");
+                       $.mobile.activePage.find("#pageloader").fadeIn();
+                   }
+       });
+    }
+
 }
 
 function back_to_playlists_page(){
