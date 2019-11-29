@@ -1839,7 +1839,7 @@ void MainWindow::reverseYtdlProcessList(){
     //temp changes
     bool isSmartList = false;
     if(ytdlQueue.count()>0){
-        if(getCurrentPlayerQueue(ytdlQueue.last().at(1))=="smart_list"){
+        if(getCurrentPlayerQueue(ytdlQueue.first().at(1))=="smart_list"){ //prevent reversing queue if first track to be proccessed is from smart_list
             isSmartList = true;
             qDebug()<<"not reversing queue";
         }
