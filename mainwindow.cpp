@@ -4351,9 +4351,9 @@ void MainWindow::on_favourite_toggled(bool checked)
 void MainWindow::removeFromFavourite(QString songId){
     if(store_manager->isDownloaded(songId)){
         QMessageBox msgBox;
-        msgBox.setText("Keep tracks saved music ?");
+        msgBox.setText("Keep track in Saved Music ?");
               msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-        msgBox.setInformativeText("Do you also want to delete track's cache ?");
+        msgBox.setInformativeText("Do you also want to delete track's cache too ?");
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::Yes);
         int ret = msgBox.exec();
@@ -4429,21 +4429,13 @@ void MainWindow::on_smartMode_clicked()
 
         this->hide();
 
-
-
-        smartModeWidget->setWindowOpacity(qreal(settingsObj.value("smartModeTransperancy","98").toReal()/100));
-
+        smartModeWidget->setWindowOpacity(qreal(settingsObj.value("miniModeTransperancy","98").toReal()/100));
         smartModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#smartModeWidget"));
-
-//        smartModeWidget->resize(smartModeWidget->width(),smartModeWidget->height()+ui->smart_list->height()*2);
-         smartModeWidget->resize(smartModeWidget->width(),500);
-
+        smartModeWidget->resize(smartModeWidget->width(),500);
         smartModeWidget->showNormal();
     }else{
         smartMode = false;
-
         nextPreviousHelper(this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue())));
-
         //show shuffle button and restore its state
         ui->shuffle->show();
         ui->shuffle->setChecked(smartModeShuffleState);
