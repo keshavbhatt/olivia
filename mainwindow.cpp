@@ -49,7 +49,6 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-//    database = "test2";
     database = "hjkfdsll";
     store_manager = new store(this,database);
     store_manager->setObjectName("store_manager");
@@ -64,6 +63,9 @@ MainWindow::MainWindow(QWidget *parent) :
     installEventFilters();
     loadSettings();
     analytic = new analytics(this);
+    connect(qApp,&QApplication::aboutToQuit,[=](){
+        qDebug()<<analytic->getData();
+    });
 }
 
 MainWindow::~MainWindow()
@@ -267,7 +269,6 @@ void MainWindow::closeEvent(QCloseEvent *event){
         QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(processIdList.at(i)));
         processIdList.removeAt(i);
     }
-    qDebug()<<analytic->getData();
     qApp->quit();
     QMainWindow::closeEvent(event);
 }
@@ -4350,18 +4351,18 @@ void MainWindow::on_favourite_toggled(bool checked)
 void MainWindow::removeFromFavourite(QString songId){
     if(store_manager->isDownloaded(songId)){
         QMessageBox msgBox;
-        msgBox.setText("This track is also saved in local tracks cache !");
+        msgBox.setText("Keep tracks saved music ?");
               msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-        msgBox.setInformativeText("Do you also want to delete it from local tracks ?");
+        msgBox.setInformativeText("Do you also want to delete track's cache ?");
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::Yes);
         int ret = msgBox.exec();
         switch (ret) {
-          case QMessageBox::Yes:{
+          case QMessageBox::Yes:
                 delete_song_cache(songId);
             break;
-        }
-          case  QMessageBox::No:
+          case QMessageBox::No:
+                msgBox.close();
             break;
         }
     }
