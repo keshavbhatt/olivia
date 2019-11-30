@@ -542,16 +542,9 @@ QString store::getArtist(QString artistId){
 }
 
 QString store::getThumbnail(QString artId){
-    QSqlQuery query;
-    query.exec("SELECT artId FROM arts WHERE albumId = '"+artId+"'");
-    QString artId_Str;
-    if(query.record().count()>0){
-        while(query.next()){
-             artId_Str =  query.value("artId").toString();
-        }
-    }
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QDir albumArt(setting_path+"/albumArts");
+    QString artId_Str = "art-"+artId;
     QFile thumbnailFile(albumArt.path()+"/"+artId_Str);
     if(!thumbnailFile.open(QIODevice::ReadOnly))
         return "";
