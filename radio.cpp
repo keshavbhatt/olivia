@@ -50,6 +50,17 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
 }
 
+int radio::volume_() const
+{
+    return volume;
+}
+
+void radio::setVolume(int val)
+{
+    changeVolume(val);
+    emit volumeChanged(val);
+}
+
 void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString, bool calledByCloseEvent){
     if(calledByCloseEvent){
         radioPlaybackTimer->blockSignals(true);
@@ -171,6 +182,8 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
                  if(paused!="yes"){
                      if(seeking=="yes"){
                          radioState = "seeking";
+                         fadequick = true;
+                         emit fadeInVolume();
                      }
                  }
 
@@ -186,6 +199,21 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
 }
 
 void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
+    //cross fade test
+    if(radioState=="playing"){
+        QTimer *timer = new QTimer(this);
+        timer->setSingleShot(true);
+        connect(timer,&QTimer::timeout,[=](){
+            startPlayingRadio(saveTracksAfterBufferMode,url);
+        });
+        timer->start(1000);
+    }else{
+         startPlayingRadio(saveTracksAfterBufferMode,url);
+    }
+    emit fadeOutVolume();
+}
+
+void radio::startPlayingRadio(bool saveTracksAfterBufferMode,QUrl url){
     state_line.clear();
     streamUrl = url.toString();
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
@@ -215,7 +243,9 @@ void radio::loadMedia(QUrl url){
 }
 
 void radio::radioReadyRead(){
-
+    if(fading && volume==tempVol){
+        emit fadeInVolume();
+    }
     if(!radioPlaybackTimer->isActive()){
         radioPlaybackTimer->start(1000);
     }
@@ -319,6 +349,8 @@ void radio::resumeRadio()
 
     radioPlaybackTimer->start(1000);
 }
+
+
 
 void radio::changeVolume(int val)
 {

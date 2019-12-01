@@ -19,15 +19,22 @@
 class radio : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int volume_ READ volume_ WRITE setVolume NOTIFY volumeChanged)
 public:
     explicit radio(QObject *parent = 0, int volumeValue = 0, bool saveTracksAfterBuffer= false);
     QString radioState;
-    int volume ;
+    int volume,tempVol ;
     bool saveTracksAfterBuffer;
     QTimer *radioPlaybackTimer = nullptr;
     QString used_fifo_file_path;
+    bool fading = false;
+    bool fadequick = false;
+
+    int volume_() const;
+    void setVolume(int val);
 
 signals:
+    void volumeChanged(const int);
     void radioStatus(QString radioState);
     void radioPosition(int);
     void radioDuration(int);
@@ -39,6 +46,8 @@ signals:
 
     void getTrackInfo();
     void showToast(QString);
+    void fadeOutVolume();
+    void fadeInVolume();
 
 public slots:
     void playRadio(bool saveTracksAfterBuffer, QUrl url );
@@ -56,7 +65,6 @@ public slots:
 private slots:
     void radioReadyRead();
     void radioFinished(int code);
-
 
     void LoadAvatar(const QUrl &avatarUrl)
     {
@@ -84,7 +92,7 @@ private slots:
       loop.exec();
     }
 
-
+    void startPlayingRadio(bool saveTracksAfterBufferMode, QUrl url);
 private:
     QProcess *radioProcess = nullptr;
     QString tmp_path,setting_path;
@@ -92,9 +100,6 @@ private:
     QString streamUrl;
     QString state_line;
     settings *settUtils;
-
-
-
 };
 
 #endif // RADIO_H
