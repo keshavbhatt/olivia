@@ -36,10 +36,6 @@ $( document ).on( "pageshow", "[data-role='page']", function() {
 
 $(document).ready(function($) {
 
-    if(!overview_loaded){
-        overview();
-    }
-
     colorThief = new ColorThief();
 
     $(function () {
@@ -87,30 +83,48 @@ $(document).on("click","#overview",function(){
 
 //  core functions -------------
 function overview(){
-
+    currentAlbumId = undefined;
     showLoading();
     $("#overview_page .ui-loader-overview").show();
     $("#pageloader i").text("Loading content please wait...");
-    $.ajax({
-        url: baseUrl+"overview.php",
-        success: function(html) {
-            $.mobile.loading("hide");
-            overview_loaded = true;
-            $('#overview_page .ui-content').html(html);
-            $('#overview_page .ui-content').trigger('create').fadeIn('slow');
-            $("#overview_page .ui-loader-overview").hide();
+    if(paginator.isOffline("browse","overview","null")){
+        var html = paginator.load("browse","overview","null");
+        $.mobile.loading("hide");
+        overview_loaded = true;
+        $('#overview_page .ui-content').html(html);
+        $('#overview_page .ui-content').trigger('create').fadeIn('slow');
+        $("#overview_page .ui-loader-overview").hide();
 
-            //set country by user's ip if is not set by user
-            if(youtube.getCurrentCountry().length>0){
-                 //$('#currentCountry').text(youtube.getCurrentCountry());
-            }else{
-                getCountry();
-            }
-        },error: function(){
-            overview_loaded = false;
-            $("#pageloader i").text("An error occured, Unable to connect to host.");
+        //set country by user's ip if is not set by user
+        if(youtube.getCurrentCountry().length>0){
+             //$('#currentCountry').text(youtube.getCurrentCountry());
+        }else{
+            getCountry();
         }
-    });
+    }
+    else{
+        $.ajax({
+            url: baseUrl+"overview.php",
+            success: function(html) {
+                paginator.save("browse","overview","null",html);
+                $.mobile.loading("hide");
+                overview_loaded = true;
+                $('#overview_page .ui-content').html(html);
+                $('#overview_page .ui-content').trigger('create').fadeIn('slow');
+                $("#overview_page .ui-loader-overview").hide();
+
+                //set country by user's ip if is not set by user
+                if(youtube.getCurrentCountry().length>0){
+                     //$('#currentCountry').text(youtube.getCurrentCountry());
+                }else{
+                    getCountry();
+                }
+            },error: function(){
+                overview_loaded = false;
+                $("#pageloader i").text("An error occured, Unable to connect to host.");
+            }
+        });
+    }
 }
 
 
@@ -248,6 +262,7 @@ function getCountry(){
 
 
 function open_new_release(){
+    currentAlbumId = undefined;
     $.mobile.changePage($('#new_releases_page'));
     if(!album_loaded){
         get_new_release("null"); //empty url for init
@@ -255,6 +270,7 @@ function open_new_release(){
 }
 
 function open_categories(){
+    currentAlbumId = undefined;
     $.mobile.changePage($('#categories_page'))
     if(!categories_loaded){
         get_categories("null"); //empty url for init
@@ -504,14 +520,21 @@ function album_view(id){
     }
 }
 
+
 $(document).on("pageshow","#new_releases_page",function(){
-    if(typeof(currentAlbumId) !== "undefined" && currentAlbumId !== "null" )
-        $(document).scrollTop($('#'+currentAlbumId).offset().top-40);
+    if(typeof(currentAlbumId) !== "undefined" && currentAlbumId !== "null" ){
+        if(!isElementInViewport($('#'+currentAlbumId))){
+            $(document).scrollTop($('#'+currentAlbumId).offset().top-window.innerHeight/2);
+        }
+    }
 });
 
 $(document).on("pageshow","#category_playlist_page",function(){
-    if(typeof(currentCategoryId) !== "undefined" && currentCategoryId !== "null" )
-        $(document).scrollTop($('#'+currentCategoryId).offset().top-40);
+    if(typeof(currentCategoryId) !== "undefined" && currentCategoryId !== "null" ){
+        if(!isElementInViewport($('#'+currentCategoryId))){
+            $(document).scrollTop($('#'+currentCategoryId).offset().top-window.innerHeight/2);
+        }
+    }
 });
 
 //called from album_view.php
