@@ -140,6 +140,50 @@ void MainWindow::init_radio(){
         ui->cover->setPixmap(pix.scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     });
 
+    //set initial tempVolume for radio_manager so the first track will also fadeIn
+    radio_manager->tempVol = ui->radioVolumeSlider->value();
+
+    connect(radio_manager,&radio::fadeOutVolume,[=](){
+        radio_manager->fading = true;
+        QPropertyAnimation *a = new QPropertyAnimation(radio_manager,"volume_");
+        a->setDuration(1000);
+        oldVolume = ui->radioVolumeSlider->value();
+        int volume = ui->radioVolumeSlider->value();
+        a->setStartValue(volume);
+        int stepsToReduce = volume - 40;
+        if(stepsToReduce<0){
+            while(stepsToReduce!=0){
+                stepsToReduce++;
+            }
+        }
+        a->setEndValue(stepsToReduce);
+        radio_manager->tempVol= stepsToReduce;
+        a->setEasingCurve(QEasingCurve::Linear);
+        a->start(QPropertyAnimation::DeleteWhenStopped);
+    });
+
+    connect(radio_manager,&radio::volumeChanged,[=](int val){
+        qDebug()<<"Faded Volume:"<<val;
+    });
+
+    connect(radio_manager,&radio::fadeInVolume,[=](){
+        QPropertyAnimation *a = new QPropertyAnimation(radio_manager,"volume_");
+        bool faded_quick;
+        if(radio_manager->fadequick){
+            a->setDuration(1500);
+            faded_quick = true;
+        }else{
+            a->setDuration(3000);
+            faded_quick = false;
+        }
+        a->setStartValue(radio_manager->tempVol);
+        a->setEndValue(oldVolume);
+        a->setEasingCurve(QEasingCurve::Linear);
+        a->start(QPropertyAnimation::DeleteWhenStopped);
+        radio_manager->fading = false;
+        if(faded_quick)radio_manager->fadequick=false;
+    });
+
     connect(radio_manager,&radio::showToast,[=](const QString str){
         showToast(str);
     });
@@ -160,14 +204,12 @@ void MainWindow::init_radio(){
     connect(ui->radioSeekSlider,&seekSlider::setPosition,[=](QPoint localPos){
         ui->radioSeekSlider->blockSignals(true);
         int pos = ui->radioSeekSlider->minimum() + ((ui->radioSeekSlider->maximum()-ui->radioSeekSlider->minimum()) * localPos.x()) / ui->radioSeekSlider->width();
-
         QPropertyAnimation *a = new QPropertyAnimation(ui->radioSeekSlider,"value");
         a->setDuration(150);
         a->setStartValue(ui->radioSeekSlider->value());
         a->setEndValue(pos);
         a->setEasingCurve(QEasingCurve::Linear);
         a->start(QPropertyAnimation::DeleteWhenStopped);
-
         radio_manager->radioSeek(pos);
         ui->radioSeekSlider->blockSignals(false);
     });
@@ -181,12 +223,14 @@ void MainWindow::init_radio(){
      });
     connect(ui->radioVolumeSlider,&volumeSlider::setPosition,[=](QPoint localPos){
         int pos = ui->radioVolumeSlider->minimum() + ((ui->radioVolumeSlider->maximum()-ui->radioVolumeSlider->minimum()) * localPos.x()) / ui->radioVolumeSlider->width();
-        QPropertyAnimation *a = new QPropertyAnimation(ui->radioVolumeSlider,"value");
-        a->setDuration(150);
-        a->setStartValue(ui->radioVolumeSlider->value());
-        a->setEndValue(pos);
-        a->setEasingCurve(QEasingCurve::Linear);
-        a->start(QPropertyAnimation::DeleteWhenStopped);
+        if(!radio_manager->fading){
+            QPropertyAnimation *a = new QPropertyAnimation(ui->radioVolumeSlider,"value");
+            a->setDuration(100);
+            a->setStartValue(ui->radioVolumeSlider->value());
+            a->setEndValue(pos);
+            a->setEasingCurve(QEasingCurve::Linear);
+            a->start(QPropertyAnimation::DeleteWhenStopped);
+        }
     });
     connect(ui->radioVolumeSlider,&volumeSlider::showToolTip,[=](QPoint localPos){
         if(localPos.x()!=0){
@@ -1249,6 +1293,7 @@ void MainWindow::on_play_pause_clicked()
 
 void MainWindow::on_radioVolumeSlider_valueChanged(int value)
 {
+    qDebug()<<value;
     if(radio_manager){
          radio_manager->changeVolume(value);
     }
@@ -1274,7 +1319,6 @@ void MainWindow::webViewLoaded(bool loaded){
     if(loaded){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"),  this);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
-
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("paginator"), pagination_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+themeColor+"')");
         if(!nowPlayingSongIdWatcher->getValue().isEmpty()){
@@ -1357,6 +1401,7 @@ void MainWindow::webViewLoaded(bool loaded){
 
     if(loaded && pageType == "browse"){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("overview()");
     }
 
     if( loaded && pageType == "youtube" && !youtubeSearchTerm.isEmpty()){
@@ -2449,16 +2494,21 @@ void MainWindow::internet_radio(){
 //PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::on_olivia_list_itemDoubleClicked(QListWidgetItem *item)
 {
+    playingSongRadio = false;
     listItemDoubleClicked(ui->olivia_list,item);
 }
 
 void MainWindow::on_smart_list_itemDoubleClicked(QListWidgetItem *item)
 {
+    if(!settingsObj.value("smart_playlist",true).toBool()){
+        playingSongRadio = true;
+    }
     listItemDoubleClicked(ui->smart_list,item);
 }
 
 void MainWindow::on_youtube_list_itemDoubleClicked(QListWidgetItem *item)
 {
+    playingSongRadio = false;
     listItemDoubleClicked(ui->youtube_list,item);
 }
 
@@ -2503,15 +2553,13 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     playing->setPixmap(QPixmap(":/icons/now_playing.png").scaled(playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
     playing->setToolTip("playing...");
 
-
-
     if(list->currentRow()==list->count()-1){
         //set loading playlist = false if the track are being played from normal queues
         if(list->objectName()=="olivia_list"||list->objectName()=="youtube_list"){
             currentSimilarTrackProcessing = 0;
             similarTracks->isLoadingPLaylist = false;
         }
-        if(settingsObj.value("smart_playlist",true).toBool()){
+        if(settingsObj.value("smart_playlist",true).toBool() || playingSongRadio){
             startGetRecommendedTrackForAutoPlayTimer(songId);
         }
     }
@@ -2958,9 +3006,10 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
         }
     }
 
-    if(settingsObj.value("smart_playlist",true).toBool()){
+
+//    if(settingsObj.value("smart_playlist",true).toBool()){
         similarTracks->clearList();
-    }
+//    }
 }
 
 void MainWindow::saveRadioChannelToFavourite(QVariant channelInfo){
@@ -3462,7 +3511,7 @@ void MainWindow::reloadREquested(QString dataType,QString query){
 
 }
 
-//currently used by suffle track fucntion only
+//currently used by shuffle track fucntion only
 void MainWindow::getEnabledTracks(QListWidget *currentListWidget){
 
     if(settingsObj.value("shuffle",false).toBool()){
@@ -3765,20 +3814,17 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
         QAction *removeTrack = new QAction("Search on Youtube && Remove track",nullptr);
         QAction *removeTrack2 = new QAction("Remove track",nullptr);
 
-
         //set Icons
         updateTrack->setIcon(QIcon(":/icons/sidebar/refresh.png"));
         getYtIds->setIcon(QIcon(":/icons/sidebar/search.png"));
         removeTrack->setIcon(QIcon(":/icons/sidebar/remove.png"));
         removeTrack2->setIcon(QIcon(":/icons/sidebar/remove.png"));
 
-
         //not enabled, decide menu option to popup
         QString ytIds = listWidget->itemWidget(item)->findChild<QLineEdit*>("id")->text().trimmed();
         QString songId = listWidget->itemWidget(item)->findChild<QLineEdit*>("songId")->text().trimmed();
 
         connect(removeTrack,&QAction::triggered,[=](){
-
             //youtube search
             QString  songTitle =  listWidget->itemWidget(item)->findChild<ElidedLabel*>("title_elided")->text();
             QString  songArtist =  listWidget->itemWidget(item)->findChild<ElidedLabel*>("artist_elided")->text();
@@ -3840,10 +3886,6 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
         menu.addAction(removeTrack2);
         menu.setStyleSheet(menuStyle());
         menu.exec(QCursor::pos());
-    }else{
-//        QString songId = listWidget->itemWidget(item)->findChild<QLineEdit*>("songId")->text().trimmed();
-//        QPushButton* optionButton = listWidget->itemWidget(item)->findChild<QPushButton*>(songId+"optionButton");
-//        optionButton->click();
     }
 }
 //=========================================END Track item click handler==========================================
@@ -4556,7 +4598,7 @@ void MainWindow::showToast(QString message){
     a->setDuration(200);
     a->setStartValue( QCursor::pos());
     a->setEndValue(this->mapToParent(QPoint(x,y)));
-    a->setEasingCurve(QEasingCurve::InSine);
+    a->setEasingCurve(QEasingCurve::Linear);
      a->start(QPropertyAnimation::DeleteWhenStopped);
     toastWidget->show();
 }

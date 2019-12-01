@@ -309,6 +309,8 @@ private:
     stringChangeWatcher* nowPlayingSongIdWatcher;
     bool smartMode = false;
     bool smartModeShuffleState = false;
+    int oldVolume;
+    bool playingSongRadio;
 };
 
 class SelectColorButton : public QPushButton
