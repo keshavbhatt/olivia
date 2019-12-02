@@ -79,7 +79,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
 
     QString vis_arg;
     if(settUtils->settingsObj.value("visualizer").toBool()){
-        vis_arg = "  --no-input-default-bindings --no-osc --no-config -wid="+QString::number(this->parent()->findChild<nowPlaying*>("nowplaying_widget")->findChild<QLabel*>("visualizer")->winId())+ " --script="+setting_path+"/vis.lua";
+        vis_arg = " --autofit=1000  --no-input-default-bindings --no-osc --no-config -wid="+QString::number(this->parent()->findChild<nowPlaying*>("nowplaying_widget")->findChild<QLabel*>("visualizer")->winId())+ " --script="+setting_path+"/vis.lua";
     }else{
         vis_arg = "";
     }
@@ -96,6 +96,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
         else
             radioProcess->start("bash",QStringList()<<"-c"<<"wget -O - '"+urlString+"' | tee "+setting_path+"/downloadedTemp/current.temp"+" | mpv "+status_message_arg+" --keep-open --keep-open-pause=no --no-ytdl --gapless-audio=yes --audio-display=no --no-video --input-ipc-server="+used_fifo_file_path +" --volume "+QString::number(volume)+" --idle -");
     }
+
     radioProcess->waitForStarted();
 
     radioPlaybackTimer->disconnect();
@@ -243,6 +244,7 @@ void radio::loadMedia(QUrl url){
 }
 
 void radio::radioReadyRead(){
+
     if(fading && volume==tempVol){
         emit fadeInVolume();
     }

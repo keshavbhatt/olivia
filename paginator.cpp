@@ -26,7 +26,7 @@ void paginator::save(QString pageType,QString dataType,QString query,QString dat
     QString loadOnlineBtn = "<a id='timeElement"+QString::number(QDateTime::currentMSecsSinceEpoch())+"' style='font-size: 0.88em; padding-top: 10px;margin: 10px 0px;"
                             "background-color: rgba(36, 142, 179, 0.66);border: none;'"
                             " class='ui-shadow-icon ui-btn ui-shadow ui-corner-all ui-icon-clock ui-btn-icon-left' "
-                            " onclick='paginator.deleteCache(\""+pageType+"\",\""+dataType+"\",\""+query+"\")'> Saved on "+QDateTime::currentDateTime().toLocalTime().toString()+" - Reload</a>";
+                            " onclick='paginator.deleteCache(\""+pageType+"\",\""+dataType+"\",\""+query+"\")'> Updated on "+QDateTime::currentDateTime().toLocalTime().toString()+" - Reload</a>";
 
     QString timeagoScript = "<script>var date = Date.parse('"+QDateTime::currentDateTime().toLocalTime().toString()+"');"
                             "$.mobile.activePage.find('#timeElement"+QString::number(QDateTime::currentMSecsSinceEpoch())+"').text('Saved '+TimeAgo.inWords(date)+' - Reload');</script>";
