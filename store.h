@@ -32,6 +32,8 @@ public:
 
 
 
+signals:
+    void removeSongFromYtDlQueue(QString songId);
 private:
     QSqlDatabase db;
     int storeVersion;

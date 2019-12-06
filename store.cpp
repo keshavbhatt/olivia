@@ -520,14 +520,14 @@ QString store::getArtistId(QString songId){
 void store::removeFromQueue(QString songId){
     QSqlQuery query;
     query.exec("DELETE FROM queue WHERE trackId = '"+songId+"'");
+    emit removeSongFromYtDlQueue(songId);
 }
 
 void store::removeFromCollection(QString songId){
     QSqlQuery query;
     query.exec("DELETE FROM tracks WHERE trackId = '"+songId+"'");
+    emit removeSongFromYtDlQueue(songId);
 }
-
-
 
 QString store::getArtist(QString artistId){
     QSqlQuery query;
@@ -1270,7 +1270,6 @@ QString store::web_print_liked_tracks(){
     }
     currentPageNumber = 0;
     return open_liked_tracks_PageNumber(currentPageNumber);
-
 }
 
 //open page number usually called from next prev buttons
