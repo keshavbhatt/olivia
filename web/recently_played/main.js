@@ -89,7 +89,6 @@ function open_recently_tracks(){
     var $html = "";
     $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" recently played tracks");
     for(var i= 0; i < json.length;i++){
-        var albumType = (json[i].album === "undefined") ? "Youtube":"";
         var imgHtml,para;
                if(json[i].albumId.includes("undefined-")){
                    para = "<p style='margin-left: 7.5em;'>";
@@ -107,7 +106,6 @@ function open_recently_tracks(){
                         "<br>"+
                         "Artist: "+json[i].artist+
                     "</p>"+
-                 "<p class='ui-li-aside'>"+albumType+"</p>" +
                "</a>"+
             "</li>";
     }
