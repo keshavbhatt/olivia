@@ -3000,6 +3000,7 @@ void MainWindow::addToQueueFromLocal(QVariant songIdVar){
 
 //this method plays tracks from webpage
 void MainWindow::playLocalTrack(QVariant songIdVar){
+    QString songId = songIdVar.toString();
      //if song is not in quque
     addToQueueFromLocal(songIdVar);
      //else find and play the track
