@@ -27,6 +27,7 @@ public:
     bool saveTracksAfterBuffer;
     QTimer *radioPlaybackTimer = nullptr;
     QString used_fifo_file_path;
+    bool crossFadeEnabled = false;
     bool fading = false;
     bool fadequick = false;
 
@@ -101,6 +102,7 @@ private:
     QString streamUrl;
     QString state_line;
     settings *settUtils;
+
 };
 
 #endif // RADIO_H

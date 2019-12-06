@@ -21,8 +21,6 @@ radio::radio(QObject *parent,int volumeValue,bool saveTracksAfterBufferMode) : Q
     QFile file("://app_resources/vis.lua");
     file.copy(setting_path+"/vis.lua");
 
-   // qDebug()<<QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-
     QString fifoDir= tmp_path+"/olivia_sockets";
     QDir dir(fifoDir);
     if (!dir.exists())
@@ -55,6 +53,7 @@ int radio::volume_() const
     return volume;
 }
 
+//for CrossFade volume change
 void radio::setVolume(int val)
 {
     changeVolume(val);
@@ -201,7 +200,7 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
 
 void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
     //cross fade test
-    if(radioState=="playing"){
+    if(radioState=="playing" && crossFadeEnabled){
         QTimer *timer = new QTimer(this);
         timer->setSingleShot(true);
         connect(timer,&QTimer::timeout,[=](){
@@ -248,6 +247,7 @@ void radio::radioReadyRead(){
     if(fading && volume==tempVol){
         emit fadeInVolume();
     }
+
     if(!radioPlaybackTimer->isActive()){
         radioPlaybackTimer->start(1000);
     }
@@ -354,6 +354,7 @@ void radio::resumeRadio()
 
 
 
+//real volume slider slot
 void radio::changeVolume(int val)
 {
     volume = val;
