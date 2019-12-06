@@ -30,7 +30,7 @@ public slots:
     void changeMiniModeTransperancy(int val);
     void changeSystemTitlebar(bool checked);
     void changeAppTransperancy(int val);
-    void changeEqualizerSetting(bool checked);
+    void changeCrossFadeSetting(bool checked);
     void changeVisualizerSetting(bool checked);
     void changeMpris(bool checked);
     void changeSmartPlaylist(bool checked);

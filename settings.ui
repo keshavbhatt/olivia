@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>464</width>
+    <width>463</width>
     <height>519</height>
    </rect>
   </property>
@@ -143,9 +143,9 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="equalizer">
+           <widget class="QCheckBox" name="crossFade">
             <property name="text">
-             <string>Show Equalizer button in player controls</string>
+             <string>Enable CrossFade</string>
             </property>
            </widget>
           </item>

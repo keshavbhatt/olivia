@@ -17,8 +17,8 @@ void settings::changeShowSearchSuggestion(bool checked){
     settingsObj.setValue("showSearchSuggestion",checked);
 }
 
-void settings::changeEqualizerSetting(bool checked){
-    settingsObj.setValue("equalizer",checked);
+void settings::changeCrossFadeSetting(bool checked){
+    settingsObj.setValue("crossfade",checked);
 }
 
 void settings::changeVisualizerSetting(bool checked){
