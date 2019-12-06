@@ -80,3 +80,16 @@ body{
 #navButton, .ui-controlgroup-controls {
     width: 100% !important;
 }
+
+.ui-li-aside {
+    right: 1.333em !important;
+}
+
+.my-li-btn{
+    position: absolute;
+    font-size: 12.5px;
+    right: .8em;
+    top: 50%;
+    opacity: 0.7;
+    margin-top: -.88em;
+}
