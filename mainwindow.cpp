@@ -52,6 +52,10 @@ MainWindow::MainWindow(QWidget *parent) :
     database = "hjkfdsll";
     store_manager = new store(this,database);
     store_manager->setObjectName("store_manager");
+    connect(store_manager,&store::removeSongFromYtDlQueue,[=](QString songId){
+        removeSongFromProcessQueue(songId);
+    });
+
     pagination_manager = new paginator(this);
     connect(pagination_manager,SIGNAL(reloadRequested(QString,QString)),this,SLOT(reloadREquested(QString,QString)));
 
@@ -144,44 +148,49 @@ void MainWindow::init_radio(){
     radio_manager->tempVol = ui->radioVolumeSlider->value();
 
     connect(radio_manager,&radio::fadeOutVolume,[=](){
-        radio_manager->fading = true;
-        QPropertyAnimation *a = new QPropertyAnimation(radio_manager,"volume_");
-        a->setDuration(1000);
-        oldVolume = ui->radioVolumeSlider->value();
-        int volume = ui->radioVolumeSlider->value();
-        a->setStartValue(volume);
-        int stepsToReduce = volume - 40;
-        if(stepsToReduce<0){
-            while(stepsToReduce!=0){
-                stepsToReduce++;
+        if(settingsObj.value("crossfade","false").toBool()){
+            radio_manager->fading = true;
+            QPropertyAnimation *a = new QPropertyAnimation(radio_manager,"volume_");
+            a->setDuration(1000);
+            oldVolume = ui->radioVolumeSlider->value();
+            int volume = ui->radioVolumeSlider->value();
+            a->setStartValue(volume);
+            int stepsToReduce = volume - 40;
+            if(stepsToReduce<0){
+                while(stepsToReduce!=0){
+                    stepsToReduce++;
+                }
             }
+            a->setEndValue(stepsToReduce);
+            radio_manager->tempVol= stepsToReduce;
+            a->setEasingCurve(QEasingCurve::Linear);
+            a->start(QPropertyAnimation::DeleteWhenStopped);
         }
-        a->setEndValue(stepsToReduce);
-        radio_manager->tempVol= stepsToReduce;
-        a->setEasingCurve(QEasingCurve::Linear);
-        a->start(QPropertyAnimation::DeleteWhenStopped);
     });
 
+    //shows only faded volume
     connect(radio_manager,&radio::volumeChanged,[=](int val){
         qDebug()<<"Faded Volume:"<<val;
     });
 
     connect(radio_manager,&radio::fadeInVolume,[=](){
-        QPropertyAnimation *a = new QPropertyAnimation(radio_manager,"volume_");
-        bool faded_quick;
-        if(radio_manager->fadequick){
-            a->setDuration(1500);
-            faded_quick = true;
-        }else{
-            a->setDuration(3000);
-            faded_quick = false;
+        if(settingsObj.value("crossfade","false").toBool()){
+            QPropertyAnimation *a = new QPropertyAnimation(radio_manager,"volume_");
+            bool faded_quick;
+            if(radio_manager->fadequick){
+                a->setDuration(1500);
+                faded_quick = true;
+            }else{
+                a->setDuration(3000);
+                faded_quick = false;
+            }
+            a->setStartValue(radio_manager->tempVol);
+            a->setEndValue(oldVolume);
+            a->setEasingCurve(QEasingCurve::Linear);
+            a->start(QPropertyAnimation::DeleteWhenStopped);
+            radio_manager->fading = false;
+            if(faded_quick)radio_manager->fadequick=false;
         }
-        a->setStartValue(radio_manager->tempVol);
-        a->setEndValue(oldVolume);
-        a->setEasingCurve(QEasingCurve::Linear);
-        a->start(QPropertyAnimation::DeleteWhenStopped);
-        radio_manager->fading = false;
-        if(faded_quick)radio_manager->fadequick=false;
     });
 
     connect(radio_manager,&radio::showToast,[=](const QString str){
@@ -408,9 +417,9 @@ void MainWindow::init_settings(){
 
     connect(settingsUi.mpris_checkBox,SIGNAL(toggled(bool)),settUtils,SLOT(changeMpris(bool)));
 
-    connect(settingsUi.equalizer,&QCheckBox::toggled,[=](bool checked){
-       settUtils->changeEqualizerSetting(checked);
-       ui->eq->setVisible(checked);
+    connect(settingsUi.crossFade,&QCheckBox::toggled,[=](bool checked){
+       settUtils->changeCrossFadeSetting(checked);
+       radio_manager->crossFadeEnabled  = checked;
     });
 
     connect(settingsUi.smart_playlist_checkBox,&QCheckBox::toggled,[=](bool checked){
@@ -550,9 +559,6 @@ void MainWindow::init_settings(){
     settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
     add_colors_to_color_widget();
 
-    //show hide eq
-    ui->eq->setVisible(settingsObj.value("equalizer").toBool());
-
     //show hide vis
     ui->cover->setVisible(!settingsObj.value("visualizer").toBool());
     ui->vis_widget->setVisible(settingsObj.value("visualizer").toBool());
@@ -620,7 +626,7 @@ void MainWindow::loadSettings(){
     settingsUi.saveAfterBuffer->setChecked(settingsObj.value("saveAfterBuffer","true").toBool());
     settingsUi.showSearchSuggestion->setChecked(settingsObj.value("showSearchSuggestion","true").toBool());
     settingsUi.miniModeStayOnTop->setChecked(settingsObj.value("miniModeStayOnTop","false").toBool());
-    settingsUi.equalizer->setChecked(settingsObj.value("equalizer","false").toBool());
+    settingsUi.crossFade->setChecked(settingsObj.value("crossfade","false").toBool());
     settingsUi.visualizer->setChecked(settingsObj.value("visualizer","false").toBool());
     settingsUi.mpris_checkBox->setChecked(settingsObj.value("mpris","false").toBool());
     settingsUi.smart_playlist_checkBox->setChecked(settingsObj.value("smart_playlist","true").toBool());
@@ -1293,7 +1299,6 @@ void MainWindow::on_play_pause_clicked()
 
 void MainWindow::on_radioVolumeSlider_valueChanged(int value)
 {
-    qDebug()<<value;
     if(radio_manager){
          radio_manager->changeVolume(value);
     }
@@ -1900,6 +1905,7 @@ void MainWindow::showTrackOption(){
     QPushButton* senderButton = qobject_cast<QPushButton*>(sender());
 
     QString songId = senderButton->objectName().remove("optionButton").trimmed();
+    qDebug()<<"trackOption for:"<<songId;
     QString albumId = store_manager->getAlbumId(songId);
     QString artistId = store_manager->getArtistId(songId);
 
@@ -2099,7 +2105,6 @@ void MainWindow::remove_song_from_smart_playlist(QVariant track_id){
          QString songIdFromWidget = static_cast<QLineEdit*>(queue->itemWidget(queue->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
           if(songIdFromWidget.contains(songId)){
              queue->takeItem(i);
-
           }
      }
 }
@@ -2117,6 +2122,18 @@ void MainWindow::remove_song(QVariant track_id){
                  }
             }
            store_manager->removeFromQueue(songId);
+        }
+    }
+}
+
+void MainWindow::removeSongFromProcessQueue(QString songId){
+    //remove song from ytdlqueue cuase its no longer needed right now
+    for (int i = 0; i < ytdlQueue.count(); i++) {
+        if(ytdlQueue.at(i).contains(songId,Qt::CaseInsensitive)){
+            qDebug()<<"removed:"<<ytdlQueue.at(i);
+            ytdlQueue.removeAt(i);
+        }else{
+            qDebug()<<"track not found in ytdlProcessQueue";
         }
     }
 }
@@ -3874,9 +3891,8 @@ void MainWindow::trackItemClicked(QListWidget *listWidget,QListWidgetItem *item)
             connect(updateTrack,&QAction::triggered,[=](){
                getAudioStream(ytIds,songId);
             });
-        }else if(ytdlProcess!=nullptr && ytdlQueue.count()>0){ // if ytdlProcess is running set the track to Next process in ytdlQueue
-            //move this to Next ytdlProcess
         }
+
         //show menu
         QMenu menu;
         menu.addAction(updateTrack);
