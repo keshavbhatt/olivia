@@ -2966,9 +2966,8 @@ void MainWindow::playSongById(QVariant songIdVar){
     playLocalTrack(songIdVar);
 }
 
-//this method plays tracks from webpage
-void MainWindow::playLocalTrack(QVariant songIdVar){
-
+//invokable method used to only add track to player
+void MainWindow::addToQueueFromLocal(QVariant songIdVar){
     QString url,songId,title,album,artist,base64;
     songId = songIdVar.toString();
     QStringList tracskList ;
@@ -2997,6 +2996,12 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
         dominantColor = trackDetails.at(9);
         addToQueue(id,title,artist,album,base64,dominantColor,songId,albumId,artistId);
     }
+}
+
+//this method plays tracks from webpage
+void MainWindow::playLocalTrack(QVariant songIdVar){
+     //if song is not in quque
+    addToQueueFromLocal(songIdVar);
      //else find and play the track
     for (int i= 0;i<ui->olivia_list->count();i++) {
        QString songIdFromWidget = static_cast<QLineEdit*>(ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("songId"))->text().trimmed();
@@ -3022,11 +3027,7 @@ void MainWindow::playLocalTrack(QVariant songIdVar){
             break;
         }
     }
-
-
-//    if(settingsObj.value("smart_playlist",true).toBool()){
-        similarTracks->clearList();
-//    }
+    similarTracks->clearList();
 }
 
 void MainWindow::saveRadioChannelToFavourite(QVariant channelInfo){

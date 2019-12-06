@@ -210,7 +210,7 @@ function track_option(track_id){
     var target = $( this ),
             options = '<hr><ul style="padding-bottom:5px" data-inset="true">'+
                         '<li>'+
-                            '<a href="#" id="'+songId+'_addToQueue" >Add to queue</a>'+
+                            '<a href="#" id="'+songId+'_addToQueue" >Add to Queue</a>'+
                         '</li>'+
                         '<li>'+
                             '<a href="#" onclick="remove_from_liked_song(\''+songId+'\')" >Remove from Liked songs</a>'+
@@ -242,7 +242,8 @@ function track_option(track_id){
                 $('body').css('overflow','hidden');
 
         $("#"+songId+"_addToQueue").on("click",function(){
-                $( this ).parent().parent().parent().parent().parent().find("#"+songId).click();
+                mainwindow.addToQueueFromLocal(songId);
+                //$( this ).parent().parent().parent().parent().parent().find("#"+songId).click();
                 $( '#popup-'+songId ).remove();
                 $('body').css('overflow','auto');
         });

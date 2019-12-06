@@ -76,6 +76,7 @@ public:
     Q_INVOKABLE void addToQueue(QString id, QString title, QString artist, QString album, QString base64, QString dominantColor, QString songId, QString albumId, QString artistId);
     Q_INVOKABLE void clear_youtubeSearchTerm();
     Q_INVOKABLE void playLocalTrack(QVariant songId);
+    Q_INVOKABLE void addToQueueFromLocal(QVariant songIdVar);
     Q_INVOKABLE void playSongById(QVariant songIdVar);
     Q_INVOKABLE void playRadioFromWeb(QVariant streamDetails);
     Q_INVOKABLE void saveRadioChannelToFavourite(QVariant channelInfo);
