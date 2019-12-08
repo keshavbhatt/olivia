@@ -377,6 +377,12 @@ function show_category_playlist(categoy_id,url){
 }
 
 function show_playlist(p_id,url){
+    var country;
+    if(youtube.getCurrentCountry().length>0){
+         country = youtube.getCurrentCountry()
+    }else{
+         country = "US";
+    }
     $.mobile.changePage($('#playlist_view_page'));
     $('#playlist_tracks_result').html("");
     $('body').css('overflow','auto');
@@ -397,7 +403,8 @@ function show_playlist(p_id,url){
                   type:"GET",
                   data:{
                        "p_id":p_id,
-                       "url": url
+                       "url": url,
+                       "country": country
                   },
                    success: function(html) {
                        paginator.save("browse","show_playlist",p_id+"<==>"+url,html);
