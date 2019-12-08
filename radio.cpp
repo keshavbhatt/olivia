@@ -210,6 +210,8 @@ void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
     }else{
          startPlayingRadio(saveTracksAfterBufferMode,url);
     }
+    //fix for fadeout at first track playback
+    if(radioState=="playing")
     emit fadeOutVolume();
 }
 
@@ -244,7 +246,7 @@ void radio::loadMedia(QUrl url){
 
 void radio::radioReadyRead(){
 
-    if(fading && volume==tempVol){
+    if(fading && volume==tempVol ){
         emit fadeInVolume();
     }
 
