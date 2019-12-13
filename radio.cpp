@@ -182,8 +182,8 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
                  if(paused!="yes"){
                      if(seeking=="yes"){
                          radioState = "seeking";
-                         fadequick = true;
-                         emit fadeInVolume();
+                        // fadequick = true;
+                        // emit fadeInVolume();
                      }
                  }
 
@@ -211,8 +211,9 @@ void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
          startPlayingRadio(saveTracksAfterBufferMode,url);
     }
     //fix for fadeout at first track playback
-    if(radioState=="playing")
-    emit fadeOutVolume();
+    if(radioState=="playing"){
+        emit fadeOutVolume();
+    }
 }
 
 void radio::startPlayingRadio(bool saveTracksAfterBufferMode,QUrl url){
