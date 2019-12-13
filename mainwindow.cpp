@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     loadSettings();
     analytic = new analytics(this);
     connect(qApp,&QApplication::aboutToQuit,[=](){
-        qDebug()<<analytic->getData();
+       analytic->headLessPush();
     });
 }
 
@@ -2912,9 +2912,11 @@ void MainWindow::setTrackItemNowPlaying(){
     QString previousNowPlayingTrackId = nowPlayingSongIdWatcher->getValue();
        QList<QWidget*>listWidgetItems =ui->right_panel->findChildren<QWidget*>("track-widget-"+previousNowPlayingTrackId);
        //if listwidgetItems not found in right_panel. this happens when player is witched to smart mode;
-       if(listWidgetItems.count()==0){
-           listWidgetItems = ui->recommHolder->findChildren<QWidget*>("track-widget-"+previousNowPlayingTrackId);
-       }
+//       if(listWidgetItems.count()==0){
+       listWidgetItems.append(ui->recommHolder->findChildren<QWidget*>("track-widget-"+previousNowPlayingTrackId));
+//       }
+       //check if the track with similarId is also present in smaratplaylist too
+       //if found remove nowplaying icon from it too
        foreach (QWidget *listWidgetItem, listWidgetItems) {
            listWidgetItem->findChild<QLabel *>("playing")->setToolTip("");
            listWidgetItem->findChild<QLabel*>("playing")->setPixmap(QPixmap(":/icons/blank.png"));
