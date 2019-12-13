@@ -29,7 +29,7 @@ void paginator::save(QString pageType,QString dataType,QString query,QString dat
                             " onclick='paginator.deleteCache(\""+pageType+"\",\""+dataType+"\",\""+query+"\")'> Updated on "+QDateTime::currentDateTime().toLocalTime().toString()+" - Reload</a>";
 
     QString timeagoScript = "<script>var date = Date.parse('"+QDateTime::currentDateTime().toLocalTime().toString()+"');"
-                            "$.mobile.activePage.find('#timeElement"+QString::number(QDateTime::currentMSecsSinceEpoch())+"').text('Saved '+TimeAgo.inWords(date)+' - Reload');</script>";
+                            "$.mobile.activePage.find('#timeElement"+QString::number(QDateTime::currentMSecsSinceEpoch())+"').text('Updated '+TimeAgo.inWords(date)+' - Reload');</script>";
     out <<loadOnlineBtn<< data.trimmed()+timeagoScript;
 }
 
