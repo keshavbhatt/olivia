@@ -185,10 +185,12 @@ QTabBar::tab{
 }
 QTabBar::tab:selected,QTabBar::tab:hover{
   background-color:qlineargradient(x1:0,y1:0,x2:0,y2:1,stop:0 rgba(53,53,53,127),stop:1 rgba(66,66,66,50%));
-  border-bottom-color:rgba(66,66,66,75%);
+  border-bottom:1px solid;
+  border-bottom-color:rgba(38,106,133,75%);
 }
 QTabBar::tab:selected{
-  border-bottom-color:rgba(66,66,66,75%);
+  border-bottom:2px solid;
+  border-bottom-color:rgba(38,106,133,75%);
 }
 QTabBar::tab:!selected{
   margin-top:2px;
