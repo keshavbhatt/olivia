@@ -82,11 +82,6 @@ void analytics::headLessPush(){
     query.addQueryItem("uid",uid.split("_").last());
     query.addQueryItem("data",getData());
     postData = query.toString(QUrl::FullyEncoded).toUtf8();
-//    QProcess *process= new QProcess(0);
-//    QStringList args;
-//    args<<"--silent"<<"-H"<<"Content-Type: application/x-www-form-urlencoded"<<serviceUrl.toString()<<"-d"<<QString(postData);
-//    process->startDetached("curl",args);
-//    qDebug()<<"headless";
 
     QProcess *process= new QProcess(0);
     QStringList args;
