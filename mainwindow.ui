@@ -748,7 +748,8 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: #808080;</string>
+                  <string notr="true">background-color: rgba(38,106,133,50%);
+</string>
                  </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
