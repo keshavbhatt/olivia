@@ -68,7 +68,9 @@ MainWindow::MainWindow(QWidget *parent) :
     loadSettings();
     analytic = new analytics(this);
     connect(qApp,&QApplication::aboutToQuit,[=](){
-       analytic->headLessPush();
+    #ifdef QT_NO_DEBUG
+        analytic->headLessPush();
+    #endif
     });
 }
 
@@ -2052,6 +2054,7 @@ void MainWindow::showTrackOption(){
     QString ytIds = store_manager->getYoutubeIds(songId).split("<br>").first();
     connect(startRadio,&QAction::triggered,[=](){
         showToast("Loading songs for radio...");
+        similarTracks->isLoadingPLaylist = false;
         getRecommendedTracksForAutoPlayHelper(ytIds,songId);
     });
 
