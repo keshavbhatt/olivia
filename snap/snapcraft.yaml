@@ -81,6 +81,8 @@ parts:
        - qtbase5-dev
        - dpkg-dev
        - libqt5webkit5-dev
+     stage-packages:
+       - pv
    cleanup:
        after: [application]
        plugin: nil
