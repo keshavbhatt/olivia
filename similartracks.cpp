@@ -2,7 +2,6 @@
 #include "elidedlabel.h"
 #include <QDebug>
 
-
 SimilarTracks::SimilarTracks(QObject *parent,int limit) : QObject(parent)
 {
     numberOfSimilarTracksToLoad = limit;
