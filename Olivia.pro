@@ -22,6 +22,8 @@ CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 
 CONFIG += c++11
 
+LIBS += -ltag
+
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -50,6 +52,7 @@ SOURCES += main.cpp\
     radio.cpp \
     onlinesearchsuggestion.cpp \
     seekslider.cpp \
+    trackproperties.cpp \
     videooption.cpp \
     volumeslider.cpp \
     settings.cpp \
@@ -74,6 +77,7 @@ HEADERS  += mainwindow.h \
     onlinesearchsuggestion.h \
     seekslider.h \
     stringchangewatcher.h \
+    trackproperties.h \
     videooption.h \
     volumeslider.h \
     settings.h \
@@ -96,6 +100,7 @@ FORMS    += mainwindow.ui \
     minimode.ui \
     lyrics.ui \
     lyricitem.ui \
+    trackproperties.ui \
     videooption.ui
 
 RESOURCES += \
