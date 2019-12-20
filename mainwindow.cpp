@@ -308,6 +308,7 @@ void MainWindow::installEventFilters(){
 }
 
 void MainWindow::closeEvent(QCloseEvent *event){
+
     settingsObj.setValue("geometry",saveGeometry());
     settingsObj.setValue("windowState", saveState());
     settingsObj.setValue("volume",radio_manager->volume);
@@ -324,6 +325,18 @@ void MainWindow::closeEvent(QCloseEvent *event){
         QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(processIdList.at(i)));
         processIdList.removeAt(i);
     }
+    //clear converted_temp dir
+    QDir dir(setting_path+"/converted_temp");
+    dir.setNameFilters(QStringList() << "*.*");
+    dir.setFilter(QDir::Files);
+
+    for(const QString &dirFile: dir.entryList()) {
+      dir.remove(dirFile);
+    }
+    //remove used socket file
+    QFile fifo(radio_manager->used_fifo_file_path);
+    fifo.remove();
+
     qApp->quit();
     QMainWindow::closeEvent(event);
 }
@@ -760,6 +773,7 @@ void MainWindow::set_app_theme(QColor rgb){
 //    ui->youtube_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
 //    ui->smart_list->setStyleSheet("QListWidget{"+widgetStyle+";border:none;}"+scrollbarStyle);
 
+
     ui->recommWidget->setStyleSheet("QWidget#recommWidget{"+widgetStyle+";border:none;}");
 
     ui->show_hide_smart_list_button->setStyleSheet("QPushButton#show_hide_smart_list_button{"+widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;}");
@@ -1077,6 +1091,12 @@ void MainWindow::init_offline_storage(){
     if(!database.exists()){
         if(database.mkdir(database.path())){
             qDebug()<<"created storeDatabase dir";
+        }
+    }
+    QDir convert(setting_path+"/converted_temp");
+    if(!convert.exists()){
+        if(convert.mkdir(convert.path())){
+            qDebug()<<"created convert dir";
         }
     }
 }
@@ -1920,13 +1940,17 @@ void MainWindow::showTrackOption(){
     QAction *gotoAlbum = new QAction("Go to Album",nullptr);   
     QAction *removeSong = new QAction("Remove from queue",nullptr);
     QAction *deleteSongCache = new QAction("Delete song cache",nullptr);
+    QAction *properties = new QAction("Track Properties",nullptr);
+
 
     QAction *addToLikedSongs = new QAction("Add to liked songs",nullptr);
     QAction *removeFromLikedSongs = new QAction("Remove from liked songs",nullptr);
     QAction *playNext =new QAction("Play next",nullptr);
 
+    bool isDownloaded = store_manager->isDownloaded(songId);
 
-    deleteSongCache->setEnabled(store_manager->isDownloaded(songId));
+    deleteSongCache->setEnabled(isDownloaded);
+    properties->setEnabled(isDownloaded);
 
     //setIcons
     youtubeShowRecommendation->setIcon(QIcon(":/icons/sidebar/youtube.png"));
@@ -1941,6 +1965,11 @@ void MainWindow::showTrackOption(){
     addToLikedSongs->setIcon(QIcon(":/icons/sidebar/liked.png"));
     removeFromLikedSongs->setIcon(QIcon(":/icons/sidebar/not_liked.png"));
     playNext->setIcon(QIcon(":/icons/sidebar/next.png"));
+    properties->setIcon(QIcon(":/icons/sidebar/info.png"));
+
+    connect(properties,&QAction::triggered,[=](){
+        showTrackProperties(songId);
+    });
 
     connect(addToLikedSongs,&QAction::triggered,[=](){
         store_manager->add_to_liked(songId);
@@ -2096,6 +2125,8 @@ void MainWindow::showTrackOption(){
     menu.addSeparator();
     menu.addAction(removeSong);
     menu.addAction(deleteSongCache);
+    menu.addSeparator();
+    menu.addAction(properties);
     menu.setStyleSheet(menuStyle());
     menu.exec(QCursor::pos());
 }
@@ -4365,6 +4396,21 @@ QString MainWindow::getCurrentPlayerQueue(QString songId){
     }
     return listName;
 }
+//======================track properties==================================================
+void MainWindow::showTrackProperties(QString songId){
+    if(trackProperties==nullptr){
+        trackProperties = new TrackProperties(0,setting_path);
+        connect(trackProperties,&TrackProperties::delete_song_cache,[=](QString trackId){
+            this->delete_song_cache(QVariant(trackId));
+        });
+    }
+    QStringList meta;
+    meta = store_manager->getTrack(songId);
+    trackProperties->setValues(meta);
+    trackProperties->adjustSize();
+    trackProperties->setFixedSize(340,trackProperties->height()+2);//2px for progressbar
+    trackProperties->show();
+}
 
 //======================start favourite button============================================
 //fake toggle programmatic
@@ -4622,6 +4668,6 @@ void MainWindow::showToast(QString message){
     a->setStartValue( QCursor::pos());
     a->setEndValue(this->mapToParent(QPoint(x,y)));
     a->setEasingCurve(QEasingCurve::Linear);
-     a->start(QPropertyAnimation::DeleteWhenStopped);
+    a->start(QPropertyAnimation::DeleteWhenStopped);
     toastWidget->show();
 }

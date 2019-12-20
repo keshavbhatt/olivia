@@ -50,6 +50,7 @@
 #include "plugins/mpris/mprisplugin.h"
 #include "stringchangewatcher.h"
 #include "similartracks.h"
+#include "trackproperties.h"
 #include <analytics.h>
 
 
@@ -58,6 +59,7 @@
 #include "ui_track.h"
 #include "ui_smart_mode.h"
 #include "ui_toast.h"
+
 
 
 
@@ -94,6 +96,8 @@ public:
     Q_INVOKABLE void hidePlaylistButton();
     Q_INVOKABLE void on_playlistLoaderButtton_clicked();
     Q_INVOKABLE void removeFromFavourite(QString songId);
+    Q_INVOKABLE void showTrackProperties(QString songId);
+
 
 
 
@@ -313,6 +317,7 @@ private:
     bool smartModeShuffleState = false;
     int oldVolume;
     bool playingSongRadio;
+    TrackProperties *trackProperties = nullptr;
 };
 
 class SelectColorButton : public QPushButton
