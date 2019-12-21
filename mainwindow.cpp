@@ -2219,6 +2219,22 @@ void MainWindow::delete_song_cache(QVariant track_id){
     }
 }
 
+void MainWindow::delete_video_cache(QVariant track_id){
+    QString songId = track_id.toString().remove("<br>").trimmed();
+    QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QStringList exts;
+    exts<< +".webm"<<".mp4"<<".mpeg"<<".mkv"<<".avi"<<".flv"<<".ogv"<<".ogg";
+    QString ext;
+    foreach (ext, exts) {
+        QFile cache(setting_path+"/downloadedVideos/"+songId+ext);
+        if(QFileInfo(cache).exists()){
+            cache.remove();
+            break;
+        }
+    }
+}
+
+
 void MainWindow::web_watch_video(QVariant data){
     QString btn_style ="QPushButton{color: silver; background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 3px; padding-right: 3px; border-radius: 2px; outline: none;}"
     "QPushButton:disabled { background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; /*border-radius: 2px;*/ color: #636363;}"

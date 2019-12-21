@@ -1476,9 +1476,6 @@ QString store::open_search_liked_tracks(int pageNumber,QVariant queryStr){
         return "No data returned";
     }
 }
-
-
-
 //===========================END LIKED SONGS===============================
 
 
@@ -1486,7 +1483,7 @@ void store::cleanUp(){
     //get track id of all recently played songs after 100
     //check for tracks which are in use by olivia somewhere
       //check them in player queue
-      //check them in the starred tracks [not implemented yet]
+      //check them in the starred tracks
       //check them in downloaded tracks list
       //check them in downloaded videos list
     //if track in not in use in above remove them from database
