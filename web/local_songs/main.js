@@ -215,6 +215,9 @@ function track_option(track_id){
                         '<li>'+
                             '<a href="#" onclick="delete_song(\''+songId+'\')" >Delete song cache</a>'+
                         '</li>'+
+                        '<li>'+
+                            '<a href="#" onclick="track_properties(\''+songId+'\')" >Track properties</a>'+
+                        '</li>'+
                       '</ul>',
                 link = "<span >id: "+ songId+"</span>",
                 closebtn = '<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>',
@@ -260,12 +263,18 @@ function track_option(track_id){
         });
 }
 
+function track_properties(track_id){
+    $( '#popup-'+track_id ).remove();
+    $('body').css('overflow','auto');
+    mainwindow.showTrackProperties(track_id);
+}
+
 
 function delete_song(track_id){
-    $( '#popup-'+songId ).remove();
+    $( '#popup-'+track_id ).remove();
     $('body').css('overflow','auto');
 
-    $("#"+songId).closest("li").remove();
+    $("#"+track_id).closest("li").remove();
     //keep the order below
     //mainwindow.remove_song(track_id);
     mainwindow.delete_song_cache(track_id);

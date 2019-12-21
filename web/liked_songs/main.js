@@ -262,10 +262,10 @@ function track_option(track_id){
 
 
 function remove_from_liked_song(track_id){
-    $( '#popup-'+songId ).remove();
+    $( '#popup-'+track_id ).remove();
     $('body').css('overflow','auto');
 
-    $("#"+songId).closest("li").remove();
+    $("#"+track_id).closest("li").remove();
     //keep the order below
     mainwindow.removeFromFavourite(track_id);
 }
