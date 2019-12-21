@@ -2411,7 +2411,10 @@ QSlider::sub-page:horizontal:disabled{
         <widget class="QTextBrowser" name="console">
          <property name="styleSheet">
           <string notr="true">border:1px solid #424242 ;
-border-radius:2px;</string>
+border-radius:2px;
+background-image: url(:/icons/others/bug.png);
+background-repeat: no-repeat;
+background-position: bottom right;</string>
          </property>
         </widget>
        </item>

@@ -1486,6 +1486,8 @@ void MainWindow::prepareSimilarTracks(){
 }
 
 void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
+    if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
+
     QString Base64andDominantColorStr = Base64andDominantColor.toString();
     QString base64 = Base64andDominantColorStr.split("!=-=!").last();
     QString dominantColor = Base64andDominantColorStr.split("!=-=!").first();
@@ -2386,7 +2388,6 @@ void MainWindow::ytdlReadyRead(){
                     //stop spinner
                     if(listName=="smart_list"){
                         ui->similarTrackLoader->stop();
-                        if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
                     }
                     //delete process/task
                     senderProcess->close();
