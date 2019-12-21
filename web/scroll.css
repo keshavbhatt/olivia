@@ -4,6 +4,10 @@
     background-size: 18px 18px;
 }
 
+.ui-alt-icon.ui-icon-search:after, .ui-alt-icon .ui-icon-search:after, .ui-input-search:after{
+    background-image: url("qrc:/web/css/images/search_icon_white.png") !important;
+}
+
 .ui-focus,
 .ui-btn:focus {
     -moz-box-shadow: inset 0 0 3px      #555  , 0 0 9px         #555  !important;
