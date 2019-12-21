@@ -166,6 +166,8 @@ function changeBg(rgba){ // sets bg color var in mainwindow and changes bg color
     $("::-webkit-scrollbar-track").css("cssText","background-color:rgba("+rgba+") !important;");
     $("body").css("cssText","background-color:rgba("+rgba+") !important;");
     $(".ui-listview>.ui-li-divider").css("cssText","background-color:rgba("+rgba+") !important;");
+    //change the bottom border of search input
+    $(".ui-input-search").css("cssText","border-bottom: 3px solid rgba("+r+","+g+","+b+","+"0.4) !important;");
     mainwindow.setThemeColor(themeColor);
 }
 
