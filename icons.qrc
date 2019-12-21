@@ -123,5 +123,6 @@
         <file>icons/others/rate.png</file>
         <file>icons/others/store.png</file>
         <file>icons/others/donate_paypal.png</file>
+        <file>icons/others/bug.png</file>
     </qresource>
 </RCC>
