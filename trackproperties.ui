@@ -143,7 +143,7 @@
      <item>
       <widget class="QPushButton" name="copy">
        <property name="text">
-        <string>Copy media file</string>
+        <string>Export raw media file</string>
        </property>
        <property name="icon">
         <iconset resource="icons.qrc">
@@ -159,7 +159,7 @@
        <item>
         <widget class="QPushButton" name="copy_with_tags">
          <property name="text">
-          <string>Convert to mp3 and copy media file</string>
+          <string>Convert to mp3 and export media file</string>
          </property>
          <property name="icon">
           <iconset resource="icons.qrc">

@@ -1,8 +1,7 @@
 #include "trackproperties.h"
 #include "ui_trackproperties.h"
 
-#include <QClipboard>
-#include <QMimeData>
+#include <QFileDialog>
 #include <QPushButton>
 #include <QFrame>
 
@@ -112,29 +111,11 @@ void TrackProperties::on_showInFiles_clicked()
 
 void TrackProperties::on_copy_clicked()
 {
-    //  Get clipboard
-    QClipboard *cb = QApplication::clipboard();
-
-    // Ownership of the new data is transferred to the clipboard.
-    QMimeData* newMimeData = new QMimeData();
-
-    // Copy old mimedata
-    const QMimeData* oldMimeData = cb->mimeData();
-    for ( const QString &f : oldMimeData->formats())
-        newMimeData->setData(f, oldMimeData->data(f));
-
-    // Copy path of file
-    newMimeData->setText(setting_path+"/downloadedTracks/"+this->trackId);
-
-    // Copy file
-    newMimeData->setUrls({QUrl::fromLocalFile(setting_path+"/downloadedTracks/"+this->trackId)});
-
-    // Copy file (gnome)
-    QByteArray gnomeFormat = QByteArray("copy\n").append(QUrl::fromLocalFile(setting_path+"/downloadedTracks/"+this->trackId).toEncoded());
-    newMimeData->setData("x-special/gnome-copied-files", gnomeFormat);
-
-    // Set the mimedata
-    cb->setMimeData(newMimeData);
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save File"),
+                              setting_path+"/downloadedTracks/"+this->trackId,
+                              tr("Audio raw (*.webm)"));
+    QFile file(setting_path+"/downloadedTracks/"+this->trackId);
+    file.copy(filename);
 }
 
 void TrackProperties::on_deleteTrack_clicked()
@@ -176,31 +157,15 @@ void TrackProperties::conversion_Finished(int exitCode,QProcess::ExitStatus stat
        if(newNameWithTags.isEmpty())
            return;
 
-       //  Get clipboard
-       QClipboard *cb = QApplication::clipboard();
 
-       // Ownership of the new data is transferred to the clipboard.
-       QMimeData* newMimeData = new QMimeData();
+       QString filename = QFileDialog::getSaveFileName(this, tr("Save File"),
+                                    newNameWithTags,
+                                    tr("Audio (*.mp3)"));
+       QFile file(newNameWithTags);
+       file.copy(filename);
 
-       // Copy old mimedata
-       const QMimeData* oldMimeData = cb->mimeData();
-       for ( const QString &f : oldMimeData->formats())
-           newMimeData->setData(f, oldMimeData->data(f));
-
-       // Copy path of file
-       newMimeData->setText(newNameWithTags);
-
-       // Copy file
-       newMimeData->setUrls({QUrl::fromLocalFile(newNameWithTags)});
-
-       // Copy file (gnome)
-       QByteArray gnomeFormat = QByteArray("copy\n").append(QUrl::fromLocalFile(newNameWithTags).toEncoded());
-       newMimeData->setData("x-special/gnome-copied-files", gnomeFormat);
-
-       // Set the mimedata
-       cb->setMimeData(newMimeData);
        ui->copy_with_tags->setEnabled(false);
-       ui->copy_with_tags->setText("File ready for pasting");
+       ui->copy_with_tags->setText("File ready to export");
        ui->progressBar->hide();
     }
     sender()->deleteLater();
