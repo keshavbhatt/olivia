@@ -8,6 +8,7 @@
 #include <QDir>
 #include "elidedlabel.h"
 #include "settings.h"
+#include "store.h"
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -158,7 +159,7 @@ void Widget::save_download_item(int currentRow){
         ElidedLabel  *statusLabel     = itemObject->findChild<ElidedLabel *>("status");
         ElidedLabel  *sizeLabel       = itemObject->findChild<ElidedLabel *>("size");
         ElidedLabel  *titleLabel      = itemObject->findChild<ElidedLabel *>("title");
-        QProgressBar *progress  = itemObject->findChild<QProgressBar*>("progressBar");
+        QProgressBar *progress        = itemObject->findChild<QProgressBar*>("progressBar");
         ElidedLabel  *percentageLabel = itemObject->findChild<ElidedLabel *>("percentage");
         ElidedLabel  *downloadedLabel = itemObject->findChild<ElidedLabel *>("downloaded");
         ElidedLabel  *colorLabel      = itemObject->findChild<ElidedLabel *>("color");
@@ -372,7 +373,7 @@ void Widget::update_db_file(QStringList lines){
 
 
 
-void Widget::startWget(QString url_str,QString downloadLocation,QStringList formats){
+void Widget::startWget(QString url_str,QString downloadLocation,QStringList formats,QString type){
 
     QString title = this->trackTitle;
 
@@ -382,7 +383,11 @@ void Widget::startWget(QString url_str,QString downloadLocation,QStringList form
         QStringList arguments;
         arguments.append(setting_path+"/core");
         arguments.append("-f");
-        arguments.append(formats.at(0)+"+"+formats.at(1));
+        if(type=="audio"){
+            arguments.append(formats.at(0));
+        }else{
+            arguments.append(formats.at(0)+"+"+formats.at(1));
+        }
         QString miscArgs;
 
         QString location_suffix;
@@ -392,7 +397,7 @@ void Widget::startWget(QString url_str,QString downloadLocation,QStringList form
             location_suffix = trackId;
         }
 
-        miscArgs = "-o "+this->downloadLocation+location_suffix;
+        miscArgs = "-o "+downloadLocation+location_suffix;
 
         arguments.append(miscArgs.split(" "));
 
@@ -539,6 +544,7 @@ void Widget::downloadProcessFinished(int exitCode){
     QObject *colorLabel = itemObject->findChild<QObject*>("color");
     QObject *percentageLabel = itemObject->findChild<QObject*>("percentage");
     QObject *downloadedLabel = itemObject->findChild<QObject*>("downloaded");
+    QObject *titleLabel = itemObject->findChild<QObject*>("title");
 
     if(exitCode==QProcess::NormalExit){
         //set values
@@ -555,6 +561,24 @@ void Widget::downloadProcessFinished(int exitCode){
         ((QProgressBar*)(progress))->setValue(100);
         ui->startSelected->setEnabled(false);
          save_download_item(processNumber);
+
+
+         QObject *itemObject  = ui->downloadList->findChild<QObject*>("processWidgetObject#"+QString::number(processNumber));
+         ElidedLabel  *argLabel        = itemObject->findChild<ElidedLabel *>("args");
+         QString videoId = argLabel->text().split(" https://").first().split("/").last();
+
+         //update the track in queue
+         if(((ElidedLabel *)(titleLabel))->text().contains(" [Audio]")){
+             QObject *parentMainWindow = this->parent();
+             while (!parentMainWindow -> objectName().contains("MainWindow")){
+                 parentMainWindow = parentMainWindow -> parent();
+             }
+             store * store_manager = parentMainWindow->findChild<store*>("store_manager");
+             if(store_manager!=nullptr){
+                store_manager->update_track("downloaded",videoId,"1");
+                emit updateTrack(trackId,downloadLocationAudio);
+             }
+         }
     }else{
         ((ElidedLabel *)(statusLabel))->setText("Status: Error");
         ((QProgressBar*)(progress))->setMaximum(100);
@@ -842,14 +866,18 @@ void Widget::on_downloadList_itemDoubleClicked(QListWidgetItem *item)
      ElidedLabel  *statusLabel     = itemObject->findChild<ElidedLabel *>("status");
      ElidedLabel  *argLabel        = itemObject->findChild<ElidedLabel *>("args");
      ElidedLabel  *titleLabel      = itemObject->findChild<ElidedLabel *>("title");
-   //  QString trackId = argLabel->text().split(" >>").first().split("=").last();
      QString videoId = argLabel->text().split(" https://").first().split("/").last();
-    // qDebug()<<argLabel->text();
 
      settings *sett = new settings(this);
      int volume = sett->settingsObj.value("volume",100).toInt();
 
-     QDir dir(setting_path+"/downloadedVideos/");
+     QDir dir;
+
+     if(titleLabel->text().contains(" [Audio]")){
+         dir.setPath(setting_path+"/downloadedTracks/");
+     }else{
+         dir.setPath(setting_path+"/downloadedVideos/");
+     }
      QStringList filter;
      filter<< videoId+"*";
      QFileInfoList files = dir.entryInfoList(filter);
@@ -857,12 +885,18 @@ void Widget::on_downloadList_itemDoubleClicked(QListWidgetItem *item)
          if(statusLabel->text().contains("finished",Qt::CaseInsensitive)){
              QProcess *player = new QProcess(this);
              player->setObjectName("player");
-             player->start("mpv",QStringList()<<"--title=MPV for Olivia - "+
+             player->start("mpv",QStringList()<<"--force-window=yes"<<"--title=MPV for Olivia - "+
                            titleLabel->text().toUtf8()<<"--no-ytdl"<<files.at(0).filePath()
                            <<"--volume"<<QString::number(volume));
          }
      }else{
-         qDebug()<<"Unable to locate downloaded file" <<videoId;
+         QMessageBox msgBox;
+         msgBox.setText("Unable to locate downloaded file");
+         msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+         msgBox.setInformativeText("File Id: "+videoId);
+         msgBox.setStandardButtons(QMessageBox::Ok);
+         msgBox.setDefaultButton(QMessageBox::Ok);
+         msgBox.exec();
      }
     sett->deleteLater();
 }

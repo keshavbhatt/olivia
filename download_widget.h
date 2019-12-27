@@ -27,7 +27,7 @@ public:
 
 public slots:
 
-    void startWget(QString url, QString downloadLocation, QStringList formats);
+    void startWget(QString url, QString downloadLocation, QStringList formats, QString type);
 
     void insertDownloadWidget(QString, QString , QString ,bool , QStringList);
 
@@ -47,6 +47,8 @@ public slots:
 
     void update_ui_btns(int);
 
+signals:
+    void updateTrack(QString trackId , QString download_path);
 
 private:
     Ui::Widget *ui;
@@ -70,7 +72,7 @@ private:
 
 
 public:
-    QString downloadLocation;
+    QString downloadLocation,downloadLocationAudio;
     QString trackId,trackTitle;
 
 private slots:
