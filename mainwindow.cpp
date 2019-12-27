@@ -1943,6 +1943,7 @@ void MainWindow::showTrackOption(){
     QAction *removeSong = new QAction("Remove from queue",nullptr);
     QAction *deleteSongCache = new QAction("Delete song cache",nullptr);
     QAction *properties = new QAction("Track Properties",nullptr);
+    QAction *downloadTrack = new QAction("Download audio",nullptr);
 
 
     QAction *addToLikedSongs = new QAction("Add to liked songs",nullptr);
@@ -1953,6 +1954,7 @@ void MainWindow::showTrackOption(){
 
     deleteSongCache->setEnabled(isDownloaded);
     properties->setEnabled(isDownloaded);
+    downloadTrack->setEnabled(!isDownloaded);
 
     //setIcons
     youtubeShowRecommendation->setIcon(QIcon(":/icons/sidebar/youtube.png"));
@@ -1968,6 +1970,25 @@ void MainWindow::showTrackOption(){
     removeFromLikedSongs->setIcon(QIcon(":/icons/sidebar/not_liked.png"));
     playNext->setIcon(QIcon(":/icons/sidebar/next.png"));
     properties->setIcon(QIcon(":/icons/sidebar/info.png"));
+    downloadTrack->setIcon(QIcon(":/icons/others/donwload2.png"));
+
+    connect(downloadTrack,&QAction::triggered,[=](){
+        downloadWidget->trackId = songId;
+        QStringList trackmeta = store_manager->getTrack(songId);
+        QString title = trackmeta.at(1);
+
+        //remove html notations from title
+        QTextDocument text;
+        text.setHtml(title);
+        QString plainTitle = text.toPlainText();
+        downloadWidget->trackTitle = plainTitle+" [Audio]";
+        text.deleteLater();
+
+//      QString url_str = "https://www.youtube.com/watch?v="+ytIds.split("<br>").first();
+        QString url_str = trackmeta.at(7);
+        downloadWidget->startWget(url_str,downloadWidget->downloadLocationAudio,QStringList()<<"bestaudio","audio");
+        ui->tabWidget->setCurrentIndex(2);//switch to task tab
+    });
 
     connect(properties,&QAction::triggered,[=](){
         showTrackProperties(songId);
@@ -2102,6 +2123,7 @@ void MainWindow::showTrackOption(){
 
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
         menu.addAction(showLyrics);
+        menu.addAction(downloadTrack);
         menu.addAction(watchVideo);
         menu.addSeparator();
         menu.addAction(startRadio);
@@ -2118,6 +2140,7 @@ void MainWindow::showTrackOption(){
         menu.addSeparator();
         menu.addAction(showLyrics);
         menu.addAction(openChannel);
+        menu.addAction(downloadTrack);
         menu.addAction(watchVideo);
         menu.addSeparator();
         menu.addAction(youtubeShowRecommendation);
@@ -3151,22 +3174,19 @@ void MainWindow::saveTrack(QString format){
     //    qDebug()<<"saved"<<nowPlayingSongIdWatcher->getValue()<<"as"<<format<<"in"<<file.fileName();
         store_manager->update_track("downloaded",nowPlayingSongIdWatcher->getValue(),"1");
     }
-      //show offline icon in track ui and change url to offline one
-      for(int i = 0 ; i< ui->olivia_list->count();i++){
-           if(ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongIdWatcher->getValue()){
-              QLabel *offline = ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLabel*>("offline");
-              static_cast<QLabel*>(offline)->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-              ui->olivia_list->itemWidget(ui->olivia_list->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongIdWatcher->getValue());
-          }
-      }
-      for(int i = 0 ; i< ui->youtube_list->count();i++){
-           if(ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("songId")->text()==nowPlayingSongIdWatcher->getValue()){
-              QLabel *offline = ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLabel*>("offline");
-              static_cast<QLabel*>(offline)->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-              ui->youtube_list->itemWidget(ui->youtube_list->item(i))->findChild<QLineEdit*>("url")->setText("file://"+download_Path+nowPlayingSongIdWatcher->getValue());
-          }
-      }
+    updateTrack(nowPlayingSongIdWatcher->getValue(),download_Path);
 }
+
+//updates track after downloaded
+void MainWindow::updateTrack(QString trackId,QString download_Path){
+    QString listName = getCurrentPlayerQueue(trackId);
+    QListWidget *listWidget = this->findChild<QListWidget*>(listName);
+    QWidget *listWidgetItem = listWidget->findChild<QWidget*>("track-widget-"+trackId);
+    QLabel *offline = listWidgetItem->findChild<QLabel*>("offline");
+    static_cast<QLabel*>(offline)->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+    listWidgetItem->findChild<QLineEdit*>("url")->setText("file://"+download_Path+trackId);
+}
+
 ////////////////////////////////////////////////////////////END RADIO///////////////////////////////////////////////////////
 
 
@@ -4231,11 +4251,15 @@ void MainWindow::on_hideDebug_clicked()
 }
 
 void MainWindow::init_downloadWidget(){
-    downloadWidget = new Widget(0);
+    downloadWidget = new Widget(this);
     downloadWidget->setWindowFlags(Qt::Widget);
     downloadWidget->downloadLocation =setting_path+"/downloadedVideos";
+    downloadWidget->downloadLocationAudio =setting_path+"/downloadedTracks/";
     ui->downloadWidgetVLayout->addWidget(downloadWidget);
     connect(qApp,SIGNAL(aboutToQuit()),downloadWidget,SLOT(on_pauseAll_clicked()));
+    connect(downloadWidget,&Widget::updateTrack,[=](QString trackId,QString downloadLocation){
+        this->updateTrack(trackId,downloadLocation);
+    });
 }
 
 void MainWindow::videoOptionDownloadRequested(QStringList trackMetaData,QStringList formats){ //videoformat<<audioformat
@@ -4254,11 +4278,11 @@ void MainWindow::videoOptionDownloadRequested(QStringList trackMetaData,QStringL
     QTextDocument text;
     text.setHtml(title);
     QString plainTitle = text.toPlainText();
-    downloadWidget->trackTitle = plainTitle;
+    downloadWidget->trackTitle = plainTitle+" [Video]";
     text.deleteLater();
 
     QString url_str = "https://www.youtube.com/watch?v="+ytIds.split("<br>").first();
-    downloadWidget->startWget(url_str,downloadWidget->downloadLocation,formats);
+    downloadWidget->startWget(url_str,downloadWidget->downloadLocation,formats,"video+audio");
 }
 
 // switcher for menu listwidget used to change row without calling corresponding function

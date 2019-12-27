@@ -264,6 +264,7 @@ private slots:
     void nextPreviousHelper(QListWidget *list);
     void getRecommendedTracksForAutoPlayHelper(QString videoId, QString songId);
     void removeSongFromProcessQueue(QString songId);
+    void updateTrack(QString trackId, QString download_Path);
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
