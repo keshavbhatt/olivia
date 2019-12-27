@@ -25,7 +25,7 @@ TrackProperties::TrackProperties(QWidget *parent,QString setting_path) :
     ui(new Ui::TrackProperties)
 {
     ui->setupUi(this);
-    this->setWindowModality(Qt::WindowModal); // block input to parent window
+    this->setWindowModality(Qt::ApplicationModal); // block input to parent window
     this->setting_path = setting_path; // set settings path from mainwindow
     ui->progressBar->setValue(0);
     ui->progressBar->hide();
