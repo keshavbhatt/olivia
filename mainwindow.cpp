@@ -905,6 +905,8 @@ void MainWindow::init_app(){
     ui->similarTrackLoader->setInnerRadius(2);
     ui->similarTrackLoader->setRevolutionsPerSecond(1);
     ui->similarTrackLoader->setColor(QColor(227, 222, 222));
+    ui->similarTrackLoader->installEventFilter(this);
+
 
     //hide recommWidget this code is  from on_show_hide_smart_list_button_clicked()
     split3->widget(1)->setMaximumHeight(ui->show_hide_smart_list_button->height());
@@ -1238,6 +1240,16 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
 
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event){
+    if(obj==ui->similarTrackLoader){
+        switch( event->type() ){
+        case QEvent::MouseButtonPress:
+            ui->similarTrackLoader->stop();
+        break;
+        default:
+        break;
+        }
+    }
+
 
     if ((obj == ui->nowPlayingGrip || obj == ui->top_widget  || obj == ui->windowControls || obj == ui->label_6 ) && (event->type() == QEvent::MouseMove)) {
             const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
@@ -3180,11 +3192,13 @@ void MainWindow::saveTrack(QString format){
 //updates track after downloaded
 void MainWindow::updateTrack(QString trackId,QString download_Path){
     QString listName = getCurrentPlayerQueue(trackId);
-    QListWidget *listWidget = this->findChild<QListWidget*>(listName);
-    QWidget *listWidgetItem = listWidget->findChild<QWidget*>("track-widget-"+trackId);
-    QLabel *offline = listWidgetItem->findChild<QLabel*>("offline");
-    static_cast<QLabel*>(offline)->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
-    listWidgetItem->findChild<QLineEdit*>("url")->setText("file://"+download_Path+trackId);
+    if(!listName.isEmpty()){
+        QListWidget *listWidget = this->findChild<QListWidget*>(listName);
+        QWidget *listWidgetItem = listWidget->findChild<QWidget*>("track-widget-"+trackId);
+        QLabel *offline = listWidgetItem->findChild<QLabel*>("offline");
+        static_cast<QLabel*>(offline)->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+        listWidgetItem->findChild<QLineEdit*>("url")->setText("file://"+download_Path+trackId);
+    }
 }
 
 ////////////////////////////////////////////////////////////END RADIO///////////////////////////////////////////////////////
