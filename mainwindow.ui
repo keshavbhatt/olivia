@@ -1705,7 +1705,7 @@ QScrollBar:vertical {
                               <string>Refresh all dead tracks</string>
                              </property>
                              <property name="text">
-                              <string>Refresh all tracks</string>
+                              <string>Refresh all queues</string>
                              </property>
                              <property name="icon">
                               <iconset resource="icons.qrc">
