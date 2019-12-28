@@ -224,7 +224,7 @@ padding-bottom:4px;</string>
         </font>
        </property>
        <property name="text">
-        <string>Remove All</string>
+        <string>Clear all</string>
        </property>
       </widget>
      </item>
@@ -236,7 +236,7 @@ padding-bottom:4px;</string>
         </font>
        </property>
        <property name="text">
-        <string>Remove</string>
+        <string>Clear</string>
        </property>
       </widget>
      </item>
@@ -260,7 +260,7 @@ padding-bottom:4px;</string>
         </font>
        </property>
        <property name="text">
-        <string>Pause All</string>
+        <string>Pause all</string>
        </property>
       </widget>
      </item>
@@ -272,7 +272,7 @@ padding-bottom:4px;</string>
         </font>
        </property>
        <property name="text">
-        <string>Start All</string>
+        <string>Start all</string>
        </property>
       </widget>
      </item>
