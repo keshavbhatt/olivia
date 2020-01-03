@@ -47,6 +47,7 @@ SOURCES += main.cpp\
     cookiejar.cpp \
     elidedlabel.cpp \
     nowplaying.cpp \
+    scrolltext.cpp \
     similartracks.cpp \
     store.cpp \
     radio.cpp \
@@ -71,6 +72,7 @@ HEADERS  += mainwindow.h \
     elidedlabel.h \
     equalizer.h \
     nowplaying.h \
+    scrolltext.h \
     similartracks.h \
     store.h \
     radio.h \
