@@ -105,6 +105,19 @@ p, li { white-space: pre-wrap; }
         </spacer>
        </item>
        <item>
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>200</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
         <widget class="QWidget" name="searchWidget" native="true">
          <property name="styleSheet">
           <string notr="true">border-bottom: 1px solid rgba(42,130,218,169);
@@ -203,27 +216,29 @@ border-radius:0px;</string>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>40</width>
+           <width>20</width>
            <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
        <item>
-        <spacer name="systemTitleBarSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
+        <widget class="ScrollText" name="playing">
+         <property name="minimumSize">
           <size>
-           <width>67</width>
-           <height>20</height>
+           <width>200</width>
+           <height>0</height>
           </size>
          </property>
-        </spacer>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QFrame" name="windowControls">
@@ -526,6 +541,9 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.129
                   <width>164</width>
                   <height>0</height>
                  </size>
+                </property>
+                <property name="focusPolicy">
+                 <enum>Qt::NoFocus</enum>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">QListWidget{
@@ -1287,7 +1305,7 @@ padding-left: 10px;</string>
                      <enum>QTabWidget::Rounded</enum>
                     </property>
                     <property name="currentIndex">
-                     <number>2</number>
+                     <number>0</number>
                     </property>
                     <property name="elideMode">
                      <enum>Qt::ElideNone</enum>
@@ -2482,6 +2500,11 @@ background-position: bottom right;</string>
    <extends>QWidget</extends>
    <header>waitingspinnerwidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ScrollText</class>
+   <extends>QLabel</extends>
+   <header>scrolltext.h</header>
   </customwidget>
  </customwidgets>
  <resources>
