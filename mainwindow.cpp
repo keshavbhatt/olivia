@@ -2682,6 +2682,7 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
     ElidedLabel *title2 = this->findChild<ElidedLabel *>("nowP_title");
     static_cast<ElidedLabel*>(title2)->setText(titleStr);
+    ui->playing->setText(titleStr);
 
     ElidedLabel *artist2 = this->findChild<ElidedLabel *>("nowP_artist");
     static_cast<ElidedLabel*>(artist2)->setText(artistStr);
@@ -3148,6 +3149,7 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
     }
 
     this->findChild<ElidedLabel *>("nowP_title")->setText(htmlToPlainText(title));
+    ui->playing->setText(title);
     showToast("Playing: "+htmlToPlainText(title));
 
     this->findChild<ElidedLabel *>("nowP_artist")->setText(language);
