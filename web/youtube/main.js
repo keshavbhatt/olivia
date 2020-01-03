@@ -285,24 +285,37 @@ function load_history(){
 
 function youtube_trending(country){
     $("#trending_div .ui-loader-trending").show();
-    $("#trending").fadeOut("slow");
-    $.ajax({
-       url: baseUrl+"youtube_trending.php",
-              type:"GET",
-              data:{
-                   "country":country
-              },
-       success: function(html) {
-           $("#trending_div .ui-loader-trending").hide();
-           $.mobile.loading("hide");
-           $("#trending").html("");
-           $("#trending").html(html);
-           $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
-       },
-       error: function(){
-           $("#trending_div .ui-loader-trending i").text("An error occured, Unable to connect to host.");
-       }
-   });
+    $("#trending").html("");
+    if(paginator.isOffline("youtube","youtube_trending",country))
+    {
+        var html_ = paginator.load("youtube","youtube_trending",country);
+        $("#trending_div .ui-loader-trending").hide();
+        $.mobile.loading("hide");
+        $("#trending").html("");
+        $("#trending").html(html_);
+        $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
+
+    }else{
+        $.ajax({
+           url: baseUrl+"youtube_trending.php",
+                  type:"GET",
+                  data:{
+                       "country":country
+                  },
+           success: function(html) {
+               paginator.save("youtube","youtube_trending",country,html);
+
+               $("#trending_div .ui-loader-trending").hide();
+               $.mobile.loading("hide");
+               $("#trending").html("");
+               $("#trending").html(html);
+               $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
+           },
+           error: function(){
+               $("#trending_div .ui-loader-trending i").text("An error occured, Unable to connect to host.");
+           }
+       });
+    }
 }
 
 $(document).on('click', '#trendingNavBtn', function() {
