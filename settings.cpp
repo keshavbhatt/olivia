@@ -58,4 +58,9 @@ void settings::changeSmartPlaylist(bool checked){
     settingsObj.setValue("smart_playlist",checked);
 }
 
+void settings::changeMarqueeSetting(bool checked)
+{
+    settingsObj.setValue("marquee",checked);
+}
+
 

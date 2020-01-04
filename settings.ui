@@ -271,6 +271,16 @@
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="marquee">
+            <property name="toolTip">
+             <string>Can take more CPU</string>
+            </property>
+            <property name="text">
+             <string>Show playing track title in header</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_8">
             <item>
              <widget class="QLabel" name="label_4">

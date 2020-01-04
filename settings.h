@@ -34,6 +34,7 @@ public slots:
     void changeVisualizerSetting(bool checked);
     void changeMpris(bool checked);
     void changeSmartPlaylist(bool checked);
+    void changeMarqueeSetting(bool checked);
 };
 
 #endif // SETTINGS_H
