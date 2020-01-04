@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include <QDateTime>
+
 utils::utils(QObject *parent) : QObject(parent)
 {
     setParent(parent);
@@ -76,3 +78,19 @@ QString utils::toCamelCase(const QString& s)
     return parts.join(" ");
 }
 
+
+QString utils::generateRandomId(int length){
+
+    QDateTime cd = QDateTime::currentDateTime();
+    const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"+QString::number(cd.currentMSecsSinceEpoch()).remove(QRegExp("[^a-zA-Z\\d\\s]")));
+    const int randomStringLength = length;
+    QString randomString;
+    qsrand(cd.toTime_t());
+    for(int i=0; i<randomStringLength; ++i)
+    {
+        int index = qrand() % possibleCharacters.length();
+        QChar nextChar = possibleCharacters.at(index);
+        randomString.append(nextChar);
+    }
+   return randomString.trimmed().simplified().remove(" ");
+}

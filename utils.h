@@ -18,6 +18,7 @@ public slots:
     QString refreshCacheSize(const QString cache_dir);
     bool delete_cache(const QString cache_dir);
     QString toCamelCase(const QString &s);
+    static QString generateRandomId(int length);
 private slots:
     quint64 dir_size(const QString &directory);
 
