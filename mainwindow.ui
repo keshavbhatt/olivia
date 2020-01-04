@@ -270,6 +270,11 @@ border-radius:0px;</string>
            <height>0</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string/>
          </property>
