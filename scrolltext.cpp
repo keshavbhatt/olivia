@@ -5,12 +5,13 @@
 ScrollText::ScrollText(QWidget *parent) :
     QWidget(parent), scrollPos(0)
 {
+
     staticText.setTextFormat(Qt::PlainText);
 
     setFixedHeight(fontMetrics().height());
     leftMargin = height() / 3;
 
-    setSeparator("   ---   ");
+    setSeparator("        ");
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(timer_timeout()));
     timer.setInterval(50);
@@ -37,6 +38,12 @@ void ScrollText::setSeparator(QString separator)
 {
     _separator = separator;
     updateText();
+    update();
+}
+
+void ScrollText::setLeftMargin(int pixels)
+{
+    leftMargin = pixels;
     update();
 }
 

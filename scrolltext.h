@@ -21,6 +21,7 @@ public slots:
 
     QString separator() const;
     void setSeparator(QString separator);
+    void setLeftMargin(int pixels);
 
 
 protected:
