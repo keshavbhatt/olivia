@@ -52,6 +52,7 @@
 #include "similartracks.h"
 #include "trackproperties.h"
 #include <analytics.h>
+#include <other/connect.h>
 
 
 #include "ui_minimode.h"
@@ -265,6 +266,8 @@ private slots:
     void getRecommendedTracksForAutoPlayHelper(QString videoId, QString songId);
     void removeSongFromProcessQueue(QString songId);
     void updateTrack(QString trackId, QString download_Path);
+    void on_connect_clicked();
+
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
@@ -320,6 +323,7 @@ private:
     int oldVolume;
     bool playingSongRadio;
     TrackProperties *trackProperties = nullptr;
+    Connect *connect_ = nullptr;
 };
 
 class SelectColorButton : public QPushButton

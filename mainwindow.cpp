@@ -67,6 +67,17 @@ MainWindow::MainWindow(QWidget *parent) :
     installEventFilters();
     loadSettings();
     analytic = new analytics(this);
+    ui->connect->setToolTip("Connect not Ready");
+    analytic->setObjectName("analytics");
+    connect(analytic,&analytics::analytics_ready,[=](){
+        ui->connect->setToolTip("Connect Ready");
+    });
+    connect_ = new Connect(this);
+    connect_->setWindowFlags(Qt::Popup);
+    connect(connect_,&Connect::newMail,[=](){
+       ui->connect->setIcon(QIcon(":/icons/micro/email-new.png"));
+       connect_->hasMails = true;
+    });
     connect(qApp,&QApplication::aboutToQuit,[=](){
     #ifdef QT_NO_DEBUG
         analytic->headLessPush();
@@ -442,6 +453,16 @@ void MainWindow::init_settings(){
         settUtils->changeSmartPlaylist(checked);
     });
 
+    connect(settingsUi.marquee,&QCheckBox::toggled,[=](bool checked){
+        settUtils->changeMarqueeSetting(checked);
+        if(checked){
+            if(ui->nowP_title->text()!="-")
+            ui->playing->setText(ui->nowP_title->text());
+        }else{
+            ui->playing->setText("");
+        }
+    });
+
 
     connect(settingsUi.visualizer,&QCheckBox::toggled,[=](bool checked){
        settUtils->changeVisualizerSetting(checked);
@@ -645,13 +666,12 @@ void MainWindow::loadSettings(){
     settingsUi.visualizer->setChecked(settingsObj.value("visualizer","false").toBool());
     settingsUi.mpris_checkBox->setChecked(settingsObj.value("mpris","false").toBool());
     settingsUi.smart_playlist_checkBox->setChecked(settingsObj.value("smart_playlist","true").toBool());
-
     settingsUi.tracksToLoad->setValue(settingsObj.value("similarTracksToLoad",1).toInt());
-
     settingsUi.dynamicTheme->setChecked(settingsObj.value("dynamicTheme","false").toBool());
-
     settingsUi.miniModeTransperancySlider->setValue(settingsObj.value("miniModeTransperancy","95").toInt());
     settingsUi.transperancyLabel->setText(QString::number(settingsUi.miniModeTransperancySlider->value()));
+    settingsUi.marquee->setChecked(settingsObj.value("marquee",false).toBool());
+
 
     //keep this after init of settings widget
     if(settingsObj.value("dynamicTheme").toBool()==false){
@@ -918,19 +938,18 @@ void MainWindow::init_app(){
     setWindowIcon(QIcon(":/icons/olivia.png"));
     setWindowTitle(QApplication::applicationName());
 
-    ElidedLabel *title = new ElidedLabel("-",nullptr);
+
     ElidedLabel *artist = new ElidedLabel("-",nullptr);
     ElidedLabel *album = new ElidedLabel("-",nullptr);
 
-    title->setObjectName("nowP_title");
+
     album->setObjectName("nowP_album");
     artist->setObjectName("nowP_artist");
 
-    title->setAlignment(Qt::AlignHCenter);
     album->setAlignment(Qt::AlignHCenter);
     artist->setAlignment(Qt::AlignHCenter);
 
-    ui->title_horizontalLayout->addWidget(title);
+
     ui->artist_horizontalLayout->addWidget(artist);
     ui->album_horizontalLayout->addWidget(album);
 
@@ -1240,6 +1259,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
 
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event){
+
     if(obj==ui->similarTrackLoader){
         switch( event->type() ){
         case QEvent::MouseButtonPress:
@@ -1249,7 +1269,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
         break;
         }
     }
-
 
     if ((obj == ui->nowPlayingGrip || obj == ui->top_widget  || obj == ui->windowControls || obj == ui->label_6 ) && (event->type() == QEvent::MouseMove)) {
             const QMouseEvent* const me = static_cast<const QMouseEvent*>( event );
@@ -1349,6 +1368,7 @@ void MainWindow::on_radioSeekSlider_sliderMoved(int position)
 
 void MainWindow::on_stop_clicked()
 {
+    ui->playing->setText("");
     radio_manager->stop();
 }
 
@@ -2680,9 +2700,12 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
 
     ui->state->setText("loading");
 
-    ElidedLabel *title2 = this->findChild<ElidedLabel *>("nowP_title");
-    static_cast<ElidedLabel*>(title2)->setText(titleStr);
-    ui->playing->setText(titleStr);
+    ui->nowP_title->setText(titleStr);
+    if(settingsObj.value("marquee",false).toBool()){
+        ui->playing->setText(titleStr);
+    }else{
+        ui->playing->setText("");
+    }
 
     ElidedLabel *artist2 = this->findChild<ElidedLabel *>("nowP_artist");
     static_cast<ElidedLabel*>(artist2)->setText(artistStr);
@@ -2916,6 +2939,7 @@ void MainWindow::radioStatus(QString radioState){
         ui->play_pause->setEnabled(true);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
     }else if (radioState=="eof") {
+        ui->playing->setText("");
         ui->stop->setEnabled(false);
         ui->play_pause->setEnabled(false);
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
@@ -3148,9 +3172,14 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
         ui->cover->setPixmap(QPixmap(":/web/radio/station_cover.jpg"));
     }
 
-    this->findChild<ElidedLabel *>("nowP_title")->setText(htmlToPlainText(title));
-    ui->playing->setText(title);
-    showToast("Playing: "+htmlToPlainText(title));
+    QString titleStr  = htmlToPlainText(title);
+    ui->nowP_title->setText(titleStr);
+    showToast("Playing: "+titleStr);
+    if(settingsObj.value("marquee",false).toBool()){
+        ui->playing->setText(titleStr);
+    }else{
+        ui->playing->setText("");
+    }
 
     this->findChild<ElidedLabel *>("nowP_artist")->setText(language);
 
@@ -3523,35 +3552,28 @@ void MainWindow::on_miniMode_clicked()
     {
         ui->miniMode->setIcon(QIcon(":/icons/restore_mini_mode.png"));
         ui->miniMode->setToolTip("Restore back to full mode");
-
         miniMode_ui.nowPlayingLayout->addWidget(ui->nowplaying_widget);
-
         miniMode_ui.seekSliderLyout->addWidget(ui->position);
         miniMode_ui.seekSliderLyout->addWidget(ui->radioSeekSlider);
         miniMode_ui.seekSliderLyout->addWidget(ui->duration);
-
         ui->radioVolumeSlider->setMaximumWidth(16777215);
         miniMode_ui.volumeSliderLayout->addWidget(ui->radioVolumeSlider);
-
         miniMode_ui.controlLayout->addWidget(ui->controls_widget);
         miniModeWidget->move(ui->miniMode->mapToGlobal(QPoint(QPoint(-miniModeWidget->width()+ui->miniMode->width(),30))));
-
         ui->smartMode->setEnabled(false);
         ui->line->hide();
+        ui->connect->hide();
         this->hide();
         miniModeWidget->setMaximumHeight(miniModeWidget->height());
-
-       // miniModeWidget->setWindowOpacity(qreal(95)/100);
         miniModeWidget->setWindowOpacity(qreal(settingsObj.value("miniModeTransperancy","98").toReal()/100));
-
         miniModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#miniModeWidget"));
-
         miniModeWidget->showNormal();
     }else{
         //restore
         miniModeWidget->hide();
         ui->smartMode->setEnabled(true);
         ui->line->show();
+        ui->connect->show();
         ui->miniMode->setToolTip("Switch to Mini Mode");
         ui->radioVolumeSlider->setMaximumWidth(200);
         ui->miniMode->setIcon(QIcon(":/icons/mini_mode.png"));
@@ -3560,6 +3582,7 @@ void MainWindow::on_miniMode_clicked()
         ui->horizontalLayout_11->layout()->addWidget(ui->position);
         ui->horizontalLayout_11->layout()->addWidget(ui->radioSeekSlider);
         ui->horizontalLayout_11->layout()->addWidget(ui->duration);
+        ui->horizontalLayout_11->layout()->addWidget(ui->connect);
         ui->centralWidget->layout()->addWidget(ui->controls_widget);
         miniModeWidget->setMaximumHeight(16777215);
         this->show();
@@ -4549,13 +4572,11 @@ void MainWindow::on_smartMode_clicked()
             ui->next->disconnect();
             ui->next->setEnabled(false);
         }
-
         //CHECK THIS
         if(similarTracks->parentSongId != nowPlayingSongIdWatcher->getValue()){
             ui->next->disconnect();
             ui->next->setEnabled(false);
         }
-
         smartModeShuffleState = ui->shuffle->isChecked();
         //disbale shuffle cause track are coming shuffled
         ui->shuffle->setChecked(false);
@@ -4565,7 +4586,6 @@ void MainWindow::on_smartMode_clicked()
         if(similarTracks->parentSongId == nowPlayingSongIdWatcher->getValue()){
             similarTracks->previousParentSongId = nowPlayingSongIdWatcher->getValue();
         }
-
         if(similarTracks->previousParentSongId.isEmpty()){
             similarTracks->parentSongId = nowPlayingSongIdWatcher->getValue();
             startGetRecommendedTrackForAutoPlayTimer(nowPlayingSongIdWatcher->getValue());
@@ -4574,13 +4594,11 @@ void MainWindow::on_smartMode_clicked()
             startGetRecommendedTrackForAutoPlayTimer(nowPlayingSongIdWatcher->getValue());
             similarTracks->previousParentSongId = nowPlayingSongIdWatcher->getValue();
         }
-
         if(!ui->recommWidget->isVisible()){
             ui->show_hide_smart_list_button->click();
         }
         //disbale smart playlist show hide button
         ui->show_hide_smart_list_button->blockSignals(true);
-
         ui->smartMode->setIcon(QIcon(":/icons/restore_mini_mode.png"));
         ui->smartMode->setToolTip("Restore back to full mode");
         smartMode_ui.nowPlayingLayout->addWidget(ui->nowplaying_widget);
@@ -4594,9 +4612,8 @@ void MainWindow::on_smartMode_clicked()
         smartModeWidget->move(ui->smartMode->mapToGlobal(QPoint(QPoint(-smartModeWidget->width()+ui->smartMode->width(),30))));
         ui->miniMode->setEnabled(false);
         ui->line->hide();
-
+        ui->connect->hide();
         this->hide();
-
         smartModeWidget->setWindowOpacity(qreal(settingsObj.value("miniModeTransperancy","98").toReal()/100));
         smartModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#smartModeWidget"));
         smartModeWidget->resize(smartModeWidget->width(),500);
@@ -4609,11 +4626,11 @@ void MainWindow::on_smartMode_clicked()
         ui->shuffle->setChecked(smartModeShuffleState);
         //reEnable smart playlist show hide button
         ui->show_hide_smart_list_button->blockSignals(false);
-
         //restore
         smartModeWidget->hide();
         ui->miniMode->setEnabled(true);
         ui->line->show();
+        ui->connect->show();
         ui->smartMode->setToolTip("Switch to Smart Mode");
         ui->radioVolumeSlider->setMaximumWidth(200);
         ui->smartMode->setIcon(QIcon(":/icons/olivia_mini_icon.png"));
@@ -4622,6 +4639,7 @@ void MainWindow::on_smartMode_clicked()
         ui->horizontalLayout_11->layout()->addWidget(ui->position);
         ui->horizontalLayout_11->layout()->addWidget(ui->radioSeekSlider);
         ui->horizontalLayout_11->layout()->addWidget(ui->duration);
+        ui->horizontalLayout_11->layout()->addWidget(ui->connect);
         ui->smart_playlist_holder->layout()->addWidget(ui->recommHolder);
         ui->centralWidget->layout()->addWidget(ui->controls_widget);
         smartModeWidget->setMaximumHeight(16777215);
@@ -4727,4 +4745,34 @@ void MainWindow::showToast(QString message){
     a->setEasingCurve(QEasingCurve::Linear);
     a->start(QPropertyAnimation::DeleteWhenStopped);
     toastWidget->show();
+}
+
+//open connect widget
+void MainWindow::on_connect_clicked()
+{
+    connect_->setStyleSheet("QWidget#Connect{"+ui->search->styleSheet()+"}");
+    //refresh cache sizes
+    connect_->adjustSize();
+    connect_->setFixedSize(340,connect_->height());
+    connect_->move(ui->connect->mapToGlobal(QPoint(-connect_->width()+ui->connect->width(),-connect_->height()+ui->connect->height()-20)));
+    connect_->show();
+    connect_->update();
+
+    if(connect_->hasMails){
+        connect_->gotoInbox();
+        connect_->hasMails=false;
+    }
+
+    //timer to check state of connect_ widget
+    QTimer *timer = new QTimer(0);
+    timer->setInterval(200);
+    connect(timer,&QTimer::timeout,[=](){
+        connect_->isVisible() ? ui->connect->setIcon(QIcon(":/icons/micro/email-opened.png"))
+                              : ui->connect->setIcon(QIcon(":/icons/micro/email-closed.png"));
+        if(!connect_->isVisible()){
+            timer->stop();
+            timer->deleteLater();
+        }
+    });
+    timer->start();
 }
