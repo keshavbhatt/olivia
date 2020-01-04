@@ -124,5 +124,13 @@
         <file>icons/others/store.png</file>
         <file>icons/others/donate_paypal.png</file>
         <file>icons/others/bug.png</file>
+        <file>icons/micro/email-closed.png</file>
+        <file>icons/micro/email-opened.png</file>
+        <file>icons/micro/send.png</file>
+        <file>icons/micro/send-enabled.png</file>
+        <file>icons/others/grid.png</file>
+        <file>icons/micro/delete-red.png</file>
+        <file>icons/micro/back.png</file>
+        <file>icons/micro/email-new.png</file>
     </qresource>
 </RCC>

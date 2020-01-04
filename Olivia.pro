@@ -47,6 +47,7 @@ SOURCES += main.cpp\
     cookiejar.cpp \
     elidedlabel.cpp \
     nowplaying.cpp \
+    other/connect.cpp \
     scrolltext.cpp \
     similartracks.cpp \
     store.cpp \
@@ -72,6 +73,7 @@ HEADERS  += mainwindow.h \
     elidedlabel.h \
     equalizer.h \
     nowplaying.h \
+    other/connect.h \
     scrolltext.h \
     similartracks.h \
     store.h \
@@ -95,6 +97,7 @@ FORMS    += mainwindow.ui \
     download_widget.ui \
     downloaditem.ui \
     equalizer.ui \
+    other/connect.ui \
     smart_mode.ui \
     toast.ui \
     track.ui \
