@@ -25,6 +25,8 @@ private slots:
     void push(QString type, QStringList data_list);
     void preparePush(QStringList data_list);
     QString getUidFromOldLogFile();
+signals:
+    void analytics_ready();
 };
 
 #endif // ANALYTICS_H

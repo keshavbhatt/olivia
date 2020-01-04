@@ -8,6 +8,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QByteArray>
+#include "utils.h"
 
 analytics::analytics(QObject *parent) : QObject(parent)
 {
@@ -38,6 +39,11 @@ analytics::analytics(QObject *parent) : QObject(parent)
            }else{
               uid = "_"+ip.replace(".","").replace(":","");
            }
+           //generate random uid if no uid was formed
+           if(uid.length()<4||uid.trimmed().isEmpty()){
+               uid =  "_"+utils::generateRandomId(16);
+           }
+
            //create with user file if not found with uid
            if(!QFileInfo(QFile(setting_path+"/alog"+uid)).exists()){
                   QFile file(setting_path+"/alog"+uid);
@@ -47,6 +53,7 @@ analytics::analytics(QObject *parent) : QObject(parent)
                   getData();
                   processData();
            }
+           emit analytics_ready();
        }
    });
    QNetworkRequest request(QUrl("https://ipapi.co/json"));
@@ -64,12 +71,12 @@ void analytics::addData(QString arg1){
 QString analytics::getData(){
     qint64 appDuration = QDateTime::currentMSecsSinceEpoch() - startTime;
     addData(QString::number(appDuration/1000));
-    QFile file(setting_path+"/alog"+uid);
-    if (file.open(QIODevice::Append | QIODevice::Text)){
-        QTextStream out(&file);
-              out << data<< "\n";
-        file.close();
-    }
+//    QFile file(setting_path+"/alog"+uid);
+//    if (file.open(QIODevice::Append | QIODevice::Text)){
+//        QTextStream out(&file);
+//              out << data<< "\n";
+//        file.close();
+//    }
     return data;
     //"139.167.254.217<=>IN<=>x86_64<=>linux<=>4.4.0-157-generic<=>Ubuntu 16.04.6 LTS<=>1754332"
 }
