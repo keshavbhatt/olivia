@@ -137,8 +137,6 @@ function showLoading() {
 }
 
 
-
-
 var title,artist,album,coverUrl,songId,albumId,artistId,millis;
 var base64; //returns base64 versio of album art to c++
 
@@ -156,6 +154,8 @@ $(document).ready(function($) {
     $(function() {
            $.mobile.defaultHomeScroll = 0;
     });
+
+    $("#radio_search_input").focus();
 
 });
 
@@ -264,13 +264,15 @@ function playStation(streamDetail){
     mainwindow.playRadioFromWeb(streamDetail);
 }
 
+
+
 $(document).on("pagebeforeshow","#radio_page",function(){
     $('#radio_search_input').unbind();
-
-    $('#radio_search_input').keypress(function(event){
-        var keycode = (event.keyCode ? event.keyCode : event.which);
-        if(keycode == "13" || keycode === "Enter"){ //ignore this warning
-            station_search($(this).val())
+    $("#radio_search_input").on('keydown', function ( e ) {
+        var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
+        if(key === 13) {
+            e.preventDefault();
+            station_search($(this).val());
         }
     });
 });
