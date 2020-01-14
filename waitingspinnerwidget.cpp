@@ -31,6 +31,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <QPainter>
 #include <QTimer>
 
+
 WaitingSpinnerWidget::WaitingSpinnerWidget(QWidget *parent,
                                            bool centerOnParent,
                                            bool disableParentWhenSpinning)

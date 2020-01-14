@@ -79,6 +79,7 @@ private slots:
 protected:
     void paintEvent(QPaintEvent *paintEvent);
 
+
 private:
     static int lineCountDistanceFromPrimary(int current, int primary,
                                             int totalNrOfLines);
