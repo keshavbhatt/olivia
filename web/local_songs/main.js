@@ -43,7 +43,12 @@ function showLoading() {
     });
 }
 
-
+$(document).on('keydown', function ( e ) {
+    if ((e.metaKey || e.ctrlKey) && ( String.fromCharCode(e.which).toLowerCase() === 'f') ) {
+        $('#songsfilter-input-form').toggleClass('moved');
+        $("#songsfilter-input").focus();
+    }
+});
 
 
 var title,artist,album,coverUrl,songId,albumId,artistId,millis;
