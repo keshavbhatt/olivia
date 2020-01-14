@@ -56,7 +56,7 @@ var artist_loaded = false;
 
 $(document).ready(function($) {
 
-     colorThief = new ColorThief(); // colorThief object init
+    colorThief = new ColorThief(); // colorThief object init
 
     $(function () {
         $('[data-role=popup]').popup().enhanceWithin();
@@ -66,6 +66,7 @@ $(document).ready(function($) {
            $.mobile.defaultHomeScroll = 0;
     });
 
+    $("#manual_search").focus();
 });
 
 
@@ -174,14 +175,16 @@ function setManualSearchVal(text){
     $("#manul_youtube_page_suggestions" ).empty();
 }
 
-
+var blockNextFilter = false;
 $(document).on("pagebeforeshow","#manul_youtube_page",function(){
-
-    $('#manual_search').keydown(function(event){
-        var keycode = (event.keyCode ? event.keyCode : event.which);
-        if(keycode == '13'){
+    $("#manual_search").on('keydown', function ( e ) {
+        var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
+        if(key === 13) {
+            blockNextFilter = true;
+            e.preventDefault();
             manual_youtube_search($(this).val());
-            event.preventDefault();
+        }else{
+            blockNextFilter = false;
         }
     });
 });
@@ -189,6 +192,11 @@ $(document).on("pagebeforeshow","#manul_youtube_page",function(){
 
 $( document ).on( "pagecreate", "#manul_youtube_page", function() {
     $( "#manul_youtube_page_suggestions" ).on( "filterablebeforefilter", function ( e, data ) {
+        if (blockNextFilter) {
+            e.preventDefault();
+            return;
+          }
+
         var $ul = $(this),
             $input = $( data.input ),
             value = $input.val(),
