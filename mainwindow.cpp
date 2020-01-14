@@ -1387,6 +1387,7 @@ void MainWindow::webViewLoaded(bool loaded){
 
         QWebSettings::globalSettings()->clearMemoryCaches();
         ui->webview->history()->clear();
+        ui->webview->setFocus();
     }
 
     if(pageType=="recently_played"){
@@ -4651,7 +4652,7 @@ void MainWindow::on_repeat_stateChanged(int arg1)
 {
     settingsObj.setValue("repeat",arg1);
     QListWidget *list = this->findChild<QListWidget*>(getCurrentPlayerQueue(nowPlayingSongIdWatcher->getValue()));
-    if(list==nullptr)
+    if(list==nullptr && list->objectName()!="downloadList")
         return;
 
     switch (arg1) {
