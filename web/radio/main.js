@@ -267,7 +267,7 @@ function playStation(streamDetail){
 
 
 $(document).on("pagebeforeshow","#radio_page",function(){
-    $('#radio_search_input').unbind();
+//    $('#radio_search_input').unbind();
     $("#radio_search_input").on('keydown', function ( e ) {
         var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
         if(key === 13) {
