@@ -89,6 +89,7 @@ public:
     Q_INVOKABLE void web_watch_video(QVariant data);
     Q_INVOKABLE void playVideo(QString trackId);
     Q_INVOKABLE void browse_youtube();
+    Q_INVOKABLE void browse_soundcloud();
     Q_INVOKABLE void delete_song_cache(QVariant track_id);
     Q_INVOKABLE void remove_song(QVariant track_id);
     Q_INVOKABLE void addToSimilarTracksQueue(const QVariant Base64andDominantColor);
@@ -267,6 +268,7 @@ private slots:
     void removeSongFromProcessQueue(QString songId);
     void updateTrack(QString trackId, QString download_Path);
     void on_connect_clicked();
+
 
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;

@@ -1475,6 +1475,11 @@ void MainWindow::webViewLoaded(bool loaded){
         youtubeSearchTerm.clear();
     }
 
+    if( loaded && pageType == "soundcloud"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
+        ui->webview->page()->mainFrame()->evaluateJavaScript("load_history();");
+    }
+
     if(pageType=="search"){
         if(!ui->search->text().isEmpty() && loaded){
             ui->left_list->setCurrentRow(3);
@@ -1835,7 +1840,7 @@ void MainWindow::addToQueue(QString ytIds,QString title,
                 }
             }
             ui->tabWidget->setCurrentWidget(ui->tab_2);
-            ui->youtube_list->scrollToBottom();
+            ui->youtube_list->scrollToItem(item);
             store_manager->saveytIds(songId,ytIds);
         }else{//not a youtube track prepare it(find ytids and url) and add it to olivia list
             QListWidgetItem* item;
@@ -1851,24 +1856,39 @@ void MainWindow::addToQueue(QString ytIds,QString title,
                 track_ui.url->setText("file://"+setting_path+"/downloadedTracks/"+songId);
                 track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }else{
-                if(store_manager->getYoutubeIds(songId).isEmpty()){
-                    QString millis = ytIds; // we were given ytids as millis from webend
-                    QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
-                    prepareTrack(songId,query,millis,ui->olivia_list);
-                }else{
+                //check if track is from soundcloud
+                if(albumId.contains("soundcloud")){
+                    track_ui.id->setText("https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/"+songId);
                     // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
                     if(store_manager->getExpiry(songId)){
                         ui->olivia_list->itemWidget(item)->setEnabled(false);
-                        getAudioStream(store_manager->getYoutubeIds(songId),songId);
+                        getAudioStream("https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/"+songId,songId);
                         reverseYtdlProcessList();
                     }else{
                         ui->olivia_list->itemWidget(item)->setEnabled(true);
                         track_ui.url->setText(store_manager->getOfflineUrl(songId));
                     }
+                }else{
+                    //normal track processing
+                    if(store_manager->getYoutubeIds(songId).isEmpty()){
+                        QString millis = ytIds; // we were given ytids as millis from webend
+                        QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
+                        prepareTrack(songId,query,millis,ui->olivia_list);
+                    }else{
+                        // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
+                        if(store_manager->getExpiry(songId)){
+                            ui->olivia_list->itemWidget(item)->setEnabled(false);
+                            getAudioStream(store_manager->getYoutubeIds(songId),songId);
+                            reverseYtdlProcessList();
+                        }else{
+                            ui->olivia_list->itemWidget(item)->setEnabled(true);
+                            track_ui.url->setText(store_manager->getOfflineUrl(songId));
+                        }
+                    }
                 }
             }
             ui->tabWidget->setCurrentWidget(ui->tab);
-            ui->olivia_list->scrollToBottom();
+            ui->olivia_list->scrollToItem(item);
         }
 
         //SAVE DATA TO LOCAL DATABASE
@@ -2347,6 +2367,11 @@ void MainWindow::processYtdlQueue(){
                         urlsFinal.append("https://www.youtube.com/watch?v="+urls.at(i));
                     }
                 }
+                //check if track is from soundcloud
+                if(ytIds.contains("soundcloud")){
+                    urlsFinal.append(ytIds); //ytIds in case of soundcloud track is URL
+                }
+
                 QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
                 ytdlProcess->start("python",QStringList()<<addin_path+"/core"<<"--force-ipv4"<<"--get-url" <<"-i"<< "--extract-audio"<<urlsFinal);
                 ytdlProcess->waitForStarted();
@@ -2475,7 +2500,7 @@ QString MainWindow::getExpireTime(const QString urlStr){
     QString expiryTime = QUrlQuery(QUrl::fromPercentEncoding(urlStr.toUtf8())).queryItemValue("expire").trimmed();
 
     if(expiryTime.isEmpty() || !isNumericStr(expiryTime)){
-        QString expiryTime = QUrlQuery(QUrl(urlStr.toUtf8())).queryItemValue("expire").trimmed();
+        expiryTime = QUrlQuery(QUrl(urlStr.toUtf8())).queryItemValue("expire").trimmed();
     }
 
     if(expiryTime.isEmpty() || !isNumericStr(expiryTime)){
@@ -2487,7 +2512,12 @@ QString MainWindow::getExpireTime(const QString urlStr){
     }
 
     if(expiryTime.isEmpty() || !isNumericStr(expiryTime)){
-        expiryTime = QString::number((QDateTime::currentMSecsSinceEpoch()/1000)+18000);
+        //set expiry time for soundcloud links
+        if(urlStr.contains("media.sndcdn")){
+            expiryTime = QString::number((QDateTime::currentMSecsSinceEpoch()/1000)+2400);//40 minutes (these urls expires in 50 minutes)
+        }else{
+            expiryTime = QString::number((QDateTime::currentMSecsSinceEpoch()/1000)+18000);//5 hours
+        }
     }
     return expiryTime;
 }
@@ -2534,6 +2564,9 @@ void MainWindow::on_left_list_currentRowChanged(int currentRow)
         break;
     case 13:
          internet_radio();
+        break;
+    case 14:
+         browse_soundcloud();
         break;
     }
 }
@@ -2613,6 +2646,11 @@ void MainWindow::show_recently_played(){
 void MainWindow::internet_radio(){
     pageType = "radio";
     ui->webview->load(QUrl("qrc:///web/radio/radio.html"));
+}
+
+void MainWindow::browse_soundcloud(){
+    pageType = "soundcloud";
+    ui->webview->load(QUrl("qrc:///web/soundcloud/soundcloud.html"));
 }
 
 //PLAY TRACK ON ITEM DOUBLE CLICKED////////////////////////////////////////////////////////////////////////////////////////
