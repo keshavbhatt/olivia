@@ -133,5 +133,9 @@
         <file>icons/micro/back.png</file>
         <file>icons/micro/email-new.png</file>
         <file>icons/sidebar/soundcloud.png</file>
+        <file>icons/micro/soundcloud_micro.png</file>
+        <file>icons/micro/spotify_micro.png</file>
+        <file>icons/micro/youtube_micro.png</file>
+        <file>icons/micro/itunes_micro.png</file>
     </qresource>
 </RCC>
