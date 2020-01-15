@@ -132,5 +132,6 @@
         <file>icons/micro/delete-red.png</file>
         <file>icons/micro/back.png</file>
         <file>icons/micro/email-new.png</file>
+        <file>icons/sidebar/soundcloud.png</file>
     </qresource>
 </RCC>

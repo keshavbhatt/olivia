@@ -1,0 +1,144 @@
+.ui-filter-inset {
+    margin-top: 0;
+}
+
+.ui-alt-icon.ui-icon-search:after, .ui-alt-icon .ui-icon-search:after, .ui-input-search:after{
+    background-image: url("qrc:/web/css/images/search_icon_white.png") !important;
+}
+
+#container ul { list-style: none; }
+#container .buttons { margin-bottom: 20px; }
+
+#container .list li { width: 100%;margin-bottom: 10px;}
+
+#container .grid li { float: left; width: 20%; height: 50px; border-right: 1px dotted #CCC; border-bottom: 1px dotted #CCC; padding: 20px; }
+
+.ui-listview>li p {
+    margin-left: 2.5em;
+    line-height: 1.8em;
+}
+
+.ui-listview .ui-li-has-thumb>.ui-btn>img:first-child{
+    max-height:100%;
+    max-width:250px;
+}
+
+.ui-mobile a img{
+    height:100%;
+    max-width:250px;
+}
+
+/*transparent theme*/
+.ui-listview>.ui-li-has-thumb>.ui-btn {
+    background: transparent !important;
+}
+
+#tracks_page {
+    background: transparent !important;
+}
+
+#artists_page {
+    background: transparent !important;
+}
+
+#albums_page {
+    background: transparent !important;
+}
+
+#album_view_page{
+    background: transparent !important;
+}
+
+#artist_view_page{
+    background: transparent !important;
+}
+
+#track_result_view_page{
+    background: transparent !important;
+}
+
+#manul_soundcloud_page{
+    background: transparent !important;
+}
+
+#manul_soundcloud_related_page{
+    background: transparent !important;
+}
+
+body {
+    background: transparent !important;
+}
+.ui-bar-b{
+    background-color: rgba(29, 29, 29, 0.6);
+}
+
+.ui-header-fixed .ui-btn, .ui-footer-fixed .ui-btn {
+    background-color: rgba(36, 142, 179, 0.5) !important;
+}
+html .ui-bar-b .ui-btn.ui-btn-active{
+    background-color: rgba(26, 152, 199, 0.67) !important;
+    border-color: transparent !important;
+}
+
+
+/*loader overlay*/
+.ui-loader-background {
+    width:100%;
+    height:100%;
+    top:0;
+    margin: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display:none;
+    position: fixed;
+    z-index:100;
+}
+
+
+.ui-loading .ui-loader-background {
+    display:block;
+}
+
+
+
+.ui-tabs{
+padding:0px;
+}
+
+*{
+    color: silver;
+}
+
+
+.nowPlaying{
+    display: block;
+    overflow: hidden;
+    left: 0px;
+    top: 0px;
+    position: absolute;
+    height: 144px;
+    width: 253px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 1;
+    background: url("qrc:///icons/p_now_playing.png") no-repeat center;
+    background-size: 25%;
+    background-color: rgba(26, 152, 199, 0.75);
+}
+
+.ui-icon-loading{
+/*    background:url("qrc://///web/css/images/ajax-loader.gif")*/
+}
+
+#select-custom-14-button{
+    padding: 8px;
+}
+
+.ui-select {
+    margin: -5px 0px;
+    padding-top: 11px;
+}
+
+.ui-popup-screen {
+background-color: rgb(15, 12, 12);
+}
+

@@ -48,5 +48,10 @@
         <file>web/liked_songs/liked_songs.html</file>
         <file>web/liked_songs/main.css</file>
         <file>web/liked_songs/main.js</file>
+        <file>web/soundcloud/channel.jpg</file>
+        <file>web/soundcloud/channel.png</file>
+        <file>web/soundcloud/main.css</file>
+        <file>web/soundcloud/main.js</file>
+        <file>web/soundcloud/soundcloud.html</file>
     </qresource>
 </RCC>
