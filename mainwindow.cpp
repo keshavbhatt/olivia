@@ -1146,6 +1146,18 @@ void MainWindow::loadPlayerQueue(){ //  #7
         track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
 
+        //set track meta icon
+        if(albumId.contains("soundcloud")){
+            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/soundcloud_micro.png') no-repeat bottom right}");
+        }else if(!isNumericStr(songId) && !albumId.contains("undefined")){
+            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/spotify_micro.png') no-repeat bottom right}");
+        }else if (isNumericStr(songId)) {
+            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/itunes_micro.png') no-repeat bottom right}");
+        }
+        /*else if (albumId.contains("undefined")) {
+            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/youtube_micro.png') no-repeat bottom right}");
+        }*/
+
         track_ui.meta->hide();
 
         QFont font("Ubuntu");
@@ -1197,14 +1209,11 @@ void MainWindow::loadPlayerQueue(){ //  #7
             track_ui.id->setText(id);
             QListWidgetItem* item;
             item = new QListWidgetItem(ui->youtube_list);
-
-
             //set size for track widget
             track_ui.cover->setMaximumSize(149,90);
             track_ui.cover->setMinimumSize(149,79);
             track_ui.widget->adjustSize();
             item->setSizeHint(track_widget->minimumSizeHint());
-
             ui->youtube_list->setItemWidget(item, track_widget);
 
             // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
@@ -1756,6 +1765,18 @@ void MainWindow::addToQueue(QString ytIds,QString title,
         track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
 
+        //set track meta icon
+        if(albumId.contains("soundcloud")){
+            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/soundcloud_micro.png') no-repeat bottom right}");
+        }else if(!isNumericStr(songId) && !albumId.contains("undefined")){
+            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/spotify_micro.png') no-repeat bottom right}");
+        }else if (isNumericStr(songId)) {
+            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/itunes_micro.png') no-repeat bottom right}");
+        }
+        /*else if (albumId.contains("undefined")) {
+            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/youtube_micro.png') no-repeat bottom right}");
+        }*/
+
         QFont font("Ubuntu");
         font.setPixelSize(12);
         setFont(font);
@@ -1859,6 +1880,7 @@ void MainWindow::addToQueue(QString ytIds,QString title,
                 //check if track is from soundcloud
                 if(albumId.contains("soundcloud")){
                     track_ui.id->setText("https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/"+songId);
+                    store_manager->saveytIds(songId,track_ui.id->text());
                     // checks if url is expired and updates item with new url which can be streamed .... until keeps the track item disabled.
                     if(store_manager->getExpiry(songId)){
                         ui->olivia_list->itemWidget(item)->setEnabled(false);
@@ -2175,20 +2197,28 @@ void MainWindow::showTrackOption(){
     }
 
     if(!albumId.contains("undefined")){// do not add gotoalbum and gotoartist actions to youtube streams
+        bool isSoundcloudTrack = albumId.contains("soundcloud");
         menu.addAction(showLyrics);
         menu.addAction(downloadTrack);
-        menu.addAction(watchVideo);
+        if(!isSoundcloudTrack){
+            menu.addAction(watchVideo);
+        }
         menu.addSeparator();
-        menu.addAction(startRadio);
+        if(!isSoundcloudTrack){
+            menu.addAction(startRadio);
+        }
         if(!isNumericStr(songId)) //spotify song ids are not numeric
         {
             menu.addAction(showRecommendation);
         }
         //added youtube recommendation fallback for itunes tracks ids
-        menu.addAction(youtubeShowRecommendation);
+        if(!isSoundcloudTrack){
+            menu.addAction(youtubeShowRecommendation);
+        }
         menu.addSeparator();
-        menu.addAction(gotoAlbum);
-       // menu.addAction(gotoArtist);
+        if(!isSoundcloudTrack){
+            menu.addAction(gotoAlbum);
+        }
     }else{
         menu.addSeparator();
         menu.addAction(showLyrics);
