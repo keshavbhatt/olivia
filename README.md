@@ -19,32 +19,33 @@ by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktech
 
 **Arch Linux ([AUR](https://aur.archlinux.org/packages/olivia/)):**
 
-![Arch Linux User's Repository ](http://badge.kloud51.com/aur/v/olivia.svg)  ![Maintainer](http://badge.kloud51.com/aur/m/olivia.svg) ![Popularity](http://badge.kloud51.com/aur/p/olivia.svg)
+![Arch Linux User's Repository ](http://badge.kloud51.com/aur/v/olivia.svg)  ![Maintainer](http://badge.kloud51.com/aur/m/olivia.svg) ![Popularity](http://badge.kloud51.com/aur/p/olivia.svg) ![Popularity](http://badge.kloud51.com/aur/num_votes/olivia.svg)
 
 **Features**
-* Olivia helps you discover new music and videos like no other service do.
-* Smart Music recommendation, can get you songs related to any particular song. 
-* Allows organise music and videos at one place. 
-* Olivia can save track while you are streaming it, this saves your bandwidth.
-* Unique Smart Play Mode where you play a song and Olivia will play similar tracks for you until you stop it.
-* Olivia never stops playing song for you with its smart playlist feature it automatically starts playing related songs for you once your playlist ends
-* Watch or Download Video for any song in different audio video formats and quality. 
-* Allows search YouTube and add result to library, sort results and all other YouTube features like browse channels.
-* Plays audio only of YouTube streams (saves data bandwidth).
-* Support themes , Dynamic theme based on album art.
-* Intelligent Music Search suggestions engine integrated.
-* Player mini mode included , minimal player widget with always on capability and allows set transparency and make it act like a desktop widget.
-* Internet radio, allows play more than 25k online radio stations, list them sort them according to most played , most voted, language wise, country wise and by tags .
-* Olivia lets you browse new music according to your location.
-* Olivia lets you discover music based on their genres, moods and more.
-* Its easy to discover new music - singles, albums etc easily at one place.  
-* Top music chart, allows list top 100 songs country wise.
-* Top albums chart, allows list top 100 albums county wise.
-* Beautiful Client side Decoration.
-* Lyrics of playing songs and separate lyrics search.
-* Powerful audio equalizers and audio filters.
-* MPRIS protocol support.
-* More features like cloud synchronization of your Liked Music is coming soon, so you will be able to get your music back no matter where you are.
+-   Olivia helps you discover new music and videos like no other service do.
+-   Smart Music recommendation, can get you songs related to any song.
+-   Allows organise music and videos at one place.
+-   Olivia can save track while you are streaming it, this saves your bandwidth.
+-   Olivia never stops playing song for you with its smart playlist feature it automatically starts playing related songs for you once your playlist ends.
+-   Watch or Download Video for any song in different audio video formats and quality.
+-   Allows search YouTube and add result to library, sort results and all other YouTube features like browse channels.
+-   Plays audio only of YouTube streams (saves data bandwidth).
+-   Support themes , Dynamic theme based on album art.
+-   Intelligent Music Search suggestions engine integrated.
+-   Player Mini mode aminimal player widget with always on capability and allows set transparency and make it act like a desktop widget.
+-   Switch to Smart mode and sit back, olivia will play songs for you automatically.
+-   Internet radio, allows play more than 25k online radio stations, list them sort them according to most played , most voted, language wise, country wise and by tags .
+-   Olivia lets you browse new music according to your location.
+-   Olivia lets you discover music based on their genres, moods and more.
+-   Its easy to discover new music - singles, albums etc easily at one place.
+-   Top music chart, allows list top 100 songs country wise.
+-   Top albums chart, allows list top 100 albums county wise.
+-   Beautiful Client side Decoration.
+-   Lyrics of playing songs and separate lyrics search.
+-   Powerful audio equalizers and audio filters.
+-   MPRIS protocol support.
+-   Audio export with meta tags and album art.
+-   More features like cloud synchronisation of your Liked Music is coming soon, so you will be able to get your music back no matter where you are.
 
 ﻿**Consider Donating if you want this music player grow further**
 
@@ -57,6 +58,7 @@ by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktech
 - Bash, wget, socat, tee and other utilities that comes with "coreutils" package
 - MPV Player
 - Youtube-dl
+- LibTag
 - C++11
 - Python
 - Lua
@@ -76,6 +78,7 @@ by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktech
     socat >=1.7.3.1-1
     python >=2.7
     wget >=1.17.1
+    libtag1-dev
     
 **Build instructions**
 With all build requirements in place go to project root and execute:
@@ -106,5 +109,7 @@ Install snap with
 ![Olivia](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olivia_linux_ubuntu_1.jpeg)
 ![Youtube plugin for Olivia on the play](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olivia_linux_ubuntu_2.jpeg)
 ![Olivia Playing Internet radio](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olivia_linux_ubuntu_3.jpeg)
-![Album view Olivia](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olvia_linux_ubuntu_keshav_bhatt_4.jpeg)
+
+## Contributors
+[<img alt="keshavbhatt" src="https://github.com/keshavbhatt.png?size=120" width="120px">](https://github.com/keshavbhatt) [<img alt="Bleuzen" src="https://github.com/Bleuzen.png?size=120" width="120px">](https://github.com/Bleuzen)
 
