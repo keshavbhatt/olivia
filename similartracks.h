@@ -16,6 +16,7 @@ public:
 private:
     QStringList playedTracksIds; //collection of song ids which were already played in the current session
     store * store_manager= nullptr;
+    QStringList remixData;
 
 signals:
     void setSimilarTracks(QStringList);
@@ -29,8 +30,10 @@ public slots:
     void addSimilarTracks(QString video_id, QString songId);
     void addPlaylist(QString data);
     void getNextTracksInPlaylist(QStringList trackListFromMainWindow);
+    void addRemixes(QString songId);
 private slots:
     bool isNumericStr(const QString str);
+    bool remixIsValid(QString title);
 };
 
 #endif // SIMILARTRACKS_H
