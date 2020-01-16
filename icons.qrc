@@ -137,5 +137,6 @@
         <file>icons/micro/spotify_micro.png</file>
         <file>icons/micro/youtube_micro.png</file>
         <file>icons/micro/itunes_micro.png</file>
+        <file>icons/sidebar/remix.png</file>
     </qresource>
 </RCC>
