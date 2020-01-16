@@ -214,11 +214,21 @@ private slots:
     void zoomout();
 
     //return pain text version of text which contains html symbolic notations
-    QString htmlToPlainText(QString html){
-        QTextDocument text;
-        text.setHtml(html.replace("\\\"","'"));
-        return text.toPlainText();
+    QString htmlToPlainText(QString str){
+        QString out;
+            QTextDocument text;
+            text.setHtml(str);
+            out = text.toPlainText();
+
+        return out .replace("\\\"","'")
+                .replace("&amp;","&")
+                .replace("&gt;",">")
+                .replace("&lt;","<")
+                .replace("&#39;","'");
     }
+
+
+    QString htmlEntityDecode(const QString& str);
 
     void on_shuffle_toggled(bool checked);
 
@@ -268,7 +278,6 @@ private slots:
     void removeSongFromProcessQueue(QString songId);
     void updateTrack(QString trackId, QString download_Path);
     void on_connect_clicked();
-
 
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;

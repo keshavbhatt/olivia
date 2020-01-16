@@ -432,7 +432,7 @@ void MainWindow::init_settings(){
     });
 
     connect(settingsUi.tracksToLoad, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),[=](int value){
-        similarTracks->numberOfSimilarTracksToLoad = value-1;
+        similarTracks->numberOfSimilarTracksToLoad = value;
         settingsObj.setValue("similarTracksToLoad",value);
     });
 
@@ -666,7 +666,11 @@ void MainWindow::loadSettings(){
     settingsUi.visualizer->setChecked(settingsObj.value("visualizer","false").toBool());
     settingsUi.mpris_checkBox->setChecked(settingsObj.value("mpris","false").toBool());
     settingsUi.smart_playlist_checkBox->setChecked(settingsObj.value("smart_playlist","true").toBool());
+
     settingsUi.tracksToLoad->setValue(settingsObj.value("similarTracksToLoad",1).toInt());
+    //set value for similar tracks class
+    similarTracks->numberOfSimilarTracksToLoad = settingsUi.tracksToLoad->text().toInt();
+
     settingsUi.dynamicTheme->setChecked(settingsObj.value("dynamicTheme","false").toBool());
     settingsUi.miniModeTransperancySlider->setValue(settingsObj.value("miniModeTransperancy","95").toInt());
     settingsUi.transperancyLabel->setText(QString::number(settingsUi.miniModeTransperancySlider->value()));
@@ -1137,9 +1141,7 @@ void MainWindow::loadPlayerQueue(){ //  #7
         id = trackMetaList.at(8);
         dominantColor = trackMetaList.at(9);
 
-        QTextDocument text;
-        text.setHtml(title);
-        QString plainTitle = text.toPlainText();
+        QString plainTitle = htmlToPlainText(title);
 
         QWidget *track_widget = new QWidget(ui->olivia_list);
         track_widget->setToolTip(htmlToPlainText(title));
@@ -1568,9 +1570,7 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     setFont(font);
 
     //to convert html sequence to plaintext
-    QTextDocument text;
-    text.setHtml(htmlToPlainText(title));
-    QString plainTitle = text.toPlainText();
+    QString plainTitle = htmlToPlainText(title);
 
     ElidedLabel *titleLabel = new ElidedLabel(plainTitle,nullptr);
     titleLabel->setFont(font);
@@ -1736,13 +1736,17 @@ void MainWindow::similarTracksProcessHelper(){
     currentSimilarTrackMeta.clear();
     //process next track in currentSimilarTrackList list;
     if(similarTracks->isLoadingPLaylist){
-        if(currentSimilarTrackProcessing < settingsObj.value("similarTracksToLoad",3).toInt()/*currentSimilarTrackList.count()-1*/){
+        if(currentSimilarTrackProcessing < settingsObj.value("similarTracksToLoad",1).toInt()/*currentSimilarTrackList.count()-1*/){
+            if(currentSimilarTrackProcessing+1==settingsObj.value("similarTracksToLoad",1).toInt())
+                return;
             currentSimilarTrackProcessing++;
             prepareSimilarTracks();
         }
     }else{
         if(currentSimilarTrackProcessing < similarTracks->numberOfSimilarTracksToLoad /*currentSimilarTrackList.count()-1*/){
-            if(currentSimilarTrackProcessing<currentSimilarTrackList.count()){
+            if(currentSimilarTrackProcessing < currentSimilarTrackList.count()){
+                if(currentSimilarTrackProcessing+1==settingsObj.value("similarTracksToLoad",1).toInt())
+                    return;
                 currentSimilarTrackProcessing++;
                 prepareSimilarTracks();
             }
@@ -1782,9 +1786,7 @@ void MainWindow::addToQueue(QString ytIds,QString title,
         setFont(font);
 
         //to convert html sequence to plaintext
-        QTextDocument text;
-        text.setHtml(htmlToPlainText(title));
-        QString plainTitle = text.toPlainText();
+        QString plainTitle = htmlToPlainText(title);
 
         ElidedLabel *titleLabel = new ElidedLabel(plainTitle,nullptr);
         titleLabel->setFont(font);
@@ -2004,6 +2006,14 @@ void MainWindow::showTrackOption(){
     QPushButton* senderButton = qobject_cast<QPushButton*>(sender());
 
     QString songId = senderButton->objectName().remove("optionButton").trimmed();
+    QString listname = getCurrentPlayerQueue(songId);
+    if(!listname.isEmpty()){
+        QListWidget *list = this->findChild<QListWidget*>(listname);
+        QWidget *listWidgetItem = list->findChild<QWidget*>("track-widget-"+songId);
+        QPoint pos = listWidgetItem->pos();
+        int index = list->row(list->itemAt(pos));
+        list->setCurrentRow(index);
+    }
     qDebug()<<"trackOption for:"<<songId;
     QString albumId = store_manager->getAlbumId(songId);
     QString artistId = store_manager->getArtistId(songId);
@@ -2019,6 +2029,7 @@ void MainWindow::showTrackOption(){
     QAction *deleteSongCache = new QAction("Delete song cache",nullptr);
     QAction *properties = new QAction("Track Properties",nullptr);
     QAction *downloadTrack = new QAction("Download audio",nullptr);
+    QAction *getRemixes = new QAction("Go to Song Remixes",nullptr);
 
 
     QAction *addToLikedSongs = new QAction("Add to liked songs",nullptr);
@@ -2046,6 +2057,11 @@ void MainWindow::showTrackOption(){
     playNext->setIcon(QIcon(":/icons/sidebar/next.png"));
     properties->setIcon(QIcon(":/icons/sidebar/info.png"));
     downloadTrack->setIcon(QIcon(":/icons/others/donwload2.png"));
+    getRemixes->setIcon(QIcon(":/icons/sidebar/remix.png"));
+
+    connect(getRemixes,&QAction::triggered,[=](){
+        similarTracks->addRemixes(songId);
+    });
 
     connect(downloadTrack,&QAction::triggered,[=](){
         downloadWidget->trackId = songId;
@@ -2053,11 +2069,8 @@ void MainWindow::showTrackOption(){
         QString title = trackmeta.at(1);
 
         //remove html notations from title
-        QTextDocument text;
-        text.setHtml(title);
-        QString plainTitle = text.toPlainText();
+        QString plainTitle = htmlToPlainText(title);
         downloadWidget->trackTitle = plainTitle+" [Audio]";
-        text.deleteLater();
 
 //      QString url_str = "https://www.youtube.com/watch?v="+ytIds.split("<br>").first();
         QString url_str = trackmeta.at(7);
@@ -2175,7 +2188,7 @@ void MainWindow::showTrackOption(){
     QMenu menu;
 
     //start radio
-    QAction *startRadio =new QAction("Start Radio",nullptr);
+    QAction *startRadio =new QAction("Go to Song Radio",nullptr);
     startRadio->setIcon(QIcon(":/icons/sidebar/radio.png"));
     //radio connections
     QString ytIds = store_manager->getYoutubeIds(songId).split("<br>").first();
@@ -2200,12 +2213,14 @@ void MainWindow::showTrackOption(){
         bool isSoundcloudTrack = albumId.contains("soundcloud");
         menu.addAction(showLyrics);
         menu.addAction(downloadTrack);
+        menu.addAction(getRemixes);
         if(!isSoundcloudTrack){
             menu.addAction(watchVideo);
         }
         menu.addSeparator();
         if(!isSoundcloudTrack){
             menu.addAction(startRadio);
+            menu.addAction(getRemixes);
         }
         if(!isNumericStr(songId)) //spotify song ids are not numeric
         {
@@ -2228,6 +2243,7 @@ void MainWindow::showTrackOption(){
         menu.addSeparator();
         menu.addAction(youtubeShowRecommendation);
         menu.addAction(startRadio);
+        menu.addAction(getRemixes);
     }
 
     menu.addSeparator();
@@ -2624,6 +2640,7 @@ void MainWindow::on_search_returnPressed()
 void MainWindow::browse(){
      pageType="browse";
      ui->left_list->setCurrentRow(1);
+//     ui->webview->load(QUrl("file:///tmp/index.html"));
      ui->webview->load(QUrl("qrc:///web/browse/browse.html"));
 }
 
@@ -2753,6 +2770,14 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
         }
         if(settingsObj.value("smart_playlist",true).toBool() || playingSongRadio){
             startGetRecommendedTrackForAutoPlayTimer(songId);
+        }else{
+            //clear the list to respect the disabled smartplaylist in runtime.
+            similarTracks->clearList();
+            //alternative of calling similarTracks->failedGetSimilarTracks(); cause we don't want to show toast
+            similarTracks->parentSongId = "";
+            ui->similarTrackLoader->stop();
+            //hide smart playlist if visible
+            if(ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
         }
     }
 
@@ -3581,6 +3606,13 @@ void MainWindow::zoomout(){
     settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
 }
 
+//use this only when page is loaded in webview
+QString MainWindow::htmlEntityDecode(const QString &str)
+{
+    QVariant result = ui->webview->page()->mainFrame()->evaluateJavaScript("he.decode('"+str+"')");
+    return result.toString();
+}
+
 void MainWindow::setZoom(qreal val){
     ui->webview->setZoomFactor(horizontalDpi / val);
     settingsObj.setValue("zoom",zoom);
@@ -3773,7 +3805,7 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
             ElidedLabel *title = list->itemWidget(list->item(index))->findChild<ElidedLabel *>("title_elided");
             QString titleStr = static_cast<ElidedLabel*>(title)->text();
             if(!titleStr.isEmpty()){
-                ui->next->setToolTip(titleStr);
+                ui->next->setToolTip(htmlToPlainText(titleStr));
                 if(sender()!=nullptr && sender()->objectName().contains("optionButton")){
                     showToast("Next: "+tooltip);
                 }
@@ -3925,7 +3957,7 @@ void MainWindow::assignPreviousTrack(QListWidget *list ,int index)
             ElidedLabel *title = list->itemWidget(list->item(index))->findChild<ElidedLabel *>("title_elided");
             QString titleStr = static_cast<ElidedLabel*>(title)->text();
             if(!titleStr.isEmpty())
-                ui->previous->setToolTip(titleStr);
+                ui->previous->setToolTip(htmlToPlainText(titleStr));
             else
                 ui->previous->setToolTip("");
         }
@@ -4383,11 +4415,10 @@ void MainWindow::videoOptionDownloadRequested(QStringList trackMetaData,QStringL
     downloadWidget->trackId = songId;
 
     //remove html notations from title
-    QTextDocument text;
-    text.setHtml(title);
-    QString plainTitle = text.toPlainText();
+
+    QString plainTitle = htmlToPlainText(title);
     downloadWidget->trackTitle = plainTitle+" [Video]";
-    text.deleteLater();
+
 
     QString url_str = "https://www.youtube.com/watch?v="+ytIds.split("<br>").first();
     downloadWidget->startWget(url_str,downloadWidget->downloadLocation,formats,"video+audio");
@@ -4804,13 +4835,15 @@ void MainWindow::showToast(QString message){
     });
     toastTimer->start();
     toastWidget->adjustSize();
-    int x = ui->top_widget->pos().x()+(ui->top_widget->width()-toastWidget->width())-ui->windowControls->width()-10;
-    int y = ui->top_widget->pos().y()+toastWidget->height()/4;
+    int x = QApplication::desktop()->geometry().width()-(toastWidget->width()+10);
+    int y = 40;
+//    int x = ui->top_widget->pos().x()+(ui->top_widget->width()-toastWidget->width())-ui->windowControls->width()-10;
+//    int y = ui->top_widget->pos().y()+toastWidget->height()/4;
 
     QPropertyAnimation *a = new QPropertyAnimation(toastWidget,"pos");
     a->setDuration(200);
     a->setStartValue( QCursor::pos());
-    a->setEndValue(this->mapToParent(QPoint(x,y)));
+    a->setEndValue(QApplication::desktop()->mapToGlobal(QPoint(x,y)));
     a->setEasingCurve(QEasingCurve::Linear);
     a->start(QPropertyAnimation::DeleteWhenStopped);
     toastWidget->show();
