@@ -53,5 +53,6 @@
         <file>web/soundcloud/main.css</file>
         <file>web/soundcloud/main.js</file>
         <file>web/soundcloud/soundcloud.html</file>
+        <file>web/js/he.js</file>
     </qresource>
 </RCC>
