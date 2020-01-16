@@ -391,6 +391,10 @@ $.getScript("qrc:///web/js/color-thief.min.js", function() {
    alert("Script loaded but not necessarily executed.");
 });
 
+$.getScript("qrc:///web/js/he.js", function() {
+   alert("Script loaded but not necessarily executed.");
+});
+
 //helper function to return donminantColor and base64 of given image Url used by similar tracks list
 function getBase64andDominantColor(coverUrl){
     var colorThief = new ColorThief();
