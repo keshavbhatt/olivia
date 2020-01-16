@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>app_resources/vis.lua</file>
+        <file>app_resources/remix_filter.dict</file>
     </qresource>
 </RCC>
