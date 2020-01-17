@@ -264,6 +264,12 @@ border-radius:0px;</string>
        </item>
        <item>
         <widget class="ScrollText" name="playing">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="minimumSize">
           <size>
            <width>200</width>
@@ -272,7 +278,7 @@ border-radius:0px;</string>
          </property>
          <property name="font">
           <font>
-           <pointsize>10</pointsize>
+           <pointsize>14</pointsize>
           </font>
          </property>
          <property name="text">
@@ -1343,7 +1349,7 @@ padding-left: 10px;</string>
                      <enum>QTabWidget::Rounded</enum>
                     </property>
                     <property name="currentIndex">
-                     <number>0</number>
+                     <number>2</number>
                     </property>
                     <property name="elideMode">
                      <enum>Qt::ElideNone</enum>
