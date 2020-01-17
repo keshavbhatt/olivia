@@ -64,7 +64,7 @@ hr{
 :focus {outline:none  !important;}
 
 body{
-    background-image: url("qrc://///icons/bg.png")!important;
+    background-image: url("qrc://///icons/bg/main.png")!important;
     background-size: cover !important;
     background-repeat: no-repeat;
     background-position: 0,0;

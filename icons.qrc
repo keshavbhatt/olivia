@@ -138,5 +138,8 @@
         <file>icons/micro/youtube_micro.png</file>
         <file>icons/micro/itunes_micro.png</file>
         <file>icons/sidebar/remix.png</file>
+        <file>icons/bg/main.png</file>
+        <file>icons/bg/soundcloud.png</file>
+        <file>icons/bg/youtube.png</file>
     </qresource>
 </RCC>

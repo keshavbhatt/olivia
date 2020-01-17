@@ -232,7 +232,7 @@ $( document ).on( "pagecreate", "#manul_soundcloud_page", function() {
 $(document).on('click', '#navBtn', function() {
     showLoading();
     var linkStr = $(this).attr("data-link");
-    $('#result_div').html("");
+    $('#result_div').fadeOut("slow");
     $.ajax({
         type: "GET",
         url: baseUrl+"manual_soundcloud_search.php",
@@ -242,8 +242,9 @@ $(document).on('click', '#navBtn', function() {
         success: function(html) {
             $.mobile.loading("hide");
             $("#result_div").html(html);
+            $("#result_div").fadeIn("slow");
             $('#manul_soundcloud_page .ui-content').trigger("create");
-            $('#manul_soundcloud_page .ui-content').fadeIn('slow');
+             $('#manul_soundcloud_page_suggestions').fadeOut("slow");
             $('#manul_soundcloud_page_suggestions').html("");
          }
         });
@@ -279,8 +280,8 @@ function load_history(){
     if(html.length===0){
         $("#history_div").hide();
     }else{
-        $("#history_div").show();
         $("#history").html(html);
+        $("#history_div").fadeIn("slow");
     }
     if(youtube.getCurrentCountry().length>0){
          $('#currentCountry').text(youtube.getCurrentCountry());
@@ -294,14 +295,14 @@ function load_history(){
 
 function soundcloud_trending(country){
     $("#trending_div .ui-loader-trending").show();
-    $("#trending").html("");
+    $("#trending").hide();
     if(paginator.isOffline("soundcloud","soundcloud_trending",country))
     {
         var html_ = paginator.load("soundcloud","soundcloud_trending",country);
         $("#trending_div .ui-loader-trending").hide();
         $.mobile.loading("hide");
-        $("#trending").html("");
         $("#trending").html(html_);
+        $("#trending").fadeIn("slow");
         $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
 
     }else{
@@ -319,8 +320,8 @@ function soundcloud_trending(country){
 
                $("#trending_div .ui-loader-trending").hide();
                $.mobile.loading("hide");
-               $("#trending").html("");
                $("#trending").html(html);
+               $("#trending").fadeIn("slow");
                $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
            },
            error: function(){
@@ -343,9 +344,8 @@ $(document).on('click', '#trendingNavBtn', function() {
         },
         success: function(html) {
             $.mobile.loading("hide");
-            $("#trending").fadeOut("slow");
-            $("#trending").html("");
             $("#trending").html(html);
+            $("#trending").fadeIn("slow");
             $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
          }
         });

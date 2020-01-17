@@ -83,17 +83,18 @@ $(document).on("click","#overview",function(){
 
 //  core functions -------------
 function overview(){
-    currentAlbumId = undefined;
+    currentAlbumId = "undefined";
     showLoading();
-    $("#overview_page .ui-loader-overview").show();
     $("#pageloader i").text("Loading content please wait...");
+    $("#overview_page .ui-loader-overview").fadeIn("slow");
     if(paginator.isOffline("browse","overview","null")){
+        $("#overview_page .ui-loader-overview").fadeOut("slow");
         var html = paginator.load("browse","overview","null");
         $.mobile.loading("hide");
         overview_loaded = true;
         $('#overview_page .ui-content').html(html);
-        $('#overview_page .ui-content').trigger('create').fadeIn('slow');
-        $("#overview_page .ui-loader-overview").hide();
+        $('#overview_page .ui-content').trigger('create');
+        $('#overview_page .ui-content').fadeIn('slow');
 
         //set country by user's ip if is not set by user
         if(youtube.getCurrentCountry().length>0){
@@ -106,12 +107,13 @@ function overview(){
         $.ajax({
             url: baseUrl+"overview.php",
             success: function(html) {
+                $("#overview_page .ui-loader-overview").fadeOut("slow");
                 paginator.save("browse","overview","null",html);
                 $.mobile.loading("hide");
                 overview_loaded = true;
                 $('#overview_page .ui-content').html(html);
-                $('#overview_page .ui-content').trigger('create').fadeIn('slow');
-                $("#overview_page .ui-loader-overview").hide();
+                $('#overview_page .ui-content').trigger('create');
+                $('#overview_page .ui-content').fadeIn('slow');
 
                 //set country by user's ip if is not set by user
                 if(youtube.getCurrentCountry().length>0){
@@ -263,17 +265,19 @@ function getCountry(){
 
 function open_new_release(){
     currentAlbumId = undefined;
-    $.mobile.changePage($('#new_releases_page'));
     if(!album_loaded){
         get_new_release("null"); //empty url for init
+    }else{
+        $.mobile.changePage($('#new_releases_page'));
     }
 }
 
 function open_categories(){
     currentAlbumId = undefined;
-    $.mobile.changePage($('#categories_page'))
     if(!categories_loaded){
         get_categories("null"); //empty url for init
+    }else{
+        $.mobile.changePage($('#categories_page'))
     }
 }
 
@@ -287,15 +291,16 @@ function get_categories(url){
     showLoading();
     $.mobile.activePage.find("#pageloader").fadeOut();
     if(paginator.isOffline("browse","get_categories",url)){
+        $.mobile.changePage($('#categories_page'))
+        $("#footer_categories").fadeIn("slow");
+        $.mobile.loading("hide");
         var html = paginator.load("browse","get_categories",url);
         pageType = "categories_page";
-        $('html, body').stop().animate({ scrollTop : 0 }, 500);
         $("#categories_result").empty();
-        $("#footer_categories").show();
-        $.mobile.loading("hide");
+        $('html, body').stop().animate({ scrollTop : 0 }, 500);
         $("#categories_result").append(html).listview("refresh");
+        $("#categories_result").fadeIn("slow");
         $('#categories_page .ui-content').trigger('create');
-        $('#categories_page .ui-content').fadeIn('slow');
         categories_loaded = true;
     }else{
         $.ajax({
@@ -306,15 +311,16 @@ function get_categories(url){
                        "url": url
                   },
            success: function(html) {
+               $.mobile.changePage($('#categories_page'))
+               $("#footer_categories").fadeIn("slow");
+               $.mobile.loading("hide");
                paginator.save("browse","get_categories",url,html);
                pageType = "categories_page";
-               $('html, body').stop().animate({ scrollTop : 0 }, 500);
                $("#categories_result").empty();
-               $("#footer_categories").show();
-               $.mobile.loading("hide");
+               $('html, body').stop().animate({ scrollTop : 0 }, 500);
                $("#categories_result").append(html).listview("refresh");
+               $("#categories_result").fadeIn("slow");
                $('#categories_page .ui-content').trigger('create');
-               $('#categories_page .ui-content').fadeIn('slow');
                categories_loaded = true;
            },error: function(){
                categories_loaded = false;
@@ -333,20 +339,19 @@ function show_category_playlist(categoy_id,url){
     }else{
          country = "US";
     }
-    $.mobile.changePage($('#category_playlist_page'));
-    $('body').css('overflow','auto');
-    $("#playlist_result").empty();
     showLoading();
     $.mobile.activePage.find("#pageloader").fadeOut();
     if(paginator.isOffline("browse","show_category_playlist",categoy_id+"<==>"+url)){
+        $.mobile.changePage($('#category_playlist_page'));
+        $("#footer_playlists").fadeIn("slow");
         var html_ = paginator.load("browse","show_category_playlist",categoy_id+"<==>"+url);
         pageType = "show_category_playlist";
-        $('html, body').stop().animate({ scrollTop : 0 }, 500);
-        $("#footer_playlists").show();
         $.mobile.loading("hide");
+        $("#playlist_result").empty();
+        $('html, body').stop().animate({ scrollTop : 0 }, 500);
         $("#playlist_result").append(html_).listview("refresh");
+        $("#playlist_result").fadeIn("slow");
         $('#playlist_result .ui-content').trigger('create');
-        $('#playlist_result .ui-content').fadeIn('slow');
     }else{
         $.ajax({
            url: baseUrl+"spotify/get_featured_categories_playlist.php",
@@ -357,15 +362,16 @@ function show_category_playlist(categoy_id,url){
                        "country": country
                   },
            success: function(html) {
-               paginator.save("browse","show_category_playlist",categoy_id+"<==>"+url,html);
-
-               pageType = "show_category_playlist";
-               $('html, body').stop().animate({ scrollTop : 0 }, 500);
-               $("#footer_playlists").show();
+               $.mobile.changePage($('#category_playlist_page'));
+               $("#footer_playlists").fadeIn("slow");
                $.mobile.loading("hide");
+               paginator.save("browse","show_category_playlist",categoy_id+"<==>"+url,html);
+               pageType = "show_category_playlist";
+               $("#playlist_result").empty();
+               $('html, body').stop().animate({ scrollTop : 0 }, 500);
                $("#playlist_result").append(html).listview("refresh");
+               $("#playlist_result").fadeIn("slow");
                $('#playlist_result .ui-content').trigger('create');
-               $('#playlist_result .ui-content').fadeIn('slow');
            },error: function(){
                $.mobile.loading("hide");
                $.mobile.activePage.find("#pageloader i").text("An error occured, Unable to connect to host.");
@@ -373,7 +379,7 @@ function show_category_playlist(categoy_id,url){
            }
        });
     }
-
+    $('body').css('overflow','auto');
 }
 
 function show_playlist(p_id,url){
@@ -384,19 +390,18 @@ function show_playlist(p_id,url){
          country = "US";
     }
     $.mobile.changePage($('#playlist_view_page'));
-    $('#playlist_tracks_result').html("");
-    $('body').css('overflow','auto');
     showLoading();
     $.mobile.activePage.find("#pageloader").fadeOut();
     if(paginator.isOffline("browse","show_playlist",p_id+"<==>"+url)){
+        $("#footer_playlist_view").fadeIn("slow");
         var html_ = paginator.load("browse","show_playlist",p_id+"<==>"+url);
-        pageType = "show_playlist";
-        $('html, body').stop().animate({ scrollTop : 0 }, 500);
-        $("#footer_playlist_view").show();
         $.mobile.loading("hide");
+        pageType = "show_playlist";
+        $("#playlist_tracks_result").empty();
+        $('html, body').stop().animate({ scrollTop : 0 }, 500);
         $("#playlist_tracks_result").append(html_).listview("refresh");
+        $("#playlist_tracks_result").fadeIn("slow");
         $('#playlist_tracks_result .ui-content').trigger('create');
-        $('#playlist_tracks_result .ui-content').fadeIn('slow');
     }else{
         $.ajax({
            url: baseUrl+"spotify/get_playlist_tracks.php",
@@ -408,13 +413,14 @@ function show_playlist(p_id,url){
                   },
                    success: function(html) {
                        paginator.save("browse","show_playlist",p_id+"<==>"+url,html);
-                       pageType = "show_playlist";
-                       $('html, body').stop().animate({ scrollTop : 0 }, 500);
-                       $("#footer_playlist_view").show();
+                       $("#footer_playlist_view").fadeIn("slow");
                        $.mobile.loading("hide");
+                       pageType = "show_playlist";
+                       $("#playlist_tracks_result").empty();
+                       $('html, body').stop().animate({ scrollTop : 0 }, 500);
                        $("#playlist_tracks_result").append(html).listview("refresh");
+                       $("#playlist_tracks_result").fadeIn("slow");
                        $('#playlist_tracks_result .ui-content').trigger('create');
-                       $('#playlist_tracks_result .ui-content').fadeIn('slow');
                    },error: function(){
                        $.mobile.loading("hide");
                        $.mobile.activePage.find("#pageloader i").text("An error occured, Unable to connect to host.");
@@ -422,7 +428,7 @@ function show_playlist(p_id,url){
                    }
        });
     }
-
+ $('body').css('overflow','auto');
 }
 
 function back_to_playlists_page(){
@@ -443,15 +449,16 @@ function get_new_release(url){
     showLoading();
     $.mobile.activePage.find("#pageloader").fadeOut();
     if(paginator.isOffline("browse","get_new_release",url)){
+        $.mobile.changePage($('#new_releases_page'));
+        $("#footer_new_releases").fadeIn("slow");
+        $.mobile.loading("hide");
         var html = paginator.load("browse","get_new_release",url);
         pageType = "new_releases_page";
-         $('html, body').stop().animate({ scrollTop : 0 }, 500);
         $("#albums_result").empty();
-        $("#footer_new_releases").show();
-        $.mobile.loading("hide");
+         $('html, body').stop().animate({ scrollTop : 0 }, 500);
         $("#albums_result").append(html).listview("refresh");
+        $("#albums_result").fadeIn("slow");
         $('#albums_page .ui-content').trigger('create');
-        $('#albums_page .ui-content').fadeIn('slow');
         album_loaded = true;
     }else{
         $.ajax({
@@ -462,15 +469,17 @@ function get_new_release(url){
                        "url": url
                   },
            success: function(html) {
+               $.mobile.changePage($('#new_releases_page'));
+               $("#footer_new_releases").fadeIn("slow");
+               $.mobile.loading("hide");
                paginator.save("browse","get_new_release",url,html);
                pageType = "new_releases_page";
-                $('html, body').stop().animate({ scrollTop : 0 }, 500);
+               $("#albums_result").fadeOut("slow");
                $("#albums_result").empty();
-               $("#footer_new_releases").show();
-               $.mobile.loading("hide");
+                $('html, body').stop().animate({ scrollTop : 0 }, 500);
                $("#albums_result").append(html).listview("refresh");
+               $("#albums_result").fadeIn("slow");
                $('#albums_page .ui-content').trigger('create');
-               $('#albums_page .ui-content').fadeIn('slow');
                album_loaded = true;
            },error: function(){
                album_loaded = false;
@@ -479,24 +488,18 @@ function get_new_release(url){
            }
        });
     }
-
 }
 
 
 
 //  album view
 function album_view(id){
-    $.mobile.changePage($('#album_view_page'));
-    $('#album_view_page .ui-content').html("");
-    $('body').css('overflow','auto');
     showLoading();
-    $.mobile.activePage.find("#pageloader").fadeOut();
-
     if(paginator.isOffline("album_view","album_view",id))
     {
-        var html = paginator.load("album_view","album_view",id);
-
+        $.mobile.changePage($('#album_view_page'));
         $.mobile.loading("hide");
+        var html = paginator.load("album_view","album_view",id);
         $("#album_view_page .ui-content").html(html);
         $('#album_view_page .ui-content').trigger('create');
         $('#album_view_page .ui-content').fadeIn('slow');
@@ -512,6 +515,7 @@ function album_view(id){
                    },
             success: function(html) {
                 paginator.save("album_view","album_view",id,html);
+                $.mobile.changePage($('#album_view_page'));
                 $.mobile.loading("hide");
                 $("#album_view_page .ui-content").html(html);
                 $('#album_view_page .ui-content').trigger('create');
@@ -525,6 +529,7 @@ function album_view(id){
             }
         });
     }
+    $('body').css('overflow','auto');
 }
 
 

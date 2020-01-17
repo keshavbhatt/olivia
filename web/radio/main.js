@@ -182,13 +182,14 @@ function loadLanguages(){
     });
 }
 
+//DO NOT DELETE THIS, function used in server response
 function showStations(query,queryType){
     showLoading();
     //if offline data available
     if(paginator.isOffline("radio","showStations",query+"<==>"+queryType)){
         var html_ = paginator.load("radio","showStations",query+"<==>"+queryType);
-        $.mobile.loading("hide");
         $.mobile.changePage($('#stations_page'));
+        $.mobile.loading("hide");
         $("#stations_result").html(html_).listview("refresh");
         $('#stations_page .ui-content').trigger('create');
         $('#stations_page .ui-content').fadeIn('slow');
@@ -202,8 +203,8 @@ function showStations(query,queryType){
                    },
            success: function(html) {
                paginator.save("radio","showStations",query+"<==>"+queryType,html);
-               $.mobile.loading("hide");
                $.mobile.changePage($('#stations_page'));
+               $.mobile.loading("hide");
                $("#stations_result").html(html).listview("refresh");
                $('#stations_page .ui-content').trigger('create');
                $('#stations_page .ui-content').fadeIn('slow');
@@ -213,25 +214,30 @@ function showStations(query,queryType){
 }
 
 function loadTopStations(type){
+    if(type==="most-played"){
+        $("#most-played").hide();
+    }
+    if(type==="most-voted"){
+        $("#most-voted").hide();
+    }
     if(paginator.isOffline("radio","loadTopStations",type)){
-
         $(".ui-loader-most-played").hide();
-
         if(type==="most-played"){
              var html_ = paginator.load("radio","loadTopStations",type);
              $("#most-played").html(html_).listview("refresh");
+             $("#most-played").fadeIn("slow");
              $("#most-played-tab-anchor").attr("style","background-color: rgba(26, 152, 199, 0.67) !important;border-color:transparent !important;");
              $("#most-voted-tab-anchor").attr("style","");
         }
         if(type==="most-voted"){
              var html = paginator.load("radio","loadTopStations",type);
              $("#most-voted").html(html).listview("refresh");
+             $("#most-voted").fadeIn("slow");
              $("#most-voted-tab-anchor").attr("style","background-color: rgba(26, 152, 199, 0.67) !important;border-color:transparent !important;");
              $("#most-played-tab-anchor").attr("style","");
         }
     }else{
-        $(".ui-loader-most-played").show();
-    //topStations
+        $(".ui-loader-most-played").fadeIn("slow");
         $.ajax({
            url: baseUrl+"list/top-stations.php",
                   type:"GET",
@@ -239,16 +245,18 @@ function loadTopStations(type){
                     "type":type
                    },
            success: function(html) {
-               $(".ui-loader-most-played").hide();
+               $(".ui-loader-most-played").fadeOut("slow");
                if(type==="most-played"){
                     paginator.save("radio","loadTopStations",type,html);
                     $("#most-played").html(html).listview("refresh");
+                    $("#most-played").fadeIn("slow");
                     $("#most-played-tab-anchor").attr("style","background-color: rgba(26, 152, 199, 0.67) !important;border-color:transparent !important;")
                     $("#most-voted-tab-anchor").attr("style","");
                }
                if(type==="most-voted"){
                     paginator.save("radio","loadTopStations",type,html);
                     $("#most-voted").html(html).listview("refresh");
+                    $("#most-voted").fadeIn("slow");
                     $("#most-voted-tab-anchor").attr("style","background-color: rgba(26, 152, 199, 0.67) !important;border-color:transparent !important;");
                     $("#most-played-tab-anchor").attr("style","");
                }
@@ -267,12 +275,12 @@ function playStation(streamDetail){
 
 
 $(document).on("pagebeforeshow","#radio_page",function(){
-//    $('#radio_search_input').unbind();
+    $('#radio_search_input').unbind();
     $("#radio_search_input").on('keydown', function ( e ) {
         var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
         if(key === 13) {
-            e.preventDefault();
             station_search($(this).val());
+            e.preventDefault();
         }
     });
 });
@@ -280,12 +288,10 @@ $(document).on("pagebeforeshow","#radio_page",function(){
 function station_search(query){
     showLoading();
     if(paginator.isOffline("radio","station_search",query)){
-        $.mobile.loading("hide");
         $.mobile.changePage($('#stations_page'));
-
-        var html = paginator.load("radio","station_search",query);
-
-        $("#stations_result").html(html).listview("refresh");
+        $.mobile.loading("hide");
+        var html_ = paginator.load("radio","station_search",query);
+        $("#stations_result").html(html_).listview("refresh");
         $('#stations_page .ui-content').trigger('create');
         $('#stations_page .ui-content').fadeIn('slow');
     }else{
@@ -296,11 +302,9 @@ function station_search(query){
                     "query":query
                    },
            success: function(html) {
-               $.mobile.loading("hide");
                $.mobile.changePage($('#stations_page'));
-
+               $.mobile.loading("hide");
                paginator.save("radio","station_search",query,html);
-
                $("#stations_result").html(html).listview("refresh");
                $('#stations_page .ui-content').trigger('create');
                $('#stations_page .ui-content').fadeIn('slow');
@@ -415,6 +419,7 @@ function open_favourite_page(){
 }
 
 function load_favourite(){
+//    $("#fav_stations_result").fadeOut("slow");
     $("#fav_stations_result").empty();
     showLoading();
     var json = JSON.parse(store.web_print_fav_radio_channels()); // Data is returned in json format
@@ -439,6 +444,7 @@ function load_favourite(){
     $.mobile.activePage.find("#inner_header").html(json.length+" favourite radio stations");
     $.mobile.loading("hide");
     $("#fav_stations_result").append($html).listview("refresh");
+    $("#fav_stations_result").fadeIn("slow");
     $('#favourite_page .ui-content').trigger('create');
     $('#favourite_page .ui-content').fadeIn('slow');
     favourite_loaded = true;

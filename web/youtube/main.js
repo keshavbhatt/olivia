@@ -74,6 +74,7 @@ $(document).ready(function($) {
 
 function manual_youtube_search(term){
     $.mobile.changePage($('#manul_youtube_page'));
+    $('.ui-content').hide();
     if(term===""){
         term = $("#manual_search").val();
     }
@@ -232,7 +233,7 @@ $( document ).on( "pagecreate", "#manul_youtube_page", function() {
 $(document).on('click', '#navBtn', function() {
     showLoading();
     var linkStr = $(this).attr("data-link");
-    $('#result_div').html("");
+    $('#result_div').fadeOut("slow");
     $.ajax({
         type: "GET",
         url: baseUrl+"manual_youtube_search.php",
@@ -242,8 +243,9 @@ $(document).on('click', '#navBtn', function() {
         success: function(html) {
             $.mobile.loading("hide");
             $("#result_div").html(html);
+            $("#result_div").fadeIn("slow");
             $('#manul_youtube_page .ui-content').trigger("create");
-            $('#manul_youtube_page .ui-content').fadeIn('slow');
+            $('#manul_youtube_page_suggestions').fadeOut("slow");
             $('#manul_youtube_page_suggestions').html("");
          }
         });
@@ -251,7 +253,7 @@ $(document).on('click', '#navBtn', function() {
 
 function orderChanged(linkStr,pageType){
     showLoading();
-    $('#result_div').html("");
+    $('#result_div').fadeOut("slow");
     $.ajax({
         type: "GET",
          url: baseUrl+"manual_youtube_search.php",
@@ -267,8 +269,9 @@ function orderChanged(linkStr,pageType){
             }
             $.mobile.loading("hide");
             $("#result_div").html(html);
+            $("#result_div").fadeIn("slow");
             $('#manul_youtube_page .ui-content').trigger("create");
-            $('#manul_youtube_page .ui-content').fadeIn('slow');
+            $('#manul_youtube_page_suggestions').fadeOut("slow");
             $('#manul_youtube_page_suggestions').html("");
          }
         });
@@ -279,8 +282,8 @@ function load_history(){
     if(html.length===0){
         $("#history_div").hide();
     }else{
-        $("#history_div").show();
         $("#history").html(html);
+        $("#history_div").fadeIn("slow");
     }
     if(youtube.getCurrentCountry().length>0){
          $('#currentCountry').text(youtube.getCurrentCountry());
@@ -293,14 +296,15 @@ function load_history(){
 
 function youtube_trending(country){
     $("#trending_div .ui-loader-trending").show();
-    $("#trending").html("");
+//    $("#trending").html("");
+    $("#trending").hide();
     if(paginator.isOffline("youtube","youtube_trending",country))
     {
         var html_ = paginator.load("youtube","youtube_trending",country);
         $("#trending_div .ui-loader-trending").hide();
         $.mobile.loading("hide");
-        $("#trending").html("");
         $("#trending").html(html_);
+        $("#trending").fadeIn("slow");
         $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
 
     }else{
@@ -315,8 +319,10 @@ function youtube_trending(country){
 
                $("#trending_div .ui-loader-trending").hide();
                $.mobile.loading("hide");
-               $("#trending").html("");
+
                $("#trending").html(html);
+               $("#trending").fadeIn("slow");
+
                $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
            },
            error: function(){
@@ -339,9 +345,8 @@ $(document).on('click', '#trendingNavBtn', function() {
         },
         success: function(html) {
             $.mobile.loading("hide");
-            $("#trending").fadeOut("slow");
-            $("#trending").html("");
             $("#trending").html(html);
+            $("#trending").fadeIn("slow");
             $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
          }
         });
