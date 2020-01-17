@@ -1842,7 +1842,7 @@ QScrollBar:vertical {
                          <number>0</number>
                         </property>
                         <property name="bottomMargin">
-                         <number>0</number>
+                         <number>3</number>
                         </property>
                         <item>
                          <widget class="controlButton" name="playlistLoaderButtton">
@@ -1911,6 +1911,35 @@ background-color: transparent;
                           <property name="icon">
                            <iconset resource="icons.qrc">
                             <normaloff>:/icons/sidebar/showRecommend.png</normaloff>:/icons/sidebar/showRecommend.png</iconset>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="controlButton" name="clear">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <pointsize>10</pointsize>
+                            <italic>true</italic>
+                           </font>
+                          </property>
+                          <property name="toolTip">
+                           <string>Clear list</string>
+                          </property>
+                          <property name="styleSheet">
+                           <string notr="true">background-color: rgb(136, 138, 133);</string>
+                          </property>
+                          <property name="text">
+                           <string/>
+                          </property>
+                          <property name="icon">
+                           <iconset resource="icons.qrc">
+                            <normaloff>:/icons/sidebar/delete-bin.png</normaloff>:/icons/sidebar/delete-bin.png</iconset>
                           </property>
                          </widget>
                         </item>

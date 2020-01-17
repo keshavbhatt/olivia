@@ -801,6 +801,7 @@ void MainWindow::set_app_theme(QColor rgb){
     ui->recommWidget->setStyleSheet("QWidget#recommWidget{"+widgetStyle+";border:none;}");
 
     ui->show_hide_smart_list_button->setStyleSheet("QPushButton#show_hide_smart_list_button{"+widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;}");
+    ui->clear->setStyleSheet("QPushButton#clear{"+widgetStyle+";border:none;padding-top:3px;padding-bottom:3px;}");
 
 
     smartModeWidget->setStyleSheet ( ui->left_panel->styleSheet().replace("#left_panel","#smartModeWidget"));
@@ -3090,6 +3091,7 @@ void MainWindow::radioStatus(QString radioState){
         }
     }
     else if(radioState=="stopped"){
+        ui->playing->setText("");
         setTrackItemNowPlaying();
         nowPlayingSongIdWatcher->setValue("0000000");
         ui->stop->setEnabled(false);
@@ -3097,6 +3099,7 @@ void MainWindow::radioStatus(QString radioState){
         ui->play_pause->setIcon(QIcon(":/icons/p_play.png"));
     }
     if(radioState=="failed"){
+        ui->playing->setText("");
         setTrackItemNowPlaying();
         nowPlayingSongIdWatcher->setValue("0000000");
         if(!ui->debug_widget->isVisible())
@@ -4871,4 +4874,9 @@ void MainWindow::on_connect_clicked()
         }
     });
     timer->start();
+}
+
+void MainWindow::on_clear_clicked()
+{
+    similarTracks->clearListKeepingPlayingTrack();
 }

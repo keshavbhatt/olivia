@@ -279,6 +279,8 @@ private slots:
     void updateTrack(QString trackId, QString download_Path);
     void on_connect_clicked();
 
+    void on_clear_clicked();
+
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;

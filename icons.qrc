@@ -141,5 +141,6 @@
         <file>icons/bg/main.png</file>
         <file>icons/bg/soundcloud.png</file>
         <file>icons/bg/youtube.png</file>
+        <file>icons/sidebar/delete-bin.png</file>
     </qresource>
 </RCC>
