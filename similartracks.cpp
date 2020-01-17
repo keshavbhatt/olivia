@@ -51,12 +51,12 @@ void SimilarTracks::addRemixes(QString songId){
     //    title = title +" "+ artist;
 
     emit lodingStarted();
-    isLoadingPLaylist = false;
+    isLoadingPLaylist = true;
+
     QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
     connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
         if(rep->error() == QNetworkReply::NoError){
             QString repStr = rep->readAll();
-            qDebug()<<repStr;
             QStringList list = repStr.split("gettrackinfo(");
             list.removeFirst();
             QStringList finalList;
@@ -78,7 +78,8 @@ void SimilarTracks::addRemixes(QString songId){
             }
             //qDebug()<<finalList;
             if(finalList.count()>0){
-                emit setSimilarTracks(finalList);
+                emit setPlaylist(finalList);
+//                emit setSimilarTracks(finalList);
             }else{
                 qDebug()<<"List size is 0";
                 parentSongId = ""; //empty the parentsongid so user can reload request
