@@ -1386,6 +1386,8 @@ void MainWindow::on_stop_clicked()
 
 void MainWindow::webViewLoaded(bool loaded){
 
+
+
     if(loaded){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"),  this);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
@@ -1395,7 +1397,6 @@ void MainWindow::webViewLoaded(bool loaded){
             ui->webview->page()->mainFrame()->evaluateJavaScript("NowPlayingTrackId='"+nowPlayingSongIdWatcher->getValue()+"'");
             ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+nowPlayingSongIdWatcher->getValue()+"')");
         }
-
         QWebSettings::globalSettings()->clearMemoryCaches();
         ui->webview->history()->clear();
         ui->webview->setFocus();
@@ -1421,7 +1422,6 @@ void MainWindow::webViewLoaded(bool loaded){
     }
 
     if(pageType=="radio"){
-       // qDebug()<<"radio";
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("loadTopStations('most-played');");
     }
@@ -1438,7 +1438,6 @@ void MainWindow::webViewLoaded(bool loaded){
 
     if(pageType=="goto_youtube_channel"){
         leftListChangeCurrentRow(12);
-        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
         ui->webview->page()->mainFrame()->evaluateJavaScript("get_channel('"+youtubeVideoId+"')");
     }
@@ -1446,13 +1445,9 @@ void MainWindow::webViewLoaded(bool loaded){
     if(pageType=="goto_youtube_recommendation"){
         leftListChangeCurrentRow(12);
         if(!youtubeVideoId.isEmpty()){
-
-            ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
             ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
             QString trackTitle = QString(store_manager->getTrack(youtubeVideoId).at(1)).remove("'").remove("\"");
             youtubeVideoId = store_manager->getYoutubeIds(youtubeVideoId).split("<br>").first().trimmed();
-
-           // qDebug()<<youtubeVideoId<<"ytid";
             ui->webview->page()->mainFrame()->evaluateJavaScript("show_related('"+youtubeVideoId+"','"+trackTitle+"')");
         }
         youtubeVideoId.clear();
@@ -1460,8 +1455,6 @@ void MainWindow::webViewLoaded(bool loaded){
 
     if( loaded && pageType == "recommendation"){
         leftListChangeCurrentRow(2);
-        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
-
         //if the function is called from track action menu
         if(!recommendationSongId.isEmpty()){
             QString trackTitle = store_manager->getTrack(recommendationSongId).at(1);
@@ -1471,23 +1464,19 @@ void MainWindow::webViewLoaded(bool loaded){
      }
 
     if(loaded && pageType == "browse"){
-        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->evaluateJavaScript("overview()");
     }
 
     if( loaded && pageType == "youtube" && !youtubeSearchTerm.isEmpty()){
-        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->evaluateJavaScript("$('.ui-content').fadeOut('fast');$('#manual_search').val('"+youtubeSearchTerm+"');manual_youtube_search('"+youtubeSearchTerm+"');");
         youtubeSearchTerm.clear();
     }
     if( loaded && pageType == "youtube" && youtubeSearchTerm.isEmpty()){
-        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->evaluateJavaScript("load_history();");
         youtubeSearchTerm.clear();
     }
 
     if( loaded && pageType == "soundcloud"){
-        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->evaluateJavaScript("load_history();");
     }
 
@@ -1500,6 +1489,11 @@ void MainWindow::webViewLoaded(bool loaded){
             search(term);
         }
     }
+//    if(pageType == "youtube" || pageType =="soundcloud"){
+//        ui->webview->page()->mainFrame()->evaluateJavaScript("document.querySelector(\"body\").setAttribute(\"style\",\"background-image:url('qrc://///icons/bg/"+pageType+".png') !important\");");
+//    }else{
+//        ui->webview->page()->mainFrame()->evaluateJavaScript("document.querySelector(\"body\").setAttribute(\"style\",\"background-image:url('qrc://///icons/bg/main.png') !important\");");
+//    }
 }
 
 void MainWindow::setSearchTermAndOpenYoutube(QVariant term){

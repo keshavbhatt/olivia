@@ -219,7 +219,7 @@ private slots:
             QTextDocument text;
             text.setHtml(str);
             out = text.toPlainText();
-
+            text.deleteLater();
         return out .replace("\\\"","'")
                 .replace("&amp;","&")
                 .replace("&gt;",">")
