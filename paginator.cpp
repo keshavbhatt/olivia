@@ -45,6 +45,9 @@ QString paginator::load(QString pageType,QString dataType,QString query){
 
 //used to check if data is present in offline storage
 bool paginator::isOffline(QString pageType,QString dataType,QString query){
+    if(query.isEmpty())
+        return false;
+    else
    return QFileInfo(QFile(getPath(pageType,dataType,query))).exists();
 }
 
