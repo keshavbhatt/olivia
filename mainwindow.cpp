@@ -1068,7 +1068,7 @@ void MainWindow::showPayPalDonationMessageBox(){
       msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
       msgBox.setInformativeText("Do you want proceed to load donation page in Olivia? <center>or</center> Do you want to donate from a external browser by copying donation link ?");
       QAbstractButton *donateHereBtn = msgBox.addButton(tr(" &Donate here"), QMessageBox::ActionRole);
-      QAbstractButton *copyLinkBtn = msgBox.addButton(tr(" &Copy Donation Link"), QMessageBox::ActionRole);
+      QAbstractButton *copyLinkBtn = msgBox.addButton(tr(" &Open in external brwoser"), QMessageBox::ActionRole);
       donateHereBtn->setIcon(QIcon(":/icons/micro/redo.png"));
       copyLinkBtn->setIcon(QIcon(":/icons/micro/url.png"));
       donateHereBtn->setStyleSheet(btn_style);
@@ -1081,7 +1081,7 @@ void MainWindow::showPayPalDonationMessageBox(){
             showToast("Loading doantion page...");
         }else if (msgBox.clickedButton() == copyLinkBtn){
             QClipboard *clipboard = QGuiApplication::clipboard();
-              clipboard->setText("https://paypal.me/keshavnrj/");
+              clipboard->setText("https://paypal.me/keshavnrj/5");
               showToast("Donation link copied");
               QDesktopServices::openUrl(QUrl("https://paypal.me/keshavnrj/5"));
         }
