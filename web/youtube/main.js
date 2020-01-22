@@ -295,6 +295,9 @@ function load_history(){
 }
 
 function youtube_trending(country){
+    if(country===""){
+        country= "us";
+    }
     $("#trending_div .ui-loader-trending").show();
 //    $("#trending").html("");
     $("#trending").hide();
