@@ -130,6 +130,10 @@ function hideLoading(){
     }
 }
 
+function hideUiLoader(){
+    $.mobile.loading("hide");
+}
+
 
 function msToTime(s) {
 
