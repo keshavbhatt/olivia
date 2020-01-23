@@ -886,7 +886,7 @@ void MainWindow::init_app(){
     qApp->setQuitOnLastWindowClosed(false);
 
     //init youtube class
-    youtube = new Youtube(this);
+    youtube = new Youtube(this,ui->webview);
     youtube->setObjectName("youtube");
     connect(youtube,SIGNAL(setCountry(QString)),this,SLOT(setCountry(QString)));
 
@@ -1480,6 +1480,9 @@ void MainWindow::webViewLoaded(bool loaded){
     if( loaded && pageType == "soundcloud"){
         ui->webview->page()->mainFrame()->evaluateJavaScript("load_history();");
     }
+    if( loaded && pageType == "youtube_playlist"){
+        ui->webview->page()->mainFrame()->evaluateJavaScript("load_history();");
+    }
 
     if(pageType=="search"){
         if(!ui->search->text().isEmpty() && loaded){
@@ -1823,7 +1826,9 @@ void MainWindow::addToQueue(QString ytIds,QString title,
 
         //check track type and decide where it will be added
         if(albumId.contains("undefined-")){  // youtube track
+            qDebug()<<ytIds;
             track_ui.id->setText(ytIds);
+            store_manager->saveytIds(songId,ytIds);
             QListWidgetItem* item;
             item = new QListWidgetItem(ui->youtube_list);
             //set size for track widget
@@ -1842,6 +1847,7 @@ void MainWindow::addToQueue(QString ytIds,QString title,
                 track_ui.offline->setPixmap(QPixmap(":/icons/offline.png").scaled(track_ui.offline->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
             }else{
                 if(store_manager->getYoutubeIds(songId).isEmpty()){
+                    qDebug()<<"youtubeIds are empty";
                     QString millis = ytIds; // we were given ytids as millis from webend
                     QString query = title.replace("N/A","")+" - "+artist.replace("N/A","");
                     prepareTrack(songId,query,millis,ui->youtube_list);
@@ -2604,10 +2610,13 @@ void MainWindow::on_left_list_currentRowChanged(int currentRow)
          browse_youtube();
         break;
     case 13:
-         internet_radio();
+         browse_youtube_playlist();
         break;
     case 14:
          browse_soundcloud();
+        break;
+    case 15:
+         internet_radio();
         break;
     }
 }
@@ -2615,6 +2624,11 @@ void MainWindow::on_left_list_currentRowChanged(int currentRow)
 void MainWindow::browse_youtube(){
     pageType="youtube";
     ui->webview->load(QUrl("qrc:///web/youtube/youtube.html"));
+}
+
+void MainWindow::browse_youtube_playlist(){
+    pageType="youtube_playlist";
+    ui->webview->load(QUrl("qrc:///web/youtube/playlist.html"));
 }
 
 void MainWindow::recommendations(){

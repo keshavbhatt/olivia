@@ -89,6 +89,7 @@ public:
     Q_INVOKABLE void web_watch_video(QVariant data);
     Q_INVOKABLE void playVideo(QString trackId);
     Q_INVOKABLE void browse_youtube();
+    Q_INVOKABLE void browse_youtube_playlist();
     Q_INVOKABLE void browse_soundcloud();
     Q_INVOKABLE void delete_song_cache(QVariant track_id);
     Q_INVOKABLE void remove_song(QVariant track_id);
@@ -280,6 +281,7 @@ private slots:
     void on_connect_clicked();
 
     void on_clear_clicked();
+
 
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
