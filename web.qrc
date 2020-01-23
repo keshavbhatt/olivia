@@ -54,5 +54,8 @@
         <file>web/soundcloud/main.js</file>
         <file>web/soundcloud/soundcloud.html</file>
         <file>web/js/he.js</file>
+        <file>web/youtube/playlist.js</file>
+        <file>web/youtube/playlist.css</file>
+        <file>web/youtube/playlist.html</file>
     </qresource>
 </RCC>

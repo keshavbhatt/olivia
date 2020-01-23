@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+        <title>Youtube</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="qrc:///web/css/jquery.mobile-1.4.5.min.css" />
+    <script src="qrc:///web/js/jquery-1.11.1.min.js"></script>
+    <script src="qrc:///web/js/jquery.mobile-1.4.5.min.js"></script>
+    <link rel="stylesheet" href="qrc:///web/youtube/playlist.css" />
+
+    <script src="qrc:///web/js/color-thief.min.js"></script>
+    <link rel="stylesheet" href="qrc:///web/scroll.css" />
+    <script src="qrc:///web/js/common.js"></script>
+    <script src="qrc:///web/youtube/playlist.js"></script>
+
+
+</head>
+<!-- oncontextmenu="return false;" -->
+<body  onselectstart="return false;" ondragstart="return false;" ondrop="return false;">
+
+    <img style="display:none;" src="" id="coverImage" />
+
+    <div class="ui-loader-background"> </div>
+
+
+    <div id="manul_youtube_page" data-role="page" data-theme="b" data-title="YOUTUBE PLAYLIST SEARCH">
+        <div role="main" class="ui-content">
+            <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false'>
+                 <h1>Youtube</h1>
+                <a id="home" onclick="$('.ui-content').fadeOut('slow');mainwindow.browse_youtube_playlist();" class="ui-btn-left ui-btn ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext">Home</a>
+            </div>
+            <input class="ui-icon-alt"  type="search" id='manual_search' value='' placeholder="Your query...">
+            <ul   class="list" id="manul_youtube_page_suggestions"  data-filter="true" data-input="#manual_search"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
+            <!-- load suggestions here -->
+            </ul>
+                <div id="result_div">
+                    <!-- load data here -->
+                </div>
+
+            <hr>
+
+            <div id="history_div">
+                <h5 style="margin: 2px 0px 5px 5px;" id="history_valid">Your recent searches:</h5>
+                <div id="history" class="ui-grid-b">
+                    <!--load data here-->
+                </div>
+                <hr>
+            </div>
+        </div>
+    </div>
+    <!--    page for result videos-->
+        <div id="tracks_page" data-role="page" data-theme="b" data-title="YOUTUBE PLAYLIST">
+            <div role="main" class="ui-content">
+                <div id="result_div">
+                    <!-- load data here -->
+                </div>
+                <hr>
+                <div style="opacity:0.9" data-role="footer" data-position="fixed" data-tap-toggle="false">
+                    <a style="display: block;background-color: rgba(36, 142, 179, 0.5)" id="close_result" class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+                </div><!-- /footer -->
+            </div>
+        </div>
+
+<!--    page for related videos-->
+    <div id="manul_youtube_related_page" data-role="page" data-theme="b" data-title="YOUTUBE SUGGESTIONS">
+        <div role="main" class="ui-content">
+            <div id="result_div">
+                <!-- load data here -->
+            </div>
+            <hr>
+            <div style="opacity:0.9" data-role="footer" data-position="fixed" data-tap-toggle="false">
+                <a style="display: block;background-color: rgba(36, 142, 179, 0.5)" id="close_related" class="ui-mini ui-btn ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+            </div><!-- /footer -->
+        </div>
+    </div>
+    
+</body>
+</html>
