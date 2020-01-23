@@ -92,7 +92,7 @@
             <ul id="countries_2" data-filter-reveal="true" data-role="listview" data-filter="true" data-inset="false" data-input="#rich-autocomplete-input_2">
                 <script>
                 $.each( countries, function( title, code ) {
-                  $("#countries_2").append("<li onclick='youtube.saveGeo(\""+$.trim(code)+"\");$(this).siblings().addBack().addClass(\"ui-screen-hidden\")' data-filtertext='"+title+"'>"+title+"</li>");
+                  $("#countries_2").append("<li class='country_item' onclick='youtube.saveGeo(\""+$.trim(code)+"\");$(this).siblings().addBack().addClass(\"ui-screen-hidden\")' data-filtertext='"+title+"'>"+title+"</li>");
                 });
                 </script>
             </ul>
