@@ -12,11 +12,13 @@
 #include <QWebPage>
 #include <QWebFrame>
 
+#include "paginator.h"
+
 class Youtube : public QObject
 {
     Q_OBJECT
 public:
-    explicit Youtube(QObject *parent = 0,QWebView *webview = nullptr);
+    explicit Youtube(QObject *parent = 0,QWebView *webview = nullptr, paginator *pagination_manager = nullptr);
     Q_INVOKABLE QString getCurrentCountry();
     Q_INVOKABLE void saveGeo(QString country);
     Q_INVOKABLE void flat_playlist(QVariant playlist_id);
@@ -28,11 +30,13 @@ private:
     QSettings settings;
     QString   setting_path;
     QWebView *view = nullptr;
+    paginator *pagination_manager = nullptr;
 
 public slots:
 
 private slots:
     void flatterFinished(int exitCode);
+    void processPlaylistData(QString html);
 };
 
 #endif // YOUTUBE_H

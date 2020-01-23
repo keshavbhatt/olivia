@@ -56,9 +56,6 @@ MainWindow::MainWindow(QWidget *parent) :
         removeSongFromProcessQueue(songId);
     });
 
-    pagination_manager = new paginator(this);
-    connect(pagination_manager,SIGNAL(reloadRequested(QString,QString)),this,SLOT(reloadREquested(QString,QString)));
-
     loadPlayerQueue();
     init_search_autoComplete();
     init_radio();
@@ -885,8 +882,12 @@ void MainWindow::init_app(){
     ui->label_5->setPixmap(QPixmap(":/icons/sidebar/search.png").scaled(18,18,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     qApp->setQuitOnLastWindowClosed(false);
 
+    //init pagination class
+    pagination_manager = new paginator(this);
+    connect(pagination_manager,SIGNAL(reloadRequested(QString,QString)),this,SLOT(reloadREquested(QString,QString)));
+
     //init youtube class
-    youtube = new Youtube(this,ui->webview);
+    youtube = new Youtube(this,ui->webview,pagination_manager);
     youtube->setObjectName("youtube");
     connect(youtube,SIGNAL(setCountry(QString)),this,SLOT(setCountry(QString)));
 
@@ -1152,11 +1153,12 @@ void MainWindow::loadPlayerQueue(){ //  #7
         //set track meta icon
         if(albumId.contains("soundcloud")){
             track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/soundcloud_micro.png') no-repeat bottom right}");
-        }else if(!isNumericStr(songId) && !albumId.contains("undefined")){
-            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/spotify_micro.png') no-repeat bottom right}");
-        }else if (isNumericStr(songId)) {
-            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/itunes_micro.png') no-repeat bottom right}");
         }
+//        else if(!isNumericStr(songId) && !albumId.contains("undefined")){
+//            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/spotify_micro.png') no-repeat bottom right}");
+//        }else if (isNumericStr(songId)) {
+//            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/itunes_micro.png') no-repeat bottom right}");
+//        }
         /*else if (albumId.contains("undefined")) {
             track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/youtube_micro.png') no-repeat bottom right}");
         }*/
@@ -1770,11 +1772,12 @@ void MainWindow::addToQueue(QString ytIds,QString title,
         //set track meta icon
         if(albumId.contains("soundcloud")){
             track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/soundcloud_micro.png') no-repeat bottom right}");
-        }else if(!isNumericStr(songId) && !albumId.contains("undefined")){
-            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/spotify_micro.png') no-repeat bottom right}");
-        }else if (isNumericStr(songId)) {
-            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/itunes_micro.png') no-repeat bottom right}");
         }
+//        else if(!isNumericStr(songId) && !albumId.contains("undefined")){
+//            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/spotify_micro.png') no-repeat bottom right}");
+//        }else if (isNumericStr(songId)) {
+//            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/itunes_micro.png') no-repeat bottom right}");
+//        }
         /*else if (albumId.contains("undefined")) {
             track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/youtube_micro.png') no-repeat bottom right}");
         }*/

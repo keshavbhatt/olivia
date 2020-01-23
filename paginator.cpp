@@ -43,6 +43,23 @@ QString paginator::load(QString pageType,QString dataType,QString query){
     return in.readAll();
 }
 
+void paginator::save_json(QString pageType,QString dataType,QString query,QString data){
+    QString path = createDir(pageType.trimmed()+"/"+dataType.trimmed());
+    QFile file(path+query.trimmed());
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+              return;
+    QTextStream out(&file);
+    out << data.trimmed();
+}
+QString paginator::load_json(QString pageType,QString dataType,QString query){
+    QFile file(getPath(pageType,dataType,query));
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        qDebug()<<"unable to open file";
+    }
+    QTextStream in(&file);
+    return in.readAll();
+}
+
 //used to check if data is present in offline storage
 bool paginator::isOffline(QString pageType,QString dataType,QString query){
     if(query.isEmpty())

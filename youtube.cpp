@@ -6,10 +6,11 @@
 #include <QTextDocument>
 
 
-Youtube::Youtube(QObject *parent,QWebView *webview) : QObject(parent)
+Youtube::Youtube(QObject *parent,QWebView *webview,paginator *pagination_manager) : QObject(parent)
 {
     setParent(parent);
     view = webview;
+    this->pagination_manager = pagination_manager;
     setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 }
 
@@ -24,25 +25,30 @@ void Youtube::saveGeo(QString country){
 
 void Youtube::flat_playlist(QVariant playlist_id){
    QString p_id = playlist_id.toString();
-   QString url_str = "https://m.youtube.com/playlist?list="+p_id;
-   QProcess *flatter = new QProcess(this);
-   connect(flatter,SIGNAL(finished(int)),this,SLOT(flatterFinished(int)));
-   flatter->start("python",QStringList()<<setting_path+"/core"<<"--dump-single-json"<<"--flat-playlist"<<url_str);
-   flatter->waitForStarted();
-   qDebug()<<"flatter started with:"<<flatter->pid();
+   bool isOffline = false;
+   isOffline = pagination_manager->isOffline("youtube_playlist","open_playlist",p_id);
+   qDebug()<<"playlist" <<p_id<<"is offline:"<<isOffline;
+   if(isOffline){
+        processPlaylistData(pagination_manager->load("youtube_playlist","open_playlist",p_id));
+   }else{
+       QString url_str = "https://m.youtube.com/playlist?list="+p_id;
+       QProcess *flatter = new QProcess(this);
+       connect(flatter,SIGNAL(finished(int)),this,SLOT(flatterFinished(int)));
+       flatter->start("python",QStringList()<<setting_path+"/core"<<"--dump-single-json"<<"--flat-playlist"<<url_str);
+       flatter->waitForStarted();
+   }
 }
 
 void Youtube::flatterFinished(int exitCode){
-    view->page()->mainFrame()->evaluateJavaScript("hideUiLoader()");
     qDebug()<<"flatter exited with code:"<<exitCode;
     if(exitCode==0){
         QProcess *flatter = static_cast<QProcess*>(sender());
         if(flatter!=nullptr){
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(QString(flatter->readAll()).toUtf8());
-
+            QString data = flatter->readAll();
+            QJsonDocument jsonResponse = QJsonDocument::fromJson(data.toUtf8());
             QJsonObject jsonObject = jsonResponse.object();
-
             QString playlist_id = jsonObject.value("id").toString();
+
             QString playlist_name = jsonObject.value("title").toString();
             QString uploader_name = jsonObject.value("uploader").toString();
             QString uploader_id  = jsonObject.value("uploader_id").toString();
@@ -101,15 +107,24 @@ void Youtube::flatterFinished(int exitCode){
                                  "<br>";
                 html.append(header);
                 html.append("<i style='display: block;text-align:center;' class='ellipsis'>Video count: "+QString::number(videoAdded)+" </i>");
-                html.append("<br>");
                 html.append("<ul class='list' id='manul_youtube_page_result'  data-role='listview' data-split-icon='bars' data-split-theme='b' data-inset='true'>");
                 html.append(list_items);
                 html.append("</ul>");
-                html= html.toUtf8();
-                html = html.toHtmlEscaped();
-                view->page()->mainFrame()->evaluateJavaScript("setPlaylistVideos(\""+html+"\")");
+
+                //save in paginator
+                pagination_manager->save("youtube_playlist","open_playlist",playlist_id,html);
+
+                processPlaylistData(html);
             }
         }
     }
+}
+
+void Youtube::processPlaylistData(QString html){
+    html= html.toUtf8();
+    html = html.toHtmlEscaped();
+
+    view->page()->mainFrame()->evaluateJavaScript("hideUiLoader()");
+    view->page()->mainFrame()->evaluateJavaScript("setPlaylistVideos(\""+html+"\")");
 }
 

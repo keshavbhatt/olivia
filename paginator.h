@@ -19,8 +19,12 @@ public:
     Q_INVOKABLE void deleteCache(QString pageType, QString dataType, QString query);
     Q_INVOKABLE QString getList(QString page, QString dataType);
     Q_INVOKABLE void clearRecentSearches();
+    QString load_json(QString pageType, QString dataType, QString query);
 
 
+
+public slots:
+    void save_json(QString pageType, QString dataType, QString query, QString data);
 signals:
     void reloadRequested(QString dataType,QString query);
 
