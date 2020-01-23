@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    database = "hjkfdsll";
+    database = "hjkfdsllll";
     store_manager = new store(this,database);
     store_manager->setObjectName("store_manager");
     connect(store_manager,&store::removeSongFromYtDlQueue,[=](QString songId){
@@ -939,7 +939,7 @@ void MainWindow::init_app(){
     split3->setSizes(QList<int>()<<300<<0);
     split3->handle(1)->setEnabled(false);
     ui->recommWidget->hide();
-    ui->show_hide_smart_list_button->setToolTip("Show Similar Tracks");
+    ui->show_hide_smart_list_button->setToolTip("Show");
 
     setWindowIcon(QIcon(":/icons/olivia.png"));
     setWindowTitle(QApplication::applicationName());
@@ -1588,6 +1588,7 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     track_ui.verticalLayout_2->addWidget(albumLabel);
 
     track_ui.id->setText(ytIds);
+
     track_ui.dominant_color->setText(dominantColor);
     track_ui.songId->setText(songId);
     track_ui.playing->setPixmap(QPixmap(":/icons/blank.png").scaled(track_ui.playing->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
@@ -1619,6 +1620,8 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     if(albumId.contains("undefined-")){
         track_ui.cover->setMaximumHeight(track_widget->height());
         track_ui.cover->setMaximumWidth(static_cast<int>(track_widget->height()*1.15));
+        track_ui.id->setText(songId+"<br>");
+        store_manager->saveytIds(songId,songId+"<br>");
         QListWidgetItem* item;
         item = new QListWidgetItem(ui->smart_list);
 
@@ -1830,8 +1833,8 @@ void MainWindow::addToQueue(QString ytIds,QString title,
         //check track type and decide where it will be added
         if(albumId.contains("undefined-")){  // youtube track
             qDebug()<<ytIds;
-            track_ui.id->setText(ytIds);
-            store_manager->saveytIds(songId,ytIds);
+            track_ui.id->setText(songId+"<br>");
+            store_manager->saveytIds(songId,songId+"<br>");
             QListWidgetItem* item;
             item = new QListWidgetItem(ui->youtube_list);
             //set size for track widget
@@ -4532,13 +4535,13 @@ void MainWindow::on_show_hide_smart_list_button_clicked()
             ui->jump_to_nowplaying->click();
         }
 
-        ui->show_hide_smart_list_button->setToolTip("Hide Similar Tracks");
+        ui->show_hide_smart_list_button->setToolTip("Hide");
     }else{
         split3->widget(1)->setMaximumHeight(ui->show_hide_smart_list_button->height());
         split3->setSizes(QList<int>()<<300<<0);
         split3->handle(1)->setEnabled(false);
         ui->recommWidget->hide();
-        ui->show_hide_smart_list_button->setToolTip("Show Similar Tracks");
+        ui->show_hide_smart_list_button->setToolTip("Show");
     }
     ui->recommWidget->isVisible() ? ui->show_hide_smart_list_button->setIcon(QIcon(":/icons/sidebar/hideRecommend.png")):
                                         ui->show_hide_smart_list_button->setIcon(QIcon(":/icons/sidebar/showRecommend.png"));
