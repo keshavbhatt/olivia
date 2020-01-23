@@ -91,7 +91,7 @@ function open_local_saved_videos(){
     $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" downloaded videos");
     for(var i= 0; i < json.length;i++){
         var divider = "!=-=!";
-        var albumType = (json[i].album === "undefined") ? "Youtube":"";
+//        var albumType = (json[i].album === "undefined") ? "Youtube":"";
         var imgHtml,para;
                if(json[i].albumId.includes("undefined-")){
                    para = "<p style='margin-left: 7.5em;'>";
@@ -110,7 +110,7 @@ function open_local_saved_videos(){
                         "<br>"+
                         "Artist: "+json[i].artist+
                     "</p>"+
-                  "<p class='ui-li-aside'>"+albumType+"</p>" +
+//                  "<p class='ui-li-aside'>"+albumType+"</p>" +
                " </a>"+
              "<a href='#' onclick=\"track_option('"+json[i].songId+"')\">More Options</a>"+
             "</li>";
