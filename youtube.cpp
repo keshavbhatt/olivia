@@ -54,7 +54,8 @@ void Youtube::flatterFinished(int exitCode){
             QString uploader_id  = jsonObject.value("uploader_id").toString();
             qDebug()<<uploader_id;
             QString uploader_url ;//= jsonObject.value("uploader_url").toString();
-            uploader_url = "search.php?channelId="+uploader_id+"&channelTitle="+QString(uploader_name.replace(" ","+"));
+            QString channelTitle = uploader_name.toHtmlEscaped();
+            uploader_url = "search.php?channelId="+uploader_id+"&channelTitle="+channelTitle;
             uploader_url = QUrl::toPercentEncoding(uploader_url);
             QString html,list_items;
 
@@ -88,7 +89,7 @@ void Youtube::flatterFinished(int exitCode){
                         list_items.append("<img id='"+videoId+"' style='max-width:250px  !important ;max-height:143px' src='"+thumb+"'>");
                         list_items.append("<p style='margin-left:13.5em  !important;height:100px;'>");
                         list_items.append("<b>"+title+"</b><br>");
-                        list_items.append("<br><i class='ellipsis'>Added to: "+playlist_name+". <br> by:"+artist+"</i><br></p></a>");
+                        list_items.append("<br><i class='ellipsis'>Added to: "+playlist_name+" <br> by: "+artist+"</i><br></p></a>");
                         list_items.append("<a href='#' onclick='track_option(\""+videoId+"\")'>More Options</a>");
                         list_items.append("<span>");
                         list_items.append("<a style='right: 3.8em;' onclick='watch_video(\""+videoId+"\")' id='"+videoId+"_watchVideo' title='Watch Video' class='ui-li-count my-watch-video-button' href='#' data-role='button' data-iconpos='notext' data-icon='video' data-theme='b'>");
