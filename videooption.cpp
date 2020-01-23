@@ -110,7 +110,7 @@ void VideoOption::setMeta(QString songId){
     QByteArray ba = base64.toUtf8();
     QPixmap image;
     image.loadFromData(QByteArray::fromBase64(ba));
-    if(!image.isNull() && album=="undefined"){
+    if(!image.isNull() && (album=="undefined"|| album=="soundcloud")){
         ui->cover->setPixmap(image);
         ui->cover->setMaximumSize(178,100);
         ui->cover->resize(178,100);
@@ -194,9 +194,12 @@ void VideoOption::setMetaFromWeb(QVariant data){
     ui->album->setFont(font);
     ui->album->setText(album);
 
-    if(album=="undefined"){
-        ui->cover->setMaximumHeight(ui->track_widget->height());
-        ui->cover->setMaximumWidth(static_cast<int>(ui->track_widget->height()*1.50));
+    if( album=="undefined" || album=="soundcloud"){
+        ui->cover->setMaximumSize(178,100);
+        ui->cover->resize(178,100);
+    }else{
+        ui->cover->setMaximumSize(100,100);
+        ui->cover->resize(100,100);
     }
 
     LoadAvatar(coverUrl);
