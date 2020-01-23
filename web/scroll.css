@@ -1,3 +1,7 @@
+html {
+  overflow-y: scroll;
+}
+
 .ui-icon-playall:after {
     background-image: url("qrc:///icons/p_play.png");
     /* Make your icon fit */
