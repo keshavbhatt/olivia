@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    database = "hjkfdsllll";
+    database = "hjkfdsll";
     store_manager = new store(this,database);
     store_manager->setObjectName("store_manager");
     connect(store_manager,&store::removeSongFromYtDlQueue,[=](QString songId){
