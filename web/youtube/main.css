@@ -6,6 +6,10 @@
     background-image: url("qrc:/web/css/images/search_icon_white.png") !important;
 }
 
+.country_item{
+    cursor:pointer;
+}
+
 #container ul { list-style: none; }
 #container .buttons { margin-bottom: 20px; }
 
