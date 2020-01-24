@@ -106,9 +106,11 @@ void Youtube::flatterFinished(int exitCode){
                                  "   </div>"
                                  "</div>"
                                  "<br>";
+                QString filter = "<form class='ui-filterable'><input class='ui-icon-alt'  id='resultfilter-input' data-type='search' placeholder='Filter tracks in playlist..'></form>";
                 html.append(header);
                 html.append("<i style='display: block;text-align:center;' class='ellipsis'>Video count: "+QString::number(videoAdded)+" </i>");
-                html.append("<ul class='list' id='manul_youtube_page_result'  data-role='listview' data-split-icon='bars' data-split-theme='b' data-inset='true'>");
+                html.append(filter);
+                html.append("<ul data-filter='true' data-input='#resultfilter-input' class='list' id='manul_youtube_page_result'  data-role='listview' data-split-icon='bars' data-split-theme='b' data-inset='true'>");
                 html.append(list_items);
                 html.append("</ul>");
 
