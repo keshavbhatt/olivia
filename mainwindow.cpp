@@ -2482,7 +2482,7 @@ void MainWindow::ytdlReadyRead(){
     b.append(senderProcess->readAll());
     QString s_data = QTextCodec::codecForMib(106)->toUnicode(b).trimmed();
 
-    qDebug()<<s_data;
+    //qDebug()<<s_data;
     if(s_data.contains("This video is not available.",Qt::CaseInsensitive)){
         QStringList trackMeta(store_manager->getTrack(songId));
         QString title = trackMeta.at(1);
@@ -2507,7 +2507,7 @@ void MainWindow::ytdlReadyRead(){
             foreach (QWidget *listWidgetItem, listWidgetItems) {
                 QListWidget *listWidget = static_cast<QListWidget*>(listWidgetItem->parent()->parent());
                 QString listName = listWidget->objectName();
-                if(s_data.contains("https")){
+                if(s_data.contains("https") && !s_data.contains("ERROR:",Qt::CaseInsensitive)){
                     if(s_data.contains("manifest/dash/")){
                         //qDebug()<<"MENIFEAT URL:"<<s_data;
                         ManifestResolver *mfr= new ManifestResolver(s_data.trimmed(),this);

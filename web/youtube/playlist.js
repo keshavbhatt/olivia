@@ -450,6 +450,7 @@ function open_playlist(playlist_id){
 //this is private function of playlist.js public version used by mainwindow is in main.js
 function get_channel(video_id){
     mainwindow.open_youtube_channel_for_video(video_id);
+    //the below was creating issues for us
 //    $("#popup-"+songId).remove();
 ////    $($.mobile.activePage.find('.ui-content')).fadeOut('slow');
 //    showLoading();
