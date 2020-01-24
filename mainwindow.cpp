@@ -2148,9 +2148,7 @@ void MainWindow::showTrackOption(){
     });
 
     connect(openChannel,&QAction::triggered,[=](){
-        ui->webview->load(QUrl("qrc:///web/youtube/youtube.html"));
-        pageType = "goto_youtube_channel";
-        youtubeVideoId = songId;
+        open_youtube_channel_for_video(QVariant(songId));
     });
 
     connect(gotoAlbum,&QAction::triggered,[=](){
@@ -2261,6 +2259,12 @@ void MainWindow::showTrackOption(){
     menu.addAction(properties);
     menu.setStyleSheet(menuStyle());
     menu.exec(QCursor::pos());
+}
+
+void MainWindow::open_youtube_channel_for_video(QVariant videoId){
+    ui->webview->load(QUrl("qrc:///web/youtube/youtube.html"));
+    pageType = "goto_youtube_channel";
+    youtubeVideoId = videoId.toString();
 }
 
 //similar to remove_song but used only for smart playlist

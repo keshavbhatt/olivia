@@ -101,7 +101,7 @@ public:
     Q_INVOKABLE void removeFromFavourite(QString songId);
     Q_INVOKABLE void showTrackProperties(QString songId);
     Q_INVOKABLE void delete_video_cache(QVariant track_id);
-
+    Q_INVOKABLE void open_youtube_channel_for_video(QVariant videoId);
 
 
 
