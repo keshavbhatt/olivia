@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    database = "hjkfdsll";
+    database = "hjkfdslll";
     store_manager = new store(this,database);
     store_manager->setObjectName("store_manager");
     connect(store_manager,&store::removeSongFromYtDlQueue,[=](QString songId){
@@ -1965,6 +1965,7 @@ void MainWindow::findTrackInQueue(QString songId){
 
 //get track's ytIds and playable source url
 void MainWindow::prepareTrack(QString songId,QString query,QString millis,QListWidget *list){
+    qDebug()<<"prepearing track:songid"<<songId<<query<<millis;
     QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
     connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
         if(rep->error() == QNetworkReply::NoError){
@@ -2415,18 +2416,20 @@ void MainWindow::processYtdlQueue(){
 
                 QStringList urls = ytIds.split("<br>");
                 QStringList urlsFinal;
-                for(int i=0; i < urls.count();i++){
-                    if(!urls.at(i).isEmpty()){
-                        urlsFinal.append("https://www.youtube.com/watch?v="+urls.at(i));
+                if(!ytIds.contains("soundcloud")){
+                    for(int i=0; i < urls.count();i++){
+                        if(!urls.at(i).isEmpty()){
+                            urlsFinal.append("https://www.youtube.com/watch?v="+urls.at(i));
+                        }
                     }
-                }
-                //check if track is from soundcloud
-                if(ytIds.contains("soundcloud")){
-                    urlsFinal.append(ytIds); //ytIds in case of soundcloud track is URL
+                }else{ //ytIds in case of soundcloud track is URL
+                    urlsFinal.append(ytIds);
                 }
 
                 QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+                ytdlProcess->setProcessChannelMode(QProcess::MergedChannels);
                 ytdlProcess->start("python",QStringList()<<addin_path+"/core"<<"--force-ipv4"<<"--get-url" <<"-i"<< "--extract-audio"<<urlsFinal);
+                qDebug()<<ytdlProcess->arguments()<<"\n";
                 ytdlProcess->waitForStarted();
                 connect(ytdlProcess,SIGNAL(readyRead()),this,SLOT(ytdlReadyRead()));
                 connect(ytdlProcess,SIGNAL(finished(int)),this,SLOT(ytdlFinished(int)));
@@ -2444,7 +2447,21 @@ void MainWindow::processYtdlQueue(){
 }
 
 void MainWindow::ytdlFinished(int code){
-    Q_UNUSED(code);
+
+
+//    QProcess* senderProcess = qobject_cast<QProcess*>(sender());
+//    QString songId = senderProcess->objectName().trimmed();
+
+//    QByteArray b;
+//    b.append(senderProcess->readAll());
+//    QString s_data = QTextCodec::codecForMib(106)->toUnicode(b).trimmed();
+
+//    qDebug()<<s_data<<code;
+//    if(s_data.contains("This video is not available.",Qt::CaseInsensitive)){
+//        qDebug()<<"track is not availabele";
+//    }
+
+
     ytdlProcess->close();
     ytdlProcess = nullptr;
 
@@ -2469,6 +2486,16 @@ void MainWindow::ytdlReadyRead(){
     QByteArray b;
     b.append(senderProcess->readAll());
     QString s_data = QTextCodec::codecForMib(106)->toUnicode(b).trimmed();
+
+    qDebug()<<s_data;
+    if(s_data.contains("This video is not available.",Qt::CaseInsensitive)){
+        QStringList trackMeta(store_manager->getTrack(songId));
+        QString title = trackMeta.at(1);
+        //QString artist = trackMeta.at(5);
+        //we will remove artist here cause this will considered special case
+        QString query = title;/*+" - "+artist.replace("N/A","");*/
+        prepareTrack(songId,query,"0",this->findChild<QListWidget*>(getCurrentPlayerQueue(songId)));
+    }
 
     if(!s_data.isEmpty()){
         QList<QWidget*>listWidgetItems = ui->right_panel->findChildren<QWidget*>("track-widget-"+songId);
