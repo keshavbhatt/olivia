@@ -88,9 +88,12 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QPushButton" name="download_engine">
+           <widget class="controlButton" name="download_engine">
             <property name="focusPolicy">
              <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="toolTip">
+             <string>Click if tracks are not refreshing</string>
             </property>
             <property name="text">
              <string>Download/Update</string>
