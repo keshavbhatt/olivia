@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    database = "hjkfdslll";
+    database = "hjkfdsll";
     store_manager = new store(this,database);
     store_manager->setObjectName("store_manager");
     connect(store_manager,&store::removeSongFromYtDlQueue,[=](QString songId){
@@ -2447,26 +2447,17 @@ void MainWindow::processYtdlQueue(){
 }
 
 void MainWindow::ytdlFinished(int code){
-
-
-//    QProcess* senderProcess = qobject_cast<QProcess*>(sender());
-//    QString songId = senderProcess->objectName().trimmed();
-
-//    QByteArray b;
-//    b.append(senderProcess->readAll());
-//    QString s_data = QTextCodec::codecForMib(106)->toUnicode(b).trimmed();
-
-//    qDebug()<<s_data<<code;
-//    if(s_data.contains("This video is not available.",Qt::CaseInsensitive)){
-//        qDebug()<<"track is not availabele";
-//    }
-
-
+    Q_UNUSED(code);
     ytdlProcess->close();
     ytdlProcess = nullptr;
 
     if(ytdlQueue.count()>0){
-        ui->ytdlQueueLabel->setText("Processing "+QString::number(ytdlQueue.count())+" tracks..");
+        int count = ytdlQueue.count();
+        if(count>1){
+            ui->ytdlQueueLabel->setText("Processing "+QString::number(count)+" tracks..");
+        }else{
+            ui->ytdlQueueLabel->setText("Processing "+QString::number(count)+" track..");
+        }
         processYtdlQueue();
     }else{
         ui->ytdlQueueLabel->setText("no task");
