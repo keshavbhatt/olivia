@@ -238,7 +238,7 @@ border:none;</string>
              <string notr="true">border:none;</string>
             </property>
             <property name="placeholderText">
-             <string>Your email if you want a reply...</string>
+             <string>Your email if you want reply by mail...</string>
             </property>
            </widget>
           </item>
