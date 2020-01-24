@@ -449,19 +449,20 @@ function open_playlist(playlist_id){
 
 //this is private function of playlist.js public version used by mainwindow is in main.js
 function get_channel(video_id){
-    $("#popup-"+songId).remove();
-//    $($.mobile.activePage.find('.ui-content')).fadeOut('slow');
-    showLoading();
-    $.ajax({
-        type: "GET",
-        url: baseUrl2+"youtube_get_channel.php",
-        data: {
-            "video_id" : video_id
-        },
-        success: function(html) {
-            open_channel(html,video_id);
-         }
-        });
+    mainwindow.open_youtube_channel_for_video(video_id);
+//    $("#popup-"+songId).remove();
+////    $($.mobile.activePage.find('.ui-content')).fadeOut('slow');
+//    showLoading();
+//    $.ajax({
+//        type: "GET",
+//        url: baseUrl2+"youtube_get_channel.php",
+//        data: {
+//            "video_id" : video_id
+//        },
+//        success: function(html) {
+//            open_channel(html,video_id);
+//         }
+//        });
 }
 
 function setPlaylistVideos(data){
