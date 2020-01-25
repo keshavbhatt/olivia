@@ -3046,7 +3046,6 @@ void MainWindow::checkForPlaylist(){
         for (int i = 0; i < totalUl; i++) {
             QVariant validList = ui->webview->page()->mainFrame()->evaluateJavaScript("document.querySelector('.ui-page-active').querySelectorAll('ul')["+QString::number(i)+"].innerHTML.includes('gettrackinfo')");
             if(validList.isValid() && validList.toBool() == true){
-
                 ui->webview->page()->mainFrame()->evaluateJavaScript("var playlist = document.querySelector('.ui-page-active').querySelectorAll('ul')["+QString::number(i)+"]");
                 //this shows add all buttton in webview.
                 QString js =  "playlist.innerHTML = \"<a id='playall' class='ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-playall' onclick='mainwindow.on_playlistLoaderButtton_clicked();' data-role='button'>Play All</a>\" + playlist.innerHTML";
@@ -3057,6 +3056,10 @@ void MainWindow::checkForPlaylist(){
             }
         }
     }
+}
+
+void MainWindow::showAddToSmartPlaylist(){
+    ui->playlistLoaderButtton->show();
 }
 
 //returns theme color from common.js
