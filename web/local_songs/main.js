@@ -114,6 +114,11 @@ function open_local_saved_tracks(){
     $.mobile.changePage($('#tracks_page'));
     $('.ui-content').hide();
     var html = store.web_print_local_saved_tracks();
+    if(html.includes("<li")){
+        html = "<a id='playallLocal' onclick='mainwindow.playAllLocalSongs();'"+
+               " style='background-color: rgb(4, 125, 141) !important;border:none !important;'"+
+               " data-role='button'>Play all local tracks</a><br>"+html;
+    }
     $('#tracks_page .ui-content').html(html);
     $('#tracks_page .ui-content').trigger('create');
     $('#tracks_page .ui-content').fadeIn('slow');
@@ -126,6 +131,11 @@ function openPagenumber(pagenumber){
     $.mobile.changePage($('#tracks_page'));
     $('.ui-content').hide();
     var html = store.open_local_saved_tracks_PageNumber(pagenumber);
+    if(pagenumber==="0"&& html.includes("<li")){
+        html = "<a id='playallLocal' onclick='mainwindow.playAllLocalSongs();'"+
+               " style='background-color: rgb(4, 125, 141) !important;border:none !important;'"+
+               " data-role='button'>Play all local tracks</a><br>"+html;
+    }
     $('#tracks_page .ui-content').html(html);
     $('#tracks_page .ui-content').trigger('create');
     $('#tracks_page .ui-content').fadeIn('slow');
