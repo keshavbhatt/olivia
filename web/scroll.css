@@ -8,7 +8,7 @@ html {
     background-size: 18px 18px;
 }
 
-#playall{
+#playall , #playallLocal{
     border :none !important;
     font-size: 12.5px !important;
     background-color: rgba(36, 142, 179, 0.66)!important;
