@@ -108,13 +108,22 @@ $(document).ajaxStart(function() {
 $(document).on( "pagechange", function() {
     if(typeof(mainwindow)!== "undefined"){
         mainwindow.hidePlaylistButton();
-        mainwindow.checkForPlaylist();
+        if(!document.contains(document.querySelector('.ui-page-active').querySelector("#playall"))){
+            mainwindow.checkForPlaylist();
+        }else{
+            mainwindow.showAddToSmartPlaylist();
+        }
     }
 });
 
 $( document ).ajaxSuccess(function( event, request, settings) {
     if(typeof(mainwindow)!== "undefined"){
-        mainwindow.checkForPlaylist();
+
+        if(!document.contains(document.querySelector('.ui-page-active').querySelector("#playall"))){
+            mainwindow.checkForPlaylist();
+        }else{
+            mainwindow.showAddToSmartPlaylist();
+        }
     }
 });
 
