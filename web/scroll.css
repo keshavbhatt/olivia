@@ -8,6 +8,12 @@ html {
     background-size: 18px 18px;
 }
 
+#playall{
+    border :none !important;
+    font-size: 12.5px !important;
+    background-color: rgba(36, 142, 179, 0.66)!important;
+}
+
 .ui-alt-icon.ui-icon-search:after, .ui-alt-icon .ui-icon-search:after, .ui-input-search:after{
     background-image: url("qrc:/web/css/images/search_icon_white.png") !important;
 }
