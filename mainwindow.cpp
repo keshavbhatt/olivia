@@ -2433,7 +2433,7 @@ void MainWindow::processYtdlQueue(){
                 QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
                 ytdlProcess->setProcessChannelMode(QProcess::MergedChannels);
                 ytdlProcess->start("python",QStringList()<<addin_path+"/core"<<"--force-ipv4"<<"--get-url" <<"-i"<< "--extract-audio"<<urlsFinal);
-                qDebug()<<ytdlProcess->arguments()<<"\n";
+//                qDebug()<<ytdlProcess->arguments()<<"\n";
                 ytdlProcess->waitForStarted();
                 connect(ytdlProcess,SIGNAL(readyRead()),this,SLOT(ytdlReadyRead()));
                 connect(ytdlProcess,SIGNAL(finished(int)),this,SLOT(ytdlFinished(int)));
@@ -2529,6 +2529,11 @@ void MainWindow::ytdlReadyRead(){
                         QString url_str = s_data.trimmed();
                         static_cast<QLineEdit*>(url)->setText(url_str);
                         store_manager->saveStreamUrl(songId,url_str,getExpireTime(url_str));
+                        //track requested to play and url returned 403 error, so play it as it is available now
+//                        QPoint pos = listWidgetItem->pos();
+//                        if(songId == nowPlayingSongIdWatcher->previousSongId){
+//                            listItemDoubleClicked(listWidget,listWidget->itemAt(pos));
+//                        }
                     }
 
                     //algo to assign next/previous song if current processed track is next to currently playing track.
