@@ -87,7 +87,7 @@ function manual_soundcloud_search(term){
         $('#manul_soundcloud_page .ui-content').trigger("create");
         $('#manul_soundcloud_page .ui-content').fadeIn('slow');
         $('#manul_soundcloud_page_suggestions').html("");
-
+        mainwindow.checkForPlaylist(); //special case cause we are loading results on same page
     }else{
         $.ajax({
            url: baseUrl+"manual_soundcloud_search.php",
@@ -103,6 +103,7 @@ function manual_soundcloud_search(term){
                $('#manul_soundcloud_page .ui-content').trigger("create");
                $('#manul_soundcloud_page .ui-content').fadeIn('slow');
                $('#manul_soundcloud_page_suggestions').html("");
+               mainwindow.checkForPlaylist(); //special case cause we are loading results on same page
            }
        });
     }
@@ -244,8 +245,9 @@ $(document).on('click', '#navBtn', function() {
             $("#result_div").html(html);
             $("#result_div").fadeIn("slow");
             $('#manul_soundcloud_page .ui-content').trigger("create");
-             $('#manul_soundcloud_page_suggestions').fadeOut("slow");
+            $('#manul_soundcloud_page_suggestions').fadeOut("slow");
             $('#manul_soundcloud_page_suggestions').html("");
+            mainwindow.checkForPlaylist(); //special case cause we are loading results on same page
          }
         });
 });

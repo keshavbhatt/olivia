@@ -88,6 +88,7 @@ function manual_youtube_search(term){
         $('#manul_youtube_page .ui-content').trigger("create");
         $('#manul_youtube_page .ui-content').fadeIn('slow');
         $('#manul_youtube_page_suggestions').html("");
+        mainwindow.checkForPlaylist(); //special case cause we are loading results on same page
 
     }else{
         $.ajax({
@@ -104,6 +105,7 @@ function manual_youtube_search(term){
                $('#manul_youtube_page .ui-content').trigger("create");
                $('#manul_youtube_page .ui-content').fadeIn('slow');
                $('#manul_youtube_page_suggestions').html("");
+               mainwindow.checkForPlaylist(); //special case cause we are loading results on same page
            }
        });
     }
@@ -247,6 +249,7 @@ $(document).on('click', '#navBtn', function() {
             $('#manul_youtube_page .ui-content').trigger("create");
             $('#manul_youtube_page_suggestions').fadeOut("slow");
             $('#manul_youtube_page_suggestions').html("");
+            mainwindow.checkForPlaylist(); //special case cause we are loading results on same page
          }
         });
 });
@@ -273,6 +276,7 @@ function orderChanged(linkStr,pageType){
             $('#manul_youtube_page .ui-content').trigger("create");
             $('#manul_youtube_page_suggestions').fadeOut("slow");
             $('#manul_youtube_page_suggestions').html("");
+            mainwindow.checkForPlaylist(); //special case cause we are loading results on same page
          }
         });
 }
@@ -531,6 +535,7 @@ function open_channel(channelHref,songId){
             $('#manul_youtube_page_suggestions').html("");
             $("#trending_div").hide();
             $("#history_div").hide();
+            mainwindow.checkForPlaylist(); //special case cause we are loading results on same page
          }
         });
 }
