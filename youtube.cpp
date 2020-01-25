@@ -61,6 +61,7 @@ void Youtube::flatterFinished(int exitCode){
 
             int videoAdded = 0;
             QJsonArray jsonArray = jsonObject["entries"].toArray();
+            QString playlist_thumb;
             if(jsonArray.count()>0){
                 foreach (const QJsonValue & value, jsonArray) {
                     QJsonObject obj = value.toObject();
@@ -83,6 +84,9 @@ void Youtube::flatterFinished(int exitCode){
                     if(title.contains("[Deleted video]",Qt::CaseInsensitive) || title.contains("[Private video]",Qt::CaseInsensitive)){
                         qDebug()<<title;
                     }else{
+                        if(playlist_thumb.isEmpty()){
+                            playlist_thumb = thumb;
+                        }
                         videoAdded++;
                         list_items.append("<li>");
                         list_items.append("<a data-channelhref='"+uploader_url+"' onclick='gettrackinfo(\""+title+"!=-=!"+artist+"!=-=!"+album+"!=-=!"+thumb+"!=-=!"+songId+"!=-=!"+albumId+"!=-=!"+artistId+"!=-=!"+trackTimeMillis+"!=-=!"+videoId+"\")'>");
@@ -97,7 +101,7 @@ void Youtube::flatterFinished(int exitCode){
                         list_items.append("</li>");
                     }
                 }
-                QString header = "<div id='HEADER_DIV' style='height:250px;background-image:url("+QString("\"channel.png\"")+"); background-size: cover;"
+                QString header = "<div id='HEADER_DIV' style='height:250px;background-image:url("+QString("\""+playlist_thumb+"\"")+"); background-size: cover;"
                                  "text-align:center; background-position: center;text-shadow: 1px 3px 14px rgb(0, 0, 0);"
                                  "box-shadow:rgb(0, 0, 0) 0px 0px 30px;'>"
                                  "   <div id='HEADER_WRAPPER' style='height:100%;background-color:rgba(0, 0, 0, 0.27);' >"
