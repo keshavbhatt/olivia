@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_miniMode();
     init_smartMode();
     init_lyrics();
-    init_similar_tracks();
+
     init_downloadWidget();
     QTimer::singleShot(1000, [this]() {
         if(!checkEngine()){
@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(store_manager,&store::removeSongFromYtDlQueue,[=](QString songId){
         removeSongFromProcessQueue(songId);
     });
-
+    init_similar_tracks();
     loadPlayerQueue();
     init_search_autoComplete();
     init_radio();
@@ -1716,15 +1716,18 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
         }
         similarTracksProcessHelper();
     }
-    //SAVE DATA TO LOCAL DATABASE
-    base64.remove("data:image/jpeg;base64,");
-    base64.remove("data:image/jpg;base64,");
-    base64.remove("data:image/png;base64,");
-    store_manager->saveAlbumArt(albumId,base64);
-    store_manager->saveArtist(artistId,artist);
-    store_manager->saveAlbum(albumId,album);
-    store_manager->saveDominantColor(albumId,dominantColor);
-    store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
+
+    if(store_manager->getTrack(songId).isEmpty()){
+        //SAVE DATA TO LOCAL DATABASE
+        base64.remove("data:image/jpeg;base64,");
+        base64.remove("data:image/jpg;base64,");
+        base64.remove("data:image/png;base64,");
+        store_manager->saveAlbumArt(albumId,base64);
+        store_manager->saveArtist(artistId,artist);
+        store_manager->saveAlbum(albumId,album);
+        store_manager->saveDominantColor(albumId,dominantColor);
+        store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
+    }
 
     for (int i = 0; i <  currentSimilarTrackList.count(); i++) {
         if(currentSimilarTrackList.at(i).contains(songId)){
@@ -1755,6 +1758,8 @@ void MainWindow::similarTracksProcessHelper(){
             }
         }
     }
+    //added to assing next when loading local songs
+    nextPreviousHelper(ui->smart_list);
 }
 
 //INVOKABLE method to add track to one of the player queue
@@ -3062,6 +3067,11 @@ void MainWindow::showAddToSmartPlaylist(){
     ui->playlistLoaderButtton->show();
 }
 
+void MainWindow::playAllLocalSongs()
+{
+    similarTracks->addLocalSongs();
+}
+
 //returns theme color from common.js
 void MainWindow::setThemeColor(QString color){
     themeColor = color;
@@ -3904,8 +3914,10 @@ void MainWindow::getRecommendedTracksForAutoPlayHelper(QString videoId, QString 
         }
     }
 
-    if(similarTracks->isLoadingPLaylist){
+    if(similarTracks->isLoadingPLaylist && !similarTracks->isLoadingLocalSongs ){
         similarTracks->getNextTracksInPlaylist(currentSimilarTrackList);
+    }else if(similarTracks->isLoadingPLaylist && similarTracks->isLoadingLocalSongs){
+        similarTracks->pullMoreLocalTracks();
     }else{
         similarTracks->addSimilarTracks(videoId,songId);
     }
@@ -4932,3 +4944,5 @@ void MainWindow::on_clear_clicked()
 {
     similarTracks->clearListKeepingPlayingTrack();
 }
+
+

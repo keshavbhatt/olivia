@@ -103,6 +103,7 @@ public:
     Q_INVOKABLE void delete_video_cache(QVariant track_id);
     Q_INVOKABLE void open_youtube_channel_for_video(QVariant videoId);
     Q_INVOKABLE void showAddToSmartPlaylist();
+    Q_INVOKABLE void playAllLocalSongs();
 
     QString youtubeSearchTerm;
     bool saveTracksAfterBuffer;
