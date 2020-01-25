@@ -3039,16 +3039,18 @@ void MainWindow::hidePlaylistButton(){
 }
 //called from common.js
 void MainWindow::checkForPlaylist(){
-    QVariant ulCount = ui->webview->page()->mainFrame()->evaluateJavaScript("$.mobile.activePage.find('ul').length");
+    QVariant ulCount = ui->webview->page()->mainFrame()->evaluateJavaScript("document.querySelector('.ui-page-active').querySelectorAll('ul').length");
     if(ulCount.isValid()){
         int totalUl = ulCount.toInt();
         // find ul which contains gettrackinfo
         for (int i = 0; i < totalUl; i++) {
-            QVariant validList = ui->webview->page()->mainFrame()->evaluateJavaScript("$($.mobile.activePage.find('ul')["+QString::number(i)+"]).html().includes('gettrackinfo')");
+            QVariant validList = ui->webview->page()->mainFrame()->evaluateJavaScript("document.querySelector('.ui-page-active').querySelectorAll('ul')["+QString::number(i)+"].innerHTML.includes('gettrackinfo')");
             if(validList.isValid() && validList.toBool() == true){
-                //this shows add all buttton in webview but is slow.
-//                QString js = "$($.mobile.activePage.find('ul')["+QString::number(i)+"]).prepend(\"<a id='playall' onclick='mainwindow.on_playlistLoaderButtton_clicked();' style='background-color: rgb(4, 125, 141) !important;border:none !important;' class='ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-playall'>Add to queue</a>\")";
-//                ui->webview->page()->mainFrame()->evaluateJavaScript(js);
+
+                ui->webview->page()->mainFrame()->evaluateJavaScript("var playlist = document.querySelector('.ui-page-active').querySelectorAll('ul')["+QString::number(i)+"]");
+                //this shows add all buttton in webview.
+                QString js =  "playlist.innerHTML = \"<a id='playall' class='ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-playall' onclick='mainwindow.on_playlistLoaderButtton_clicked();' data-role='button'>Play All</a>\" + playlist.innerHTML";
+                ui->webview->page()->mainFrame()->evaluateJavaScript(js);
                // QToolTip::showText( ui->playlistLoaderButtton->mapToGlobal( QPoint( 0, 0 ) ), ui->playlistLoaderButtton->toolTip(),ui->playlistLoaderButtton,ui->playlistLoaderButtton->rect(),3000);
                 ui->playlistLoaderButtton->show();
                 break;
