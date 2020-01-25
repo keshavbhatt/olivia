@@ -32,13 +32,16 @@ public:
 
 
 
+
 signals:
     void removeSongFromYtDlQueue(QString songId);
 private:
     QSqlDatabase db;
     int storeVersion;
 
-    int currentPageNumber,totalTracks,limit,totalPages;
+    int currentPageNumber,totalTracks,totalPages,limit;
+
+    int localSongslimit;
 
 public slots:
 
@@ -81,6 +84,9 @@ public slots:
 
 
     bool is_favourite_station(QString channel_id);
+    int getTrackCount(QString fromTable, QString fromRow);
+    QList<QStringList> get_local_saved_tracks(int offset);
+
 private slots:
 
     void initStore(QString dbName);
@@ -99,8 +105,6 @@ private slots:
     QList<QStringList> getAlbumTrackList(QString albumId);
     QList<QStringList> getAllVideos();
 
-    int getTrackCount(QString fromTable, QString fromRow);
-    QList<QStringList> get_local_saved_tracks(int offset);
 
     int getSearchResultTrackCount(QString queryStr);
     QList<QStringList> get_search_local_saved_tracks(int offset, QString queryStr);
@@ -110,6 +114,7 @@ private slots:
 
     int getSearchResultTrackCountLikedSongs(QString queryStr);
     QList<QStringList> get_search_liked_tracks(int offset, QString queryStr);
+
 };
 
 #endif // STORE_H
