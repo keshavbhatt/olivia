@@ -1717,7 +1717,7 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
         similarTracksProcessHelper();
     }
 
-    if(store_manager->getTrack(songId).isEmpty()){
+//    if(store_manager->getTrack(songId).isEmpty()){
         //SAVE DATA TO LOCAL DATABASE
         base64.remove("data:image/jpeg;base64,");
         base64.remove("data:image/jpg;base64,");
@@ -1727,7 +1727,7 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
         store_manager->saveAlbum(albumId,album);
         store_manager->saveDominantColor(albumId,dominantColor);
         store_manager->setTrack(QStringList()<<songId<<albumId<<artistId<<title);
-    }
+//    }
 
     for (int i = 0; i <  currentSimilarTrackList.count(); i++) {
         if(currentSimilarTrackList.at(i).contains(songId)){
@@ -2031,6 +2031,8 @@ void MainWindow::showTrackOption(){
     QString albumId = store_manager->getAlbumId(songId);
     QString artistId = store_manager->getArtistId(songId);
 
+    qDebug()<<"albumId:"<<albumId;
+
     QAction *showRecommendation = new QAction("Spotify Recommendations",nullptr);
     QAction *watchVideo = new QAction("Video Options",nullptr);
     QAction *showLyrics = new QAction("Show Lyrics",nullptr);
@@ -2233,7 +2235,7 @@ void MainWindow::showTrackOption(){
             menu.addAction(startRadio);
             menu.addAction(getRemixes);
         }
-        if(!isNumericStr(songId)) //spotify song ids are not numeric
+        if(!isNumericStr(songId) && (!albumId.contains("undefined")&&!albumId.contains("soundcloud"))) //spotify song ids are not numeric
         {
             menu.addAction(showRecommendation);
         }
