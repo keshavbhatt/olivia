@@ -45,11 +45,32 @@ Backup::Backup(QWidget *parent, QString settings_path, QSettings *settingsObj) :
 
     //check last backup
     check_last_backup();
+
+    QString btn_style ="QPushButton{color: silver; background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 3px; padding-right: 3px; border-radius: 2px; outline: none;}"
+    "QPushButton:disabled { background-color: #45443F; border:1px solid #272727; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; /*border-radius: 2px;*/ color: #636363;}"
+    "QPushButton:hover{border: 1px solid #272727;background-color:#5A584F; color:silver ;}"
+    "QPushButton:pressed {background-color: #45443F;color: silver;padding-bottom:1px;}";
+
+    foreach(QPushButton *btn,this->findChildren<QPushButton*>()){
+        btn->setStyleSheet(btn_style);
+    }
 }
 
 void Backup::fixTheme(){
     foreach(QLabel *label,this->findChildren<QLabel*>()){
-        label->setStyleSheet("");
+        if(label->objectName().contains("styled_",Qt::CaseInsensitive)||label->objectName()=="last"){
+            label->setStyleSheet("background-color: rgba(0,170,0,20);"
+                                 "padding:4px;"
+                                 "border:1px solid rgba(78, 154, 6,50);"
+                                 "border-radius: 2px;");
+        }else if (label->objectName().contains("status",Qt::CaseInsensitive)) {
+            label->setStyleSheet("background-color: rgb(42, 130, 218,20);"
+                                 "padding:4px;"
+                                 "border:0px;"
+                                 "border-radius: 2px;");
+        }else{
+            label->setStyleSheet("");
+        }
     }
 }
 

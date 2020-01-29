@@ -146,5 +146,6 @@
         <file>icons/others/restore.png</file>
         <file>icons/others/order-play-line.png</file>
         <file>icons/others/folder-open-line.png</file>
+        <file>icons/others/database-2-line.png</file>
     </qresource>
 </RCC>

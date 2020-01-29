@@ -6,39 +6,55 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>403</width>
-    <height>470</height>
+    <width>594</width>
+    <height>319</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
     <widget class="QGroupBox" name="groupBox">
+     <property name="minimumSize">
+      <size>
+       <width>300</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="title">
       <string>BackUp</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="spacing">
+       <number>10</number>
+      </property>
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="styled_label_3">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgba(0,170,0,50);
-padding:4px;
-border:1px solid rgb(78, 154, 6);
-border-radius: 5px;</string>
-        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Backup allows you to backup your current Application data to a restorable archive.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ElidedLabel" name="status">
+        <property name="toolTip">
+         <string>Status</string>
+        </property>
+        <property name="text">
+         <string>-</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -56,8 +72,14 @@ border-radius: 5px;</string>
         </property>
         <item>
          <widget class="QLineEdit" name="backup_path">
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="toolTip">
            <string>Path to store backup</string>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
           </property>
           <property name="placeholderText">
            <string>path to store backup</string>
@@ -65,9 +87,12 @@ border-radius: 5px;</string>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="change_path">
-          <property name="text">
+         <widget class="controlButton" name="change_path">
+          <property name="toolTip">
            <string>Change path</string>
+          </property>
+          <property name="text">
+           <string/>
           </property>
           <property name="icon">
            <iconset resource="icons.qrc">
@@ -86,24 +111,30 @@ border-radius: 5px;</string>
       </item>
       <item>
        <widget class="QCheckBox" name="video_checkBox">
+        <property name="minimumSize">
+         <size>
+          <width>250</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>Include downloaded videos</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="ElidedLabel" name="status">
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(42, 130, 218,50);
-padding:4px;
-border:1px solid rgb(42, 130, 218);
-border-radius: 5px;</string>
+       <widget class="QLabel" name="last">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="text">
-         <string>-</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Last backup:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
+        <property name="wordWrap">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -119,51 +150,40 @@ border-radius: 5px;</string>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="automatic_backup">
-        <property name="text">
-         <string>Take automatic backup every week</string>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="last">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
         </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgba(0,170,0,50);
-padding:4px;
-border:1px solid rgb(78, 154, 6);
-border-radius: 5px;</string>
-        </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Last backup:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
+       </spacer>
       </item>
      </layout>
     </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_2">
+     <property name="styleSheet">
+      <string notr="true">
+QGroupBox{
+background-image: url(:/icons/others/database-2-line.png);
+background-repeat: no-repeat;
+background-position: bottom right;
+}</string>
+     </property>
      <property name="title">
       <string>Restore</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
+      <property name="spacing">
+       <number>10</number>
+      </property>
       <item>
-       <widget class="QLabel" name="label_4">
-        <property name="styleSheet">
-         <string notr="true">background-color: rgba(0,170,0,50);
-padding:4px;
-border:1px solid rgb(78, 154, 6);
-border-radius: 5px;</string>
-        </property>
+       <widget class="QLabel" name="styled_label_4">
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Restore allows you to restore your previous Application data backup.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -173,25 +193,22 @@ border-radius: 5px;</string>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Warning: Your existing data will be deleted.</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="ElidedLabel" name="status_restore">
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(42, 130, 218,50);
-padding:4px;
-border:1px solid rgb(42, 130, 218);
-border-radius: 5px;</string>
+        <property name="toolTip">
+         <string>Status</string>
         </property>
         <property name="text">
          <string>-</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Warning: Your existing data will be deleted.</string>
         </property>
        </widget>
       </item>
@@ -206,6 +223,19 @@ border-radius: 5px;</string>
         </property>
        </widget>
       </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </widget>
    </item>
@@ -216,6 +246,11 @@ border-radius: 5px;</string>
    <class>ElidedLabel</class>
    <extends>QLabel</extends>
    <header>elidedlabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>controlButton</class>
+   <extends>QPushButton</extends>
+   <header>controlbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>
