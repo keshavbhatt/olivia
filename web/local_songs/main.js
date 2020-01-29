@@ -1,7 +1,7 @@
 var baseUrl = "http://ktechpit.com/USS/Olivia/"
 
 $(document).bind("mobileinit", function(){
-        $.mobile.defaultPageTransition = 'slidefade';
+        $.mobile.defaultPageTransition = 'fade';
         $.mobile.ajaxEnabled = true;
         $.mobile.hideUrlBar = false;
 });
@@ -115,9 +115,9 @@ function open_local_saved_tracks(){
     $('.ui-content').hide();
     var html = store.web_print_local_saved_tracks();
     if(html.includes("<li")){
-        html = "<a id='playallLocal' onclick='mainwindow.playAllLocalSongs();'"+
+        html = "<a id='playallLocal' class='ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-playall' onclick='mainwindow.playAllLocalSongs();'"+
                " style='background-color: rgb(4, 125, 141) !important;border:none !important;'"+
-               " data-role='button'>Play all local tracks</a><br>"+html;
+               " >Play all saved tracks</a><br>"+html;
     }
     $('#tracks_page .ui-content').html(html);
     $('#tracks_page .ui-content').trigger('create');
@@ -132,9 +132,9 @@ function openPagenumber(pagenumber){
     $('.ui-content').hide();
     var html = store.open_local_saved_tracks_PageNumber(pagenumber);
     if(pagenumber==="0"&& html.includes("<li")){
-        html = "<a id='playallLocal' onclick='mainwindow.playAllLocalSongs();'"+
+        html = "<a id='playallLocal' class='ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-playall' onclick='mainwindow.playAllLocalSongs();'"+
                " style='background-color: rgb(4, 125, 141) !important;border:none !important;'"+
-               " data-role='button'>Play all local tracks</a><br>"+html;
+               " >Play all saved tracks</a><br>"+html;
     }
     $('#tracks_page .ui-content').html(html);
     $('#tracks_page .ui-content').trigger('create');

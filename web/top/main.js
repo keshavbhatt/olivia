@@ -3,7 +3,7 @@ var baseUrl = "http://ktechpit.com/USS/Olivia/"
 //order=relevance&safeSearch=none&videoDefinition=any&date_filter=any&videoDuration=any&videotype=any&cat=10&region=in
 
 $(document).bind("mobileinit", function(){
-        $.mobile.defaultPageTransition = 'slidefade';
+        $.mobile.defaultPageTransition = 'fade';
         $.mobile.ajaxEnabled = true;
         $.mobile.hideUrlBar = false;
 });

@@ -1,7 +1,7 @@
 var baseUrl = "http://ktechpit.com/USS/Olivia/radio/"
 
 $(document).bind("mobileinit", function(){
-        $.mobile.defaultPageTransition = 'slidefade';
+        $.mobile.defaultPageTransition = 'fade';
         $.mobile.ajaxEnabled = true;
         $.mobile.hideUrlBar = false;
 });
@@ -362,48 +362,51 @@ function channel_option(channel_id){
                 $( "#popup-" + songId ).find('p').attr('style',"word-wrap: break-word;");
                 $( "#popup-" + songId ).find("ul").listview();
                 $( "#popup-" + songId ).popup( "open" ).trigger("create");
-                $('body').css('overflow','hidden');
+                $("html").css("overflow-y","hidden");
 
 
         $("#"+songId+"_playChannel").on("click",function(){
                 playStation(streamDetail);
                 $('#popup-'+songId ).popup("close");
-                $('body').css('overflow','auto');
+
         });
 
         $("#"+songId+"_addFavourite").on("click",function(){
                 mainwindow.saveRadioChannelToFavourite(arr);
                 $('#popup-'+songId ).popup("close");
-                $('body').css('overflow','auto');
                 favourite_loaded = false; //trigger refresh
+
         });
 
         $("#"+songId+"_removeFavourite").on("click",function(){
                 store.removeRadioChannelFromFavourite(songId);
                 $('#popup-'+songId ).popup("close");
-                $('body').css('overflow','auto');
                 favourite_loaded = false; //trigger refresh
                 $('#favourite_page .ui-content').fadeOut();
                 load_favourite();
                 $('#favourite_page .ui-content').fadeIn();
+
         });
 
         $("#"+songId+"_closePopup").on("click",function(){
             $('#popup-'+songId ).popup("close");
-            $('body').css('overflow','auto');
+
         });
 
         $( document ).on( "popupbeforeposition", $('#popup-'+songId ), function() {
             $('#popup-'+songId).find("ul").listview();
-            $('body').css('overflow','hidden');
+            $("html").css("overflow-y","hidden");
         });
 
         // Remove the popup after it has been closed
         $( document ).on( "popupafterclose", $('#popup-'+songId), function() {
             $('#popup-'+songId ).remove();
             $.mobile.loading("hide");
-            $('body').css('overflow','auto');
+            $("html").css("overflow-y","scroll");
         });
+
+    //scroll fix after popup init
+
 }
 
 

@@ -1,7 +1,7 @@
 var baseUrl = "http://ktechpit.com/USS/Olivia/"
 
 $(document).bind("mobileinit", function(){
-        $.mobile.defaultPageTransition = 'slidefade';
+        $.mobile.defaultPageTransition = 'fade';
         $.mobile.ajaxEnabled = true;
         $.mobile.hideUrlBar = false;
 });
@@ -466,15 +466,17 @@ function track_option(track_id){
                 $('body').css('overflow','auto');
         });
 
+        //scroll fix after popup init
+
         $( document ).on( "popupbeforeposition", $('#popup-'+songId ), function() {
             $( '#popup-'+songId).find("ul").listview();
-            $('body').css('overflow','hidden');
+            $("html").css("overflow-y","hidden");
         });
 
         // Remove the popup after it has been closed
         $( document ).on( "popupafterclose", $('#popup-'+songId), function() {
             $( '#popup-'+songId ).remove();
-            $('body').css('overflow','auto');
+             $("html").css("overflow-y","scroll");
         });
 }
 

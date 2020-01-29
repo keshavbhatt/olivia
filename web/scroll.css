@@ -3,15 +3,15 @@ html {
 }
 
 .ui-icon-playall:after {
-    background-image: url("qrc:///icons/p_play.png");
-    /* Make your icon fit */
-    background-size: 18px 18px;
+    background-image: url("qrc:///icons/others/order-play-line.png");
+    background-size: 14px 14px;
 }
 
 #playall , #playallLocal{
     border :none !important;
     font-size: 12.5px !important;
     background-color: rgba(36, 142, 179, 0.66)!important;
+    margin-bottom: 15px !important;
 }
 
 .ui-alt-icon.ui-icon-search:after, .ui-alt-icon .ui-icon-search:after, .ui-input-search:after{

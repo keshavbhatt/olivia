@@ -1,7 +1,7 @@
 var baseUrl = "http://ktechpit.com/USS/Olivia/"
 
 $(document).bind("mobileinit", function(){
-        $.mobile.defaultPageTransition = 'slidefade';
+        $.mobile.defaultPageTransition = 'fade';
         $.mobile.ajaxEnabled = true;
         $.mobile.hideUrlBar = false;
 });

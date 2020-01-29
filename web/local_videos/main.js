@@ -1,7 +1,7 @@
 var baseUrl = "http://ktechpit.com/USS/Olivia/"
 
 $(document).bind("mobileinit", function(){
-        $.mobile.defaultPageTransition = 'slidefade';
+        $.mobile.defaultPageTransition = 'fade';
         $.mobile.ajaxEnabled = true;
         $.mobile.hideUrlBar = false;
 });
@@ -91,8 +91,7 @@ function open_local_saved_videos(){
     $( ".ui-page-active [data-role='header'] h1" ).html(json.length+" downloaded videos");
     for(var i= 0; i < json.length;i++){
         var divider = "!=-=!";
-//        var albumType = (json[i].album === "undefined") ? "Youtube":"";
-        var imgHtml,para;
+         var imgHtml,para;
                if(json[i].albumId.includes("undefined-")){
                    para = "<p style='margin-left: 7.5em;'>";
                    imgHtml = "<img id='"+json[i].songId+"' style='max-width:178px;max-height:144px;width=178px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \>";
@@ -101,8 +100,8 @@ function open_local_saved_videos(){
                    imgHtml = "<p style='background-color:rgb("+json[i].dominant+");' class='li-img-wrapper'><img id='"+json[i].songId+"' style='width:100%;max-width:100px;max-height:144px;width=100px;height=100px;' id='' src='data:image/png;base64,"+json[i].base64+"' \></p>";
                }
          $html = $html+
-            "<li  data-filtertext='"+json[i].title+" "+json[i].album+" "+json[i].artist+"' >"+
-            "<a  onclick='mainwindow.playVideo(\""+json[i].songId+"\")' data-trackinfo='"+json[i].title+divider+json[i].artist+divider+json[i].album+divider+json[i].base64+divider+json[i].songId+divider+json[i].albumId+divider+json[i].artistId+divider+"millis"+"'>"
+            "<li  data-filtertext='"+he.encode(json[i].title)+" "+he.encode(json[i].album)+" "+he.encode(json[i].artist)+"' >"+
+            "<a  onclick='mainwindow.playVideo(\""+json[i].songId+"\")' data-trackinfo='"+he.encode(json[i].title)+divider+he.encode(json[i].artist)+divider+he.encode(json[i].album)+divider+json[i].base64+divider+json[i].songId+divider+json[i].albumId+divider+json[i].artistId+divider+"millis"+"'>"
          +imgHtml+para+
                         ""+json[i].title+
                         "<br>"+
@@ -188,6 +187,8 @@ function track_option(track_id){
         searchterm = $("#"+track_id).parent().attr("data-trackinfo")
     }
     var arr = searchterm.split("!=-=!");
+    console.log(arr);
+
     title = arr[0];
     artist = arr[1];
     album = arr[2];
