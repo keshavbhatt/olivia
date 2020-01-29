@@ -611,6 +611,7 @@ void MainWindow::openBackupUtil(){
     backup->adjustSize();
     backup->setFixedSize(backup->size());
     backup->check_last_backup();
+    backup->fixTheme();
     backup->showNormal();
 }
 
@@ -832,7 +833,6 @@ void MainWindow::set_app_theme(QColor rgb){
     if(backup != nullptr){
         backup->setStyleSheet("QWidget#Backup{"+ui->search->styleSheet()+"}"
                                          +"QFrame{"+ui->search->styleSheet()+"}");
-        backup->fixTheme();
     }
 
     settingsUi.download_engine->setStyleSheet(btn_style);
