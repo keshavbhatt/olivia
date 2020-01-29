@@ -832,6 +832,7 @@ void MainWindow::set_app_theme(QColor rgb){
     if(backup != nullptr){
         backup->setStyleSheet("QWidget#Backup{"+ui->search->styleSheet()+"}"
                                          +"QFrame{"+ui->search->styleSheet()+"}");
+        backup->fixTheme();
     }
 
     settingsUi.download_engine->setStyleSheet(btn_style);
@@ -3567,7 +3568,8 @@ void MainWindow::compare_versions(QString date,QString n_date){
           msgBox.setInformativeText("You are having an outdated engine (<b>ver: "+date+"</b>), please update to latest engine for better performance. Update now ?");
           msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
           msgBox.setDefaultButton(QMessageBox::Ok);
-
+          QPushButton *p = new QPushButton("Quit",nullptr);
+          msgBox.addButton(p,QMessageBox::NoRole);
           int ret = msgBox.exec();
           switch (ret) {
             case QMessageBox::Ok:
@@ -3577,6 +3579,9 @@ void MainWindow::compare_versions(QString date,QString n_date){
             case  QMessageBox::Cancel:
                   check_engine_updates();
               break;
+            default:
+              qApp->quit();
+            break;
           }
     }
 }
