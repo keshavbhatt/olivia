@@ -47,6 +47,12 @@ Backup::Backup(QWidget *parent, QString settings_path, QSettings *settingsObj) :
     check_last_backup();
 }
 
+void Backup::fixTheme(){
+    foreach(QLabel *label,this->findChildren<QLabel*>()){
+        label->setStyleSheet("");
+    }
+}
+
 void Backup::check_last_backup(){
     QString backupFilePath = ui->backup_path->text()+"Olivia_backup_"+lastBackTime+".tar";
     if(QFileInfo(backupFilePath).exists()){
@@ -161,14 +167,27 @@ void Backup::on_change_path_clicked()
 
 void Backup::on_restore_clicked()
 {
-    QString back_dir_path = ui->backup_path->text().trimmed();
     //show warning
     QMessageBox msgBox;
-    msgBox.setText("This will empty all application data.");
+    msgBox.setText("This will delete current application data of Olivia and restore selected backup.\nPress cancel to Cancel process.");
           msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-    msgBox.setStandardButtons(QMessageBox::Ok );
-    msgBox.setDefaultButton(QMessageBox::Ok);
-    msgBox.exec();
+    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    int ret = msgBox.exec();
+    switch (ret) {
+      case QMessageBox::Ok:
+            start_restore();
+        break;
+      case  QMessageBox::Cancel:
+            return;
+        break;
+    }
+}
+
+void Backup::start_restore(){
+
+    //get backup restore path from existing dialog
+    QString back_dir_path = ui->backup_path->text().trimmed();
 
     //get backup file
     QString backup_file_path = QFileDialog::getOpenFileName(this,tr("Select backup file to be restored."),back_dir_path,tr("Archive (*.tar)"),nullptr,QFileDialog::DontUseNativeDialog);
@@ -185,6 +204,7 @@ void Backup::on_restore_clicked()
     untar->setArguments(args);
     connect(untar,SIGNAL(finished(int)),this,SLOT(untarFinished(int)));
     connect(untar,SIGNAL(readyRead()),this,SLOT(untarReadyRead()));
+
 
     //empty existing directory first
     ui->status_restore->setText("Deleting old files");

@@ -21,6 +21,8 @@ signals:
 
 public slots:
     void check_last_backup();
+    void fixTheme();
+
 private slots:
     void on_backup_clicked();
     void on_restore_clicked();
@@ -32,6 +34,7 @@ private slots:
 
     void untarFinished(int exitCode);
     void untarReadyRead();
+    void start_restore();
 private:
     Ui::Backup *ui;
     QString settings_path,audio_path,video_path;
