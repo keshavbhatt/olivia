@@ -169,7 +169,8 @@ void Backup::on_restore_clicked()
 {
     //show warning
     QMessageBox msgBox;
-    msgBox.setText("This will delete current application data of Olivia and restore selected backup.\nPress cancel to Cancel process.");
+    msgBox.setWindowTitle("Restore warning");
+    msgBox.setText("Warning: Pressing Ok button will delete current application data of Olivia and restore selected backup.\n\nOnly click Ok if you have previous backup file to restore.\n\nPress cancel to Cancel process.");
           msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Cancel);
