@@ -1161,14 +1161,6 @@ void MainWindow::loadPlayerQueue(){ //  #7
         if(albumId.contains("soundcloud")){
             track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/soundcloud_micro.png') no-repeat bottom right}");
         }
-//        else if(!isNumericStr(songId) && !albumId.contains("undefined")){
-//            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/spotify_micro.png') no-repeat bottom right}");
-//        }else if (isNumericStr(songId)) {
-//            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/itunes_micro.png') no-repeat bottom right}");
-//        }
-        /*else if (albumId.contains("undefined")) {
-            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/youtube_micro.png') no-repeat bottom right}");
-        }*/
 
         track_ui.meta->hide();
 
@@ -1502,11 +1494,6 @@ void MainWindow::webViewLoaded(bool loaded){
             search(term);
         }
     }
-//    if(pageType == "youtube" || pageType =="soundcloud"){
-//        ui->webview->page()->mainFrame()->evaluateJavaScript("document.querySelector(\"body\").setAttribute(\"style\",\"background-image:url('qrc://///icons/bg/"+pageType+".png') !important\");");
-//    }else{
-//        ui->webview->page()->mainFrame()->evaluateJavaScript("document.querySelector(\"body\").setAttribute(\"style\",\"background-image:url('qrc://///icons/bg/main.png') !important\");");
-//    }
 }
 
 void MainWindow::setSearchTermAndOpenYoutube(QVariant term){
@@ -1542,13 +1529,15 @@ void MainWindow::prepareSimilarTracks(){
 }
 
 void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
-    if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
 
+    if(!ui->recommWidget->isVisible()) ui->show_hide_smart_list_button->click();
     QString Base64andDominantColorStr = Base64andDominantColor.toString();
     QString base64 = Base64andDominantColorStr.split("!=-=!").last();
     QString dominantColor = Base64andDominantColorStr.split("!=-=!").first();
 
     QString ytIds,title,artist,album,coverUrl,songId,albumId,artistId;
+
+
 
     //check is meta is available prevent ASSERT failure in QList<T>
     if(currentSimilarTrackMeta.isEmpty() && currentSimilarTrackMeta.count()<7)
@@ -1562,6 +1551,10 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     songId= currentSimilarTrackMeta.at(4);
     albumId= currentSimilarTrackMeta.at(5);
     artistId = currentSimilarTrackMeta.at(6);
+
+    //prevent adding tracks with no songId it causes trouble
+    if(songId.isEmpty())
+        return;
 
     //add dominantColor and base64 to currenttrackmeta stringlist
     currentSimilarTrackMeta.append(dominantColor);
@@ -1774,6 +1767,9 @@ void MainWindow::addToQueue(QString ytIds,QString title,
                             QString artist,QString album,QString base64,
                             QString dominantColor,QString songId,QString albumId,QString artistId){
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    //prevent adding tracks with no songId it causes trouble
+    if(songId.isEmpty())
+        return;
     //check if track is in player queue already if found prevent further execution
     if(store_manager->isInQueue(songId)){
         findTrackInQueue(songId);
@@ -1788,14 +1784,6 @@ void MainWindow::addToQueue(QString ytIds,QString title,
         if(albumId.contains("soundcloud")){
             track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/soundcloud_micro.png') no-repeat bottom right}");
         }
-//        else if(!isNumericStr(songId) && !albumId.contains("undefined")){
-//            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/spotify_micro.png') no-repeat bottom right}");
-//        }else if (isNumericStr(songId)) {
-//            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/itunes_micro.png') no-repeat bottom right}");
-//        }
-        /*else if (albumId.contains("undefined")) {
-            track_widget->setStyleSheet("QWidget#track-widget-"+songId+"{background: transparent url(':/icons/micro/youtube_micro.png') no-repeat bottom right}");
-        }*/
 
         QFont font("Ubuntu");
         font.setPixelSize(12);
@@ -3245,13 +3233,17 @@ void MainWindow::playSongById(QVariant songIdVar){
 void MainWindow::addToQueueFromLocal(QVariant songIdVar){
     QString url,songId,title,album,artist,base64;
     songId = songIdVar.toString();
-    QStringList tracskList ;
-    tracskList = store_manager->getTrack(songId);
+    qDebug()<<songId;
+    //prevent adding tracks with no songId it causes trouble
+    if(songId.isEmpty())
+        return;
+    QStringList tracskMeta ;
+    tracskMeta = store_manager->getTrack(songId);
 
-    title = tracskList[1];
-    album = tracskList[3];
-    artist = tracskList[5];
-    base64 = tracskList[6];
+    title = tracskMeta[1];
+    album = tracskMeta[3];
+    artist = tracskMeta[5];
+    base64 = tracskMeta[6];
 //    nowPlayingSongIdWatcher->setValue(songId.remove("<br>"));
     QString setting_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     url = "file://"+setting_path+"/downloadedTracks/"+songId;
@@ -4525,7 +4517,7 @@ void MainWindow::playVideo(QString trackId){
         QString titleLabel =store_manager->getTrack(trackId).at(1);
         QProcess *player = new QProcess(this);
         player->setObjectName("player");
-        player->start("mpv",QStringList()<<"--title=MPV for Olivia - "+
+        player->start("mpv",QStringList()<<"--geometry=50%:50%"<<"--autofit=70%"<<"--title=MPV for Olivia - "+
                       titleLabel<<"--no-ytdl"<<files.at(0).filePath()<<"--volume"<<QString::number(radio_manager->volume)
                       );
     }
