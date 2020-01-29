@@ -1,11 +1,12 @@
 //include this lib after loading jquery
 
 $(document).bind("mobileinit", function(){
-      $.mobile.defaultPageTransition = 'slidefade';
-      $.mobile.defaultDialogTransition = 'pop';
-      $.mobile.useFastClick = true;
-      $.mobile.pageLoadErrorMessage("Please check your netconnection");
+    $.mobile.defaultPageTransition = 'fade';
+    $.mobile.defaultDialogTransition = 'slideup';
+    $.mobile.useFastClick = true;
+    $.mobile.pageLoadErrorMessage("Please check your netconnection");
 });
+
 
 //add String.include protype for copatibility with older webkit versions
 if (!String.prototype.includes) {
