@@ -973,11 +973,11 @@ QString store::open_local_saved_tracks_PageNumber(int pageNumber){
 
             QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
             songId = trackList.at(0);
-            title = trackList.at(1);
+            title = utils::EncodeXML(trackList.at(1));
             albumId = trackList.at(2);
-            album = trackList.at(3);
+            album = utils::EncodeXML(trackList.at(3));
             artistId = trackList.at(4);
-            artist = trackList.at(5);
+            artist = utils::EncodeXML(trackList.at(5));
             base64 = trackList.at(6);
             url = trackList.at(7);
             id = trackList.at(8);
@@ -1044,9 +1044,9 @@ QString store::search_print_local_saved_tracks(QVariant queryStr){
 
 //main result provider update query in getSearchResultTrackCount also to get correct page numbers
 QList<QStringList> store::get_search_local_saved_tracks(int offset,QString queryStr){
-    QSqlQuery query,artistIdquery;
+    QSqlQuery query;//,artistIdquery;
     QList<QStringList> trackList;
-     QStringList artistMatched;
+    // QStringList artistMatched;
     query.exec("SELECT trackId FROM tracks WHERE title LIKE '%"+queryStr+"%' AND downloaded = '1' LIMIT "+QString::number(limit)+" OFFSET "+QString::number(offset));
         while(query.next()){
              trackList.append(getTrack(query.value("trackId").toString()));
@@ -1069,7 +1069,6 @@ QList<QStringList> store::get_search_local_saved_tracks(int offset,QString query
 //                }
 //            }
 //        }
-
     return trackList;
 }
 
@@ -1112,11 +1111,11 @@ QString store::open_search_local_saved_tracks(int pageNumber,QVariant queryStr){
 
             QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
             songId = trackList.at(0);
-            title = trackList.at(1);
+            title = utils::EncodeXML(trackList.at(1));
             albumId = trackList.at(2);
-            album = trackList.at(3);
+            album = utils::EncodeXML(trackList.at(3));
             artistId = trackList.at(4);
-            artist = trackList.at(5);
+            artist = utils::EncodeXML(trackList.at(5));
             base64 = trackList.at(6);
             url = trackList.at(7);
             id = trackList.at(8);
@@ -1309,11 +1308,11 @@ QString store::open_liked_tracks_PageNumber(int pageNumber){
 
             QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
             songId = trackList.at(0);
-            title = trackList.at(1);
+            title = utils::EncodeXML(trackList.at(1));
             albumId = trackList.at(2);
-            album = trackList.at(3);
+            album = utils::EncodeXML(trackList.at(3));
             artistId = trackList.at(4);
-            artist = trackList.at(5);
+            artist = utils::EncodeXML(trackList.at(5));
             base64 = trackList.at(6);
             url = trackList.at(7);
             id = trackList.at(8);
@@ -1431,11 +1430,11 @@ QString store::open_search_liked_tracks(int pageNumber,QVariant queryStr){
 
             QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
             songId = trackList.at(0);
-            title = trackList.at(1);
+            title = utils::EncodeXML(trackList.at(1));
             albumId = trackList.at(2);
-            album = trackList.at(3);
+            album = utils::EncodeXML(trackList.at(3));
             artistId = trackList.at(4);
-            artist = trackList.at(5);
+            artist = utils::EncodeXML(trackList.at(5));
             base64 = trackList.at(6);
             url = trackList.at(7);
             id = trackList.at(8);
