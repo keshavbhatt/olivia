@@ -26,6 +26,7 @@
 #include "waitingspinnerwidget.h"
 
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -38,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_miniMode();
     init_smartMode();
     init_lyrics();
+    init_backup();
 
     init_downloadWidget();
     QTimer::singleShot(1000, [this]() {
@@ -589,6 +591,11 @@ void MainWindow::init_settings(){
     connect(settingsUi.plus,SIGNAL(clicked(bool)),this,SLOT(zoomin()));
     connect(settingsUi.minus,SIGNAL(clicked(bool)),this,SLOT(zoomout()));
 
+    connect(settingsUi.backup_restore,&QPushButton::clicked,[=](){
+         openBackupUtil();
+    });
+
+
     settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
     add_colors_to_color_widget();
 
@@ -597,12 +604,21 @@ void MainWindow::init_settings(){
     ui->vis_widget->setVisible(settingsObj.value("visualizer").toBool());
 }
 
+void MainWindow::openBackupUtil(){
+    if(settingsWidget->isVisible()){
+        settingsWidget->close();
+    }
+    backup->adjustSize();
+    backup->setFixedSize(backup->size());
+    backup->check_last_backup();
+    backup->showNormal();
+}
+
 void MainWindow::restart_required(){
     QMessageBox msgBox;
     msgBox.setText("Application need to restart!");
           msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-
-    msgBox.setInformativeText("Please restart application for new changes.");
+    msgBox.setInformativeText("Please restart application to load new changes.");
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.setDefaultButton(QMessageBox::Ok);
     msgBox.exec();
@@ -706,7 +722,6 @@ void MainWindow::add_colors_to_color_widget(){
 
         color_list<<"fakeitem"<<"#FF0034"<<"#2A82DA"<<"#029013"
                         <<"#D22298"<<"#FF901F"<<"#2B2929";
-//                        <<"#2B2929"<<"#E95420"<<"#6C2164";
 
         QObject *layout = settingsWidget->findChild<QObject*>("themeHolderGridLayout");
         int row=0;
@@ -776,24 +791,9 @@ void MainWindow::set_app_theme(QColor rgb){
                          "stop:0.38764 rgba("+r+", "+g+", "+b+", 120),"
                          "stop:0.679775 rgba("+r+", "+g+", "+b+", 84),"
                          "stop:1 rgba("+r+", "+g+", "+b+", 30));";
-    QString scrollbarStyle ="QScrollBar:vertical {"
-                                "background-color: transparent;"
-                                "border:none;"
-                                "width: 10px;"
-                                "margin: 22px 0 22px 0;"
-                            "}"
-                            "QScrollBar::handle:vertical {"
-                                "background: grey;"
-                                "min-height: 20px;"
-                            "}";
+
     ui->left_panel->setStyleSheet("QWidget#left_panel{"+widgetStyle+"}");
     ui->right_panel->setStyleSheet("QWidget#right_panel{"+widgetStyle+"}");
-
-    //temp changes
-//    ui->olivia_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
-//    ui->youtube_list->setStyleSheet("QListWidget{"+widgetStyle+"}"+scrollbarStyle);
-//    ui->smart_list->setStyleSheet("QListWidget{"+widgetStyle+";border:none;}"+scrollbarStyle);
-
 
     ui->recommWidget->setStyleSheet("QWidget#recommWidget{"+widgetStyle+";border:none;}");
 
@@ -829,7 +829,13 @@ void MainWindow::set_app_theme(QColor rgb){
         eq->removeStyle();
     }
 
+    if(backup != nullptr){
+        backup->setStyleSheet("QWidget#Backup{"+ui->search->styleSheet()+"}"
+                                         +"QFrame{"+ui->search->styleSheet()+"}");
+    }
+
     settingsUi.download_engine->setStyleSheet(btn_style);
+    settingsUi.backup_restore->setStyleSheet(btn_style);
     settingsUi.donate->setStyleSheet(btn_style);
     settingsUi.rate->setStyleSheet(btn_style);
     settingsWidget->findChild<QPushButton*>("custom_color")->setStyleSheet(btn_style);
@@ -3679,6 +3685,16 @@ void MainWindow::setZoom(qreal val){
     settingsObj.setValue("zoom",zoom);
 }
 
+void MainWindow::init_backup(){
+    backup = new Backup(this,setting_path,&settingsObj);
+    backup->setWindowTitle(utils::toCamelCase(QApplication::applicationName())+" | "+"BackUp and Restore");
+    backup->setWindowFlags(Qt::Dialog);
+    backup->setWindowModality(Qt::NonModal);
+    connect(backup,&Backup::app_restart_required,[=](){
+       restart_required();
+    });
+}
+
 void MainWindow::init_lyrics(){
     lyricsWidget = new Lyrics(this);
     lyricsWidget->setWindowFlags(Qt::Dialog);
@@ -3689,7 +3705,7 @@ void MainWindow::init_smartMode(){
     smartModeWidget = new QWidget(this);
     smartMode_ui.setupUi(smartModeWidget);
     smartModeWidget->setObjectName("smartModeWidget");
-    smartModeWidget->setWindowTitle(qAppName()+" | Smart mode");
+    smartModeWidget->setWindowTitle(utils::toCamelCase(QApplication::applicationName())+" | Smart Mode");
     smartModeWidget->setWindowFlags(this->windowFlags() | Qt::Window /*| Qt::CustomizeWindowHint*/ /*| Qt::FramelessWindowHint*/  );
     smartModeWidget->setWindowModality(Qt::NonModal);
     smartModeWidget->adjustSize();
@@ -4868,7 +4884,7 @@ void MainWindow::on_repeat_stateChanged(int arg1)
 }
 
 void MainWindow::showToast(QString message){
-    if(!this->isVisible())//only show notification toast when player is in normal mode.
+    if(!this->isVisible()||message.contains("Playing"))//only show notification toast when player is in normal mode.
         return;
 
     QWidget *widget = this->findChild<QWidget*>("toastWidget");

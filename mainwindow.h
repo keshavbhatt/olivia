@@ -53,6 +53,7 @@
 #include "trackproperties.h"
 #include <analytics.h>
 #include <other/connect.h>
+#include "backup.h"
 
 
 #include "ui_minimode.h"
@@ -283,6 +284,8 @@ private slots:
     void on_clear_clicked();
 
 
+    void openBackupUtil();
+    void init_backup();
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
@@ -339,6 +342,7 @@ private:
     bool playingSongRadio;
     TrackProperties *trackProperties = nullptr;
     Connect *connect_ = nullptr;
+    Backup *backup = nullptr;
 };
 
 class SelectColorButton : public QPushButton
