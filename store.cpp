@@ -593,14 +593,33 @@ bool store::isInQueue(QString trackId){
 }
 
 bool store::isDownloaded(QString trackId){
-    QSqlQuery query;
-    query.exec("SELECT downloaded FROM tracks WHERE trackId = '"+trackId+"'");
+    if(trackId.isEmpty())
+    {
+        return false;
+    }
+    QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    //check if file really exists
+    QString expectedFilePath = setting_path+"/downloadedTracks/"+trackId;
+    QFileInfo file(expectedFilePath);
+    bool present = false;
+    if(file.exists()){
+        present = true;
+        update_track("downloaded",trackId,"1");
+    }else{
+    //if not, update store
+        present = false;
+        update_track("downloaded",trackId,"0");
+    }
     bool downloaded = false;
-    while(query.next()){
-        if(query.value("downloaded").toString().trimmed()=="1"){
-            downloaded = true;
-        }else{
-            downloaded =  false;
+    if(present){
+        QSqlQuery query;
+        query.exec("SELECT downloaded FROM tracks WHERE trackId = '"+trackId+"'");
+        while(query.next()){
+            if(query.value("downloaded").toString().trimmed()=="1"){
+                downloaded = true;
+            }else{
+                downloaded =  false;
+            }
         }
     }
     return downloaded;
@@ -903,7 +922,12 @@ int store::getTrackCount(QString fromTable,QString fromRow){
     query.exec("SELECT "+fromRow+" FROM "+fromTable+" WHERE downloaded = 1");
     int count = 0;
     while(query.next()){
-         count++;
+        QString trackId = query.value(fromRow).toString();
+        if(isDownloaded(trackId)){
+            count++;
+        }else{
+            update_track("downloaded",trackId,"0");
+        }
     }
     return count;
 }
@@ -914,7 +938,12 @@ QList<QStringList> store::get_local_saved_tracks(int offset){
     QList<QStringList> trackList ;
     query.exec("SELECT trackId FROM tracks WHERE downloaded = 1 ORDER BY title ASC LIMIT "+QString::number(limit)+" OFFSET "+QString::number(offset));
         while(query.next()){
-             trackList.append(getTrack(query.value("trackId").toString()));
+            QString trackId = query.value("trackId").toString();
+            if(isDownloaded(trackId)){
+                trackList.append(getTrack(trackId));
+            }else{
+                update_track("downloaded",trackId,"0");
+            }
         }
     return trackList;
 }
@@ -1024,7 +1053,13 @@ int store::getSearchResultTrackCount(QString queryStr){
     query.exec("SELECT trackId FROM tracks WHERE title LIKE '%"+queryStr+"%' AND downloaded = '1';");
     int count = 0;
     while(query.next()){
-         count++;
+        QString trackId = query.value("trackId").toString();
+        if(isDownloaded(trackId)){
+            count++;
+        }else{
+            update_track("downloaded",trackId,"0");
+        }
+
     }
     return count;
 }
@@ -1049,7 +1084,12 @@ QList<QStringList> store::get_search_local_saved_tracks(int offset,QString query
     // QStringList artistMatched;
     query.exec("SELECT trackId FROM tracks WHERE title LIKE '%"+queryStr+"%' AND downloaded = '1' LIMIT "+QString::number(limit)+" OFFSET "+QString::number(offset));
         while(query.next()){
-             trackList.append(getTrack(query.value("trackId").toString()));
+            QString trackId = query.value("trackId").toString();
+            if(isDownloaded(trackId)){
+                trackList.append(getTrack(trackId));
+            }else{
+                update_track("downloaded",trackId,"0");
+            }
          }
 
 //    artistIdquery.exec("SELECT artistId FROM artist WHERE artistName LIKE '%"+queryStr+"%';");
