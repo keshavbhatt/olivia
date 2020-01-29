@@ -11,16 +11,13 @@ class store : public QObject
 
 public:
     explicit store(QObject *parent = 0,QString dbName="default");
-    Q_INVOKABLE QString web_print_saved_tracks();
     Q_INVOKABLE QString web_print_local_saved_tracks();
     Q_INVOKABLE QString web_print_local_saved_videos();
     Q_INVOKABLE QString web_print_fav_radio_channels();
-    Q_INVOKABLE QString web_print_saved_albums();
-    Q_INVOKABLE QString web_print_saved_artists();
-    Q_INVOKABLE QString web_print_album_tracks(QVariant albumId);
     Q_INVOKABLE void removeRadioChannelFromFavourite(QVariant channelId);
     Q_INVOKABLE QString open_local_saved_tracks_PageNumber(int pageNumber);
 
+    Q_INVOKABLE QString web_print_saved_albums();
     Q_INVOKABLE QString search_print_local_saved_tracks(QVariant queryVar);
     Q_INVOKABLE QString open_search_local_saved_tracks(int pageNumber, QVariant queryStr);
     Q_INVOKABLE QString web_print_recent_tracks();
@@ -87,6 +84,7 @@ public slots:
     int getTrackCount(QString fromTable, QString fromRow);
     QList<QStringList> get_local_saved_tracks(int offset);
 
+
 private slots:
 
     void initStore(QString dbName);
@@ -102,7 +100,6 @@ private slots:
     QStringList getAlbumDetails(QString albumId);
     QList<QStringList> getAllArtists();
     QStringList getArtistDetails(QString artistId);
-    QList<QStringList> getAlbumTrackList(QString albumId);
     QList<QStringList> getAllVideos();
 
 

@@ -347,7 +347,10 @@ QList<QStringList> store::getPlayerQueue(){
     query.exec("SELECT trackId FROM queue ORDER BY id ASC");
     if(query.record().count()>0){
         while(query.next()){
-             trackList.append(getTrack(query.value("trackId").toString()));
+            QString trackId = query.value("trackId").toString();
+            if(!trackId.trimmed().isEmpty()){
+                trackList.append(getTrack(trackId));
+            }
         }
     }
     return trackList;
@@ -371,7 +374,10 @@ QList<QStringList> store::getAllTracks(){
     query.exec("SELECT trackId FROM tracks ORDER BY title ASC");
     if(query.record().count()>0){
         while(query.next()){
-             trackList.append(getTrack(query.value("trackId").toString()));
+            QString trackId = query.value("trackId").toString();
+            if(!trackId.trimmed().isEmpty()){
+                trackList.append(getTrack(trackId));
+            }
         }
     }
     return trackList;
@@ -384,13 +390,13 @@ QList<QStringList> store::getAllVideos(){
     QStringList filter;
     filter<< +"*.webm"<<"*.mp4"<<"*.mpeg"<<"*.mkv"<<"*.avi"<<"*.flv"<<"*.ogv"<<"*.ogg";
     QFileInfoList files = dir.entryInfoList(filter);
-   // qDebug()<<dir.entryList(filter);
 
     foreach (QFileInfo fileInfo, files) {
-//        qDebug()<<fileInfo.baseName();
-        trackList.append(getTrack(fileInfo.baseName()));
+        QString trackId = fileInfo.baseName();
+        if(!trackId.trimmed().isEmpty()){
+            trackList.append(getTrack(trackId));
+        }
     }
-   // qDebug()<<trackList;
     return trackList;
 }
 
@@ -683,42 +689,6 @@ bool store::getExpiry(QString trackId){
 
 // WEB=========================================================================
 
-//returns json string of added tracks to library
-QString store::web_print_saved_tracks(){
-    qDebug()<<"LOAD SAVED TRACKS";
-    QJsonDocument json;
-    QJsonArray recordsArray;
-    foreach (QStringList trackList, getAllTracks()) {
-        QJsonObject recordObject;
-        QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
-        songId = trackList.at(0);
-        title = trackList.at(1);
-        albumId = trackList.at(2);
-        album = trackList.at(3);
-        artistId = trackList.at(4);
-        artist = trackList.at(5);
-        base64 = trackList.at(6);
-        url = trackList.at(7);
-        id = trackList.at(8);
-        if(!songId.trimmed().isEmpty()){
-            dominantColor = trackList.at(9);
-            recordObject.insert("songId",songId);
-            recordObject.insert("title",title);
-            recordObject.insert("albumId",albumId);
-            recordObject.insert("album",album);
-            recordObject.insert("artistId",artistId);
-            recordObject.insert("artist",artist);
-            recordObject.insert("base64",base64);
-            recordObject.insert("url",url);
-            recordObject.insert("id",id);
-            recordObject.insert("dominant",dominantColor);
-            recordsArray.push_back(recordObject);
-        }
-    }
-    json.setArray(recordsArray);
-    return json.toJson();
-}
-
 // returns json array string of local downloaded tracks
 QString store::web_print_fav_radio_channels(){
     qDebug()<<"LOAD FAVOURITE RADIO CHANNELS";
@@ -834,84 +804,6 @@ QString store::web_print_saved_albums(){
     return json.toJson();
 }
 
-// returns json array string of local artists
-QString store::web_print_saved_artists(){
-    qDebug()<<"LOAD LOCAL SAVED ARTISTS";
-    QJsonDocument json;
-    QJsonArray recordsArray;
-    foreach (QStringList artistList, getAllArtists()) {
-        QJsonObject recordObject;
-        QString artistId,artistName,tracksCount;
-
-        artistId = artistList.at(0);
-        artistName = artistList.at(1);
-        tracksCount = artistList.at(2);
-        if(!artistId.trimmed().isEmpty()){
-            recordObject.insert("artistId",artistId);
-            recordObject.insert("artistName",artistName);
-            recordObject.insert("tracksCount",tracksCount);
-            recordsArray.push_back(recordObject);
-        }
-    }
-    json.setArray(recordsArray);
-    return json.toJson();
-}
-
-//helper function for web_print_album_tracks
-QList<QStringList> store::getAlbumTrackList(QString albumId){
-    QList<QStringList> trackList ;
-     if(albumId=="untitled"){
-         albumId = "undefined";
-         QSqlQuery query;
-         query.exec("SELECT trackId FROM tracks WHERE albumId LIKE '%"+albumId+"%' ");
-          if(query.record().count()>0){
-             while(query.next()){
-               trackList.append(getTrack(query.value("trackId").toString()));
-             }
-         }
-     }else{
-         QSqlQuery query;
-         query.exec("SELECT trackId FROM tracks WHERE albumId = '"+albumId+"'");
-          if(query.record().count()>0){
-             while(query.next()){
-               trackList.append(getTrack(query.value("trackId").toString()));
-             }
-         }
-     }
-    return trackList;
-}
-
-QString store::web_print_album_tracks(QVariant albumId){
-    qDebug()<<"LOAD ALBUM TRACKS";
-    QJsonDocument json;
-    QJsonArray recordsArray;
-    foreach (QStringList trackDetails, getAlbumTrackList(albumId.toString())) {
-        QJsonObject recordObject;
-        QString id,title,artist,album,base64,dominantColor,songId,albumId,artistId,url;
-        songId = trackDetails.at(0);
-        title = trackDetails.at(1);
-        albumId = trackDetails.at(2);
-        album = trackDetails.at(3);
-        artistId = trackDetails.at(4);
-        artist = trackDetails.at(5);
-        base64 = trackDetails.at(6);
-        url = trackDetails.at(7);
-        id = trackDetails.at(8);
-        dominantColor = trackDetails.at(9);
-        recordObject.insert("songId",songId);
-        recordObject.insert("title",title);
-        recordObject.insert("albumId",albumId);
-        recordObject.insert("album",album);
-        recordObject.insert("artistId",artistId);
-        recordObject.insert("artist",artist);
-        recordObject.insert("base64",base64);
-        recordObject.insert("url",url);
-        recordObject.insert("id",id);
-        recordsArray.push_back(recordObject);
-    }
-    json.setArray(recordsArray);
-    return json.toJson();
-}
 
 
 
@@ -1424,7 +1316,10 @@ QList<QStringList> store::get_search_liked_tracks(int offset,QString queryStr){
     QList<QStringList> trackList;
     query.exec("SELECT * FROM tracks as t, liked_tracks as l where l.trackId = t.trackId and t.title LIKE '%"+queryStr+"%' LIMIT "+QString::number(limit)+" OFFSET "+QString::number(offset));
         while(query.next()){
-             trackList.append(getTrack(query.value("trackId").toString()));
+            QString trackId = query.value("trackId").toString();
+            if(!trackId.trimmed().isEmpty()){
+                trackList.append(getTrack(trackId));
+            }
          }
     return trackList;
 }
