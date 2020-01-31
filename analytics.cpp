@@ -92,7 +92,7 @@ void analytics::headLessPush(){
 
     QProcess *process= new QProcess(0);
     QStringList args;
-    args<<"--post-data"<<QString(postData)<<serviceUrl.toString()<<"--quiet";
+    args<<"-q"<<"--delete-after"<<"--post-data"<<QString(postData)<<serviceUrl.toString();
     process->startDetached("wget",args);
     qDebug()<<"headless"<<postData;
 }
