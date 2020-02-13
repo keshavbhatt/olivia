@@ -1990,6 +1990,7 @@ void MainWindow::prepareTrack(QString songId,QString query,QString millis,QListW
         }
     });
     QUrl url("http://ktechpit.com/USS/Olivia/youtube.php?millis="+millis+"&query="+query);
+    qDebug()<<url;
     QNetworkRequest request(url);
     m_netwManager->get(request);
 }
