@@ -100,6 +100,11 @@ $( document ).ajaxError(function( event, request, settings) {
     hideLoading();
 });
 
+$(document).ajaxSuccess(function() {
+    $('html').css('overflow','auto');
+    $('body').css('overflow','auto');
+});
+
 $(document).ajaxStart(function() {
     if(typeof(mainwindow)!== "undefined"){
         mainwindow.hidePlaylistButton();
