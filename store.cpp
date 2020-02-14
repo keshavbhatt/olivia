@@ -25,7 +25,7 @@
 // init store class and creates defined directories
 store::store(QObject *parent, QString dbName) : QObject(parent)
 {
-    storeVersion = 4;  // 2 is the initial version of database
+    storeVersion = 5;  // 2 is the initial version of database
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/storeDatabase/";
     QDir d(setting_path+dbName);
     if(!d.exists()){
@@ -100,7 +100,6 @@ void store::openDb(QString dbName,QString type){
 // creates table in given DB name OR makes default structure of DB
 void store::createTable(QString dbName){
     QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/storeDatabase/"+dbName+"/";
-    //QString dbname = dbName.split("/").last().split(".db").first(); //default
 
     //tables
     QSqlQuery track;
@@ -196,6 +195,19 @@ void store::createTableVersion(QString dbName,int version){
                   );
         }
             break;
+        case 5:{
+        QSqlQuery liked_playlists;
+        qWarning()<<"Update store with new update- "<<version<<" done.";
+        liked_playlists.exec("create table liked_playlists"
+                  "(id varchar(500) PRIMARY KEY,"
+                    "title varchar(500),"
+                    "vid_count varchar(500),"
+                    "by varchar(300),"
+                    "meta varchar(900),"
+                    "timestamp varchar(70))"
+                  );
+        }
+            break;
         //create cases here to update database table according to store version
     }
 }
@@ -268,6 +280,47 @@ void store::removeRadioChannelFromFavourite(QVariant channelId){
     query.exec("DELETE FROM radio_favourite WHERE channelId= '"+channelId.toString().trimmed()+"';");
 }
 
+//check if is favourite channel
+bool store::is_favourite_playlist(QVariant playlistId){
+    QSqlQuery query;
+    query.exec("SELECT id FROM liked_playlists WHERE id = '"+playlistId.toString().trimmed()+"';");
+    if(query.next()){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+//remove
+void store::removePlaylistFromFavourite(QVariant playlistId){
+    QSqlQuery query;
+    query.exec("DELETE FROM liked_playlists WHERE id= '"+playlistId.toString().trimmed()+"';");
+    deleteAlbumArt(playlistId.toString());
+}
+
+//saves radio channel to favourite in db with all columns in radio_favourite table in DB
+void store::setPlaylistToFavourite(QVariant meta_var){
+    QStringList meta = meta_var.toStringList();
+    QString playlistId = meta.at(0);
+    QString title = QString(meta.at(1)).remove("\"").replace("'","''").trimmed();
+    QString by = QString(meta.at(2)).remove("\"").replace("'","''").trimmed();
+    QString metadata = QString(meta.at(3)).remove("\"").replace("'","''").trimmed();
+    QString vid_count = QString(meta.at(4)).remove("\"").replace("'","''").trimmed();
+    QString base64 = meta.at(5);
+    QSqlQuery query;
+    query.exec("INSERT INTO liked_playlists('id','title','vid_count','by','meta','timestamp') "
+               "VALUES('"+playlistId+"','"+title+"','"+vid_count+"','"+by.remove(")").remove("(")+"','"+metadata.remove(")").remove("(")+"','"+QString::number(QDateTime::currentMSecsSinceEpoch())+"')");
+    savePlaylistBase64(playlistId,base64);
+}
+
+void store::savePlaylistBase64(QVariant playlistId,QVariant base){
+    QString base64 = base.toString();
+    base64.remove("data:image/jpeg;base64,");
+    base64.remove("data:image/jpg;base64,");
+    base64.remove("data:image/png;base64,");
+    saveAlbumArt(playlistId.toString(),base64);
+}
+
 //updates download info of a track of any other info in tracks table
 void store::update_track(QString entity,QString trackId,QString value){
     QSqlQuery query;
@@ -327,6 +380,16 @@ void store::saveAlbumArt(QString albumId,QString base64){ //save album art if no
          file.close();
 }
 
+void store::deleteAlbumArt(QString albumId){ //delete album art if not exists
+    QString artId = "art-"+albumId.remove("\"").replace("'","''").remove(QChar('\\')).remove("/");
+    //remove from disk
+    QString albumArtPath =  QStandardPaths::writableLocation(QStandardPaths::DataLocation)+"/albumArts/";
+    QFile file(albumArtPath+artId);
+    if(file.exists()){
+        file.remove();
+    }
+}
+
 //saves the url of track with expiryTime which is check by mAInWindow while loading track
 void store::saveStreamUrl(QString songId, QString url_str, QString expiryTime){
     QSqlQuery query;
@@ -366,6 +429,18 @@ QList<QStringList> store::getAllFavStations(){
         }
     }
     return stationsList;
+}
+
+QList<QStringList> store::getAllFavPlaylists(){
+    QSqlQuery query;
+    QList<QStringList> playlistList ;
+    query.exec("SELECT id FROM liked_playlists ORDER BY timestamp DESC");
+    if(query.record().count()>0){
+        while(query.next()){
+             playlistList.append(getPlaylist(query.value("id").toString()));
+        }
+    }
+    return playlistList;
 }
 
 QList<QStringList> store::getAllTracks(){
@@ -485,6 +560,20 @@ QStringList store::getRadioStation(QString trackId){
     return QStringList()<<trackId<<url<<title<<lang<<country<<"qrc:/web/radio/station.jpg";
 }
 
+QStringList store::getPlaylist(QString playlistId){
+    QSqlQuery query;
+    query.exec("SELECT * FROM liked_playlists WHERE id = '"+playlistId+"'");
+    QString vid_count,title,by,meta;
+    if(query.record().count()>0){
+        while(query.next()){
+            vid_count = query.value("vid_count").toString();
+            title= query.value("title").toString();
+            by= query.value("by").toString();
+            meta= query.value("meta").toString();
+        }
+    }
+    return QStringList()<<playlistId<<title<<by<<vid_count<<meta;
+}
 
 
 QString store::getAlbum(QString albumId){
@@ -710,6 +799,34 @@ QString store::web_print_fav_radio_channels(){
         recordObject.insert("country",country.remove("'"));
         recordObject.insert("base64",base64);
         recordObject.insert("url",url);
+        recordsArray.push_back(recordObject);
+    }
+    json.setArray(recordsArray);
+    return json.toJson();
+}
+
+
+// returns json array string of local downloaded tracks
+QString store::web_print_fav_playlists(){
+    qDebug()<<"LOAD FAVOURITE PLAYLISTS";
+    QJsonDocument json;
+    QJsonArray recordsArray;
+    foreach (QStringList playlist, getAllFavPlaylists()) {
+        QJsonObject recordObject;
+        QString playlistId,vid_count,title,by,meta,base64;
+        playlistId = playlist.at(0);
+        title = playlist.at(1);
+        by = playlist.at(2);
+        vid_count = playlist.at(3);
+        meta = playlist.at(4);
+        base64 = getThumbnail(playlistId);
+
+        recordObject.insert("id",playlistId);
+        recordObject.insert("title",title);
+        recordObject.insert("by",by.remove("'"));
+        recordObject.insert("vid_count",vid_count);
+        recordObject.insert("meta",meta.remove("'"));
+        recordObject.insert("base64","data:image/png;base64,"+base64);
         recordsArray.push_back(recordObject);
     }
     json.setArray(recordsArray);

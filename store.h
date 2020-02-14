@@ -25,10 +25,10 @@ public:
     Q_INVOKABLE QString open_liked_tracks_PageNumber(int pageNumber);
     Q_INVOKABLE QString open_search_liked_tracks(int pageNumber, QVariant queryStr);
     Q_INVOKABLE QString search_print_liked_tracks(QVariant queryVar);
-
-
-
-
+    Q_INVOKABLE QString web_print_fav_playlists();
+    Q_INVOKABLE void setPlaylistToFavourite(QVariant meta_var);
+    Q_INVOKABLE bool is_favourite_playlist(QVariant playlistId);
+    Q_INVOKABLE void removePlaylistFromFavourite(QVariant playlistId);
 
 signals:
     void removeSongFromYtDlQueue(QString songId);
@@ -85,6 +85,7 @@ public slots:
     QList<QStringList> get_local_saved_tracks(int offset);
 
 
+    QStringList getPlaylist(QString playlistId);
 private slots:
 
     void initStore(QString dbName);
@@ -112,6 +113,9 @@ private slots:
     int getSearchResultTrackCountLikedSongs(QString queryStr);
     QList<QStringList> get_search_liked_tracks(int offset, QString queryStr);
 
+    QList<QStringList> getAllFavPlaylists();
+    void savePlaylistBase64(QVariant playlistId, QVariant base);
+    void deleteAlbumArt(QString albumId);
 };
 
 #endif // STORE_H

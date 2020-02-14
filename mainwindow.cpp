@@ -1482,6 +1482,7 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->evaluateJavaScript("load_history();");
     }
     if( loaded && pageType == "youtube_playlist"){
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("load_history();");
     }
 
@@ -4960,5 +4961,6 @@ void MainWindow::on_clear_clicked()
 {
     similarTracks->clearListKeepingPlayingTrack();
 }
+
 
 

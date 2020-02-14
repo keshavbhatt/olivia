@@ -24,13 +24,23 @@
 
     <div class="ui-loader-background"> </div>
 
-
-    <div id="manul_youtube_page" data-role="page" data-theme="b" data-title="YOUTUBE PLAYLIST SEARCH">
-        <div role="main" class="ui-content">
-            <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false'>
-                 <h1>Youtube</h1>
-                <a id="home" onclick="$('.ui-content').fadeOut('slow');mainwindow.browse_youtube_playlist();" class="ui-btn-left ui-btn ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext">Home</a>
+    <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false'>
+        <div data-role="tabs" id="tabs">
+            <div data-role="navbar">
+              <ul>
+                <li class="ui-state-persist"><a class="ui-btn-active ui-state-persist" onclick="open_search_page()" id="search" >SEARCH</a></li>
+                <li><a onclick="open_favourite_page()" id="favourite" >FAVOURITE</a></li>
+              </ul>
             </div>
+         </div> <!--tabs-->
+    </div><!-- /header -->
+
+    <div  id="manul_youtube_page" data-role="page" data-theme="b" data-title="SEARCH">
+        <div class="ui-header ui-title ui-bar-b">
+                <h5 style="height:20px;text-align: center;text-transform: capitalize;margin: 10px;" id="inner_header"></h5>
+                <a id="home" onclick="$('.ui-content').fadeOut('slow');mainwindow.browse_youtube_playlist();" class="ui-btn-left ui-btn ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext">Home</a>
+        </div><!-- /header -->
+         <div role="main" class="ui-content">
             <input class="ui-icon-alt"  type="search" id='manual_search' value='' placeholder="Your query...">
             <ul   class="list" id="manul_youtube_page_suggestions"  data-filter="true" data-input="#manual_search"  data-role="listview" data-split-icon="gear" data-split-theme="b" data-inset="true">
             <!-- load suggestions here -->
@@ -50,6 +60,23 @@
             </div>
         </div>
     </div>
+
+<!--   favourite playlist page-->
+<div style="padding-top:0px !important;" id="favourite_page" data-role="page" data-theme="b" data-title="FAVOURITE">
+    <div class="ui-header ui-title ui-bar-b" style="margin-top: 37px;" >
+            <h5 style="text-align: center;text-transform: capitalize;margin: 10px;" id="inner_header"></h5>
+    </div><!-- /header -->
+    <div role="main" class="ui-content">
+        <!-- search playlist -->
+        <form class="ui-filterable">
+             <input class="ui-icon-alt"  id="fav-playlist-list-filter-input" data-type="search" placeholder="Filter your favourite playlists...">
+        </form>
+        <ul class="list" id="fav_playlist_result"  data-input="#fav-playlist-list-filter-input" data-filter="true" data-role="listview" data-split-icon="bars" data-split-theme="b" data-inset="true">
+            <!--load data here-->
+        </ul>
+    </div>
+</div>
+
     <!--    page for result videos-->
         <div id="tracks_page" data-role="page" data-theme="b" data-title="YOUTUBE PLAYLIST">
             <div role="main" class="ui-content">

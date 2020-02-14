@@ -43,7 +43,158 @@ function showLoading() {
 }
 
 
+var favourite_loaded = false;
 
+function open_search_page(){
+    $("#fav_playlist_result").empty();
+    favourite_loaded = false; //trigger refresh to fix a bug
+    $.mobile.changePage($('#manul_youtube_page'));
+}
+
+function open_favourite_page(){
+    $.mobile.changePage($('#favourite_page'));
+    if(!favourite_loaded){
+        load_favourite();
+    }
+}
+
+function load_favourite(){
+    $("#fav_playlist_result").empty();
+    showLoading();
+    var json = JSON.parse(store.web_print_fav_playlists()); // Data is returned in json format
+    var $html = "";
+    for(var i= 0; i < json.length;i++){
+        var playlistId,vid_count,title,by,meta,thumb;
+        playlistId = json[i].id;
+        vid_count = json[i].vid_count;
+        title  = json[i].title;
+        by = json[i].by;
+        meta = json[i].meta;
+        var metaStr = "";
+        var metaArray = meta.split("=,=");
+        metaArray.forEach(function(item){
+          metaStr+= "<i class='ellipsis'>"+item+"</i><br>"
+        });
+        thumb = json[i].base64;
+         $html = $html+
+            "<li data-id='"+playlistId+"' data-title='"+title+"' data-videocount='"+vid_count+"' data-thumb='"+thumb+"' data-meta ='"+meta+"' data-by='"+by+"'"+
+            " data-filtertext='"+title+" "+by+"' >"+
+                "<a onclick='open_playlist(\""+playlistId+"\")'>"+
+                "<img id='"+playlistId+"' style='max-width:250px;max-height:143px;height:141px'  src='"+thumb+"' \>"+
+                        "<p style='max-width:70%; margin-left:13.6em  !important'>"+
+                            "<b>"+title+"</b>"+
+                            "<br>"+
+                            "By: "+by+
+                            "<br>"+
+                            metaStr+
+                        "</p>"+
+                 "</a>"+
+                 "<a href='#' onclick=\"playlist_option(\'"+playlistId+"\')\">More Options</a>"+
+         "<span>"+
+         "<a style='right: 3.8em;color:silver' class='ui-li-count' href='#' data-role='button' data-theme='b'>"+
+          vid_count+
+         "</a></span>"+
+            "</li>";
+    }
+    $.mobile.activePage.find("#inner_header").html(json.length+" favourite playlists");
+    $.mobile.loading("hide");
+    $("#fav_playlist_result").append($html).listview("refresh");
+    $("#fav_playlist_result").fadeIn("slow");
+    $('#favourite_page .ui-content').trigger('create');
+    $('#favourite_page .ui-content').fadeIn('slow');
+    favourite_loaded = true;
+}
+
+var currentPlaylistInfoArray = [];
+function playlist_option(playlistId){
+
+    var vid_count,title,by,meta,thumb;
+    $li = $('#'+playlistId).parent().parent();
+    vid_count = $li.attr("data-videocount");
+    title  = $li.attr("data-title");
+    by = $li.attr("data-by");
+    meta = $li.attr("data-meta");
+    thumb = $li.attr("data-thumb");
+    showLoading();
+    toDataUrl(thumb, function(myBase64) {
+        document.querySelector("#coverImage").setAttribute("src",thumb);
+        base64 = myBase64;
+        var img = document.querySelector("#coverImage");
+        if (!img.complete) {
+          img.addEventListener('load', function handler(e) {
+              e.currentTarget.removeEventListener(e.type, handler);
+              $.mobile.loading("hide");
+              currentPlaylistInfoArray = [playlistId,title,by,meta,vid_count,base64];
+          });
+        }
+    });
+
+
+    var channelSpecificOption;
+    if($.mobile.activePage.attr("id") === "favourite_page"){
+        channelSpecificOption = '<a href="#" id="'+playlistId+'_removeFavourite" >Remove from Favourite</a>';
+    }else{
+        channelSpecificOption = '<a href="#" id="'+playlistId+'_addFavourite" >Add to Favourite</a>';
+    }
+    var target = $( this ),
+                options = '<hr><ul style="padding-bottom:5px" data-inset="true">'+
+                        '<li>'+
+                            channelSpecificOption+
+                        '</li>'+
+                      '</ul>',
+                link = "<span >id: "+ playlistId+"</span>",
+                closebtn = '<a id="'+playlistId+'_closePopup" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>',
+                header = '<div style="margin: -12px -12px 0px -12px;" data-role="header"><h2>Options</h2></div>',
+                img = '<img style="padding: 20px 0px 10px 0px;" src="'+thumb+'" alt="' + title + '" class="photo">',
+                details = $('#'+playlistId).parent().find("p")[0].outerHTML,
+                popup = '<div data-history="false" style="text-align:center;padding:12px 12px; max-width:400px" data-transition="slideup" data-overlay-theme="b" data-dismissible="true" data-position-to="window" data-role="popup" id="popup-'+playlistId+'"  data-corners="false" data-tolerance="15"></div>';
+            $( link ).appendTo($( details ));
+            // Create the popup.
+            $( header )
+                .appendTo( $( popup )
+                .appendTo( $.mobile.activePage )
+                .popup() )
+                .toolbar()
+                .before( closebtn )
+                .after( img + details + options);
+                $( "#popup-" + playlistId ).find('p').attr('style',"word-wrap: break-word;");
+                $( "#popup-" + playlistId ).find("ul").listview();
+                $( "#popup-" + playlistId ).popup( "open" ).trigger("create");
+                $("html").css("overflow-y","hidden");
+
+        $("#"+playlistId+"_addFavourite").on("click",function(){
+                store.setPlaylistToFavourite(currentPlaylistInfoArray);
+                $('#popup-'+playlistId ).popup("close");
+                favourite_loaded = false; //trigger refresh
+
+        });
+
+        $("#"+playlistId+"_removeFavourite").on("click",function(){
+                store.removePlaylistFromFavourite(playlistId);
+                $('#popup-'+playlistId ).popup("close");
+                favourite_loaded = false; //trigger refresh
+                $('#favourite_page .ui-content').fadeOut();
+                load_favourite();
+                $('#favourite_page .ui-content').fadeIn();
+
+        });
+
+        $("#"+playlistId+"_closePopup").on("click",function(){
+            $('#popup-'+playlistId ).popup("close");
+        });
+
+        $( document ).on( "popupbeforeposition", $('#popup-'+playlistId ), function() {
+            $('#popup-'+playlistId).find("ul").listview();
+            $("html").css("overflow-y","hidden");
+        });
+
+        // Remove the popup after it has been closed
+        $( document ).on( "popupafterclose", $('#popup-'+playlistId), function() {
+            $('#popup-'+playlistId ).remove();
+            $.mobile.loading("hide");
+            $("html").css("overflow-y","scroll");
+        });
+}
 
 var title,artist,album,coverUrl,songId,albumId,artistId,millis;
 var base64; //returns base64 versio of album art to c++
