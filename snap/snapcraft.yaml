@@ -40,6 +40,10 @@ apps:
     slots:
         - mpris
 
+layout:
+  /usr/share/alsa:
+    bind: $SNAP/usr/share/alsa
+
 plugs:
   gsettings:
   gtk-3-themes:
