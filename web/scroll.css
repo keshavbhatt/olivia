@@ -2,6 +2,9 @@ html {
   overflow-y: scroll;
 }
 
+/*hides error message*/
+.ui-body-a{display:none !important;}
+
 .ui-icon-playall:after {
     background-image: url("qrc:///icons/others/order-play-line.png");
     background-size: 14px 14px;

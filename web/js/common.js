@@ -4,7 +4,10 @@ $(document).bind("mobileinit", function(){
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.defaultDialogTransition = 'slideup';
     $.mobile.useFastClick = true;
-    $.mobile.pageLoadErrorMessage("Please check your net connection");
+    //$.mobile.pageLoadErrorMessage("Please check your net connection");
+    $.extend(  $.mobile , {
+          pageLoadErrorMessage: ""
+    });
 });
 
 
