@@ -1391,7 +1391,7 @@ void MainWindow::webViewLoaded(bool loaded){
 
 
     if(loaded){
-        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"),  this);
+        ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("youtube"),  youtube);
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("paginator"), pagination_manager);
         ui->webview->page()->mainFrame()->evaluateJavaScript("changeBg('"+themeColor+"')");
@@ -1444,15 +1444,13 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->evaluateJavaScript("get_channel('"+youtubeVideoId+"')");
     }
 
-    if(pageType=="goto_youtube_recommendation"){
+    if(pageType=="goto_youtube_recommendation" && !youtubeVideoId.isEmpty()){
         leftListChangeCurrentRow(12);
-        if(!youtubeVideoId.isEmpty()){
             ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
             QString trackTitle = QString(store_manager->getTrack(youtubeVideoId).at(1)).remove("'").remove("\"");
             youtubeVideoId = store_manager->getYoutubeIds(youtubeVideoId).split("<br>").first().trimmed();
             ui->webview->page()->mainFrame()->evaluateJavaScript("show_related('"+youtubeVideoId+"','"+trackTitle+"')");
-        }
-        youtubeVideoId.clear();
+         youtubeVideoId.clear();
     }
 
     if( loaded && pageType == "recommendation"){
@@ -1469,6 +1467,7 @@ void MainWindow::webViewLoaded(bool loaded){
         ui->webview->page()->mainFrame()->evaluateJavaScript("overview()");
     }
 
+    //youtube recommendation stuff
     if( loaded && pageType == "youtube" && !youtubeSearchTerm.isEmpty()){
         ui->webview->page()->mainFrame()->evaluateJavaScript("$('.ui-content').fadeOut('fast');$('#manual_search').val('"+youtubeSearchTerm+"');manual_youtube_search('"+youtubeSearchTerm+"');");
         youtubeSearchTerm.clear();
