@@ -2,6 +2,7 @@
     margin-top: 0;
 }
 
+.ui-body-a{display:none !important;}
 .ui-alt-icon.ui-icon-search:after, .ui-alt-icon .ui-icon-search:after, .ui-input-search:after{
     background-image: url("qrc:/web/css/images/search_icon_white.png") !important;
 }

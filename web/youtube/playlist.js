@@ -574,21 +574,33 @@ function show_related(video_id,v_title){
     $("#popup-"+songId).remove();
     $('body').css('overflow','auto');
     showLoading();
-    $.ajax({
-        type: "GET",
-        url: baseUrl2+"youtube_related_videos.php",
-        data: {
-            "video_id" : video_id,
-            "v_title"  : v_title
-        },
-        success: function(html) {
-            $.mobile.changePage($('#manul_youtube_related_page'));
-            $.mobile.loading("hide");
-            $("#manul_youtube_related_page #result_div").html(html);
-            $('#manul_youtube_related_page .ui-content').trigger("create");
-            $('#manul_youtube_related_page .ui-content').fadeIn('slow');
-         }
-        });
+    if(paginator.isOffline("youtube","show_related",video_id))
+    {
+        var html_ = paginator.load("youtube","show_related",video_id);
+        $.mobile.changePage($('#manul_youtube_related_page'));
+        $.mobile.loading("hide");
+        $("#manul_youtube_related_page #result_div").html(html_);
+        $('#manul_youtube_related_page .ui-content').trigger("create");
+        $('#manul_youtube_related_page .ui-content').fadeIn('slow');
+
+    }else{
+        $.ajax({
+            type: "GET",
+            url: baseUrl2+"youtube_related_videos.php",
+            data: {
+                "video_id" : video_id,
+                "v_title"  : v_title
+            },
+            success: function(html) {
+                paginator.save("youtube","show_related",video_id,html);
+                $.mobile.changePage($('#manul_youtube_related_page'));
+                $.mobile.loading("hide");
+                $("#manul_youtube_related_page #result_div").html(html);
+                $('#manul_youtube_related_page .ui-content').trigger("create");
+                $('#manul_youtube_related_page .ui-content').fadeIn('slow');
+             }
+            });
+    }
 }
 
 
