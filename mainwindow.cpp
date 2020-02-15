@@ -385,7 +385,7 @@ void MainWindow::init_settings(){
     settingsWidget->adjustSize();
 
     settingsUi.tracksToLoad->setMinimum(1);
-    settingsUi.tracksToLoad->setMaximum(10);
+    settingsUi.tracksToLoad->setMaximum(5);
 
     connect(settingsUi.donate,&QPushButton::clicked,[=](){
        QDesktopServices::openUrl(QUrl("https://paypal.me/keshavnrj/5"));
