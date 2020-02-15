@@ -287,6 +287,22 @@ border-radius:0px;</string>
         </widget>
        </item>
        <item>
+        <widget class="WaitingSpinnerWidget" name="webview_loader" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>18</width>
+           <height>18</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QFrame" name="windowControls">
          <property name="styleSheet">
           <string notr="true">border-radius:0px;</string>

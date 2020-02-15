@@ -941,6 +941,18 @@ void MainWindow::init_app(){
     ui->similarTrackLoader->installEventFilter(this);
 
 
+    ui->webview_loader->setRoundness(70.0);
+    ui->webview_loader->setMinimumTrailOpacity(15.0);
+    ui->webview_loader->setTrailFadePercentage(70.0);
+    ui->webview_loader->setNumberOfLines(10);
+    ui->webview_loader->setLineLength(5);
+    ui->webview_loader->setLineWidth(2);
+    ui->webview_loader->setInnerRadius(2);
+    ui->webview_loader->setRevolutionsPerSecond(1);
+    ui->webview_loader->setColor(QColor(227, 222, 222));
+    ui->webview_loader->installEventFilter(this);
+
+
     //hide recommWidget this code is  from on_show_hide_smart_list_button_clicked()
     split3->widget(1)->setMaximumHeight(ui->show_hide_smart_list_button->height());
     split3->setSizes(QList<int>()<<300<<0);
@@ -1013,6 +1025,9 @@ void MainWindow::setCountry(QString country){
 void MainWindow::init_webview(){
 
     connect(ui->webview,SIGNAL(loadFinished(bool)),this,SLOT(webViewLoaded(bool)));
+    connect(ui->webview,&QWebView::loadStarted,[=](){
+        ui->webview_loader->start();
+    });
 
     //websettings---------------------------------------------------------------
     ui->webview->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
@@ -1022,6 +1037,8 @@ void MainWindow::init_webview(){
         QString link = url.toString();
         if(link.contains("paypal")){
             showPayPalDonationMessageBox();
+        }else if(link.contains("how-to-create-youtube-api-key-2020")){
+            QDesktopServices::openUrl(url);
         }else{
             ui->webview->load(url);
         }
@@ -1388,7 +1405,7 @@ void MainWindow::on_stop_clicked()
 
 void MainWindow::webViewLoaded(bool loaded){
 
-
+    ui->webview_loader->stop();
 
     if(loaded){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mainwindow"), this);
@@ -1400,7 +1417,7 @@ void MainWindow::webViewLoaded(bool loaded){
             ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+nowPlayingSongIdWatcher->getValue()+"')");
         }
         QWebSettings::globalSettings()->clearMemoryCaches();
-        ui->webview->history()->clear();
+        //ui->webview->history()->clear();
         ui->webview->setFocus();
     }
 
