@@ -70,7 +70,7 @@ bool paginator::isOffline(QString pageType,QString dataType,QString query){
         exist = fileInfo.exists();
         //refresh overview page everyday
         if(pageType=="browse" && dataType=="overview"){
-            if(QDateTime::currentMSecsSinceEpoch()-fileInfo.created().toMSecsSinceEpoch() > 86400)
+            if(QDateTime::currentMSecsSinceEpoch()-fileInfo.lastModified().toMSecsSinceEpoch() > 86400000)
             exist =  false;
         }
     }
