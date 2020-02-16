@@ -62,10 +62,19 @@ QString paginator::load_json(QString pageType,QString dataType,QString query){
 
 //used to check if data is present in offline storage
 bool paginator::isOffline(QString pageType,QString dataType,QString query){
-    if(query.isEmpty())
-        return false;
-    else
-   return QFileInfo(QFile(getPath(pageType,dataType,query))).exists();
+    bool exist = false;
+    if(query.isEmpty()){
+        exist = false;
+    }else{
+        QFileInfo fileInfo(QFile(getPath(pageType,dataType,query)));
+        exist = fileInfo.exists();
+        //refresh overview page everyday
+        if(pageType=="browse" && dataType=="overview"){
+            if(QDateTime::currentMSecsSinceEpoch()-fileInfo.created().toMSecsSinceEpoch() > 86400)
+            exist =  false;
+        }
+    }
+    return exist;
 }
 
 
