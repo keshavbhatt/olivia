@@ -355,7 +355,12 @@ void store::saveDominantColor(QString albumId,QString value){
 //function to save the id of tracks from YTServer
 void store::saveytIds(QString trackId,QString ids){
     QSqlQuery query;
-    query.exec("INSERT INTO ytIds('trackId','ids') VALUES('"+trackId.trimmed()+"','"+ids.trimmed()+"')");
+    bool saved  = query.exec("INSERT INTO ytIds('trackId','ids') VALUES('"+trackId.trimmed()+"','"+ids.trimmed()+"')");
+    if(!saved){
+        QSqlQuery update;
+        update.prepare("UPDATE ytIds SET ids='"+ids.trimmed()+"' WHERE trackId='"+trackId.trimmed()+"'");
+        update.exec();
+    }
 }
 
 //seperate function to save info about album arts
@@ -661,7 +666,7 @@ QString store::getOfflineUrl(QString trackId){
 
 QString store::getYoutubeIds(QString trackId){
     QSqlQuery query;
-    query.exec("SELECT ids FROM ytids WHERE trackId = '"+trackId+"'");
+    query.exec("SELECT ids FROM ytIds WHERE trackId = '"+trackId+"'");
     QString ids_str;
     if(query.record().count()>0){
         while(query.next()){
