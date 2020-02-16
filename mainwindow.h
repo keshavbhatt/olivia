@@ -54,7 +54,7 @@
 #include <analytics.h>
 #include <other/connect.h>
 #include "backup.h"
-
+#include "request.h"
 
 #include "ui_minimode.h"
 #include "ui_settings.h"
@@ -286,6 +286,7 @@ private slots:
 
     void openBackupUtil();
     void init_backup();
+    void updateTrackInQueues(QString songId);
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
@@ -343,6 +344,7 @@ private:
     TrackProperties *trackProperties = nullptr;
     Connect *connect_ = nullptr;
     Backup *backup = nullptr;
+    Request *request = nullptr;
 };
 
 class SelectColorButton : public QPushButton

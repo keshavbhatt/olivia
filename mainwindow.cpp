@@ -1167,12 +1167,38 @@ void MainWindow::loadPlayerQueue(){ //  #7
         id = trackMetaList.at(8);
         dominantColor = trackMetaList.at(9);
 
+
         QString plainTitle = htmlToPlainText(title);
 
         QWidget *track_widget = new QWidget(ui->olivia_list);
         track_widget->setToolTip(htmlToPlainText(title));
         track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
+
+        //update ytid for track if the don't exists
+        if(id.isEmpty()){
+            QStringList trackmeta = store_manager->getTrack(songId);
+            QString title = trackmeta.at(1);
+            QString artist = trackmeta.at(5);
+            QString query =  title.replace("N/A","")+" - "+artist.replace("N/A","");
+            prepareTrack(songId,query,"0",this->findChild<QListWidget*>(getCurrentPlayerQueue(songId)));
+        }
+
+        //update author for youtube videos who don't have author/artist from web
+        if(artist.isEmpty() && albumId.contains("undefined",Qt::CaseInsensitive)){
+            request = new Request(this);
+            request->setObjectName(songId);
+            connect(request,&Request::requestFinished,[=](QString uid,QString reply){
+                if(uid==songId){
+                    qDebug()<<"updated track's author";
+                    store_manager->update_track("artistId",songId,reply);
+                    store_manager->saveArtist(reply,reply);
+                    updateTrackInQueues(songId);
+                }
+                this->findChild<Request*>(uid)->deleteLater();
+            });
+            request->get(QUrl("http://ktechpit.com/USS/Olivia/invidio_get_video.php?video_id="+songId+"&author"),songId);
+         }
 
         //set track meta icon
         if(albumId.contains("soundcloud")){
@@ -1184,17 +1210,17 @@ void MainWindow::loadPlayerQueue(){ //  #7
         QFont font("Ubuntu");
         font.setPixelSize(12);
 
-        ElidedLabel *titleLabel = new ElidedLabel(plainTitle,nullptr);
+        ElidedLabel *titleLabel = new ElidedLabel(plainTitle,track_widget);
         titleLabel->setFont(font);
         titleLabel->setObjectName("title_elided");
         track_ui.verticalLayout_2->addWidget(titleLabel);
 
-        ElidedLabel *artistLabel = new ElidedLabel(artist,nullptr);
+        ElidedLabel *artistLabel = new ElidedLabel(artist,track_widget);
         artistLabel->setObjectName("artist_elided");
         artistLabel->setFont(font);
         track_ui.verticalLayout_2->addWidget(artistLabel);
 
-        ElidedLabel *albumLabel = new ElidedLabel(album,nullptr);
+        ElidedLabel *albumLabel = new ElidedLabel(album,track_widget);
         albumLabel->setObjectName("album_elided");
         albumLabel->setFont(font);
         track_ui.verticalLayout_2->addWidget(albumLabel);
@@ -1573,6 +1599,7 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     if(songId.isEmpty())
         return;
 
+
     //add dominantColor and base64 to currenttrackmeta stringlist
     currentSimilarTrackMeta.append(dominantColor);
     currentSimilarTrackMeta.append(base64);
@@ -1582,6 +1609,23 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     track_widget->setObjectName("track-widget-"+songId);
     track_ui.setupUi(track_widget);
 
+
+    //update author for youtube videos who don't have author/artist from web
+    if(artist.isEmpty() && albumId.contains("undefined",Qt::CaseInsensitive)){
+        request = new Request(this);
+        request->setObjectName(songId);
+        connect(request,&Request::requestFinished,[=](QString uid,QString reply){
+            if(uid==songId){
+                qDebug()<<"updated track's author";
+                store_manager->update_track("artistId",songId,reply);
+                store_manager->saveArtist(reply,reply);
+                updateTrackInQueues(songId);
+            }
+            this->findChild<Request*>(uid)->deleteLater();
+        });
+        request->get(QUrl("http://ktechpit.com/USS/Olivia/invidio_get_video.php?video_id="+songId+"&author"),songId);
+     }
+
     QFont font("Ubuntu");
     font.setPixelSize(12);
     setFont(font);
@@ -1589,17 +1633,17 @@ void MainWindow::addToSimilarTracksQueue(const QVariant Base64andDominantColor){
     //to convert html sequence to plaintext
     QString plainTitle = htmlToPlainText(title);
 
-    ElidedLabel *titleLabel = new ElidedLabel(plainTitle,nullptr);
+    ElidedLabel *titleLabel = new ElidedLabel(plainTitle,track_widget);
     titleLabel->setFont(font);
     titleLabel->setObjectName("title_elided");
     track_ui.verticalLayout_2->addWidget(titleLabel);
 
-    ElidedLabel *artistLabel = new ElidedLabel(htmlToPlainText(artist),nullptr);
+    ElidedLabel *artistLabel = new ElidedLabel(htmlToPlainText(artist),track_widget);
     artistLabel->setObjectName("artist_elided");
     artistLabel->setFont(font);
     track_ui.verticalLayout_2->addWidget(artistLabel);
 
-    ElidedLabel *albumLabel = new ElidedLabel(htmlToPlainText(album),nullptr);
+    ElidedLabel *albumLabel = new ElidedLabel(htmlToPlainText(album),track_widget);
     albumLabel->setObjectName("album_elided");
     albumLabel->setFont(font);
     track_ui.verticalLayout_2->addWidget(albumLabel);
@@ -1783,10 +1827,14 @@ void MainWindow::similarTracksProcessHelper(){
 void MainWindow::addToQueue(QString ytIds,QString title,
                             QString artist,QString album,QString base64,
                             QString dominantColor,QString songId,QString albumId,QString artistId){
+
+
+
     QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     //prevent adding tracks with no songId it causes trouble
     if(songId.isEmpty())
         return;
+
     //check if track is in player queue already if found prevent further execution
     if(store_manager->isInQueue(songId)){
         findTrackInQueue(songId);
@@ -1796,6 +1844,22 @@ void MainWindow::addToQueue(QString ytIds,QString title,
         track_widget->setToolTip(htmlToPlainText(title));
         track_widget->setObjectName("track-widget-"+songId);
         track_ui.setupUi(track_widget);
+
+        //update author for youtube videos who don't have author/artist from web
+        if(artist.isEmpty() && albumId.contains("undefined",Qt::CaseInsensitive)){
+            request = new Request(this);
+            request->setObjectName(songId);
+            connect(request,&Request::requestFinished,[=](QString uid,QString reply){
+                if(uid==songId){
+                    qDebug()<<"updated track's author";
+                    store_manager->update_track("artistId",songId,reply);
+                    store_manager->saveArtist(reply,reply);
+                    updateTrackInQueues(songId);
+                }
+                this->findChild<Request*>(uid)->deleteLater();
+            });
+            request->get(QUrl("http://ktechpit.com/USS/Olivia/invidio_get_video.php?video_id="+songId+"&author"),songId);
+         }
 
         //set track meta icon
         if(albumId.contains("soundcloud")){
@@ -1809,17 +1873,17 @@ void MainWindow::addToQueue(QString ytIds,QString title,
         //to convert html sequence to plaintext
         QString plainTitle = htmlToPlainText(title);
 
-        ElidedLabel *titleLabel = new ElidedLabel(plainTitle,nullptr);
+        ElidedLabel *titleLabel = new ElidedLabel(plainTitle,track_widget);
         titleLabel->setFont(font);
         titleLabel->setObjectName("title_elided");
         track_ui.verticalLayout_2->addWidget(titleLabel);
 
-        ElidedLabel *artistLabel = new ElidedLabel(htmlToPlainText(artist),nullptr);
+        ElidedLabel *artistLabel = new ElidedLabel(htmlToPlainText(artist),track_widget);
         artistLabel->setObjectName("artist_elided");
         artistLabel->setFont(font);
         track_ui.verticalLayout_2->addWidget(artistLabel);
 
-        ElidedLabel *albumLabel = new ElidedLabel(htmlToPlainText(album),nullptr);
+        ElidedLabel *albumLabel = new ElidedLabel(htmlToPlainText(album),track_widget);
         albumLabel->setObjectName("album_elided");
         albumLabel->setFont(font);
         track_ui.verticalLayout_2->addWidget(albumLabel);
@@ -1952,6 +2016,15 @@ void MainWindow::addToQueue(QString ytIds,QString title,
     }
 }
 
+void MainWindow::updateTrackInQueues(QString songId){
+    QListWidget* queue = this->findChild<QListWidget*>(getCurrentPlayerQueue(songId));
+    if(queue!=nullptr){
+        QWidget *itemWidget = queue->findChild<QWidget*>("track-widget-"+songId);
+        if(itemWidget!=nullptr)
+        itemWidget->findChild<ElidedLabel*>("artist_elided")->setText(store_manager->getArtist(store_manager->getArtistId(songId)));
+    }
+}
+
 //jumps to track in one of player queue where the given songId is present
 void MainWindow::findTrackInQueue(QString songId){
     ui->console->append("Song - "+songId+" Already in queue");
@@ -1987,18 +2060,24 @@ void MainWindow::prepareTrack(QString songId,QString query,QString millis,QListW
     connect(m_netwManager,&QNetworkAccessManager::finished,[=](QNetworkReply* rep){
         if(rep->error() == QNetworkReply::NoError){
              QString ytIds = rep->readAll().trimmed();
+             qDebug()<<"PREPARED TRACK:"<<songId<<ytIds;
              QWidget *listWidgetItem = list->findChild<QWidget*>("track-widget-"+songId);
              if(listWidgetItem !=nullptr){//check if track is not removed before this request finish
                  listWidgetItem->findChild<QLineEdit*>("id")->setText(ytIds);
              }
              //save ytids to store
-             store_manager->saveytIds(songId,ytIds);
-             getAudioStream(ytIds,songId);
-             if(similarTracks->isLoadingPLaylist==false){
-                 reverseYtdlProcessList();
-             }
-             if(ytdlQueue.count() > 3){
-                 reverseYtdlProcessList();
+             if(!ytIds.isEmpty()){
+                 //do both save and update its a multipurpose function
+                 store_manager->saveytIds(songId,ytIds);
+                 if(listWidgetItem!=nullptr && !listWidgetItem->isEnabled()){
+                     getAudioStream(ytIds,songId);
+                     if(similarTracks->isLoadingPLaylist==false){
+                         reverseYtdlProcessList();
+                     }
+                     if(ytdlQueue.count() > 3){
+                         reverseYtdlProcessList();
+                     }
+                 }
              }
              rep->deleteLater();
              m_netwManager->deleteLater();
@@ -3933,6 +4012,14 @@ void MainWindow::startGetRecommendedTrackForAutoPlayTimer(QString songId){
 
 //call this anytime to load similar tracks of any song in smart-playlist
 void MainWindow::getRecommendedTracksForAutoPlayHelper(QString videoId, QString songId){
+    if(videoId.isEmpty()){
+        QStringList trackmeta = store_manager->getTrack(songId);
+        QString title = trackmeta.at(1);
+        QString artist = trackmeta.at(5);
+        QString query =  title.replace("N/A","")+" - "+artist.replace("N/A","");
+        prepareTrack(songId,query,"0",this->findChild<QListWidget*>(getCurrentPlayerQueue(songId)));
+    }
+    qDebug()<<"SONG RADIO for video:"<<videoId<<"songId:"<<songId;
     currentSimilarTrackProcessing = 0;
     //keep now playing song and remove others
     while(similarTracksListHasTrackToBeRemoved()){
