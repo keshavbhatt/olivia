@@ -49,6 +49,7 @@ SOURCES += main.cpp\
     elidedlabel.cpp \
     nowplaying.cpp \
     other/connect.cpp \
+    request.cpp \
     scrolltext.cpp \
     similartracks.cpp \
     store.cpp \
@@ -76,6 +77,7 @@ HEADERS  += mainwindow.h \
     equalizer.h \
     nowplaying.h \
     other/connect.h \
+    request.h \
     scrolltext.h \
     similartracks.h \
     store.h \
