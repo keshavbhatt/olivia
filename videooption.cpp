@@ -484,7 +484,7 @@ void VideoOption::mergeAndPlay(QString videoUrlStr,QString audioUrlStr){
     connect(player,SIGNAL(finished(int)),this,SLOT(getUrlProcessFinished(int)));
     player->start("mpv",QStringList()<<"-wid="+QString::number(this->winId())<<"--title=MPV for Olivia - "+
                   currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr<<"--input-ipc-server="+used_fifo_file_path
-                  <<"--volume"<<QString::number(volume));
+                  <<"--volume="<<QString::number(volume));
     sett->deleteLater();
     ui->watch->setText("Opening Player...");
     connect(player,SIGNAL(finished(int)),this,SLOT(playerFinished(int)));
