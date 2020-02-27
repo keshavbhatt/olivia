@@ -4623,7 +4623,7 @@ void MainWindow::playVideo(QString trackId){
         QProcess *player = new QProcess(this);
         player->setObjectName("player");
         player->start("mpv",QStringList()<<"--geometry=50%:50%"<<"--autofit=70%"<<"--title=MPV for Olivia - "+
-                      titleLabel<<"--no-ytdl"<<files.at(0).filePath()<<"--volume="<<QString::number(radio_manager->volume)
+                      titleLabel<<"--no-ytdl"<<files.at(0).filePath()<<"--volume="+QString::number(radio_manager->volume)
                       );
     }
 }
