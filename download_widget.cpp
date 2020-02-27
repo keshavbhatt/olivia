@@ -887,7 +887,7 @@ void Widget::on_downloadList_itemDoubleClicked(QListWidgetItem *item)
              player->setObjectName("player");
              player->start("mpv",QStringList()<<"--force-window=yes"<<"--title=MPV for Olivia - "+
                            titleLabel->text().toUtf8()<<"--no-ytdl"<<files.at(0).filePath()
-                           <<"--volume="<<QString::number(volume));
+                           <<"--volume="+QString::number(volume));
          }
      }else{
          QMessageBox msgBox;
