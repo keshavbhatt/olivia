@@ -28,7 +28,7 @@ apps:
         - network
         - network-bind
         - opengl
-        - pulseaudio
+        - audio-playback
         - x11
         - alsa
         - desktop
