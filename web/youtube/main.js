@@ -342,12 +342,11 @@ $(document).on('click', '#trendingNavBtn', function() {
     showLoading();
     $("#trending").fadeOut("slow");
     var linkStr = $(this).attr("data-link");
-
     $.ajax({
         type: "GET",
         url: baseUrl+"youtube_trending.php",
         data: {
-            nav : linkStr+"&region="+youtube.getCurrentCountry()
+            nav : linkStr+"&country="+youtube.getCurrentCountry()
         },
         success: function(html) {
             $.mobile.loading("hide");
