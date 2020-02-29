@@ -7,7 +7,7 @@
 
 
 
-VideoOption::VideoOption(QWidget *parent,store *store,QString fifopath):
+VideoOption::VideoOption(QWidget *parent, store *store, radio *radio_manager):
     QWidget(parent),
     ui(new Ui::VideoOption)
 {
@@ -15,7 +15,8 @@ VideoOption::VideoOption(QWidget *parent,store *store,QString fifopath):
     if(store_manager==nullptr){
         store_manager = store;
     }
-    used_fifo_file_path = fifopath.split(".fifo").first()+"_videoPlayer"+".fifo";
+    this->radio_manager = radio_manager;
+    used_fifo_file_path = this->radio_manager->used_fifo_file_path.split(".fifo").first()+"_videoPlayer"+".fifo";
     playerTimer = new QTimer(nullptr);
 
     connect(playerTimer,&QTimer::timeout,[=](){
@@ -480,7 +481,7 @@ void VideoOption::mergeAndPlay(QString videoUrlStr,QString audioUrlStr){
     QProcess *player = new QProcess(this);
     player->setObjectName("player");
     connect(player,SIGNAL(finished(int)),this,SLOT(getUrlProcessFinished(int)));
-    player->start("mpv",QStringList()<<"-wid="+QString::number(this->winId())<<"--title=MPV for Olivia - "+
+    player->start("mpv",QStringList()<<"--geometry=800x600+0+0"<<"-wid="+QString::number(this->winId())<<"--title=MPV for Olivia - "+
                   currentTitle<<"--no-ytdl"<<videoUrlStr<<"--audio-file="+audioUrlStr<<"--input-ipc-server="+used_fifo_file_path
                   <<"--volume="+QString::number(volume));
     sett->deleteLater();
@@ -509,6 +510,9 @@ void VideoOption::playerReadyRead(){
     ui->watch->setText("Playing...");
     this->setWindowTitle("MPV for Olivia - "+currentTitle);
     if(!playerTimer->isActive()){
+        if(this->radio_manager->radioState=="playing"){
+            this->radio_manager->pauseRadio();
+        }
         playerTimer->start(500);
     }
 }

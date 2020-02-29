@@ -354,7 +354,7 @@ void MainWindow::closeEvent(QCloseEvent *event){
 
 void MainWindow::init_videoOption(){
     if(videoOption == nullptr){
-        videoOption = new VideoOption(nullptr,store_manager,radio_manager->used_fifo_file_path);
+        videoOption = new VideoOption(nullptr,store_manager,radio_manager);
 
         videoOption->setWindowTitle(QApplication::applicationName()+" - Video Option");
         videoOption->setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint

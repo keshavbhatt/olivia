@@ -14,6 +14,7 @@
 #include <QEvent>
 
 #include "store.h"
+#include "radio.h"
 
 namespace Ui {
 class VideoOption;
@@ -24,7 +25,7 @@ class VideoOption : public QWidget
     Q_OBJECT
 
 public:
-    explicit VideoOption(QWidget *parent = nullptr,store *store = nullptr,QString fifo = "");
+    explicit VideoOption(QWidget *parent = nullptr,store *store = nullptr,radio *radio_manager= nullptr);
     ~VideoOption();
 
 
@@ -70,6 +71,8 @@ private:
     QTimer *playerTimer = nullptr;
     QString task = "";
     QStringList currentTrackMeta;
+
+    radio *radio_manager = nullptr;
 
 
 
