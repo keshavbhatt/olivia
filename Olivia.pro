@@ -52,6 +52,7 @@ SOURCES += main.cpp\
     request.cpp \
     scrolltext.cpp \
     similartracks.cpp \
+    soundcloud.cpp \
     store.cpp \
     radio.cpp \
     onlinesearchsuggestion.cpp \
@@ -80,6 +81,7 @@ HEADERS  += mainwindow.h \
     request.h \
     scrolltext.h \
     similartracks.h \
+    soundcloud.h \
     store.h \
     radio.h \
     onlinesearchsuggestion.h \
