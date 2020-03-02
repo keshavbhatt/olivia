@@ -18,6 +18,7 @@ void SoundCloud::extract_cid(QString rep)
 
 void SoundCloud::getHome()
 {
+    jsId = 0;
     Request *req = new Request(this);
     connect(req,&Request::requestFinished,[=](QString uid,QString rep)
     {
