@@ -63,7 +63,7 @@ background-color: transparent;</string>
          </property>
          <property name="icon">
           <iconset resource="icons.qrc">
-           <normaloff>:/icons/menu.png</normaloff>:/icons/menu.png</iconset>
+           <normaloff>:/icons/close.png</normaloff>:/icons/close.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -2613,6 +2613,11 @@ background-position: bottom right;</string>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
+   <class>controlButton</class>
+   <extends>QPushButton</extends>
+   <header>controlbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>ElidedLabel</class>
    <extends>QLabel</extends>
    <header>elidedlabel.h</header>
@@ -2644,11 +2649,6 @@ background-position: bottom right;</string>
    <class>volumeSlider</class>
    <extends>QSlider</extends>
    <header>volumeslider.h</header>
-  </customwidget>
-  <customwidget>
-   <class>controlButton</class>
-   <extends>QPushButton</extends>
-   <header>controlbutton.h</header>
   </customwidget>
   <customwidget>
    <class>ScrollText</class>

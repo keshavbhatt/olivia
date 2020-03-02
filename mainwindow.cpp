@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_miniMode();
     init_smartMode();
     init_lyrics();
+    init_soundCloud();
     init_backup();
 
     init_downloadWidget();
@@ -1521,6 +1522,7 @@ void MainWindow::webViewLoaded(bool loaded){
     }
 
     if( loaded && pageType == "soundcloud"){
+        ui->webview->page()->mainFrame()->evaluateJavaScript("client_id=\""+soundcloud->cid+"\"");
         ui->webview->page()->mainFrame()->evaluateJavaScript("load_history();");
     }
     if( loaded && pageType == "youtube_playlist"){
@@ -2323,20 +2325,19 @@ void MainWindow::showTrackOption(){
             menu.addAction(watchVideo);
         }
         menu.addSeparator();
-        if(!isSoundcloudTrack){
-            menu.addAction(startRadio);
-            menu.addAction(getRemixes);
-        }
+        menu.addAction(startRadio);
+        menu.addAction(getRemixes);
+
         if(!isNumericStr(songId) && (!albumId.contains("undefined")&&!albumId.contains("soundcloud"))) //spotify song ids are not numeric
         {
             menu.addAction(showRecommendation);
         }
         //added youtube recommendation fallback for itunes tracks ids
         if(!isSoundcloudTrack){
-            menu.addAction(youtubeShowRecommendation);
+             menu.addAction(youtubeShowRecommendation);
         }
         menu.addSeparator();
-        if(!isSoundcloudTrack){
+        if(!isSoundcloudTrack){ // no album for soundcloud track
             menu.addAction(gotoAlbum);
         }
     }else{
@@ -2837,6 +2838,9 @@ void MainWindow::internet_radio(){
 }
 
 void MainWindow::browse_soundcloud(){
+    if(soundcloud->cidEmpty()){
+        soundcloud->getHome();
+    }
     pageType = "soundcloud";
     ui->webview->load(QUrl("qrc:///web/soundcloud/soundcloud.html"));
 }
@@ -3795,6 +3799,10 @@ void MainWindow::init_lyrics(){
     lyricsWidget->setWindowModality(Qt::NonModal);
 }
 
+void MainWindow::init_soundCloud(){
+    soundcloud = new SoundCloud(this);
+}
+
 void MainWindow::init_smartMode(){
     smartModeWidget = new QWidget(this);
     smartMode_ui.setupUi(smartModeWidget);
@@ -4039,6 +4047,7 @@ void MainWindow::getRecommendedTracksForAutoPlayHelper(QString videoId, QString 
     }else if(similarTracks->isLoadingPLaylist && similarTracks->isLoadingLocalSongs){
         similarTracks->pullMoreLocalTracks();
     }else{
+        qDebug()<<"addSimilarTracks";
         similarTracks->addSimilarTracks(videoId,songId);
     }
 }

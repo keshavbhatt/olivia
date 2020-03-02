@@ -55,6 +55,7 @@
 #include <other/connect.h>
 #include "backup.h"
 #include "request.h"
+#include "soundcloud.h"
 
 #include "ui_minimode.h"
 #include "ui_settings.h"
@@ -287,6 +288,7 @@ private slots:
     void openBackupUtil();
     void init_backup();
     void updateTrackInQueues(QString songId);
+    void init_soundCloud();
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
@@ -345,6 +347,7 @@ private:
     Connect *connect_ = nullptr;
     Backup *backup = nullptr;
     Request *request = nullptr;
+    SoundCloud *soundcloud = nullptr;
 };
 
 class SelectColorButton : public QPushButton
