@@ -41,7 +41,8 @@ function showLoading() {
     });
 }
 
-
+//backend will set client_id using SoundCloud class
+var client_id;
 
 
 var title,artist,album,coverUrl,songId,albumId,artistId,millis;
@@ -315,7 +316,8 @@ function soundcloud_trending(country){
                        "country":country,
                        "kind": "top",
                        "genre": "soundcloud:genres:all-music",
-                       "limit": "100"
+                       "limit": "100",
+                       "client_id": client_id
                   },
            success: function(html) {
                paginator.save("soundcloud","soundcloud_trending",country,html);
