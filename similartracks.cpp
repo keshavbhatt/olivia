@@ -164,11 +164,15 @@ void SimilarTracks::addSimilarTracks(QString video_id,QString songId){
         m_netwManager->deleteLater();
     });
     QUrl url;
-    if(store_manager->getAlbumId(songId).contains("undefined-") || isNumericStr(songId)){
+    QString albumId = store_manager->getAlbumId(songId);
+    if (albumId.contains("soundcloud-")) {
+         url = "http://ktechpit.com/USS/Olivia/soundcloud/soundcloud_related_videos.php?query="+store_manager->getTrack(songId).at(1);
+    }else if((albumId.contains("undefined-")) || isNumericStr(songId)){
          url = "http://ktechpit.com/USS/Olivia/youtube_related_videos.php?video_id="+video_id;
     }else{
          url = "http://ktechpit.com/USS/Olivia/spotify/spotify_related_seed_song.php?s_id="+songId+"&url=null";
     }
+    qDebug()<<"URL USED:"<<url;
     QNetworkRequest request(url);
     m_netwManager->get(request);
 }
