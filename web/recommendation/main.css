@@ -18,6 +18,11 @@
     line-height: 1.8em;
 }
 
+#trending .ui-listview>li p{
+ margin-left: 3em;
+ line-height: 1.8em;
+}
+
 .ui-listview .ui-li-has-thumb>.ui-btn>img:first-child{
     max-height:100%;
     max-width:250px;
@@ -33,7 +38,7 @@
     background: transparent !important;
 }
 
-#tracks_page {
+#tracks_page , #top_list_page {
     background: transparent !important;
 }
 

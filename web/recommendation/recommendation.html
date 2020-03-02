@@ -23,6 +23,17 @@
     <img style="display:none;" src="" id="coverImage" />
     <div class="ui-loader-background"> </div>
 
+    <div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle='false'>
+        <div  data-role="tabs" id="tabs">
+            <div data-role="navbar">
+              <ul>
+                <li><a onclick="$.mobile.changePage($('#recommendation_page'));" id="overview" >RECOMMENDATION</a></li>
+                <li><a onclick="$.mobile.changePage($('#top_list_page'));if(top_list_loaded == false)load_toplist();" id="new_releases" >FRESH</a></li>
+              </ul>
+            </div>
+         </div> <!--tabs-->
+    </div><!-- /header -->
+
     <div id="recommendation_page" data-role="page" data-theme="b" data-title="RECOMMENDATION">
         <div role="main" class="ui-content">
             <input class="ui-icon-alt"  type="search" id='manual_search' value='' placeholder="Type a song name, ex- the river - aurora">
@@ -57,6 +68,19 @@
 
                 </div>
             <hr>
+        </div>
+    </div>
+
+
+    <div id="top_list_page" data-role="page" data-theme="b" data-title="FRESH">
+        <div role="main" class="ui-content">
+        <div id="trending_div">
+            <h5 style="margin: 2px 0px 5px 5px;" id="history_valid">Recommended Music :</h5>
+            <div class="ui-bar ui-bar-b ui-loader-trending" style="margin-top: 25px;text-align: center;margin-left:6px !important;"><i>Loading content please wait...</i></div>
+            <div id="trending">
+
+            </div>
+        </div>
         </div>
     </div>
 

@@ -432,3 +432,61 @@ function setAlbumMeta(album,album_art,album_art_header,artist,tracks_count,copyr
     $.mobile.activePage.find("#PRIMARY_GENRE").text(genere);
     $.mobile.activePage.find("#RELEASE_DATE").text(release_date);
 }
+
+var currentPlaylistId = "null";
+var top_list_loaded = false;
+
+//used to seed tracks in recommendation by deafult
+function load_toplist(){
+    var country;
+    if(youtube.getCurrentCountry().length>0){
+         country = youtube.getCurrentCountry()
+    }else{
+         country = "US";
+    }
+    $.mobile.changePage($('#top_list_page'));
+    $("#trending_div .ui-loader-trending").show();
+    if(paginator.isOffline("recommendation","load_toplist",country)){
+        $("#trending_div .ui-loader-trending").hide();
+        var html_ = paginator.load("recommendation","load_toplist",country);
+        $.mobile.loading("hide");
+        $("#trending").empty();
+        $("#trending").append(html_);
+        $("#trending").fadeIn("slow");
+        $('#playlist_tracks_result').trigger('create');
+        $('#playlist_tracks_result').listview();
+        top_list_loaded = true;
+    }else{
+        $.ajax({
+           url: baseUrl+"spotify/spotify_recommendation_toplist.php",
+                  type:"GET",
+                   data:{
+                        "url": "null",
+                        "country": country
+                   },
+                   success: function(html) {
+                       paginator.save("recommendation","load_toplist",country,html);
+                       $("#trending_div .ui-loader-trending").hide();
+                       $.mobile.loading("hide");
+                       $("#trending").empty();
+                       $("#trending").append(html);
+                       $("#trending").fadeIn("slow");
+                       $('#playlist_tracks_result').trigger('create');
+                       $('#playlist_tracks_result').listview();
+                       top_list_loaded = true;
+                   },error: function(){
+                       $("#trending_div .ui-loader-trending i").text("An error occured, Unable to connect to host.");
+                       $.mobile.loading("hide");
+                       $.mobile.activePage.find("#trending_div .ui-loader-trending i").text("An error occured, Unable to connect to host.");
+                       $.mobile.activePage.find("#trending_div .ui-loader-trending").fadeIn();
+                       top_list_loaded = false;
+                   }
+       });
+    }
+}
+//these fucntions are just for comatibility
+function setNextButton(url){
+}
+
+function setPreviousButton(url){
+}
