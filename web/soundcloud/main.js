@@ -314,7 +314,7 @@ function soundcloud_trending(country){
                   type:"GET",
                   data:{
                        "country":country,
-                       "kind": "top",
+                       "kind": "trending", //top
                        "genre": "soundcloud:genres:all-music",
                        "limit": "100",
                        "client_id": client_id
