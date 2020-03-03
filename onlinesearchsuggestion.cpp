@@ -148,10 +148,8 @@ void onlineSearchSuggestion::preventSuggest()
 
 void onlineSearchSuggestion::handleNetworkData(QNetworkReply *networkReply)
 {
-//    QUrl url = networkReply->url();
     if (networkReply->error() == QNetworkReply::NoError) {
         QVector<QString> choices;
-
         QByteArray response(networkReply->readAll());
         QJsonDocument jsonResponse = QJsonDocument::fromJson(response);
         QJsonArray json_array = jsonResponse.array();
