@@ -292,22 +292,23 @@ function load_history(){
         getCountry();
     }
     //get trending
-    soundcloud_trending(youtube.getCurrentCountry());
+    soundcloud_trending(youtube.getCurrentCountry(),"soundcloud:genres:all-music");
 }
 
 
-function soundcloud_trending(country){
+function soundcloud_trending(country,genre){
+    $("#genre_collapsible").collapsible( "collapse");
     $("#trending_div .ui-loader-trending").show();
     $("#trending").hide();
-    if(paginator.isOffline("soundcloud","soundcloud_trending",country))
+    if(paginator.isOffline("soundcloud","soundcloud_trending",country+"<==>"+genre))
     {
-        var html_ = paginator.load("soundcloud","soundcloud_trending",country);
+        var html_ = paginator.load("soundcloud","soundcloud_trending",country+"<==>"+genre);
         $("#trending_div .ui-loader-trending").hide();
         $.mobile.loading("hide");
         $("#trending").html(html_);
         $("#trending").fadeIn("slow");
         $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
-
+        $("html, body").animate({ scrollTop: 0 }, "slow");
     }else{
         $.ajax({
            url: baseUrl+"soundcloud_trending.php",
@@ -315,21 +316,23 @@ function soundcloud_trending(country){
                   data:{
                        "country":country,
                        "kind": "trending", //top
-                       "genre": "soundcloud:genres:all-music",
+                       "genre": genre,
                        "limit": "100",
                        "client_id": client_id
                   },
            success: function(html) {
-               paginator.save("soundcloud","soundcloud_trending",country,html);
+               paginator.save("soundcloud","soundcloud_trending",country+"<==>"+genre,html);
 
                $("#trending_div .ui-loader-trending").hide();
                $.mobile.loading("hide");
                $("#trending").html(html);
                $("#trending").fadeIn("slow");
                $.mobile.activePage.find("#trending").trigger("create").fadeIn("slow");
+               $("html, body").animate({ scrollTop: 0 }, "slow");
            },
            error: function(){
                $("#trending_div .ui-loader-trending i").text("An error occured, Unable to connect to host.");
+               $("html, body").animate({ scrollTop: 0 }, "slow");
            }
        });
     }
@@ -533,6 +536,70 @@ function open_channel(channelHref,songId){
          }
         });
 }
-
-
 //soundcloud functions
+
+var genreArray = {
+    "All Music":"soundcloud:genres:all-music",
+    "Alternative Rock":"soundcloud:genres:alternativerock",
+    "Ambient":"soundcloud:genres:ambient",
+    "Classical":"soundcloud:genres:classical",
+    "Country":"soundcloud:genres:country",
+    "Dance & EDM":"soundcloud:genres:danceedm",
+    "Dancehall":"soundcloud:genres:dancehall",
+    "Deep House":"soundcloud:genres:deephouse",
+    "Disco":"soundcloud:genres:disco",
+    "Drum & Bass":"soundcloud:genres:drumbass",
+    "Dubstep":"soundcloud:genres:dubstep",
+    "Electronic":"soundcloud:genres:electronic",
+    "Folk & Singer-Songwriter":"soundcloud:genres:folksingersongwriter",
+    "Hip-hop & Rap":"soundcloud:genres:hiphoprap",
+    "House":"soundcloud:genres:house",
+    "Indie":"soundcloud:genres:indie",
+    "Jazz & Blues":"soundcloud:genres:jazzblues",
+    "Latin":"soundcloud:genres:latin",
+    "Metal":"soundcloud:genres:metal",
+    "Piano":"soundcloud:genres:piano",
+    "Pop":"soundcloud:genres:pop",
+    "R&B & Soul":"soundcloud:genres:rbsoul",
+    "Reggae":"soundcloud:genres:reggae",
+    "Reggaeton":"soundcloud:genres:reggaeton",
+    "Rock":"soundcloud:genres:rock",
+    "Soundtrack":"soundcloud:genres:soundtrack",
+    "Techno":"soundcloud:genres:techno",
+    "Trance":"soundcloud:genres:trance",
+    "Trap":"soundcloud:genres:trap",
+    "Triphop":"soundcloud:genres:triphop",
+    "World":"soundcloud:genres:world",
+
+    "Audiobooks":"soundcloud:genres:audiobooks",
+    "Business":"soundcloud:genres:business",
+    "Comedy":"soundcloud:genres:comedy",
+    "Entertainment":"soundcloud:genres:entertainment",
+    "Learning":"soundcloud:genres:learning",
+    "News & Politics":"soundcloud:genres:newspolitics",
+    "Religion & Spirituality":"soundcloud:genres:religionspirituality",
+    "Science":"soundcloud:genres:science",
+    "Sports":"soundcloud:genres:sports",
+    "Storytelling":"soundcloud:genres:storytelling",
+    "Technology":"soundcloud:genres:technology"
+    }
+
+function loadGenre(){
+    var html_ = "";
+    for (var key in genreArray) {
+        if(key !== "")
+        {
+            if(key==="All Music")
+            {
+                html_ += "<li data-role='list-divider'>Music</li>";
+            }
+            html_ += "<li style='cursor:pointer' id='genre_item' onclick='soundcloud_trending(\""+youtube.getCurrentCountry()+"\",\""+genreArray[key]+"\")' data-filtertext='"+key+"'>"+key+"</li>";
+            if(key==="World")
+            {
+                html_ += "<li data-role='list-divider'>Audio</li>";
+            }
+        }
+    }
+    $("#genres_result").append(html_);
+    $("#genres_result").listview("refresh");
+}

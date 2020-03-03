@@ -1523,7 +1523,7 @@ void MainWindow::webViewLoaded(bool loaded){
 
     if( loaded && pageType == "soundcloud"){
         ui->webview->page()->mainFrame()->evaluateJavaScript("client_id=\""+soundcloud->cid+"\"");
-        ui->webview->page()->mainFrame()->evaluateJavaScript("load_history();");
+        ui->webview->page()->mainFrame()->evaluateJavaScript("load_history();loadGenre();");
     }
     if( loaded && pageType == "youtube_playlist"){
         ui->webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("store"), store_manager);
@@ -4634,6 +4634,9 @@ void MainWindow::playVideo(QString trackId){
         player->start("mpv",QStringList()<<"--geometry=50%:50%"<<"--autofit=70%"<<"--title=MPV for Olivia - "+
                       titleLabel<<"--no-ytdl"<<files.at(0).filePath()<<"--volume="+QString::number(radio_manager->volume)
                       );
+        if(this->radio_manager->radioState=="playing"){
+            this->radio_manager->pauseRadio();
+        }
     }
 }
 
