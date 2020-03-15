@@ -94,3 +94,4 @@ QString utils::generateRandomId(int length){
     }
    return randomString.trimmed().simplified().remove(" ");
 }
+

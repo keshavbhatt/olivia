@@ -66,6 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     browse();
     installEventFilters();
     loadSettings();
+
     analytic = new analytics(this);
     ui->connect->setToolTip("Connect not Ready");
     analytic->setObjectName("analytics");
@@ -80,7 +81,8 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     connect(qApp,&QApplication::aboutToQuit,[=](){
     #ifdef QT_NO_DEBUG
-        analytic->headLessPush();
+        //disabled analytics
+        //analytic->headLessPush();
     #endif
     });
 }
