@@ -9,6 +9,7 @@
 #include "elidedlabel.h"
 #include "settings.h"
 #include "store.h"
+#include <QDesktopServices>
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -861,9 +862,9 @@ void Widget::on_removeAll_clicked()
 
 void Widget::on_downloadList_itemDoubleClicked(QListWidgetItem *item)
 {
-     int currentRow = ui->downloadList->row(item);
-     QObject *itemObject  = ui->downloadList->findChild<QObject*>("processWidgetObject#"+QString::number(currentRow));
-     ElidedLabel  *statusLabel     = itemObject->findChild<ElidedLabel *>("status");
+//     int currentRow = ui->downloadList->row(item);
+     QWidget *itemObject  = ui->downloadList->itemWidget(item) ;// findChild<QObject*>("processWidgetObject#"+QString::number(currentRow));
+//     ElidedLabel  *statusLabel     = itemObject->findChild<ElidedLabel *>("status");
      ElidedLabel  *argLabel        = itemObject->findChild<ElidedLabel *>("args");
      ElidedLabel  *titleLabel      = itemObject->findChild<ElidedLabel *>("title");
      QString videoId = argLabel->text().split(" https://").first().split("/").last();
@@ -878,25 +879,41 @@ void Widget::on_downloadList_itemDoubleClicked(QListWidgetItem *item)
      }else{
          dir.setPath(setting_path+"/downloadedVideos/");
      }
-     QStringList filter;
-     filter<< videoId+"*";
-     QFileInfoList files = dir.entryInfoList(filter);
+
+    QString fileName = videoId;
+    QString destination_path = dir.path();
+     QFileInfoList files;
+     foreach (QFileInfo info, dir.entryInfoList()) {
+         if(info.fileName().contains(fileName))
+             files.append(QList<QFileInfo>()<<info);
+     }
      if(files.count()>0){
-         if(statusLabel->text().contains("finished",Qt::CaseInsensitive)){
+         //remove .jpg file from result
+         QString filenameFound = files.at(0).filePath();
+         if(files.count()==2 && files.at(0).fileName().contains(".jpg",Qt::CaseInsensitive)){
+             filenameFound = files.at(1).filePath();
+         }
              QProcess *player = new QProcess(this);
              player->setObjectName("player");
-             player->start("mpv",QStringList()<<"--force-window=yes"<<"--title=MPV for Olivia - "+
-                           titleLabel->text().toUtf8()<<"--no-ytdl"<<files.at(0).filePath()
+             player->start("mpv",QStringList()<<"--force-window"<<"--geometry=800x600+0+0"<<"--title=MPV for "+QApplication::applicationName()+" - "+
+                           titleLabel->text().toUtf8()<<"--no-ytdl"<<filenameFound
                            <<"--volume="+QString::number(volume));
-         }
      }else{
-         QMessageBox msgBox;
-         msgBox.setText("Unable to locate downloaded file");
-         msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-         msgBox.setInformativeText("File Id: "+videoId);
-         msgBox.setStandardButtons(QMessageBox::Ok);
-         msgBox.setDefaultButton(QMessageBox::Ok);
-         msgBox.exec();
+         unableToLocateFile(fileName,destination_path);
      }
     sett->deleteLater();
+}
+
+void Widget::unableToLocateFile(QString filename,QString directory){
+      QMessageBox msgBox;
+      msgBox.setText(QApplication::applicationName()+" is unable to locate file:");
+      msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+      msgBox.setStandardButtons( QMessageBox::Cancel);
+      msgBox.setInformativeText("<i>"+directory+"/"+filename+"</i> <br><br>What you would like to do ?");
+      QPushButton *browse = new QPushButton("Browse",nullptr);
+      msgBox.addButton(browse,QMessageBox::NoRole);
+      connect(browse,&QPushButton::clicked,[=](){
+            QDesktopServices::openUrl(QUrl(directory));
+      });
+      msgBox.exec();
 }

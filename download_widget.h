@@ -91,6 +91,7 @@ private slots:
     void start_process(QStringList);
     void hide_already_inList();
     void on_downloadList_itemDoubleClicked(QListWidgetItem *item);
+    void unableToLocateFile(QString filename, QString directory);
 };
 
 #endif // WIDGET_H
