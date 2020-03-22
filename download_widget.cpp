@@ -145,6 +145,8 @@ void Widget::insertDownloadWidget(QString title,QString downloadLocation, QStrin
         save_download_item(ui->downloadList->currentRow());
     }
     //progress
+
+    update_ui_btns(ui->downloadList->count()-1);
 }
 
 
@@ -214,6 +216,9 @@ void Widget::add_history_items_to_ui(QStringList dbItems){
         //prepare database
         QDir dir(returnPath("videoDownloadHistory"));
         QString fileName = dbItems.at(i).split(" >> ").first();
+        //prevent crash if history item does not exist
+        if(QFileInfo(dir.path()+"/"+fileName).exists()==false)
+            return;
         QStringList info;
         QFile item_history(dir.path()+"/"+fileName);
         if (item_history.open(QFile::ReadOnly|QIODevice::Text)){
@@ -643,23 +648,24 @@ void Widget::on_downloadList_currentRowChanged(int currentRow)
 void Widget::update_ui_btns(int processNumber){
 
     //enable pause btn if process state running
-    QObject *processObj    = this->findChild<QObject*>("downloadProcess#"+QString::number(processNumber));
-    QProcess *p = qobject_cast<QProcess*>(processObj);
-    QListWidgetItem *item = ui->downloadList->item(processNumber);
-    ElidedLabel  *statusLabel = ui->downloadList->itemWidget(item)->findChild<ElidedLabel *>("status");
+    QProcess *p    = this->findChild<QProcess*>("downloadProcess#"+QString::number(processNumber));
+    QWidget *widget = ui->downloadList->findChild<QWidget*>("processWidgetObject#"+QString::number(processNumber));
+    QListWidgetItem *item = ui->downloadList->itemAt(widget->pos());
+    if(item!=nullptr){
+        ElidedLabel *statusLabel = ui->downloadList->itemWidget(item)->findChild<ElidedLabel*>("status");
 
+        if(p->state()==QProcess::Running){
+            ui->pauseSelected->setEnabled(true);
+        }else{
+            ui->pauseSelected->setEnabled(false);
+        }
 
-    if(p->state()==QProcess::Running){
-        ui->pauseSelected->setEnabled(true);
-    }else{
-        ui->pauseSelected->setEnabled(false);
-    }
-
-    //enable start btn if process state stopped
-    if(p->state()==QProcess::NotRunning && !statusLabel->text().contains("Finished") ){
-        ui->startSelected->setEnabled(true);
-    }else{
-        ui->startSelected->setEnabled(false);
+        //enable start btn if process state stopped
+        if(p->state()==QProcess::NotRunning && !statusLabel->text().contains("Finished") ){
+            ui->startSelected->setEnabled(true);
+        }else{
+            ui->startSelected->setEnabled(false);
+        }
     }
  udpate_stats();
 }
@@ -723,34 +729,30 @@ void Widget::udpate_stats(){
 // Buttons slots ==============================================================================================================
 void Widget::on_removeSelected_clicked()
 {
-     QListWidgetItem *item = ui->downloadList->currentItem();
-     int widgetNumber  = ui->downloadList->itemWidget(item)->objectName().split("#").last().toInt();
-
-     QObject *processObj    = this->findChild<QObject*>("downloadProcess#"+QString::number(widgetNumber));
-     QProcess *p = qobject_cast<QProcess*>(processObj);
-     p->close(); //close connections
-     if(p){
-         disconnect(p,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(downloadProcessFinished(int)));
-         disconnect(p,SIGNAL(readyRead()),this,SLOT(downloadProcessReadyRead()));
-         disconnect(p,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(downloadProcessStateChanged(QProcess::ProcessState)));
-         p->close();
-         ElidedLabel  *uuid    = ui->downloadList->itemWidget(item)->findChild<ElidedLabel *>("uuid");
-         if(p->state()==QProcess::Running || p->state()== QProcess::Starting){
-            remove_download_item(uuid->text());
-            downloadList.removeOne(p);
-            p->deleteLater();
-            processObj->deleteLater();
-            ui->downloadList->takeItem(ui->downloadList->currentRow());
-         }
-         else if(p->state()==QProcess::NotRunning){
-            remove_download_item(uuid->text());
-            downloadList.removeOne(p);
-            p->deleteLater();
-            processObj->deleteLater();
-            ui->downloadList->takeItem(ui->downloadList->currentRow());
-         }
-     }
-     udpate_stats();
+    QListWidgetItem *item = ui->downloadList->currentItem();
+    int widgetNumber  = ui->downloadList->itemWidget(item)->objectName().split("#").last().toInt();
+    QProcess *p   = this->findChild<QProcess*>("downloadProcess#"+QString::number(widgetNumber));
+    p->close(); //close connections
+    if(p){
+        disconnect(p,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(downloadProcessFinished(int)));
+        disconnect(p,SIGNAL(readyRead()),this,SLOT(downloadProcessReadyRead()));
+        disconnect(p,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(downloadProcessStateChanged(QProcess::ProcessState)));
+        p->close();
+        ElidedLabel *uuid    = ui->downloadList->itemWidget(item)->findChild<ElidedLabel*>("uuid");
+        if(p->state()==QProcess::Running || p->state()== QProcess::Starting){
+           remove_download_item(uuid->text());
+           downloadList.removeOne(p);
+           p->deleteLater();
+           delete ui->downloadList->takeItem(ui->downloadList->currentRow());
+        }
+        else if(p->state()==QProcess::NotRunning){
+           remove_download_item(uuid->text());
+           downloadList.removeOne(p);
+           p->deleteLater();
+           delete ui->downloadList->takeItem(ui->downloadList->currentRow());
+        }
+    }
+    udpate_stats();
 }
 
 void Widget::on_startSelected_clicked()
@@ -779,24 +781,26 @@ void Widget::on_pauseSelected_clicked()
         QListWidgetItem *item = ui->downloadList->currentItem();
         int widgetNumber  = ui->downloadList->itemWidget(item)->objectName().split("#").last().toInt();
 
-        QObject *progressBar    = ui->downloadList->itemWidget(item)->findChild<QObject*>("progressBar");
-        int progress = ((QProgressBar*)(progressBar))->value();
+        QProgressBar *progressBar    = ui->downloadList->itemWidget(item)->findChild<QProgressBar*>("progressBar");
+        int progress = progressBar->value();
 
-        QObject *speedLabel  = ui->downloadList->itemWidget(item)->findChild<QObject*>("speed");
-        QObject *etaLabel    = ui->downloadList->itemWidget(item)->findChild<QObject*>("eta");
-        QObject *statusLabel = ui->downloadList->itemWidget(item)->findChild<QObject*>("status");
-        QObject *colorLabel  = ui->downloadList->itemWidget(item)->findChild<QObject*>("color");
+        ElidedLabel *speedLabel  = ui->downloadList->itemWidget(item)->findChild<ElidedLabel*>("speed");
+        ElidedLabel *etaLabel    = ui->downloadList->itemWidget(item)->findChild<ElidedLabel*>("eta");
+        ElidedLabel *statusLabel = ui->downloadList->itemWidget(item)->findChild<ElidedLabel*>("status");
+        ElidedLabel *colorLabel  = ui->downloadList->itemWidget(item)->findChild<ElidedLabel*>("color");
 
 
         //stop process
-        downloadList.at(widgetNumber)->terminate();
-        downloadList.at(widgetNumber)->waitForFinished();
+        QProcess *p = this->findChild<QProcess*>("downloadProcess#"+QString::number(widgetNumber));
+        if(p==nullptr)return;
+        p->terminate();
+        p->waitForFinished();
         //set progress back
-        ((QProgressBar*)(progressBar))->setValue(progress);
-        ((ElidedLabel *)(statusLabel))->setText("Status: Paused");
-        ((ElidedLabel*)(speedLabel))->setText("Speed: ~");
-        ((ElidedLabel *)(etaLabel))->setText("ETA: ~");
-        ((ElidedLabel *)(colorLabel))->setStyleSheet(color.at(2));
+        progressBar->setValue(progress);
+        statusLabel->setText("Status: Paused");
+        speedLabel->setText("Speed: ~");
+        etaLabel->setText("ETA: ~");
+        colorLabel->setStyleSheet(color.at(2));
         save_download_item(widgetNumber);
         udpate_stats();
 }
@@ -806,7 +810,11 @@ void Widget::on_pauseSelected_clicked()
 void Widget::on_startAll_clicked()
 {
     for(int i=0; i< downloadList.count();i++){
-        QListWidgetItem *item = ui->downloadList->item(i) ;
+        QWidget *widget = ui->downloadList->findChild<QWidget*>("processWidgetObject#"+QString::number(i));
+        if(widget==nullptr)
+            return;
+        QListWidgetItem *item = ui->downloadList->itemAt(widget->pos());
+//        QListWidgetItem *item = ui->downloadList->item(i) ;
         QObject *progressBar    = ui->downloadList->itemWidget(item)->findChild<QObject*>("progressBar");
         int progress = ((QProgressBar*)(progressBar))->value();
         if(progress != 100 ){
@@ -824,7 +832,12 @@ void Widget::on_startAll_clicked()
 void Widget::on_pauseAll_clicked()
 {
     for(int i=0; i< downloadList.count();i++){
-        QListWidgetItem *item = ui->downloadList->item(i) ;
+        QWidget *widget = ui->downloadList->findChild<QWidget*>("processWidgetObject#"+QString::number(i));
+        if(widget==nullptr)
+            return;
+        QListWidgetItem *item = ui->downloadList->itemAt(widget->pos());
+
+//        QListWidgetItem *item = ui->downloadList->item(i) ;
         QObject *progressBar    = ui->downloadList->itemWidget(item)->findChild<QObject*>("progressBar");
         QObject *speedLabel  = ui->downloadList->itemWidget(item)->findChild<QObject*>("speed");
         QObject *etaLabel    = ui->downloadList->itemWidget(item)->findChild<QObject*>("eta");
