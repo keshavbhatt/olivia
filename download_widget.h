@@ -29,7 +29,7 @@ public slots:
 
     void startWget(QString url, QString downloadLocation, QStringList formats, QString type);
 
-    void insertDownloadWidget(QString, QString , QString ,bool , QStringList);
+    void insertDownloadWidget(QString, QString , QString , bool , QStringList, QString processId);
 
     void downloadProcessReadyRead();
 
@@ -45,7 +45,7 @@ public slots:
 
     void on_pauseSelected_clicked();
 
-    void update_ui_btns(int);
+    void update_ui_btns(QString processId);
 
 signals:
     void updateTrack(QString trackId , QString download_path);
@@ -79,8 +79,8 @@ private slots:
     void on_startAll_clicked();
     void on_pauseAll_clicked();
     void on_removeAll_clicked();
-    void udpate_stats();
-    void save_download_item(int);
+    void update_stats();
+    void save_download_item(QString processId);
     void remove_download_item(QString);
     QString returnPath(QString);
     QString make_database_file(QUrl);
