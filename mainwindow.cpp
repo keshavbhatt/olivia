@@ -9,6 +9,7 @@
 #include <QAction>
 #include <QToolTip>
 #include <QSpinBox>
+//#include <QOverload>
 
 #include "cookiejar.h"
 #include "elidedlabel.h"
@@ -24,7 +25,6 @@
 #include "utils.h"
 #include "plugins/mpris/mprisplugin.h"
 #include "waitingspinnerwidget.h"
-
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -369,7 +369,8 @@ void MainWindow::init_videoOption(){
     }
 }
 
-void MainWindow::init_settings(){
+void MainWindow::init_settings()
+{
     settUtils = new settings(this);
     connect(settUtils,SIGNAL(dynamicTheme(bool)),this,SLOT(dynamicThemeChanged(bool)));
 
@@ -389,7 +390,13 @@ void MainWindow::init_settings(){
     settingsWidget->adjustSize();
 
     settingsUi.tracksToLoad->setMinimum(1);
-    settingsUi.tracksToLoad->setMaximum(5);
+    settingsUi.tracksToLoad->setMaximum(10);
+
+    settingsUi.loading_movie->setVisible(false);
+
+    connect(settingsUi.clear_engine_cache,&controlButton::clicked,[=](){
+        clearEngineCache();
+    });
 
     connect(settingsUi.donate,&QPushButton::clicked,[=](){
        QDesktopServices::openUrl(QUrl("https://paypal.me/keshavnrj/5"));
@@ -839,6 +846,8 @@ void MainWindow::set_app_theme(QColor rgb){
                                          +"QFrame{"+ui->search->styleSheet()+"}");
     }
 
+
+    settingsUi.clear_engine_cache->setStyleSheet(btn_style);
     settingsUi.download_engine->setStyleSheet(btn_style);
     settingsUi.backup_restore->setStyleSheet(btn_style);
     settingsUi.donate->setStyleSheet(btn_style);
@@ -3514,7 +3523,7 @@ bool MainWindow::checkEngine(){
 void MainWindow::download_engine_clicked()
 {
     settingsUi.download_engine->setEnabled(false);
-    settingsUi.engine_status->setText("Downloading core(1.4mb)");
+    settingsUi.engine_status->setText("Downloading...");
     QMovie *movie=new QMovie(":/icons/others/load.gif");
     settingsUi.loading_movie->setVisible(true);
     movie->start();
@@ -3547,6 +3556,7 @@ void MainWindow::slot_netwManagerFinished(QNetworkReply *reply)
             if(reply->error() == QNetworkReply::NoError){
                 core_file->write(reply->readAll());
                 core_file->close();
+                clearEngineCache(); //call clear engine cache after engine update
                 get_engine_version_info();
                 checkEngine();
                 settingsUi.loading_movie->movie()->stop();
@@ -3582,6 +3592,28 @@ void MainWindow::slot_netwManagerFinished(QNetworkReply *reply)
         reply->manager()->deleteLater();
     }
     reply->deleteLater();
+}
+
+//funtion used to clear engine cache, to prevent 403 and 429 issue.
+void MainWindow::clearEngineCache(){
+    QMovie *movie=new QMovie(":/icons/others/load.gif");
+    settingsUi.loading_movie->setVisible(true);
+    settingsUi.loading_movie->setMovie(movie);
+    movie->start();
+
+    QProcess *clear_engine_cache = new QProcess(this);
+    QString addin_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    connect(clear_engine_cache,&QProcess::readyRead,[=](){
+        qDebug()<<clear_engine_cache->readAll();
+    });
+    connect(clear_engine_cache, static_cast<void (QProcess::*)(int)>(&QProcess::finished), [clear_engine_cache, this](int exitStatus) {
+        Q_UNUSED(exitStatus);
+        if(settingsUi.loading_movie->movie()!=nullptr){
+            settingsUi.loading_movie->movie()->stop();
+        }
+        settingsUi.loading_movie->setVisible(false);
+    });
+    clear_engine_cache->start("python",QStringList()<<addin_path+"/core"<<"--rm-cache-dir");
 }
 
 //writes core_version file with version info after core downloaded
@@ -5089,6 +5121,5 @@ void MainWindow::on_clear_clicked()
 {
     similarTracks->clearListKeepingPlayingTrack();
 }
-
 
 

@@ -289,6 +289,8 @@ private slots:
     void init_backup();
     void updateTrackInQueues(QString songId);
     void init_soundCloud();
+    void clearEngineCache();
+
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
