@@ -185,7 +185,8 @@ void MainWindow::init_radio(){
 
     //shows only faded volume
     connect(radio_manager,&radio::volumeChanged,[=](int val){
-        qDebug()<<"Faded Volume:"<<val;
+        Q_UNUSED(val);
+        //qDebug()<<"Faded Volume:"<<val;
     });
 
     connect(radio_manager,&radio::fadeInVolume,[=](){
@@ -2073,6 +2074,7 @@ void MainWindow::prepareTrack(QString songId,QString query,QString millis,QListW
              if(!ytIds.isEmpty()){
                  //do both save and update its a multipurpose function
                  store_manager->saveytIds(songId,ytIds);
+                 qDebug()<<"ytdids recieved:"<<songId<<ytIds;
                  if(listWidgetItem!=nullptr && !listWidgetItem->isEnabled()){
                      getAudioStream(ytIds,songId);
                      if(similarTracks->isLoadingPLaylist==false){
@@ -2916,6 +2918,7 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
             similarTracks->isLoadingPLaylist = false;
         }
         if(settingsObj.value("smart_playlist",true).toBool() || playingSongRadio){
+            qDebug()<<"called starter"<<songId;
             startGetRecommendedTrackForAutoPlayTimer(songId);
         }else{
             //clear the list to respect the disabled smartplaylist in runtime.
@@ -4064,6 +4067,13 @@ void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
             videoId = id.split("<br>").first();
         }
     }
+    qDebug()<<ui->repeat->checkState();
+    if(ui->repeat->checkState() == Qt::PartiallyChecked){
+        showToast(":force: Will repeat current song..");
+    }
+    if(ui->repeat->checkState() == Qt::Checked){
+        showToast(":force: Will repeat current queue..");
+    }
 
     //load tracks in smart playlist if smart mode is enabled
     //prevent getting related songs in case if the track is repeating
@@ -5000,8 +5010,11 @@ void MainWindow::on_repeat_stateChanged(int arg1)
 }
 
 void MainWindow::showToast(QString message){
-    if(!this->isVisible()||message.contains("Playing"))//only show notification toast when player is in normal mode.
-        return;
+
+    if (message.contains(":force:",Qt::CaseInsensitive)) {
+        qDebug()<<"loading smart playilist";
+    }else if(message.contains("Playing") || !this->isVisible())//only show notification toast when player is in normal mode.
+            return;
 
     QWidget *widget = this->findChild<QWidget*>("toastWidget");
     if(widget!=nullptr){
@@ -5015,7 +5028,7 @@ void MainWindow::showToast(QString message){
     toastWidget->setWindowOpacity(qreal(QVariant("95").toReal()/100));
     toastWidget->setStyleSheet("QWidget#toastWidget{border:none;background-color:rgba(26,128,166,197);}");
     toast.setupUi(toastWidget);
-    toast.messageLabel->setText(message);
+    toast.messageLabel->setText(message.remove(":force:"));
     connect(toast.close,&QPushButton::clicked,[=](){
        toastWidget->close();
     });
@@ -5032,8 +5045,6 @@ void MainWindow::showToast(QString message){
     toastWidget->adjustSize();
     int x = QApplication::desktop()->geometry().width()-(toastWidget->width()+10);
     int y = 40;
-//    int x = ui->top_widget->pos().x()+(ui->top_widget->width()-toastWidget->width())-ui->windowControls->width()-10;
-//    int y = ui->top_widget->pos().y()+toastWidget->height()/4;
 
     QPropertyAnimation *a = new QPropertyAnimation(toastWidget,"pos");
     a->setDuration(200);
