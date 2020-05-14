@@ -28,11 +28,21 @@ onlineSearchSuggestion::onlineSearchSuggestion(QLineEdit *parent): QObject(paren
 
     connect(popup, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
             SLOT(doneCompletion()));
+    connect(editor,&QLineEdit::returnPressed,[=](){
+        preventSuggest();
+    });
+    connect(popup,&QTreeWidget::itemSelectionChanged ,[=](){
+        QTreeWidgetItem *item = popup->currentItem();
+        editor->setText(item->text(0));
+    });
 
     timer.setSingleShot(true);
     timer.setInterval(500);
     connect(&timer, SIGNAL(timeout()), SLOT(autoSuggest()));
-    connect(editor, SIGNAL(textEdited(QString)), &timer, SLOT(start()));
+    connect(editor,&QLineEdit::textEdited,[=](QString str){
+        Q_UNUSED(str);
+        timer.start();
+    });
 
     connect(&networkManager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(handleNetworkData(QNetworkReply*)));
@@ -117,6 +127,8 @@ void onlineSearchSuggestion::showCompletion(const QVector<QString> &choices)
     popup->setFocus();
     if(editor->hasFocus()||!editor->text().isEmpty()){
         popup->show();
+    }else{
+        preventSuggest();
     }
 }
 
@@ -167,6 +179,8 @@ void onlineSearchSuggestion::handleNetworkData(QNetworkReply *networkReply)
                 }
             }
             if(editor->hasFocus()||!editor->text().isEmpty()){
+                choices = choices.toList().toSet().toList().toVector();
+                choices.prepend(editor->text()); // add first choice from user input
                 showCompletion(choices);
             }
     }
