@@ -40,8 +40,12 @@ onlineSearchSuggestion::onlineSearchSuggestion(QLineEdit *parent): QObject(paren
     timer.setInterval(500);
     connect(&timer, SIGNAL(timeout()), SLOT(autoSuggest()));
     connect(editor,&QLineEdit::textEdited,[=](QString str){
-        Q_UNUSED(str);
-        timer.start();
+        if(str.trimmed().simplified().isEmpty()==false){
+            timer.start();
+        }
+        else {
+            preventSuggest();
+        }
     });
 
     connect(&networkManager, SIGNAL(finished(QNetworkReply*)),
