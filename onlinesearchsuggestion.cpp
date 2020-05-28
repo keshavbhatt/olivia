@@ -108,7 +108,8 @@ bool onlineSearchSuggestion::eventFilter(QObject *obj, QEvent *ev)
 
 void onlineSearchSuggestion::showCompletion(const QVector<QString> &choices)
 {
-    if (choices.isEmpty())
+    if (choices.isEmpty()
+            ||(choices.count()==1 && choices.at(0)==editor->text()))
         return;
 
     const QPalette &pal = editor->palette();
