@@ -3541,7 +3541,7 @@ void MainWindow::download_engine_clicked()
 
     QNetworkAccessManager *m_netwManager = new QNetworkAccessManager(this);
     connect(m_netwManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slot_netwManagerFinished(QNetworkReply*)));
-    QUrl url("https://yt-dl.org/downloads/latest/youtube-dl");
+    QUrl url("http://yt-dl.org/downloads/latest/youtube-dl");
     QNetworkRequest request(url);
     m_netwManager->get(request);
 }
@@ -3581,7 +3581,7 @@ void MainWindow::slot_netwManagerFinished(QNetworkReply *reply)
     else //error
     {
         QString err = reply->errorString();
-        if(err.contains("not")){ //to hide "Host yt-dl.org not found"
+        if(err.contains("not")){
        settingsUi.engine_status->setText("Host not Found");}
         else if(err.contains("session")||err.contains("disabled")){
             settingsUi.engine_status->setText(err);
