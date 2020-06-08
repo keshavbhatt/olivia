@@ -37,6 +37,7 @@ apps:
         - process-control
         - desktop-legacy
         - mount-observe
+        - wayland
     slots:
         - mpris
 
