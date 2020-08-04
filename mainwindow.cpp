@@ -237,6 +237,7 @@ void MainWindow::init_radio(){
         a->start(QPropertyAnimation::DeleteWhenStopped);
         radio_manager->radioSeek(pos);
         ui->radioSeekSlider->blockSignals(false);
+        QApplication::processEvents();
     });
     connect(ui->radioSeekSlider,&seekSlider::showToolTip,[=](QPoint localPos){
         int pos = ui->radioSeekSlider->minimum() + ((ui->radioSeekSlider->maximum()-ui->radioSeekSlider->minimum()) * localPos.x()) / ui->radioSeekSlider->width();
@@ -256,6 +257,7 @@ void MainWindow::init_radio(){
             a->setEasingCurve(QEasingCurve::Linear);
             a->start(QPropertyAnimation::DeleteWhenStopped);
         }
+        QApplication::processEvents();
     });
     connect(ui->radioVolumeSlider,&volumeSlider::showToolTip,[=](QPoint localPos){
         if(localPos.x()!=0){
@@ -387,7 +389,7 @@ void MainWindow::init_settings()
     settingsUi.setupUi(settingsWidget);
     settingsWidget->setWindowFlags(Qt::Dialog);
     settingsWidget->setWindowModality(Qt::ApplicationModal);
-    settingsWidget->adjustSize();
+    settingsWidget->setMinimumWidth(settingsUi.mainWidget->minimumSizeHint().width());
 
     settingsUi.tracksToLoad->setMinimum(1);
     settingsUi.tracksToLoad->setMaximum(10);
@@ -769,7 +771,6 @@ void MainWindow::add_colors_to_color_widget(){
         pb->setToolTip("Choose custom color from color dialog.");
         connect(pb,SIGNAL(clicked(bool)),this,SLOT(customColor()));
         static_cast<QGridLayout*>(layout)->addWidget(pb, row+1, 0);
-        settingsWidget->adjustSize();
 }
 
 void MainWindow::set_app_theme(QColor rgb){
@@ -1407,6 +1408,7 @@ void MainWindow::setPlayerPosition(qint64 position){
     ui->position->setText(time.toString());
 
     ui->radioSeekSlider->setValue(static_cast<int>(position));
+    QApplication::processEvents();
 }
 
 
@@ -1433,6 +1435,7 @@ void MainWindow::on_radioSeekSlider_sliderMoved(int position)
     radio_manager->radioSeek(position);
 //    ui->radioSeekSlider->setSliderPosition(position);
     ui->radioSeekSlider->blockSignals(false);
+    QApplication::processEvents();
 }
 
 void MainWindow::on_stop_clicked()
@@ -3123,7 +3126,6 @@ void MainWindow::on_settings_clicked()
 {
     if(!settingsWidget->isVisible())
     {
-        settingsWidget->adjustSize();
         settingsWidget->setStyleSheet("QWidget#settingsWidget{"+ui->search->styleSheet()+"}");
         //refresh cache sizes
         QString setting_path =  QStandardPaths::writableLocation(QStandardPaths::DataLocation);
@@ -3133,7 +3135,6 @@ void MainWindow::on_settings_clicked()
         settingsUi.offline_pages_size->setText(util->refreshCacheSize(setting_path+"/paginator"));
         settingsUi.database_size->setText(util->refreshCacheSize(setting_path+"/storeDatabase/"+database));
         util->deleteLater();
-
         settingsWidget->showNormal();
     }
 }
@@ -3490,7 +3491,8 @@ void MainWindow::saveTrack(QString format){
 }
 
 //updates track after downloaded
-void MainWindow::updateTrack(QString trackId,QString download_Path){
+void MainWindow::updateTrack(QString trackId,QString download_Path)
+{
     QString listName = getCurrentPlayerQueue(trackId);
     if(!listName.isEmpty()){
         QListWidget *listWidget = this->findChild<QListWidget*>(listName);
@@ -4624,7 +4626,8 @@ void MainWindow::on_hideDebug_clicked()
     ui->debug_widget->hide();
 }
 
-void MainWindow::init_downloadWidget(){
+void MainWindow::init_downloadWidget()
+{
     downloadWidget = new Widget(this);
     downloadWidget->setWindowFlags(Qt::Widget);
     downloadWidget->downloadLocation =setting_path+"/downloadedVideos";
