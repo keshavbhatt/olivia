@@ -19,24 +19,27 @@
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QMovie>
-#include <QNetworkAccessManager>
-#include <QNetworkCookieJar>
-#include <QNetworkDiskCache>
-#include <QNetworkReply>
 #include <QProcess>
 #include <QProgressBar>
-#include <QPropertyAnimation>
 #include <QSettings>
+#include <QShortcut>
 #include <QSizePolicy>
 #include <QStandardPaths>
 #include <QSystemTrayIcon>
 #include <QTextCodec>
 #include <QTimer>
-#include <QWebElement>
-#include <QWebFrame>
-#include <QWebHistory>
-#include <QWebView>
+#include <QtNetwork>
+#include <QtWebKit>
 #include <QWidget>
+#include <QSplitter>
+#include <QUrlQuery>
+#include <QPropertyAnimation>
+#include <QGraphicsOpacityEffect>
+#include <QGraphicsDropShadowEffect>
+#include <QAction>
+#include <QToolTip>
+#include <QSpinBox>
+
 
 #include "equalizer.h"
 #include "lyrics.h"
@@ -57,13 +60,27 @@
 #include "soundcloud.h"
 #include "notificationpopup.h"
 
+#include "cookiejar.h"
+#include "elidedlabel.h"
+#include "store.h"
+#include "radio.h"
+#include "onlinesearchsuggestion.h"
+#include "seekslider.h"
+#include "settings.h"
+#include "paginator.h"
+#include "youtube.h"
+#include "lyrics.h"
+#include "manifest_resolver.h"
+#include "utils.h"
+#include "plugins/mpris/mprisplugin.h"
+#include "waitingspinnerwidget.h"
+
 
 #include "ui_minimode.h"
 #include "ui_settings.h"
 #include "ui_track.h"
 #include "ui_smart_mode.h"
 #include "ui_toast.h"
-
 
 
 
@@ -295,6 +312,14 @@ private slots:
     void check_window_state();
     void notify(QString title, QString message);
     void quitApp();
+    void init_appShortcuts();
+    void volumeUp();
+    void volumeDown();
+    void playNextTrack();
+    void playPreviousTrack();
+    void toggleMute();
+    void seekForward();
+    void seekBackward();
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
@@ -354,8 +379,7 @@ private:
     SoundCloud *soundcloud = nullptr;
     QSystemTrayIcon *trayIcon = nullptr;
     NotificationPopup *notificationPopup = nullptr;
-
-
+    int mutedVolume = 50;
 };
 
 class SelectColorButton : public QPushButton

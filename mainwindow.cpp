@@ -1,31 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QSplitter>
-#include <QUrlQuery>
-#include <QPropertyAnimation>
-#include <QGraphicsOpacityEffect>
-#include <QGraphicsDropShadowEffect>
-#include <QAction>
-#include <QToolTip>
-#include <QSpinBox>
-
-#include "cookiejar.h"
-#include "elidedlabel.h"
-#include "store.h"
-#include "radio.h"
-#include "onlinesearchsuggestion.h"
-#include "seekslider.h"
-#include "settings.h"
-#include "paginator.h"
-#include "youtube.h"
-#include "lyrics.h"
-#include "manifest_resolver.h"
-#include "utils.h"
-#include "plugins/mpris/mprisplugin.h"
-#include "waitingspinnerwidget.h"
-
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -62,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     loadPlayerQueue();
     init_search_autoComplete();
     init_radio();
+    init_appShortcuts();
     init_videoOption();
     browse();
     installEventFilters();
@@ -122,7 +98,8 @@ void MainWindow::init_similar_tracks(){
     }
 }
 
-void MainWindow::init_radio(){
+void MainWindow::init_radio()
+{
     ui->radioVolumeSlider->setMinimum(0);
     ui->radioVolumeSlider->setMaximum(130);
     ui->radioVolumeSlider->setValue(100);
@@ -265,7 +242,8 @@ void MainWindow::init_radio(){
     }
 }
 
-void MainWindow::init_mpris(){
+void MainWindow::init_mpris()
+{
     if(dp==nullptr){
         dp = new MprisPlugin(this);
         connect(dp,SIGNAL(Next()),ui->next,SLOT(click()));
@@ -292,7 +270,85 @@ void MainWindow::init_mpris(){
     }
 }
 
-void MainWindow::installEventFilters(){
+
+void MainWindow::volumeUp()
+{
+    int vol = ui->radioVolumeSlider->value();
+    if(vol == 125) return;
+    ui->radioVolumeSlider->setValue(++vol);
+}
+
+void MainWindow::volumeDown()
+{
+    int vol = ui->radioVolumeSlider->value();
+    if(vol == 0) return;
+    ui->radioVolumeSlider->setValue(--vol);
+}
+
+void MainWindow::playNextTrack()
+{
+    if(!ui->next->isEnabled())
+        return;
+    ui->next->click();
+}
+
+void MainWindow::playPreviousTrack()
+{
+    if(!ui->previous->isEnabled())
+        return;
+    ui->previous->click();
+}
+
+void MainWindow::toggleMute()
+{
+    if(ui->radioVolumeSlider->value()==0){
+        ui->radioVolumeSlider->setValue(mutedVolume);
+    }else{
+        mutedVolume = ui->radioVolumeSlider->value();
+        ui->radioVolumeSlider->setValue(0);
+    }
+}
+
+void MainWindow::seekForward()
+{
+    radio_manager->quick_seek(true);
+}
+
+void MainWindow::seekBackward()
+{
+    radio_manager->quick_seek(false);
+}
+
+void MainWindow::init_appShortcuts()
+{
+    QShortcut *volumeUp =  new QShortcut(Qt::Key_0, this, SLOT(volumeUp()));
+    volumeUp->setContext(Qt::ApplicationShortcut);
+
+    QShortcut *volumeDown =  new QShortcut(Qt::Key_9, this, SLOT(volumeDown()));
+    volumeDown->setContext(Qt::ApplicationShortcut);
+
+    QShortcut *seekForward =  new QShortcut(Qt::Key_Right, this, SLOT(seekForward()));
+    seekForward->setContext(Qt::ApplicationShortcut);
+
+    QShortcut *seekBackward =  new QShortcut(Qt::Key_Left, this, SLOT(seekBackward()));
+    seekBackward->setContext(Qt::ApplicationShortcut);
+
+    QShortcut *mute =  new QShortcut(Qt::Key_M,this,SLOT(toggleMute()));
+    mute->setContext(Qt::ApplicationShortcut);
+
+    QShortcut *next =  new QShortcut(QKeySequence("Ctrl+Right"), this, SLOT(playNextTrack()));
+    next->setContext(Qt::ApplicationShortcut);
+
+    QShortcut *previous =  new QShortcut(QKeySequence("Ctrl+Left"), this, SLOT(playPreviousTrack()));
+    previous->setContext(Qt::ApplicationShortcut);
+
+    QShortcut *quit =  new QShortcut(QKeySequence("Ctrl+Q"), this, SLOT(quitApp()));
+    quit->setContext(Qt::ApplicationShortcut);
+}
+
+
+void MainWindow::installEventFilters()
+{
     ui->top_widget->installEventFilter(this);
     ui->windowControls->installEventFilter(this);
     ui->label_6->installEventFilter(this);
@@ -1518,7 +1574,6 @@ void MainWindow::on_radioSeekSlider_sliderMoved(int position)
 {
     ui->radioSeekSlider->blockSignals(true);
     radio_manager->radioSeek(position);
-//    ui->radioSeekSlider->setSliderPosition(position);
     ui->radioSeekSlider->blockSignals(false);
     QApplication::processEvents();
 }
@@ -3385,7 +3440,8 @@ void MainWindow::setTrackItemNowPlaying(){
        }
 }
 
-void MainWindow::radioPosition(int pos){
+void MainWindow::radioPosition(int pos)
+{
    int seconds = (pos) % 60;
    int minutes = (pos/60) % 60;
    int hours = (pos/3600) % 24;
@@ -3400,7 +3456,8 @@ void MainWindow::radioPosition(int pos){
 }
 
 
-void MainWindow::radioDuration(int dur){
+void MainWindow::radioDuration(int dur)
+{
     int seconds = (dur) % 60;
     int minutes = (dur/60) % 60;
     int hours = (dur/3600) % 24;
@@ -3416,7 +3473,8 @@ void MainWindow::radioDuration(int dur){
     }
 }
 
-void MainWindow::radio_demuxer_cache_duration_changed(double seconds_available,double radio_playerPosition){
+void MainWindow::radio_demuxer_cache_duration_changed(double seconds_available,double radio_playerPosition)
+{
     if(ui->radioSeekSlider->maximum()!=0 && qFuzzyCompare(seconds_available,0) == false
             && qFuzzyCompare(radio_playerPosition,0)==false){
         double totalSeconds = seconds_available+radio_playerPosition;
@@ -3445,8 +3503,7 @@ void MainWindow::addToQueueFromLocal(QVariant songIdVar){
     album = tracskMeta[3];
     artist = tracskMeta[5];
     base64 = tracskMeta[6];
-//    nowPlayingSongIdWatcher->setValue(songId.remove("<br>"));
-    QString setting_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+     QString setting_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     url = "file://"+setting_path+"/downloadedTracks/"+songId;
 
     //if track is not in lists add it to queue
@@ -4133,7 +4190,8 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
     });
 }
 
-void MainWindow::startGetRecommendedTrackForAutoPlayTimer(QString songId){
+void MainWindow::startGetRecommendedTrackForAutoPlayTimer(QString songId)
+{
     QTimer *timer = new QTimer(this);
     timer->setInterval(2000);
     timer->setSingleShot(true);
@@ -4145,7 +4203,8 @@ void MainWindow::startGetRecommendedTrackForAutoPlayTimer(QString songId){
 }
 
 //call this anytime to load similar tracks of any song in smart-playlist
-void MainWindow::getRecommendedTracksForAutoPlayHelper(QString videoId, QString songId){
+void MainWindow::getRecommendedTracksForAutoPlayHelper(QString videoId, QString songId)
+{
     if(videoId.isEmpty()){
         QStringList trackmeta = store_manager->getTrack(songId);
         QString title = trackmeta.at(1);
@@ -4179,7 +4238,8 @@ void MainWindow::getRecommendedTracksForAutoPlayHelper(QString videoId, QString 
 }
 
 
-void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
+void MainWindow::getRecommendedTracksForAutoPlay(QString songId)
+{
     QString videoId = store_manager->getYoutubeIds(songId).split("<br>").first().trimmed();
     if(videoId.trimmed().isEmpty()){
         QWidget *listWidgetItem = ui->smart_list->findChild<QWidget*>("track-widget-"+songId);
@@ -4230,7 +4290,8 @@ void MainWindow::getRecommendedTracksForAutoPlay(QString songId){
     }
 }
 
-bool MainWindow::similarTracksListHasTrackToBeRemoved(){
+bool MainWindow::similarTracksListHasTrackToBeRemoved()
+{
     bool has = false;
      for (int i=0; i<ui->smart_list->count();i++) {
          if(ui->smart_list->itemWidget(ui->smart_list->item(i))->findChild<QLabel*>("playing")->toolTip()!="playing..."){
