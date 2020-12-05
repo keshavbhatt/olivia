@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>614</width>
-    <height>580</height>
+    <width>634</width>
+    <height>585</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,8 +62,8 @@ QScrollBar:vertical {
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>598</width>
+        <y>-35</y>
+        <width>620</width>
         <height>610</height>
        </rect>
       </property>
@@ -332,7 +332,7 @@ QScrollBar:vertical {
             <item>
              <widget class="QGroupBox" name="groupBox">
               <property name="title">
-               <string>Application Theming</string>
+               <string>Application</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_8">
                <property name="leftMargin">
@@ -414,6 +414,69 @@ QScrollBar:vertical {
                    <property name="text">
                     <string>98</string>
                    </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_11">
+                 <item>
+                  <widget class="QLabel" name="label_6">
+                   <property name="text">
+                    <string>Notification type</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="notificationCombo">
+                   <item>
+                    <property name="text">
+                     <string>Native notification</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Customized notification</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="tryNotification">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Try</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_10">
+                 <item>
+                  <widget class="QLabel" name="label_7">
+                   <property name="text">
+                    <string>Close button action:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="closeButtonActionCombo">
+                   <item>
+                    <property name="text">
+                     <string>Minimize to tray</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Quit App</string>
+                    </property>
+                   </item>
                   </widget>
                  </item>
                 </layout>
