@@ -76,6 +76,7 @@ HEADERS  += mainwindow.h \
     download_widget.h \
     elidedlabel.h \
     equalizer.h \
+    notificationpopup.h \
     nowplaying.h \
     other/connect.h \
     request.h \
