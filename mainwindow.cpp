@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    show_SysTrayIcon();
     init_app();
     init_webview();
     init_offline_storage();
@@ -303,8 +304,25 @@ void MainWindow::installEventFilters(){
     smartModeWidget->installEventFilter(this);
 }
 
+void MainWindow::notify(QString title, QString message)
+{
+    //TODO: check settings for notification popup type
+    if(settingsObj.value("notificationCombo",1).toInt() == 0 && trayIcon != nullptr){
+        trayIcon->showMessage(title,message,QSystemTrayIcon::Information,100);
+    }else{
+        //fallback to custom widget based notification widget
+        notificationPopup->present(title,message,QPixmap(":/icons/information-fill.png"));
+    }
+}
+
 void MainWindow::closeEvent(QCloseEvent *event){
 
+    if(QSystemTrayIcon::isSystemTrayAvailable() && settingsObj.value("closeButtonActionCombo",0).toInt() == 0){
+        this->hide();
+        event->ignore();
+        notify(QApplication::applicationName(),"Application is minimized to system tray.");
+        return;
+    }
     settingsObj.setValue("geometry",saveGeometry());
     settingsObj.setValue("windowState", saveState());
     settingsObj.setValue("volume",radio_manager->volume);
@@ -588,6 +606,17 @@ void MainWindow::init_settings()
          openBackupUtil();
     });
 
+    connect(settingsUi.closeButtonActionCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),[=](int index){
+        settingsObj.setValue("closeButtonActionCombo",index);
+    });
+
+    connect(settingsUi.notificationCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),[=](int index){
+        settingsObj.setValue("notificationCombo",index);
+    });
+
+    connect(settingsUi.tryNotification,&QPushButton::clicked,[=](){
+       notify(QApplication::applicationName(),tr("Test Notification"));
+    });
 
     settingsUi.zoom->setText(QString::number(ui->webview->zoomFactor(),'f',2));
     add_colors_to_color_widget();
@@ -636,6 +665,12 @@ void MainWindow::dynamicThemeChanged(bool enabled){
 }
 
 void MainWindow::loadSettings(){
+
+    //load notification type
+    settingsUi.notificationCombo->setCurrentIndex(settingsObj.value("notificationCombo",1).toInt());
+
+    //load close button action settings
+    settingsUi.closeButtonActionCombo->setCurrentIndex(settingsObj.value("closeButtonActionCombo",0).toInt());
 
     int repeat = settingsObj.value("repeat",0).toInt();
     switch (repeat) {
@@ -871,7 +906,8 @@ const QColor& SelectColorButton::getColor(){
 
 
 //set up app #1
-void MainWindow::init_app(){
+void MainWindow::init_app()
+{
     ui->playlistLoaderButtton->hide();
 
     ui->favourite->setChecked(false);
@@ -1011,6 +1047,62 @@ void MainWindow::init_app(){
          ui->webview->page()->mainFrame()->evaluateJavaScript("setNowPlaying('"+songId+"')");
          qDebug()<<"nowPlayingSongIdWatcher nowPlayingId="<<songId<<"isRadioStation="<<nowPlayingSongIdWatcher->isRadioStation;
      });
+}
+
+void MainWindow::show_SysTrayIcon(){
+
+      QAction *minimizeAction = new QAction(QObject::tr("&Hide"), this);
+      this->connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
+
+      QAction *restoreAction = new QAction(QObject::tr("&Restore"), this);
+      this->connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+
+      QAction *quitAction = new QAction(QObject::tr("&Quit"), this);
+      this->connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+      QMenu *trayIconMenu = new QMenu(this);
+      trayIconMenu->addAction(minimizeAction);
+      trayIconMenu->addAction(restoreAction);
+      trayIconMenu->addSeparator();
+      trayIconMenu->addAction(quitAction);
+
+      trayIcon = new QSystemTrayIcon(this);
+      trayIcon->setContextMenu(trayIconMenu);
+      trayIconMenu->setObjectName("trayIconMenu");
+
+      trayIcon->setIcon(QIcon(":/icons/app/icon-32.png"));
+      connect(trayIconMenu,SIGNAL(aboutToShow()),this,SLOT(check_window_state()));
+      if(trayIcon->isSystemTrayAvailable()){
+          trayIcon->show();
+      }else{
+          trayIcon->deleteLater();
+          trayIcon = nullptr;
+          QMessageBox::information(this,"System tray:","System tray not found, Please install a system tray in your system.",QMessageBox::Ok);
+      }
+      // init widget notification
+      notificationPopup = new NotificationPopup(0);
+      notificationPopup->setWindowFlags(Qt::ToolTip | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+      notificationPopup->adjustSize();
+      connect(notificationPopup,&NotificationPopup::notification_clicked,[=](){
+          this->show();
+          this->setWindowState(this->windowState() & ~Qt::WindowMinimized | Qt::WindowActive);
+          this->raise();
+      });
+}
+
+//check window state and set tray menus
+void MainWindow::check_window_state()
+{
+    QObject *tray_icon_menu = this->findChild<QObject*>("trayIconMenu");
+    if(tray_icon_menu != nullptr){
+        if(this->isVisible()){
+            ((QMenu*)(tray_icon_menu))->actions().at(0)->setDisabled(false);
+            ((QMenu*)(tray_icon_menu))->actions().at(1)->setDisabled(true);
+        }else{
+            ((QMenu*)(tray_icon_menu))->actions().at(0)->setDisabled(true);
+            ((QMenu*)(tray_icon_menu))->actions().at(1)->setDisabled(false);
+        }
+    }
 }
 
 //used to set county settings in youtube right now

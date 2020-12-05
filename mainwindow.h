@@ -29,6 +29,7 @@
 #include <QSettings>
 #include <QSizePolicy>
 #include <QStandardPaths>
+#include <QSystemTrayIcon>
 #include <QTextCodec>
 #include <QTimer>
 #include <QWebElement>
@@ -54,6 +55,8 @@
 #include "backup.h"
 #include "request.h"
 #include "soundcloud.h"
+#include "notificationpopup.h"
+
 
 #include "ui_minimode.h"
 #include "ui_settings.h"
@@ -288,6 +291,9 @@ private slots:
     void init_soundCloud();
     void clearEngineCache();
 
+    void show_SysTrayIcon();
+    void check_window_state();
+    void notify(QString title, QString message);
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
@@ -345,6 +351,10 @@ private:
     Backup *backup = nullptr;
     Request *request = nullptr;
     SoundCloud *soundcloud = nullptr;
+    QSystemTrayIcon *trayIcon = nullptr;
+    NotificationPopup *notificationPopup = nullptr;
+
+
 };
 
 class SelectColorButton : public QPushButton
