@@ -147,5 +147,13 @@
         <file>icons/others/order-play-line.png</file>
         <file>icons/others/folder-open-line.png</file>
         <file>icons/others/database-2-line.png</file>
+        <file>icons/app/icon-16.png</file>
+        <file>icons/app/icon-32.png</file>
+        <file>icons/app/icon-64.png</file>
+        <file>icons/app/icon-128.png</file>
+        <file>icons/app/icon-256.png</file>
+        <file>icons/app/icon-512.png</file>
+        <file>icons/information-fill.png</file>
+        <file>icons/information-line.png</file>
     </qresource>
 </RCC>
