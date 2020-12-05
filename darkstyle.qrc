@@ -24,5 +24,7 @@
         <file>darkstyle/icon_radiobutton_unchecked_pressed.png</file>
         <file>darkstyle/icon_radiobutton_checked_disabled.png</file>
         <file>darkstyle/icon_radiobutton_unchecked_disabled.png</file>
+        <file>darkstyle/SliderHandle.png</file>
+        <file>darkstyle/SliderHandleDisabled.png</file>
     </qresource>
 </RCC>
