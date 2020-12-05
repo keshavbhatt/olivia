@@ -368,7 +368,8 @@ void radio::changeVolume(int val)
 
 
 
-void radio::deleteProcess(int code){
+void radio::deleteProcess(int code)
+{
 //   QList<QProcess*> radio_process_list;
 //   radio_process_list = this->findChildren<QProcess*>();
      Q_UNUSED(code);
@@ -397,7 +398,8 @@ void radio::quitRadio()
 }
 
 //kill radio process and all its child called from close event of parent
-void radio::killRadioProcess(){
+void radio::killRadioProcess()
+{
     if(radioProcess->state()==QProcess::Running){
         QProcess::execute("pkill",QStringList()<<"-P"<<QString::number(radioProcess->processId()));
         if(radioProcess)

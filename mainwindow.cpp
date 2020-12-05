@@ -323,6 +323,13 @@ void MainWindow::closeEvent(QCloseEvent *event){
         notify(QApplication::applicationName(),"Application is minimized to system tray.");
         return;
     }
+    quitApp();
+    QMainWindow::closeEvent(event);
+}
+
+//do not use qApp quit, use this instead.
+void MainWindow::quitApp()
+{
     settingsObj.setValue("geometry",saveGeometry());
     settingsObj.setValue("windowState", saveState());
     settingsObj.setValue("volume",radio_manager->volume);
@@ -352,7 +359,6 @@ void MainWindow::closeEvent(QCloseEvent *event){
     fifo.remove();
 
     qApp->quit();
-    QMainWindow::closeEvent(event);
 }
 
 
@@ -637,7 +643,8 @@ void MainWindow::openBackupUtil(){
     backup->showNormal();
 }
 
-void MainWindow::restart_required(){
+void MainWindow::restart_required()
+{
     QMessageBox msgBox;
     msgBox.setText("Application need to restart!");
           msgBox.setIconPixmap(QPixmap(":/icons/sidebar/info.png").scaled(42,42,Qt::KeepAspectRatio,Qt::SmoothTransformation));
@@ -645,7 +652,7 @@ void MainWindow::restart_required(){
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.setDefaultButton(QMessageBox::Ok);
     msgBox.exec();
-    qApp->quit();
+    quitApp();
 }
 
 void MainWindow::dynamicThemeChanged(bool enabled){
@@ -1058,7 +1065,7 @@ void MainWindow::show_SysTrayIcon(){
       this->connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 
       QAction *quitAction = new QAction(QObject::tr("&Quit"), this);
-      this->connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+      this->connect(quitAction, SIGNAL(triggered()), this, SLOT(quitApp()));
 
       QMenu *trayIconMenu = new QMenu(this);
       trayIconMenu->addAction(minimizeAction);
@@ -3795,7 +3802,7 @@ void MainWindow::compare_versions(QString date,QString n_date){
                   check_engine_updates();
               break;
             default:
-              qApp->quit();
+              quitApp();
             break;
           }
     }
@@ -3822,7 +3829,7 @@ void MainWindow::evoke_engine_check(){
                   evoke_engine_check();
               break;
             default:
-                qApp->quit();
+                quitApp();
             break;
           }
     }

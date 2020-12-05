@@ -294,6 +294,7 @@ private slots:
     void show_SysTrayIcon();
     void check_window_state();
     void notify(QString title, QString message);
+    void quitApp();
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
