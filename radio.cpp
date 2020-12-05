@@ -127,13 +127,16 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
         fifoEOF->start("bash",QStringList()<<"-c"<<"echo '{\"command\":[\"get_property\" , \"eof-reached\"]}' | socat - "+ used_fifo_file_path);
         fifoEOF->waitForStarted();
 
-        connect(fifoEOF,&QProcess::readyRead,[=](){
+        connect(fifoEOF,&QProcess::readyRead,[=]()
+        {
             QString out = fifoEOF->readAll();
             QJsonDocument jsonResponse = QJsonDocument::fromJson(out.toUtf8());
             QJsonObject jsonObject = jsonResponse.object();
             QJsonValue eofVal = jsonObject.value("data");
                 if(eofVal.isBool() && eofVal.toBool()==true && !eofVal.isUndefined()){
                     radioState = "eof";
+                    playerDuration = 0;
+                    playerPosition = 0;
                     emit radioStatus(radioState);
                     radioState = "playing";
                     radioPlaybackTimer->stop();
@@ -152,7 +155,6 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
                     items.replace(i,QString(items.at(i)).remove("["));
                 }
             }
-//            qDebug()<<items.count();
             //assign items to vars
             if(items.count()==12){
                 position                = items.at(1);
@@ -167,10 +169,8 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
                 seeking                 = items.at(10);
             }
 
-
-            int playerPosition = static_cast<int>(position.toDouble());
-            int playerDuration = static_cast<int>(duration.toDouble());
-
+            playerPosition = static_cast<int>(position.toDouble());
+            playerDuration = static_cast<int>(duration.toDouble());
                  if(paused=="no"){
                      radioState = "playing";
                  }
@@ -182,8 +182,6 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
                  if(paused!="yes"){
                      if(seeking=="yes"){
                          radioState = "seeking";
-                        // fadequick = true;
-                        // emit fadeInVolume();
                      }
                  }
 
@@ -198,7 +196,15 @@ void radio::startRadioProcess(bool saveTracksAfterBufferMode, QString urlString,
     });
 }
 
-void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
+void radio::quick_seek(bool positive)
+{
+    int pos = positive ? playerPosition + 5 : playerPosition - 5;
+    if(pos != 0 || pos >! playerDuration )
+        radioSeek(pos);
+}
+
+void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url)
+{
     //cross fade test
     if(radioState=="playing" && crossFadeEnabled){
         QTimer *timer = new QTimer(this);
@@ -216,7 +222,8 @@ void radio::playRadio(bool saveTracksAfterBufferMode,QUrl url){
     }
 }
 
-void radio::startPlayingRadio(bool saveTracksAfterBufferMode,QUrl url){
+void radio::startPlayingRadio(bool saveTracksAfterBufferMode,QUrl url)
+{
     state_line.clear();
     streamUrl = url.toString();
     saveTracksAfterBuffer = saveTracksAfterBufferMode;
@@ -232,9 +239,9 @@ void radio::startPlayingRadio(bool saveTracksAfterBufferMode,QUrl url){
     }
 }
 
-void radio::loadMedia(QUrl url){
+void radio::loadMedia(QUrl url)
+{
     state_line.clear();
-   // qDebug()<<"loadmedia called";
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"loadfile\" ,\""+url.toString()+"\""+", \"replace\"]}' | socat - "+ used_fifo_file_path);
@@ -245,7 +252,8 @@ void radio::loadMedia(QUrl url){
     }
 }
 
-void radio::radioReadyRead(){
+void radio::radioReadyRead()
+{
 
     if(fading && volume==tempVol ){
         emit fadeInVolume();
@@ -270,8 +278,6 @@ void radio::radioReadyRead(){
             output.append("]");
         }
         state_line = output.trimmed();
-//        QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
-//        if(console!=nullptr)((QTextBrowser*)(console))->setText(output);
 
     }else{
         QTextBrowser *console =  this->parent()->findChild<QTextBrowser *>("console");
@@ -293,19 +299,16 @@ void radio::radioReadyRead(){
                     this->parent()->findChild<ElidedLabel*>("nowP_title")->setText(icy_title);
                 }
                 if(icy_title.contains(cover)){
-                    qDebug()<<"cover";
                     QString url =  icy_title.split("\"""c\""":\"""").last().split("\""",\"").first().remove("\\");
-                    qDebug()<<url;
-
                     LoadAvatar(QUrl(url));
                 }
             }
         }
-
     }
 }
 
-void radio::radioFinished(int code){
+void radio::radioFinished(int code)
+{
     if(code == 0){
         radioState = "exit";
         emit radioStatus("exit");
@@ -322,7 +325,8 @@ void radio::radioFinished(int code){
     }
 }
 
-void radio::radioSeek(int pos){
+void radio::radioSeek(int pos)
+{
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"set_property\" ,\"time-pos\","+QString::number(pos)+"]}' | socat - "+ used_fifo_file_path);
@@ -351,7 +355,6 @@ void radio::resumeRadio()
 
     radioState = "playing";
     emit radioStatus(radioState);
-
     radioPlaybackTimer->start(1000);
 }
 
@@ -370,8 +373,6 @@ void radio::changeVolume(int val)
 
 void radio::deleteProcess(int code)
 {
-//   QList<QProcess*> radio_process_list;
-//   radio_process_list = this->findChildren<QProcess*>();
      Q_UNUSED(code);
      QProcess *process = qobject_cast<QProcess*>(sender());
      if(process->state()==QProcess::Running){
@@ -407,7 +408,8 @@ void radio::killRadioProcess()
     }
 }
 
-void radio::stop(){
+void radio::stop()
+{
     QProcess *fifo = new QProcess(this);
     connect(fifo, SIGNAL(finished(int)), this, SLOT(deleteProcess(int)) );
     fifo->start("bash",QStringList()<<"-c"<< "echo '{\"command\": [\"stop\"]}' | socat - "+ used_fifo_file_path);

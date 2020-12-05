@@ -23,6 +23,8 @@ class radio : public QObject
 public:
     explicit radio(QObject *parent = 0, int volumeValue = 0, bool saveTracksAfterBuffer= false);
     QString radioState;
+    int playerPosition;
+    int playerDuration;
     int volume,tempVol ;
     bool saveTracksAfterBuffer;
     QTimer *radioPlaybackTimer = nullptr;
@@ -63,7 +65,7 @@ public slots:
     void killRadioProcess();
     void stop();
     void startRadioProcess(bool saveTracksAfterBufferMode, QString urlString, bool calledByCloseEvent);
-
+    void quick_seek(bool positive);
 private slots:
     void radioReadyRead();
     void radioFinished(int code);
