@@ -2563,40 +2563,6 @@ QSlider::sub-page:horizontal:disabled{
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="controlButton" name="connect">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string>Connect</string>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border:none;
-background-color: transparent;
-</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="icons.qrc">
-             <normaloff>:/icons/micro/email-closed.png</normaloff>:/icons/micro/email-closed.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
@@ -2646,14 +2612,14 @@ background-position: bottom right;</string>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>controlButton</class>
-   <extends>QPushButton</extends>
-   <header>controlbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>ElidedLabel</class>
    <extends>QLabel</extends>
    <header>elidedlabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>controlButton</class>
+   <extends>QPushButton</extends>
+   <header>controlbutton.h</header>
   </customwidget>
   <customwidget>
    <class>QWebView</class>

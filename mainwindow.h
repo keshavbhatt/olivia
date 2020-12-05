@@ -51,8 +51,6 @@
 #include "stringchangewatcher.h"
 #include "similartracks.h"
 #include "trackproperties.h"
-#include <analytics.h>
-#include <other/connect.h>
 #include "backup.h"
 #include "request.h"
 #include "soundcloud.h"
@@ -280,7 +278,6 @@ private slots:
     void getRecommendedTracksForAutoPlayHelper(QString videoId, QString songId);
     void removeSongFromProcessQueue(QString songId);
     void updateTrack(QString trackId, QString download_Path);
-    void on_connect_clicked();
 
     void on_clear_clicked();
 
@@ -338,7 +335,6 @@ private:
     QStringList shuffledPlayerQueue;
 
     MprisPlugin *dp = nullptr;
-    analytics *analytic = nullptr;
     QVariantMap mpris_song_meta;
     stringChangeWatcher* nowPlayingSongIdWatcher;
     bool smartMode = false;
@@ -346,7 +342,6 @@ private:
     int oldVolume;
     bool playingSongRadio;
     TrackProperties *trackProperties = nullptr;
-    Connect *connect_ = nullptr;
     Backup *backup = nullptr;
     Request *request = nullptr;
     SoundCloud *soundcloud = nullptr;
