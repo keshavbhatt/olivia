@@ -49,10 +49,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::init_similar_tracks(){
+void MainWindow::init_similar_tracks()
+{
     if(similarTracks==nullptr){
 
-        similarTracks = new SimilarTracks(this,settingsObj.value("similarTracksToLoad",1).toInt());
+        similarTracks = new SimilarTracks(this,settingsObj.value("similarTracksToLoad",10).toInt());
 
         connect(similarTracks,&SimilarTracks::lodingStarted,[=](){
             ui->similarTrackLoader->start();
@@ -73,7 +74,7 @@ void MainWindow::init_similar_tracks(){
             prepareSimilarTracks();
         });
         connect(similarTracks, &SimilarTracks::failedGetSimilarTracks,[=](){
-            showToast("Failed to load smart playlist");
+            notify("","Failed to load smart playlist");
             ui->similarTrackLoader->stop();
         });
         connect(similarTracks, &SimilarTracks::clearList,[=](){
@@ -362,12 +363,17 @@ void MainWindow::installEventFilters()
 
 void MainWindow::notify(QString title, QString message)
 {
+    if(settingsObj.value("disable_notifications",false).toBool() ==true){
+        return;
+    }
+    if(title.isEmpty())
+        title = QApplication::applicationName();
     //TODO: check settings for notification popup type
     if(settingsObj.value("notificationCombo",1).toInt() == 0 && trayIcon != nullptr){
         trayIcon->showMessage(title,message,QSystemTrayIcon::Information,100);
     }else{
         //fallback to custom widget based notification widget
-        notificationPopup->present(title,message,QPixmap(":/icons/information-fill.png"));
+        notificationPopup->present(title,message,QPixmap(":/icons/app/icon-64.png"));
     }
 }
 
@@ -418,7 +424,8 @@ void MainWindow::quitApp()
 }
 
 
-void MainWindow::init_videoOption(){
+void MainWindow::init_videoOption()
+{
     if(videoOption == nullptr){
         videoOption = new VideoOption(nullptr,store_manager,radio_manager);
 
@@ -449,10 +456,24 @@ void MainWindow::init_settings()
     settingsUi.setupUi(settingsWidget);
     settingsWidget->setWindowFlags(Qt::Dialog);
     settingsWidget->setWindowModality(Qt::ApplicationModal);
-    settingsWidget->setMinimumWidth(settingsUi.mainWidget->minimumSizeHint().width());
+    settingsWidget->setMinimumWidth(settingsUi.mainWidget->minimumSizeHint().width()+
+                                    settingsUi.scrollArea->minimumSizeHint().width()+
+                                    settingsUi.scrollAreaWidgetContents->layout()->spacing());
 
-    settingsUi.tracksToLoad->setMinimum(1);
+    settingsUi.tracksToLoad->setMinimum(8);
     settingsUi.tracksToLoad->setMaximum(10);
+
+
+    //event filter to prevent wheel event on certain widgets
+    foreach (QSlider *slider, settingsWidget->findChildren<QSlider*>()) {
+        slider->installEventFilter(this);
+    }
+    foreach (QComboBox *box, settingsWidget->findChildren<QComboBox*>()) {
+        box->installEventFilter(this);
+    }
+    foreach (QSpinBox *spinBox, settingsWidget->findChildren<QSpinBox*>()) {
+        spinBox->installEventFilter(this);
+    }
 
     settingsUi.loading_movie->setVisible(false);
 
@@ -462,18 +483,26 @@ void MainWindow::init_settings()
 
     connect(settingsUi.donate,&QPushButton::clicked,[=](){
        QDesktopServices::openUrl(QUrl("https://paypal.me/keshavnrj/5"));
-       showToast("Opening donation link in browser..");
+       notify("","Opening donation link in Sensible WebBrowser..");
     });
 
-    connect(settingsUi.rate,&QPushButton::clicked,[=](){
+    connect(settingsUi.rate,&QPushButton::clicked,[=]()
+    {
        QDesktopServices::openUrl(QUrl("snap://olivia"));
-       showToast("Opening Softwares App..");
+       notify("","Opening Softwares App..");
     });
 
-    connect(settingsUi.open_tracks_cache_dir,&controlButton::clicked,[=](){
+    connect(settingsUi.more_apps,&QPushButton::clicked,[=](){
+       QDesktopServices::openUrl(QUrl("https://snapcraft.io/search?q=keshavnrj"));
+       notify("","Opening Sensible WebBrowser..");
+    });
+
+    connect(settingsUi.open_tracks_cache_dir,&controlButton::clicked,[=]()
+    {
         QDesktopServices::openUrl(QUrl("file://"+setting_path+"/downloadedTracks"));
     });
-    connect(settingsUi.open_video_cache_dir,&controlButton::clicked,[=](){
+    connect(settingsUi.open_video_cache_dir,&controlButton::clicked,[=]()
+    {
         QDesktopServices::openUrl(QUrl("file://"+setting_path+"/downloadedVideos"));
     });
 
@@ -560,6 +589,12 @@ void MainWindow::init_settings()
             ui->windowControls_main->show();
             show();
         }
+    });
+
+    settingsUi.disable_notifications->setChecked(settingsObj.value("disable_notifications",false).toBool());
+    connect(settingsUi.disable_notifications,&QCheckBox::toggled,[=](bool checked)
+    {
+       settingsObj.setValue("disable_notifications",checked);
     });
 
     //initial settings for app transparency
@@ -686,9 +721,22 @@ void MainWindow::init_settings()
     //show hide vis
     ui->cover->setVisible(!settingsObj.value("visualizer").toBool());
     ui->vis_widget->setVisible(settingsObj.value("visualizer").toBool());
+
+    settingsWidget->setMinimumWidth(680);
 }
 
-void MainWindow::openBackupUtil(){
+bool MainWindow::isChildOf(QObject *Of,QObject *self)
+{
+    bool ischild = false;
+    if(Of->findChild<QWidget*>(self->objectName())){
+        qDebug()<<self->objectName()<<"is child of"<<Of;
+        ischild = true;
+    }
+    return ischild;
+}
+
+void MainWindow::openBackupUtil()
+{
     if(settingsWidget->isVisible()){
         settingsWidget->close();
     }
@@ -711,7 +759,8 @@ void MainWindow::restart_required()
     quitApp();
 }
 
-void MainWindow::dynamicThemeChanged(bool enabled){
+void MainWindow::dynamicThemeChanged(bool enabled)
+{
     if(enabled){
         QString color = store_manager->getDominantColor(store_manager->getAlbumId(nowPlayingSongIdWatcher->getValue()));
         int r,g,b;
@@ -727,7 +776,8 @@ void MainWindow::dynamicThemeChanged(bool enabled){
     settingsUi.themesWidget->setEnabled(!enabled);
 }
 
-void MainWindow::loadSettings(){
+void MainWindow::loadSettings()
+{
 
     //load notification type
     settingsUi.notificationCombo->setCurrentIndex(settingsObj.value("notificationCombo",1).toInt());
@@ -816,7 +866,8 @@ void MainWindow::loadSettings(){
     }
 }
 
-void MainWindow::add_colors_to_color_widget(){
+void MainWindow::add_colors_to_color_widget()
+{
 
         color_list<<"fakeitem"<<"#FF0034"<<"#2A82DA"<<"#029013"
                         <<"#D22298"<<"#FF901F"<<"#2B2929";
@@ -857,8 +908,8 @@ void MainWindow::add_colors_to_color_widget(){
         static_cast<QGridLayout*>(layout)->addWidget(pb, row+1, 0);
 }
 
-void MainWindow::set_app_theme(QColor rgb){
-
+void MainWindow::set_app_theme(QColor rgb)
+{
     settingsObj.setValue("customTheme",rgb);
 
     QString r = QString::number(rgb.red());
@@ -925,22 +976,14 @@ void MainWindow::set_app_theme(QColor rgb){
                                          +"QFrame{"+ui->search->styleSheet()+"}");
         eq->removeStyle();
     }
-
     if(backup != nullptr){
         backup->setStyleSheet("QWidget#Backup{"+ui->search->styleSheet()+"}"
                                          +"QFrame{"+ui->search->styleSheet()+"}");
     }
-
-
-    settingsUi.clear_engine_cache->setStyleSheet(btn_style);
-    settingsUi.download_engine->setStyleSheet(btn_style);
-    settingsUi.backup_restore->setStyleSheet(btn_style);
-    settingsUi.donate->setStyleSheet(btn_style);
-    settingsUi.rate->setStyleSheet(btn_style);
-    settingsWidget->findChild<QPushButton*>("custom_color")->setStyleSheet(btn_style);
 }
 
-void MainWindow::customColor(){
+void MainWindow::customColor()
+{
         SelectColorButton *s=new SelectColorButton();
         connect(s,SIGNAL(setCustomColor(QColor)),this,SLOT(set_app_theme(QColor)));
         s->changeColor();
@@ -1112,8 +1155,8 @@ void MainWindow::init_app()
      });
 }
 
-void MainWindow::show_SysTrayIcon(){
-
+void MainWindow::show_SysTrayIcon()
+{
       QAction *minimizeAction = new QAction(QObject::tr("&Hide"), this);
       this->connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
 
@@ -1145,10 +1188,11 @@ void MainWindow::show_SysTrayIcon(){
       // init widget notification
       notificationPopup = new NotificationPopup(0);
       notificationPopup->setWindowFlags(Qt::ToolTip | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+      notificationPopup->setWindowModality(Qt::ApplicationModal);
       notificationPopup->adjustSize();
       connect(notificationPopup,&NotificationPopup::notification_clicked,[=](){
           this->show();
-          this->setWindowState(this->windowState() & ~Qt::WindowMinimized | Qt::WindowActive);
+          this->setWindowState((this->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
           this->raise();
       });
 }
@@ -1190,7 +1234,7 @@ void MainWindow::init_webview(){
     ui->webview->page()->settings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls,true);
     connect(ui->webview->page(),&QWebPage::linkClicked,[=](QUrl url){
         QString link = url.toString();
-        if(link.contains("paypal")){
+        if(link.contains("://paypal.me/keshavnrj/5")){
             showPayPalDonationMessageBox();
         }else if(link.contains("how-to-create-youtube-api-key-2020")){
             QDesktopServices::openUrl(url);
@@ -1258,11 +1302,11 @@ void MainWindow::showPayPalDonationMessageBox(){
       msgBox.exec();
         if (msgBox.clickedButton() == donateHereBtn) {
             ui->webview->load(QUrl("https://paypal.me/keshavnrj/5"));
-            showToast("Loading doantion page...");
+            notify("","Opening doantion link please wait");
         }else if (msgBox.clickedButton() == copyLinkBtn){
             QClipboard *clipboard = QGuiApplication::clipboard();
               clipboard->setText("https://paypal.me/keshavnrj/5");
-              showToast("Donation link copied");
+              notify("","Donation link copied, opening in browser");
               QDesktopServices::openUrl(QUrl("https://paypal.me/keshavnrj/5"));
         }
 }
@@ -1470,6 +1514,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
 
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event){
+
+    if(isChildOf(settingsWidget,obj))
+    {
+        if(event->type() == QEvent::Wheel){
+            return true;
+        }
+    }
 
     if(obj==ui->similarTrackLoader){
         switch( event->type() ){
@@ -2456,7 +2507,7 @@ void MainWindow::showTrackOption(){
     //radio connections
     QString ytIds = store_manager->getYoutubeIds(songId).split("<br>").first();
     connect(startRadio,&QAction::triggered,[=](){
-        showToast("Loading songs for radio...");
+        notify("","Loading songs for radio...");
         similarTracks->isLoadingPLaylist = false;
         getRecommendedTracksForAutoPlayHelper(ytIds,songId);
     });
@@ -3153,7 +3204,7 @@ void MainWindow::listItemDoubleClicked(QListWidget *list,QListWidgetItem *item){
     }
 
     if(list->itemWidget(item)->rect().contains(list->itemWidget(item)->mapFromGlobal(QCursor::pos()))){
-        showToast("Playing: "+titleStr);
+        notify("","Playing: "+titleStr);
     }
 
     //add to recentlyPlayed tracks
@@ -3275,6 +3326,7 @@ void MainWindow::on_settings_clicked()
         settingsUi.offline_pages_size->setText(util->refreshCacheSize(setting_path+"/paginator"));
         settingsUi.database_size->setText(util->refreshCacheSize(setting_path+"/storeDatabase/"+database));
         util->deleteLater();
+
         settingsWidget->showNormal();
     }
 }
@@ -3586,7 +3638,7 @@ void MainWindow::playRadioFromWeb(QVariant streamDetails){
 
     QString titleStr  = htmlToPlainText(title);
     ui->nowP_title->setText(titleStr);
-    showToast("Playing: "+titleStr);
+    notify("","Playing: "+titleStr);
     if(settingsObj.value("marquee",false).toBool()){
         ui->playing->setText(titleStr);
     }else{
@@ -4159,7 +4211,7 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
         if(!tooltip.isEmpty()){
             ui->next->setToolTip(htmlToPlainText(tooltip));
             if(sender()!=nullptr &&sender()->objectName().contains("optionButton")){
-                showToast("Next: "+tooltip);
+                notify("","Next: "+tooltip);
             }
             ui->next->setEnabled(true);
         }else{
@@ -4169,7 +4221,7 @@ void MainWindow::assignNextTrack(QListWidget *list ,int index){
             if(!titleStr.isEmpty()){
                 ui->next->setToolTip(htmlToPlainText(titleStr));
                 if(sender()!=nullptr && sender()->objectName().contains("optionButton")){
-                    showToast("Next: "+tooltip);
+                    notify("","Next: "+tooltip);
                 }
                 ui->next->setEnabled(true);
             }
@@ -4250,10 +4302,10 @@ void MainWindow::getRecommendedTracksForAutoPlay(QString songId)
     }
     qDebug()<<ui->repeat->checkState();
     if(ui->repeat->checkState() == Qt::PartiallyChecked){
-        showToast(":force: Will repeat current song..");
+        notify("",":force: Will repeat current song..");
     }
     if(ui->repeat->checkState() == Qt::Checked){
-        showToast(":force: Will repeat current queue..");
+        notify("",":force: Will repeat current queue..");
     }
 
     //load tracks in smart playlist if smart mode is enabled
@@ -4751,17 +4803,17 @@ void MainWindow::on_shuffle_toggled(bool checked)
     settingsObj.setValue("shuffle",checked);
     if(checked){
         //disable repeat current song if shuffle is on
-        showToast("Repeat current song is not allowed while shuffle");
+        notify("","Repeat current song is not allowed while shuffle");
         if(ui->repeat->checkState()==Qt::PartiallyChecked){
             ui->repeat->setCheckState(Qt::Unchecked);
-            showToast("Shuffle: On, Repeat: Off");
+            notify("","Shuffle: On, Repeat: Off");
         }else{
-            showToast("Shuffle: On");
+            notify("","Shuffle: On");
         }
         ui->shuffle->setIcon(QIcon(":/icons/shuffle_button.png"));
         ui->shuffle->setToolTip("Shuffle (Enabled)");
     }else{
-        showToast("Shuffle: Off");
+        notify("","Shuffle: Off");
         ui->shuffle->setIcon(QIcon(":/icons/shuffle_button_disabled.png"));
         ui->shuffle->setToolTip("Shuffle (Disabled)");
     }
@@ -5144,7 +5196,7 @@ void MainWindow::on_repeat_stateChanged(int arg1)
         //unchecked
         //repeat off
         ui->repeat->setToolTip("Repeat is off");
-        showToast("Repeat Off");
+        notify("","Repeat Off");
         ui->repeat->setIcon(QIcon(":/icons/p_repeat_off.png"));
         nextPreviousHelper(list);
         break;
@@ -5155,11 +5207,11 @@ void MainWindow::on_repeat_stateChanged(int arg1)
         //disable shuffle if repeat current song is on
         if(ui->shuffle->isChecked()){
             ui->shuffle->setChecked(false);
-            showToast("Repeat current song, Shuffle: Off");
+            notify("","Repeat current song, Shuffle: Off");
         }
 
         ui->repeat->setToolTip("Repeating current song");
-        showToast("Repeat current song");
+        notify("","Repeat current song");
         ui->repeat->setIcon(QIcon(":/icons/p_repeat.png"));
         if(list!=nullptr){
             QWidget *listWidgetItem = list->findChild<QWidget*>("track-widget-"+nowPlayingSongIdWatcher->getValue());
@@ -5175,7 +5227,7 @@ void MainWindow::on_repeat_stateChanged(int arg1)
         //checked
         //repeat queue
         ui->repeat->setToolTip("Repeating current queue");
-        showToast("Repeat current queue");
+        notify("","Repeat current queue");
         ui->repeat->setIcon(QIcon(":/icons/p_repeat_queue.png"));
         //repeat queue
         if(!ui->next->isEnabled() || list->currentRow()==list->count()-1 ){

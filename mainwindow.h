@@ -310,7 +310,7 @@ private slots:
 
     void show_SysTrayIcon();
     void check_window_state();
-    void notify(QString title, QString message);
+    void notify(QString title = "", QString message = "Test message");
     void quitApp();
     void init_appShortcuts();
     void volumeUp();
@@ -320,6 +320,7 @@ private slots:
     void toggleMute();
     void seekForward();
     void seekBackward();
+    bool isChildOf(QObject *Of, QObject *self);
 private:
     QStringList currentSimilarTrackMeta ,currentSimilarTrackList;
     int currentSimilarTrackProcessing = 0;
