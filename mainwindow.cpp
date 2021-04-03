@@ -117,6 +117,15 @@ void MainWindow::init_radio()
         ui->cover->clear();
         ui->cover->setPixmap(pix.scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     });
+    connect(radio_manager,&radio::icy_title_changed,[=](QString title)
+    {
+        ui->nowP_title->setText(title);
+        if(settingsObj.value("marquee",false).toBool()){
+            ui->playing->setText(title);
+        }else{
+            ui->playing->setText("");
+        }
+    });
 
     //set initial tempVolume for radio_manager so the first track will also fadeIn
     radio_manager->tempVol = ui->radioVolumeSlider->value();
@@ -350,6 +359,7 @@ void MainWindow::init_appShortcuts()
 
 void MainWindow::installEventFilters()
 {
+    ui->playing->installEventFilter(this);
     ui->top_widget->installEventFilter(this);
     ui->windowControls->installEventFilter(this);
     ui->label_6->installEventFilter(this);
@@ -455,7 +465,7 @@ void MainWindow::init_settings()
     settingsWidget->setObjectName("settingsWidget");
     settingsUi.setupUi(settingsWidget);
     settingsWidget->setWindowFlags(Qt::Dialog);
-    settingsWidget->setWindowModality(Qt::ApplicationModal);
+    settingsWidget->setWindowModality(Qt::WindowModal);
     settingsWidget->setMinimumWidth(settingsUi.mainWidget->minimumSizeHint().width()+
                                     settingsUi.scrollArea->minimumSizeHint().width()+
                                     settingsUi.scrollAreaWidgetContents->layout()->spacing());
@@ -729,7 +739,7 @@ bool MainWindow::isChildOf(QObject *Of,QObject *self)
 {
     bool ischild = false;
     if(Of->findChild<QWidget*>(self->objectName())){
-        qDebug()<<self->objectName()<<"is child of"<<Of;
+        //qDebug()<<self->objectName()<<"is child of"<<Of;
         ischild = true;
     }
     return ischild;
@@ -1188,7 +1198,7 @@ void MainWindow::show_SysTrayIcon()
       // init widget notification
       notificationPopup = new NotificationPopup(0);
       notificationPopup->setWindowFlags(Qt::ToolTip | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
-      notificationPopup->setWindowModality(Qt::ApplicationModal);
+      notificationPopup->setWindowModality(Qt::NonModal);
       notificationPopup->adjustSize();
       connect(notificationPopup,&NotificationPopup::notification_clicked,[=](){
           this->show();
@@ -1520,6 +1530,16 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
         if(event->type() == QEvent::Wheel){
             return true;
         }
+    }
+
+    if(obj == ui->playing)
+    {
+      if( event->type()==QEvent::Enter){
+          ui->playing->resume();
+      }
+      if( event->type()==QEvent::Leave){
+          ui->playing->pause();
+      }
     }
 
     if(obj==ui->similarTrackLoader){
@@ -3612,7 +3632,8 @@ void MainWindow::saveRadioChannelToFavourite(QVariant channelInfo){
     store_manager->setRadioChannelToFavourite(channelInfo.toStringList());
 }
 
-void MainWindow::playRadioFromWeb(QVariant streamDetails){
+void MainWindow::playRadioFromWeb(QVariant streamDetails)
+{
     //clear playing icon from player queue
     setTrackItemNowPlaying();
     ui->console->clear();
