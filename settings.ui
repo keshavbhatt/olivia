@@ -62,7 +62,7 @@ QScrollBar:vertical {
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-35</y>
+        <y>0</y>
         <width>696</width>
         <height>646</height>
        </rect>
@@ -431,6 +431,9 @@ QScrollBar:vertical {
                    <width>16777215</width>
                    <height>1</height>
                   </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: #808080;</string>
                  </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
