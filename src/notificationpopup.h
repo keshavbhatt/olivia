@@ -46,6 +46,7 @@ public:
         connect(close, &QPushButton::clicked, this, &NotificationPopup::onClosed);
 
         bodyLayout->addWidget(&m_message);
+        m_message.setMinimumWidth(200);
         adjustSize();
     }
 
@@ -54,7 +55,7 @@ public:
 
         m_title.setText("<b>" + title + "</b>");
         m_message.setText(message);
-        m_icon.setPixmap(image.scaledToHeight(m_icon.height(),Qt::SmoothTransformation));
+        m_icon.setPixmap(image);
 
         if(timer == nullptr){
             timer = new QTimer(this);

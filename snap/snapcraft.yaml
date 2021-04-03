@@ -62,8 +62,8 @@ plugs:
 
 parts:
    application:
-     source-type: git
-     source: https://github.com/keshavbhatt/olivia.git
+     source-type: local
+     source: src/
      plugin: qmake
      qt-version: qt5
      override-build: |
