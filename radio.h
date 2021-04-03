@@ -45,6 +45,7 @@ signals:
     void demuxer_cache_duration_changed(double,double);
     void saveTrack(QString format);
     void icy_cover_changed(QPixmap pix);
+    void icy_title_changed(QString title);
     void radioProcessReady();
 
     void getTrackInfo();

@@ -294,9 +294,10 @@ void radio::radioReadyRead()
                 QString title = "\"""t\""":";
                 QString cover = "\"""c\""":\"""";
                 if(icy_title.contains(title)){
-                    this->parent()->findChild<ElidedLabel*>("nowP_title")->setText(icy_title.split("\"""t\""":\"").last().split("\""",\"").first());
+                    QString title = icy_title.split("\"""t\""":\"").last().split("\""",\"").first();
+                    emit icy_title_changed(title);
                 }else{
-                    this->parent()->findChild<ElidedLabel*>("nowP_title")->setText(icy_title);
+                    emit icy_title_changed(icy_title);
                 }
                 if(icy_title.contains(cover)){
                     QString url =  icy_title.split("\"""c\""":\"""").last().split("\""",\"").first().remove("\\");
