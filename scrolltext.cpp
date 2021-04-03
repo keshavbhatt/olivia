@@ -1,6 +1,6 @@
 #include "scrolltext.h"
 #include <QPainter>
-
+#include <QHoverEvent>
 
 ScrollText::ScrollText(QWidget *parent) :
     QWidget(parent), scrollPos(0)
@@ -8,8 +8,12 @@ ScrollText::ScrollText(QWidget *parent) :
 
     staticText.setTextFormat(Qt::PlainText);
 
-    setFixedHeight(fontMetrics().height());
-    leftMargin = height() / 3;
+    setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+
+    setMinimumHeight(fontMetrics().height()+10);
+    setMaximumHeight(this->minimumHeight()+6);
+
+    leftMargin = 0; //height() / 3;
 
     setSeparator("        ");
 
@@ -47,12 +51,29 @@ void ScrollText::setLeftMargin(int pixels)
     update();
 }
 
+void ScrollText::pause()
+{
+    if(scrollEnabled){
+        timer.stop();
+    }
+}
+
+void ScrollText::resume()
+{
+    if(scrollEnabled){
+        timer.start();
+        scrolledOnce = false;
+    }
+}
+
 void ScrollText::updateText()
 {
+    scrolledOnce = false;
     timer.stop();
 
     singleTextWidth = fontMetrics().width(_text);
-    scrollEnabled = (singleTextWidth > width() - leftMargin);
+//    scrollEnabled = true;
+      scrollEnabled  = (singleTextWidth > width() - leftMargin);
 
     if(scrollEnabled)
     {
@@ -60,11 +81,13 @@ void ScrollText::updateText()
         staticText.setText(_text + _separator);
         timer.start();
     }
-    else
+    else{
         staticText.setText(_text);
-
+    }
     staticText.prepare(QTransform(), font());
+    //wholeTextSize = QSize(fontMetrics().width(staticText.text()), fontMetrics().height());
     wholeTextSize = QSize(fontMetrics().width(staticText.text()), fontMetrics().height());
+
 }
 
 void ScrollText::paintEvent(QPaintEvent*)
@@ -94,13 +117,12 @@ void ScrollText::paintEvent(QPaintEvent*)
         if(scrollPos < 0)
             pb.setOpacity((qreal)(qMax(-8, scrollPos) + 8) / 8.0);
         pb.drawImage(0, 0, alphaChannel);
-
-        //pb.end();
         p.drawImage(0, 0, buffer);
     }
     else
     {
-        p.drawStaticText(QPointF(leftMargin, (height() - wholeTextSize.height()) / 2), staticText);
+        p.drawText(QRectF(0, 0, width(), height()), Qt::AlignCenter, text());
+//      p.drawStaticText(QPointF(leftMargin, (height() - wholeTextSize.height()) / 2), staticText);
     }
 }
 
@@ -138,5 +160,16 @@ void ScrollText::timer_timeout()
 {
     scrollPos = (scrollPos + 2)
                 % wholeTextSize.width();
+    pauseAfterOneRotation(scrollPos);
     update();
+}
+
+void ScrollText::pauseAfterOneRotation(int scrollPos)
+{
+    if(scrolledOnce == false && scrollPos+2==wholeTextSize.width()){
+        scrolledOnce = true;
+    }
+    if(scrolledOnce){
+        pause();
+    }
 }

@@ -22,6 +22,8 @@ public slots:
     QString separator() const;
     void setSeparator(QString separator);
     void setLeftMargin(int pixels);
+    void pause();
+    void resume();
 
 
 protected:
@@ -41,9 +43,11 @@ private:
     QImage alphaChannel;
     QImage buffer;
     QTimer timer;
+    bool scrolledOnce = false;
 
 private slots:
     virtual void timer_timeout();
+    void pauseAfterOneRotation(int scrollPos);
 };
 
 #endif // SCROLLTEXT_H
