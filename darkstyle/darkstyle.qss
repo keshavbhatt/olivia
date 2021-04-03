@@ -352,3 +352,16 @@ background-color: qlineargradient(spread:reflect, x1:1, y1:1, x2:1, y2:1, stop:0
  }
 
 
+
+
+QFrame[frameShape="5"] /* QFrame::VLine == 0x0005 */
+{
+    border-top:1px solid rgba(159,160,164,59);
+    height:1px;
+}
+
+QFrame[frameShape="4"] /* QFrame::HLine == 0x0004 */
+{
+    border-left:1px solid rgba(159,160,164,59);
+    width:1px;
+}
