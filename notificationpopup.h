@@ -15,12 +15,13 @@
 #include <QDesktopWidget>
 #include <QDebug>
 
+#include "scrolltext.h"
 
 class NotificationPopup : public QWidget
 {
     Q_OBJECT
 
-    QLabel m_icon, m_title, m_message;
+    QLabel m_icon, m_title; ScrollText m_message;
     QTimer *timer = nullptr;
 
 public:
@@ -63,8 +64,10 @@ public:
            onClosed();
         });
         timer->start();
+
         this->adjustSize();
         qApp->processEvents();
+
         int x = QApplication::desktop()->geometry().width()-(this->sizeHint().width()+10);
         int y = 40;
 
