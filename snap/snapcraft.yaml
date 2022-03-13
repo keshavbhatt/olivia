@@ -1,24 +1,29 @@
 name: olivia
-version: '1.1'
+version: '1.2'
 summary: Elegant Cloud Music Player for Linux Desktop
 description: |
   Olivia is a online/offline cloud based music player like iTunes, Spotify etc,Olivia allows you to search any music online stream it, you can set player to cache your streams while playback. Olivia lets you create and manage your music library.
+  
 grade: stable
 confinement: strict
 icon: snap/gui/icon.png
-base: core18
+base: core20
 compression: lzo
 
 architectures:
   - build-on: amd64
     run-on: amd64
+    
+environment:
+  SNAP_DESKTOP_RUNTIME: $SNAP/qt5-core20
+  
 slots: 
   mpris:
     name: olivia
-
+    
 apps:
   olivia:
-    command: desktop-launch olivia
+    command: bin/desktop-launch $SNAP/usr/bin/
     environment:
        DISABLE_WAYLAND: 1
     desktop: usr/share/applications/olivia.desktop
@@ -43,7 +48,6 @@ apps:
         - mpris
 
 plugs:
-  gsettings:
   gtk-3-themes:
     interface: content
     target: $SNAP/data-dir/themes
@@ -56,27 +60,13 @@ plugs:
     interface: content
     target: $SNAP/data-dir/sounds
     default-provider: gtk-common-themes
-  qt551:
+  qt5-core20:
     interface: content
-    target: $SNAP/qt551
-    default-provider: qt551
+    target: $SNAP/qt5-core20
+    default-provider: qt5-core20
 
 parts:
-   application:
-     source-type: local
-     source: src/
-     plugin: qmake
-     qt-version: qt5
-     override-build: |
-            snapcraftctl build
-            sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_SRC}/olivia.desktop
-            cp -rf ${SNAPCRAFT_PART_SRC}/olivia.desktop ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/olivia.desktop
-     after: [desktop-qt5]
-
-   snap-launcher:
-     plugin: dump
-     source: snap_launcher/
-   desktop-qt5:
+   desktop-qt5-build:
      plugin: nil
      build-packages:
        - build-essential
@@ -84,10 +74,23 @@ parts:
        - dpkg-dev
        - libqt5webkit5-dev
        - libtag1-dev
-   cleanup:
-       after: [application]
-       plugin: nil
-       override-prime: |
-          # Remove unneeded stage files to save space
-          cd usr/share
-          rm -rf apport bash-completion bug doc doc-base icons lintian man pam-configs pkgconfig themes upstart zsh
+       
+   build-src:
+     source-type: local
+     source: src/
+     plugin: qmake
+     qt-version: qt5
+     after: [desktop-qt5-build]
+     override-build: |
+            snapcraftctl build
+            sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_SRC}/olivia.desktop
+            cp -rf ${SNAPCRAFT_PART_SRC}/olivia.desktop ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/olivia.desktop
+
+   desktop-launch:
+     plugin: nil
+     source: https://github.com/keshavbhatt/qt5-core20.git
+     after: [build-src]
+     override-build: |
+            snapcraftctl build
+            mkdir -p ${SNAPCRAFT_PART_INSTALL}/bin/
+            cp -rf ${SNAPCRAFT_PART_SRC}/snap_launcher/bin/desktop-launch ${SNAPCRAFT_PART_INSTALL}/bin/
