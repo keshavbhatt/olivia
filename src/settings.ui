@@ -139,6 +139,9 @@ QScrollBar:vertical {
                    <property name="focusPolicy">
                     <enum>Qt::NoFocus</enum>
                    </property>
+                   <property name="frame">
+                    <bool>false</bool>
+                   </property>
                    <property name="readOnly">
                     <bool>true</bool>
                    </property>
@@ -197,7 +200,7 @@ QScrollBar:vertical {
                   <string>Click if you are getting frequent 403 or 429 erros.</string>
                  </property>
                  <property name="text">
-                  <string>Clear Engine Cache</string>
+                  <string>Clear engine cache</string>
                  </property>
                  <property name="icon">
                   <iconset resource="icons.qrc">

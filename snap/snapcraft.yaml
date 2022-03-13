@@ -23,9 +23,11 @@ slots:
     
 apps:
   olivia:
-    command: bin/desktop-launch $SNAP/usr/bin/
+    command: bin/desktop-launch $SNAP/usr/bin/olivia
     environment:
        DISABLE_WAYLAND: 1
+       QT_QPA_PLATFORMTHEME: gtk3
+       IS_SNAP: 1
     desktop: usr/share/applications/olivia.desktop
     plugs:
         - home
@@ -75,16 +77,16 @@ parts:
        - libqt5webkit5-dev
        - libtag1-dev
        
-   build-src:
-     source-type: local
-     source: src/
+   build-src:     
+     source: https://github.com/keshavbhatt/olivia.git
+     source-subdir: src/
      plugin: qmake
-     qt-version: qt5
      after: [desktop-qt5-build]
      override-build: |
             snapcraftctl build
-            sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_SRC}/olivia.desktop
-            cp -rf ${SNAPCRAFT_PART_SRC}/olivia.desktop ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/olivia.desktop
+            sed -i 's|Icon=.*|Icon=${SNAP}/meta/gui/icon.png|g' ${SNAPCRAFT_PART_SRC}/src/olivia.desktop
+            mkdir -p ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/
+            cp -rf ${SNAPCRAFT_PART_SRC}/src/olivia.desktop ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/olivia.desktop
 
    desktop-launch:
      plugin: nil

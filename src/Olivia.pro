@@ -14,7 +14,7 @@ TEMPLATE = app
 TARGET = olivia
 
 # Set program version
-VERSION = 0.0.1
+VERSION = 1.2
 DEFINES += VERSIONSTR=\\\"$${VERSION}\\\"
 
 
@@ -42,8 +42,9 @@ SOURCES += main.cpp\
     analytics.cpp \
     backup.cpp \
     download_widget.cpp \
+    engine.cpp \
     equalizer.cpp \
-        mainwindow.cpp \
+    mainwindow.cpp \
     DarkStyle.cpp \
     cookiejar.cpp \
     elidedlabel.cpp \
@@ -75,6 +76,7 @@ HEADERS  += mainwindow.h \
     cookiejar.h \
     download_widget.h \
     elidedlabel.h \
+    engine.h \
     equalizer.h \
     notificationpopup.h \
     nowplaying.h \
