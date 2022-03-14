@@ -24,6 +24,7 @@
 #include <QProcess>
 #include <QProgressBar>
 #include <QPropertyAnimation>
+#include <QScreen>
 #include <QSettings>
 #include <QShortcut>
 #include <QSizePolicy>

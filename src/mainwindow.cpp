@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QScreen>
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
@@ -10,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
   init_app();
   init_webview();
   init_offline_storage();
+  init_engine();
   init_settings();
   init_miniMode();
   init_smartMode();
@@ -17,7 +16,6 @@ MainWindow::MainWindow(QWidget *parent)
   init_soundCloud();
   init_backup();
   init_downloadWidget();
-  init_engine();
   database = "hjkfdsll";
   store_manager = new store(this, database);
   store_manager->setObjectName("store_manager");
@@ -436,12 +434,12 @@ void MainWindow::notify(QString title, QString message) {
   }
   if (title.isEmpty())
     title = QApplication::applicationName();
-  // TODO: check settings for notification popup type
+
   if (settingsObj.value("notificationCombo", 1).toInt() == 0 &&
       trayIcon != nullptr) {
-    trayIcon->showMessage(title, message, QSystemTrayIcon::Information, 100);
+    trayIcon->showMessage(title, message, QIcon(":/icons/app/icon-64.png"),
+                          5000);
   } else {
-    // fallback to custom widget based notification widget
     notificationPopup->present(title, message,
                                QPixmap(":/icons/app/icon-64.png"));
   }
@@ -484,8 +482,10 @@ void MainWindow::quitApp() {
   QDir dir(setting_path + "/converted_temp");
   dir.setNameFilters(QStringList() << "*.*");
   dir.setFilter(QDir::Files);
+  QStringList entries = dir.entryList();
 
-  for (const QString &dirFile : dir.entryList()) {
+  for (int i = 0; i < entries.count(); i++) {
+    auto dirFile = entries.at(i);
     dir.remove(dirFile);
   }
   // remove used socket file
@@ -601,6 +601,16 @@ void MainWindow::init_settings() {
     case QMessageBox::No:
       break;
     }
+  });
+
+  connect(settingsUi.download_engine, &controlButton::clicked,
+          [=]() { emit engine->openSettingsAndClickDownload(); });
+  connect(settingsUi.clear_engine_cache, &controlButton::clicked, [=]() {
+    engine->clearEngineCache();
+    QMovie *movie = new QMovie(":/icons/others/load.gif");
+    settingsUi.loading_movie->setMovie(movie);
+    settingsUi.loading_movie->setVisible(true);
+    movie->start();
   });
 
   connect(settingsUi.tracksToLoad,
@@ -1325,14 +1335,14 @@ void MainWindow::show_SysTrayIcon() {
   this->connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
 
   QAction *restoreAction = new QAction(QObject::tr("&Restore"), this);
-  this->connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+  this->connect(restoreAction, SIGNAL(triggered()), this, SLOT(show()));
 
   QAction *quitAction = new QAction(QObject::tr("&Quit"), this);
   this->connect(quitAction, SIGNAL(triggered()), this, SLOT(quitApp()));
 
   QMenu *trayIconMenu = new QMenu(this);
-  trayIconMenu->addAction(minimizeAction);
   trayIconMenu->addAction(restoreAction);
+  trayIconMenu->addAction(minimizeAction);
   trayIconMenu->addSeparator();
   trayIconMenu->addAction(quitAction);
 
@@ -1372,11 +1382,11 @@ void MainWindow::check_window_state() {
   QObject *tray_icon_menu = this->findChild<QObject *>("trayIconMenu");
   if (tray_icon_menu != nullptr) {
     if (this->isVisible()) {
-      ((QMenu *)(tray_icon_menu))->actions().at(0)->setDisabled(false);
-      ((QMenu *)(tray_icon_menu))->actions().at(1)->setDisabled(true);
-    } else {
-      ((QMenu *)(tray_icon_menu))->actions().at(0)->setDisabled(true);
       ((QMenu *)(tray_icon_menu))->actions().at(1)->setDisabled(false);
+      ((QMenu *)(tray_icon_menu))->actions().at(0)->setDisabled(true);
+    } else {
+      ((QMenu *)(tray_icon_menu))->actions().at(1)->setDisabled(true);
+      ((QMenu *)(tray_icon_menu))->actions().at(0)->setDisabled(false);
     }
   }
 }
@@ -1454,8 +1464,7 @@ void MainWindow::init_webview() {
   ui->webview->page()->networkAccessManager()->setCookieJar(new CookieJar(
       cookieJarPath, ui->webview->page()->networkAccessManager()));
 
-  QScreen *screen = QGuiApplication::primaryScreen();
-  horizontalDpi = screen->logicalDotsPerInchX();
+  horizontalDpi = QGuiApplication::primaryScreen()->logicalDotsPerInchX();
 
   if (!settingsObj.value("zoom").isValid()) {
     zoom = 100.0;
@@ -2146,9 +2155,7 @@ void MainWindow::addToSimilarTracksQueue(
 
   // prepare meta str and add it to track meta lineEdit
   QString meta;
-  foreach (QString str, currentSimilarTrackMeta) {
-    meta.append(str + "!=-=!");
-  }
+  foreach (QString str, currentSimilarTrackMeta) { meta.append(str + "!=-=!"); }
   meta.chop(5); // remove last !=-=!
   track_ui.meta->setText(meta);
   track_ui.meta->hide();
@@ -4404,21 +4411,20 @@ void MainWindow::on_tabWidget_currentChanged(int index) {
 void MainWindow::on_close_clicked() { this->close(); }
 
 void MainWindow::on_minimize_clicked() {
-  this->setWindowState(Qt::WindowMinimized);
+  // setWindowState(Qt::WindowMinimized);
+  this->showMinimized();
 }
 
 void MainWindow::on_maximize_clicked() {
-  if (this->windowState() == Qt::WindowMaximized) {
-    this->setWindowState(Qt::WindowNoState);
-  } else
-    this->setWindowState(Qt::WindowMaximized);
+  if (windowState() == Qt::WindowMaximized) {
+    setWindowState(Qt::WindowNoState);
+  } else {
+    setWindowState(Qt::WindowMaximized);
+  }
 }
 
 void MainWindow::on_fullScreen_clicked() {
-  if (this->windowState() == Qt::WindowFullScreen) {
-    this->setWindowState(Qt::WindowNoState);
-  } else
-    this->setWindowState(Qt::WindowFullScreen);
+  setWindowState(windowState() ^ Qt::WindowFullScreen);
 }
 
 void MainWindow::reloadREquested(QString dataType, QString query) {
@@ -5682,11 +5688,12 @@ void MainWindow::showToast(QString message) {
                              "rgba(26,128,166,197);}");
   toast.setupUi(toastWidget);
   toast.messageLabel->setText(message.remove(":force:"));
-  connect(toast.close, &QPushButton::clicked, [=]() { toastWidget->close(); });
+  connect(toast.close, &QPushButton::clicked, toastWidget,
+          [=]() { toastWidget->close(); });
 
   QTimer *toastTimer = new QTimer(toastWidget);
   toastTimer->setInterval(4000);
-  connect(toastTimer, &QTimer::timeout, [=]() {
+  connect(toastTimer, &QTimer::timeout, toastWidget, [=]() {
     if (toastWidget != nullptr && toastWidget->isVisible()) {
       toastWidget->close();
       toastWidget->deleteLater();

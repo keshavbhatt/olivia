@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QRegExp>
 #include <QStandardPaths>
+#include <QRandomGenerator>
 
 Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget) {
   ui->setupUi(this);
@@ -281,9 +282,9 @@ QString Widget::make_database_file(QUrl url) {
   const int randomStringLength = 8;
   QString randomString;
   QDateTime cd = QDateTime::currentDateTime();
-  qsrand(cd.toTime_t());
+
   for (int i = 0; i < randomStringLength; ++i) {
-    int index = qrand() % possibleCharacters.length();
+    int index = QRandomGenerator::system()->generate() % possibleCharacters.length();
     QChar nextChar = possibleCharacters.at(index);
     randomString.append(nextChar);
   }
@@ -456,8 +457,8 @@ void Widget::hide_already_inList() {
   a->setEndValue(0);
   a->setEasingCurve(QEasingCurve::Linear);
   a->start(QPropertyAnimation::DeleteWhenStopped);
-  connect(a, &QPropertyAnimation::finished,
-          [a, this] { ui->already_added->hide(); });
+  connect(a, &QPropertyAnimation::finished,a,
+          [ this] { ui->already_added->hide(); });
 }
 
 // download Process updates

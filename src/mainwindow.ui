@@ -342,7 +342,7 @@ border-radius:0px;</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_13">
           <property name="spacing">
-           <number>0</number>
+           <number>4</number>
           </property>
           <property name="leftMargin">
            <number>1</number>
@@ -399,7 +399,7 @@ background-color: transparent;</string>
            <widget class="QWidget" name="windowControls_main" native="true">
             <layout class="QHBoxLayout" name="horizontalLayout_9">
              <property name="spacing">
-              <number>0</number>
+              <number>4</number>
              </property>
              <property name="leftMargin">
               <number>0</number>
@@ -2594,6 +2594,12 @@ QSlider::sub-page:horizontal:disabled{
        <string notr="true"/>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QStackedWidget" name="stackedWidget">
+         <widget class="QWidget" name="page"/>
+         <widget class="QWidget" name="page_2"/>
+        </widget>
+       </item>
        <item>
         <widget class="QTextBrowser" name="console">
          <property name="styleSheet">
