@@ -378,6 +378,7 @@ private:
   QSystemTrayIcon *trayIcon = nullptr;
   NotificationPopup *notificationPopup = nullptr;
   int mutedVolume = 50;
+  bool minimize_notified = false;
 };
 
 class SelectColorButton : public QPushButton {

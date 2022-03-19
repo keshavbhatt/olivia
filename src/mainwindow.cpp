@@ -451,8 +451,12 @@ void MainWindow::closeEvent(QCloseEvent *event) {
       settingsObj.value("closeButtonActionCombo", 0).toInt() == 0) {
     this->hide();
     event->ignore();
-    notify(QApplication::applicationName(),
-           "Application is minimized to system tray.");
+    if(minimize_notified == false){
+        notify(QApplication::applicationName(),
+               "Application is minimized to system tray.");
+        minimize_notified = true;
+    }
+
     return;
   }
   quitApp();
