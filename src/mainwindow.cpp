@@ -451,10 +451,10 @@ void MainWindow::closeEvent(QCloseEvent *event) {
       settingsObj.value("closeButtonActionCombo", 0).toInt() == 0) {
     this->hide();
     event->ignore();
-    if(minimize_notified == false){
-        notify(QApplication::applicationName(),
-               "Application is minimized to system tray.");
-        minimize_notified = true;
+    if (minimize_notified == false) {
+      notify(QApplication::applicationName(),
+             "Application is minimized to system tray.");
+      minimize_notified = true;
     }
 
     return;
@@ -568,14 +568,10 @@ void MainWindow::init_settings() {
     notify("", "Opening Sensible WebBrowser..");
   });
 
-  connect(settingsUi.open_tracks_cache_dir, &controlButton::clicked, [=]() {
-    QDesktopServices::openUrl(
-        QUrl("file://" + setting_path + "/downloadedTracks"));
-  });
-  connect(settingsUi.open_video_cache_dir, &controlButton::clicked, [=]() {
-    QDesktopServices::openUrl(
-        QUrl("file://" + setting_path + "/downloadedVideos"));
-  });
+  connect(settingsUi.open_tracks_cache_dir, &controlButton::clicked,
+          [=]() { utils::desktopOpenUrl(setting_path + "/downloadedTracks"); });
+  connect(settingsUi.open_video_cache_dir, &controlButton::clicked,
+          [=]() { utils::desktopOpenUrl(setting_path + "/downloadedVideos"); });
 
   // TODO test dbOp algo before making it public
   settingsUi.optimizeDb->hide();
@@ -2159,7 +2155,9 @@ void MainWindow::addToSimilarTracksQueue(
 
   // prepare meta str and add it to track meta lineEdit
   QString meta;
-  foreach (QString str, currentSimilarTrackMeta) { meta.append(str + "!=-=!"); }
+  foreach (QString str, currentSimilarTrackMeta) {
+    meta.append(str + "!=-=!");
+  }
   meta.chop(5); // remove last !=-=!
   track_ui.meta->setText(meta);
   track_ui.meta->hide();

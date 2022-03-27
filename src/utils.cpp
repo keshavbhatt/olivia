@@ -1,6 +1,10 @@
 #include "utils.h"
 
 #include <QDateTime>
+#include <QDesktopServices>
+#include <QProcess>
+#include <QRandomGenerator>
+#include <QUrl>
 
 utils::utils(QObject *parent) : QObject(parent) { setParent(parent); }
 
@@ -70,11 +74,82 @@ QString utils::generateRandomId(int length) {
           .remove(QRegExp("[^a-zA-Z\\d\\s]")));
   const int randomStringLength = length;
   QString randomString;
-  qsrand(cd.toTime_t());
   for (int i = 0; i < randomStringLength; ++i) {
-    int index = qrand() % possibleCharacters.length();
+    int index =
+        QRandomGenerator::global()->generate() % possibleCharacters.length();
     QChar nextChar = possibleCharacters.at(index);
     randomString.append(nextChar);
   }
   return randomString.trimmed().simplified().remove(" ");
+}
+
+void utils::desktopOpenUrl(const QString str) {
+  QProcess *xdg_open = new QProcess(0);
+  xdg_open->start("xdg-open", QStringList() << str);
+  if (xdg_open->waitForStarted(1000) == false) {
+    // try using QdesktopServices
+    bool opened = QDesktopServices::openUrl(QUrl(str));
+    if (opened == false) {
+      qWarning() << "failed to open url" << str;
+    }
+  }
+  connect(xdg_open,
+          static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(
+              &QProcess::finished),
+          [xdg_open](int exitCode, QProcess::ExitStatus exitStatus) {
+            Q_UNUSED(exitCode);
+            Q_UNUSED(exitStatus);
+            xdg_open->close();
+            xdg_open->deleteLater();
+          });
+}
+
+QString utils::EncodeXML(const QString &encodeMe) {
+
+  QString temp;
+  int length = encodeMe.size();
+  for (int index = 0; index < length; index++) {
+    QChar character(encodeMe.at(index));
+
+    switch (character.unicode()) {
+    case '&':
+      temp += "&amp;";
+      break;
+
+    case '\'':
+      temp += "&apos;";
+      break;
+
+    case '"':
+      temp += "&quot;";
+      break;
+
+    case '<':
+      temp += "&lt;";
+      break;
+
+    case '>':
+      temp += "&gt;";
+      break;
+
+    default:
+      temp += character;
+      break;
+    }
+  }
+
+  return temp;
+}
+
+QString utils::DecodeXML(const QString &decodeMe) {
+
+  QString temp(decodeMe);
+
+  temp.replace("&amp;", "&");
+  temp.replace("&apos;", "'");
+  temp.replace("&quot;", "\"");
+  temp.replace("&lt;", "<");
+  temp.replace("&gt;", ">");
+
+  return temp;
 }
