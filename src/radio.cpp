@@ -327,8 +327,7 @@ void radio::radioReadyRead() {
     QTextBrowser *console =
         this->parent()->findChild<QTextBrowser *>("console");
     static_cast<QTextBrowser *>(console)->append(output);
-    if ((output.contains("failed", Qt::CaseInsensitive) ||
-         output.contains("error reading", Qt::CaseInsensitive) ||
+    if ((output.contains("error reading", Qt::CaseInsensitive) ||
          output.contains("unable to resolve host address",
                          Qt::CaseInsensitive) ||
          output.contains("Failed to recognize file format",

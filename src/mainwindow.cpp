@@ -1265,7 +1265,7 @@ void MainWindow::init_app() {
   ui->recommWidget->hide();
   ui->show_hide_smart_list_button->setToolTip("Show");
 
-  setWindowIcon(QIcon(":/icons/olivia.png"));
+  setWindowIcon(QIcon(":/icons/app/icon-64.png"));
   setWindowTitle(QApplication::applicationName());
 
   ElidedLabel *artist = new ElidedLabel("-", nullptr);
