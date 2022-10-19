@@ -1,15 +1,15 @@
+
 ![Olivia Banner Art](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/banner_BPmKykd.png)
 
-# Olivia - Elegant music player for LINUX 
+# Olivia - Elegant Music Player for Linux Desktop
 
-by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktechpit.com) and [others]
-(https://github.com/keshavbhatt/olivia/graphs/contributors)
+by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktechpit.com) and [others](https://github.com/keshavbhatt/olivia/graphs/contributors)
 ﻿
 ﻿**Olivia hits mark of 5000+ active users already** 
 
-[![Snap Status](https://build.snapcraft.io/badge/keshavbhatt/olivia.svg)](https://build.snapcraft.io/user/keshavbhatt/olivia) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Percentage of issues still open") 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/keshavbhatt/olivia.svg)](http://isitmaintained.com/project/keshavbhatt/olivia "Percentage of issues still open") 
 
-﻿**Nightly Build on any [snapd](https://docs.snapcraft.io/installing-snapd) enabled Linux Distribution can be installed using:**
+﻿**Stable and Nightly Build on any [snapd](https://docs.snapcraft.io/installing-snapd) enabled Linux Distribution can be installed using:**
 
 ﻿[![olivia](https://snapcraft.io//olivia/badge.svg)](https://snapcraft.io/olivia) [![olivia](https://snapcraft.io//olivia/trending.svg?name=0)](https://snapcraft.io/olivia)
 
@@ -17,9 +17,9 @@ by [@keshavbhatt](https://github.com/keshavbhatt) of [ktechpit.com](http://ktech
 
     snap install olivia
 
-**Arch Linux ([AUR](https://aur.archlinux.org/packages/olivia/)):**
+**Arch Linux (using AUR):**
 
-![Arch Linux User's Repository ](http://badge.kloud51.com/aur/v/olivia.svg)  ![Maintainer](http://badge.kloud51.com/aur/m/olivia.svg) ![Popularity](http://badge.kloud51.com/aur/p/olivia.svg) ![Popularity](http://badge.kloud51.com/aur/num_votes/olivia.svg)
+[Olivia Arch Linux User's Repository ](https://aur.archlinux.org/packages/olivia)  
 
 **Features**
 -   Olivia helps you discover new music and videos like no other service do.
@@ -92,24 +92,7 @@ Execute :
 
     ./olivia
      
-﻿
-﻿**Or build a snap package**
-Copy snap directory from project root and paste it somewhere else (so the build will not mess with source code)
-Run :
-
-    snapcraft
-Try snap with :
-
-    snap try
-Install snap with
-
-    snap install --dangerous name_of_snap_file
-
-**ScreenShots:** (can be old)
+**Screenshots:** (can be old)
 ![Olivia](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olivia_linux_ubuntu_1.jpeg)
 ![Youtube plugin for Olivia on the play](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olivia_linux_ubuntu_2.jpeg)
 ![Olivia Playing Internet radio](https://dashboard.snapcraft.io/site_media/appmedia/2019/03/olivia_linux_ubuntu_3.jpeg)
-
-## Contributors
-[<img alt="keshavbhatt" src="https://github.com/keshavbhatt.png?size=120" width="120px">](https://github.com/keshavbhatt) [<img alt="Bleuzen" src="https://github.com/Bleuzen.png?size=120" width="120px">](https://github.com/Bleuzen)
-
